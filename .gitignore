@@ -1,0 +1,13 @@
+# Jetbrains shit
+.idea/
+
+# macOS shit
+.DS_Store
+**/.DS_Store
+
+# CMake shit
+cmake-build-debug/
+cmake-build-release/'
+
+# Output directory
+out/
