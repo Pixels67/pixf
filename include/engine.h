@@ -1,5 +1,21 @@
 #pragma once
 
-void Initialize();
-void Update();
-void Exit();
+struct GLFWwindow;
+
+namespace Engine {
+	int Initialize(int windowWidth, int windowHeight, const char *windowTitle);
+
+	bool ShouldClose();
+
+	void Update();
+
+	void Tick();
+
+	void Render();
+
+	void Terminate();
+
+	void ProcessInput();
+
+	void FramebufferSizeCallback(GLFWwindow *window, int width, int height);
+} // namespace Engine

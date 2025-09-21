@@ -1,5 +1,11 @@
 #include "engine.h"
 
 int main() {
-    Initialize();
+	Engine::Initialize(800, 600, "Hello Square");
+
+	while (!Engine::ShouldClose()) {
+		Engine::Update();
+	}
+
+	Engine::Terminate();
 }
