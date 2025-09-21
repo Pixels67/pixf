@@ -23,8 +23,8 @@ set(PROJECT_SOURCES
         include/engine.h
         src/engine.cpp
         src/graphics/graphics.h
-        src/graphics/Shader.cpp
-        src/graphics/Shader.h
+        src/graphics/shader.cpp
+        src/graphics/shader.h
 )
 
 set(EXAMPLE_SOURCES
