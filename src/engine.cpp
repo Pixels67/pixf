@@ -45,9 +45,9 @@ namespace Engine {
 	}
 
 	void Update() {
+		glfwPollEvents();
 		Tick();
 		Render();
-		glfwPollEvents();
 	}
 
 	void Tick() {
@@ -70,18 +70,10 @@ namespace Engine {
 			1, 3, 2,
 		};
 
-		Graphics::VertBuffer vb(vertices, indices, GL_STATIC_DRAW);
-
-		Graphics::VertBufLayout layout(1);
-		layout.PushBack<float>(3);
-
-		Graphics::VertArr arr(vb, layout);
-		arr.Bind();
-
 		const Graphics::Shader shader{};
-		shader.Bind();
 
-		glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, nullptr);
+		Graphics::RenderObject obj(vertices, indices);
+		obj.Render(shader);
 
 		glfwSwapBuffers(Window);
 	}

@@ -1,8 +1,8 @@
-#include "vert_array.h"
+#include "vert_arr.h"
 
 #include <glad/glad.h>
 
-#include "vert_buffer.h"
+#include "vert_buf.h"
 
 namespace Engine::Graphics {
 	VertBufLayout::VertBufLayout(const unsigned int capacity) {
@@ -21,7 +21,7 @@ namespace Engine::Graphics {
 		return m_Elements[i];
 	}
 
-	VertArr::VertArr(const VertBuffer &buffer, const VertBufLayout &layout) {
+	VertArr::VertArr(const VertBuf &buffer, const VertBufLayout &layout) {
 		glGenVertexArrays(1, &m_Id);
 		glBindVertexArray(m_Id);
 
@@ -41,7 +41,25 @@ namespace Engine::Graphics {
 		}
 
 		glBindVertexArray(0);
-		VertBuffer::Unbind();
+		VertBuf::Unbind();
+	}
+
+	VertArr::VertArr(VertArr &&other) noexcept {
+		m_Id = other.m_Id;
+		other.m_Id = 0;
+	}
+
+	VertArr &VertArr::operator=(VertArr &&other) noexcept {
+		if (this == &other) return *this;
+
+		m_Id = other.m_Id;
+		other.m_Id = 0;
+
+		return *this;
+	}
+
+	VertArr::~VertArr() {
+		glDeleteVertexArrays(1, &m_Id);
 	}
 
 	void VertArr::Bind() const {

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "vert_buffer.h"
+#include "vert_buf.h"
 
 namespace Engine::Graphics {
 	struct VertBufElement {
@@ -44,17 +44,23 @@ namespace Engine::Graphics {
 
 	class VertArr {
 	public:
-		explicit VertArr(const VertBuffer &buffer, const VertBufLayout &layout);
+		VertArr() = default;
+
+		explicit VertArr(const VertBuf &buffer, const VertBufLayout &layout);
+
 
 		VertArr(const VertArr &other) = delete;
 
 		VertArr &operator=(const VertArr &other) = delete;
 
-		VertArr(VertArr &&other) = delete;
 
-		VertArr &operator=(VertArr &&other) = delete;
+		VertArr(VertArr &&other) noexcept ;
 
-		~VertArr() = default;
+		VertArr &operator=(VertArr &&other) noexcept ;
+
+
+		~VertArr();
+
 
 		void Bind() const;
 
