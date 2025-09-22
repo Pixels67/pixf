@@ -1,2 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/ar qc /Volumes/Data/Projects/engine/out/lib/Darwin-x86_64-/libengine.a CMakeFiles/engine.dir/src/engine.cpp.o CMakeFiles/engine.dir/src/graphics/shader.cpp.o
-/Library/Developer/CommandLineTools/usr/bin/ranlib /Volumes/Data/Projects/engine/out/lib/Darwin-x86_64-/libengine.a
