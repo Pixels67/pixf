@@ -25,6 +25,10 @@ set(PROJECT_SOURCES
         src/graphics/graphics.h
         src/graphics/shader.cpp
         src/graphics/shader.h
+        src/graphics/vert_array.h
+        src/graphics/vert_array.cpp
+        src/graphics/vert_buffer.h
+        src/graphics/vert_buffer.cpp
 )
 
 set(EXAMPLE_SOURCES

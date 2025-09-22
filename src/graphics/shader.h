@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Engine {
+namespace Engine::Graphics {
 	inline auto defaultVertShaderSrc =
 			"#version 330 core\n"
 			"layout (location = 0) in vec3 aPos;\n"
@@ -33,4 +33,4 @@ namespace Engine {
 
 		static unsigned int CreateFragShader(const char *src);
 	};
-} // namespace Engine
+} // namespace Engine::Graphics

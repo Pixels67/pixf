@@ -58,40 +58,30 @@ namespace Engine {
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		constexpr float vertices[]{
+		const std::vector vertices{
 			-0.5f, -0.5f, 0.0f,
 			-0.5f, 0.5f, 0.0f,
 			0.5f, -0.5f, 0.0f,
-			0.5f, 0.5f, 0.0f
+			0.5f, 0.5f, 0.0f,
 		};
 
-		constexpr unsigned int indices[] = {
+		const std::vector<unsigned int> indices = {
 			0, 1, 2,
 			1, 3, 2,
 		};
 
-		unsigned int vao;
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
+		Graphics::VertBuffer vb(vertices, indices, GL_STATIC_DRAW);
 
-		unsigned int vbo;
-		glGenBuffers(1, &vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		Graphics::VertBufLayout layout(1);
+		layout.PushBack<float>(3);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<void *>(nullptr));
-		glEnableVertexAttribArray(0);
+		Graphics::VertArr arr(vb, layout);
+		arr.Bind();
 
-		unsigned int ebo;
-		glGenBuffers(1, &ebo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-		const Shader shader{};
+		const Graphics::Shader shader{};
 		shader.Bind();
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, nullptr);
 
 		glfwSwapBuffers(Window);
 	}

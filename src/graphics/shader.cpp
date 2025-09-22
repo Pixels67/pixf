@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <iostream>
 
-namespace Engine {
+namespace Engine::Graphics {
 	Shader::Shader(const char *vertShaderSrc, const char *fragShaderSrc) {
 		const unsigned int vertShader = CreateVertShader(vertShaderSrc);
 		const unsigned int fragShader = CreateFragShader(fragShaderSrc);
@@ -68,4 +68,5 @@ namespace Engine {
 
 		return shader;
 	}
-} // namespace Engine
+} // namespace Engine::Graphics
+
