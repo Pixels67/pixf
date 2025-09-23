@@ -9,6 +9,7 @@ option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glfw)
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glad)
+add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/stbi)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/lib/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/bin/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
@@ -31,6 +32,15 @@ set(PROJECT_SOURCES
         src/graphics/vert_buf.cpp
         src/graphics/render_object.h
         src/graphics/render_object.cpp
+        src/core/string_utils.h
+        src/core/string_utils.cpp
+        src/file/file_io.h
+        src/file/file_io.cpp
+        src/file/file.h
+        vendor/stbi/include/stb_image.h
+        vendor/stbi/src/stb_image.cpp
+        src/graphics/texture.h
+        src/graphics/texture.cpp
 )
 
 set(EXAMPLE_SOURCES
@@ -53,6 +63,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         include
         ${VENDOR_PATH}/glfw/include
         ${VENDOR_PATH}/glad/include
+        ${VENDOR_PATH}/stbi/include
 )
 
 

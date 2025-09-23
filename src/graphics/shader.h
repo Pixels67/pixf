@@ -1,36 +1,56 @@
 #pragma once
 
+#include <string>
+
 namespace Engine::Graphics {
-	inline auto defaultVertShaderSrc =
-			"#version 330 core\n"
-			"layout (location = 0) in vec3 aPos;\n"
-			"void main()\n"
-			"{\n"
-			"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-			"}\0";
-
-	inline auto defaultFragShaderSrc =
-			"#version 330 core\n"
-			"out vec4 FragColor;\n"
-			"void main()\n"
-			"{\n"
-			"	FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);\n"
-			"}\0";
-
 	class Shader {
+		struct ShaderSources {
+			std::string vertSrc;
+			std::string fragSrc;
+		};
+
 	public:
-		unsigned int Id;
+		Shader(const Shader &) = delete;
 
-		explicit Shader(const char *vertShaderSrc = defaultVertShaderSrc,
-		                const char *fragShaderSrc = defaultFragShaderSrc);
+		Shader &operator=(const Shader &) = delete;
 
-		~Shader() = default;
+		Shader(Shader &&) = delete;
+
+		Shader &operator=(Shader &&) = delete;
+
+
+		~Shader();
+
+
+		static Shader CreateShader();
+
+		static Shader CreateShader(const std::string &src);
+
+		static Shader LoadFromFile(const std::string &path);
+
 
 		void Bind() const;
 
-	private:
-		static unsigned int CreateVertShader(const char *src);
 
-		static unsigned int CreateFragShader(const char *src);
+		void SetUniform(const std::string &name, std::initializer_list<int> values) const;
+
+		void SetUniform(const std::string &name, std::initializer_list<unsigned int> values) const;
+
+		void SetUniform(const std::string &name, std::initializer_list<float> values) const;
+
+	private:
+		unsigned int m_Id = 0;
+
+
+		explicit Shader(const std::string &vertShaderSrc, const std::string &fragShaderSrc);
+
+
+		static void Unbind();
+
+		static ShaderSources ParseShader(const std::string &source);
+
+		static unsigned int CreateVertShader(const std::string &src);
+
+		static unsigned int CreateFragShader(const std::string &src);
 	};
 } // namespace Engine::Graphics

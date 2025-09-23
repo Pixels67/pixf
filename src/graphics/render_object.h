@@ -2,7 +2,8 @@
 
 #include <vector>
 
-#include "graphics.h"
+#include "shader.h"
+#include "vert_arr.h"
 
 namespace Engine::Graphics {
 	class RenderObject {
@@ -22,7 +23,7 @@ namespace Engine::Graphics {
 		void Render(const Shader &shader) const;
 
 	private:
-		VertArr m_vertArr;
-		VertBuf m_vertBuf;
+		VertArr m_VertArr;
+		VertBuf m_VertBuf;
 	};
 } // namespace Engine::Graphics

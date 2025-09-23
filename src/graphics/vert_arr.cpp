@@ -10,7 +10,7 @@ namespace Engine::Graphics {
 	}
 
 	unsigned int VertBufLayout::GetSize() const {
-		return m_Elements.size();
+		return static_cast<unsigned int>(m_Elements.size());
 	}
 
 	unsigned int VertBufLayout::GetStride() const {

@@ -27,7 +27,7 @@ namespace Engine::Graphics {
 		m_Ebo = ebo;
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		m_IndexCount = indices.size();
+		m_IndexCount = static_cast<unsigned int>(indices.size());
 	}
 
 	VertBuf::VertBuf(VertBuf &&other) noexcept {
