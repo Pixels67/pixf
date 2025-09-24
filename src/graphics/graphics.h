@@ -1,6 +1,7 @@
 #pragma once
 
-#include "render_object.h"
+#include "camera.h"
+#include "mesh.h"
 #include "shader.h"
 #include "texture.h"
 #include "vert_arr.h"

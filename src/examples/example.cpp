@@ -1,7 +1,7 @@
 #include "engine.h"
 
 int main() {
-	Engine::Initialize(800, 600, "Hello Clippy");
+	Engine::Initialize(800, 600, "Hello Cubes");
 
 	while (!Engine::ShouldClose()) {
 		Engine::Update();

@@ -26,13 +26,13 @@ namespace Engine::Graphics {
                          });
 
 
-        Texture(const Texture &other) = delete;
+        Texture(const Texture &other);
 
-        Texture &operator=(const Texture &other) = delete;
+        Texture &operator=(const Texture &other);
 
-        Texture(Texture &&other) = delete;
+        Texture(Texture &&other);
 
-        Texture &operator=(Texture &&other) = delete;
+        Texture &operator=(Texture &&other);
 
 
         ~Texture();
@@ -43,9 +43,10 @@ namespace Engine::Graphics {
         static void Unbind(unsigned int slot);
 
     private:
-        unsigned int m_Id       = 0;
-        unsigned int m_Width    = 0;
-        unsigned int m_Height   = 0;
-        unsigned int m_Channels = 0;
+        std::string m_Path = "";
+        unsigned int m_Id     = 0;
+        unsigned int m_Width  = 0;
+        unsigned int m_Height = 0;
+        TextureConfig m_Config;
     };
 } // namespace Engine::Graphics

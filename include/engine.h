@@ -18,4 +18,6 @@ namespace Engine {
 	void ProcessInput();
 
 	void FramebufferSizeCallback(GLFWwindow *window, int width, int height);
+
+	void MouseCallback(GLFWwindow* window, double xPos, double yPos);
 } // namespace Engine

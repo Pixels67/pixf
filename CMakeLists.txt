@@ -10,6 +10,7 @@ option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glfw)
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glad)
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/stbi)
+add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glm)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/lib/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/bin/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
@@ -30,8 +31,8 @@ set(PROJECT_SOURCES
         src/graphics/vert_arr.cpp
         src/graphics/vert_buf.h
         src/graphics/vert_buf.cpp
-        src/graphics/render_object.h
-        src/graphics/render_object.cpp
+        src/graphics/mesh.h
+        src/graphics/mesh.cpp
         src/core/string_utils.h
         src/core/string_utils.cpp
         src/file/file_io.h
@@ -41,6 +42,14 @@ set(PROJECT_SOURCES
         vendor/stbi/src/stb_image.cpp
         src/graphics/texture.h
         src/graphics/texture.cpp
+        src/core/transform.cpp
+        src/core/transform.h
+        src/graphics/camera.cpp
+        src/graphics/camera.h
+        src/time/time.cpp
+        src/time/time.h
+        src/graphics/material.cpp
+        src/graphics/material.h
 )
 
 set(EXAMPLE_SOURCES
@@ -64,6 +73,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         ${VENDOR_PATH}/glfw/include
         ${VENDOR_PATH}/glad/include
         ${VENDOR_PATH}/stbi/include
+        ${VENDOR_PATH}/glm/glm
 )
 
 

@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include <matrix.hpp>
+
 namespace Engine::Graphics {
 	class Shader {
 		struct ShaderSources {
@@ -10,13 +12,13 @@ namespace Engine::Graphics {
 		};
 
 	public:
-		Shader(const Shader &) = delete;
+		Shader(const Shader &other);
 
-		Shader &operator=(const Shader &) = delete;
+		Shader &operator=(const Shader &other);
 
-		Shader(Shader &&) = delete;
+		Shader(Shader &&other);
 
-		Shader &operator=(Shader &&) = delete;
+		Shader &operator=(Shader &&other);
 
 
 		~Shader();
@@ -31,6 +33,8 @@ namespace Engine::Graphics {
 
 		void Bind() const;
 
+		static void Unbind();
+
 
 		void SetUniform(const std::string &name, std::initializer_list<int> values) const;
 
@@ -38,14 +42,16 @@ namespace Engine::Graphics {
 
 		void SetUniform(const std::string &name, std::initializer_list<float> values) const;
 
+		void SetUniform(const std::string &name, glm::mat4 matrix) const;
+
 	private:
 		unsigned int m_Id = 0;
+		std::string m_VertShaderSrc = "";
+		std::string m_FragShaderSrc = "";
 
 
 		explicit Shader(const std::string &vertShaderSrc, const std::string &fragShaderSrc);
 
-
-		static void Unbind();
 
 		static ShaderSources ParseShader(const std::string &source);
 

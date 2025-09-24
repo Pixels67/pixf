@@ -7,6 +7,7 @@
 
 #include "core/string_utils.h"
 #include "file/file_io.h"
+#include "gtc/type_ptr.hpp"
 
 constexpr int POS_LAYOUT_INDEX = 0;
 constexpr int UV_LAYOUT_INDEX  = 1;
@@ -16,22 +17,31 @@ constexpr auto DEFAULT_SHADER = R"(#version 330 core
 @pos in vec3 aPos;
 @uv in vec2 aUv;
 out vec2 uv;
+out vec4 color;
+uniform vec4 uColor;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 proj;
 void main()
 {
-   gl_Position = vec4(aPos, 1.0);
+   gl_Position = proj * view * model * vec4(aPos, 1.0);
    uv = aUv;
+   color = uColor;
 }
 @FRAGMENT
 uniform sampler2D tex;
 in vec2 uv;
+in vec4 color;
 out vec4 FragColor;
 void main()
 {
-	FragColor = texture(tex, uv);
+	FragColor = texture(tex, uv) * color;
 })";
 
 namespace Engine::Graphics {
-    Shader::Shader(const std::string &vertShaderSrc, const std::string &fragShaderSrc) {
+    Shader::Shader(const std::string &vertShaderSrc, const std::string &fragShaderSrc)
+        : m_VertShaderSrc(vertShaderSrc),
+          m_FragShaderSrc(fragShaderSrc) {
         const unsigned int vertShader = CreateVertShader(vertShaderSrc);
         const unsigned int fragShader = CreateFragShader(fragShaderSrc);
 
@@ -58,6 +68,41 @@ namespace Engine::Graphics {
 
     void Shader::Unbind() {
         glUseProgram(0);
+    }
+
+    Shader::Shader(const Shader &other) {
+        *this = std::move(Shader(other.m_VertShaderSrc, other.m_FragShaderSrc));
+    }
+
+    Shader &Shader::operator=(const Shader &other) {
+        if (this == &other) return *this;
+
+        if (m_Id != 0) {
+            this->~Shader();
+        }
+
+        *this = std::move(Shader(other.m_VertShaderSrc, other.m_FragShaderSrc));
+        return *this;
+    }
+
+    Shader::Shader(Shader &&other) {
+        if (this == &other) return;
+
+        this->m_Id = other.m_Id;
+        other.m_Id = 0;
+    }
+
+    Shader &Shader::operator=(Shader &&other) {
+        if (this == &other) return *this;
+
+        if (m_Id != 0) {
+            this->~Shader();
+        }
+
+        this->m_Id = other.m_Id;
+        other.m_Id = 0;
+
+        return *this;
     }
 
     Shader::~Shader() {
@@ -145,6 +190,15 @@ namespace Engine::Graphics {
         default:
             break;
         }
+
+        Unbind();
+    }
+
+    void Shader::SetUniform(const std::string &name, glm::mat4 matrix) const {
+        Bind();
+
+        const unsigned int matrixLoc = glGetUniformLocation(m_Id, name.c_str());
+        glUniformMatrix4fv(static_cast<GLint>(matrixLoc), 1, GL_FALSE, value_ptr(matrix));
 
         Unbind();
     }
