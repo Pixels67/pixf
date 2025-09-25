@@ -2,6 +2,13 @@
 
 int main() {
 	Engine::Initialize(800, 600, "Hello Cubes");
+	while (!Engine::ShouldClose()) {
+		Engine::Update();
+	}
+
+	Engine::Terminate();
+
+	while (true) {}
 
 	while (!Engine::ShouldClose()) {
 		Engine::Update();

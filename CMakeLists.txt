@@ -50,6 +50,8 @@ set(PROJECT_SOURCES
         src/time/time.h
         src/graphics/material.cpp
         src/graphics/material.h
+        src/ui/render_window.cpp
+        src/ui/render_window.h
 )
 
 set(EXAMPLE_SOURCES

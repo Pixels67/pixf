@@ -24,10 +24,34 @@ namespace Engine::Graphics {
         m_VertArr = VertArr(m_VertBuf, layout);
     }
 
-    void Mesh::Render(const Material &material, const Core::Transform &transform, const Camera &camera) const {
+    Mesh::Mesh(const std::vector<Vertex> &vertices) {
+        std::vector<float> vertexData{};
+        for (auto [position, texCoords] : vertices) {
+            vertexData.push_back(position.x);
+            vertexData.push_back(position.y);
+            vertexData.push_back(position.z);
+            vertexData.push_back(texCoords.s);
+            vertexData.push_back(texCoords.t);
+        }
+
+        std::vector<unsigned int> indices{};
+        for (int i = 0; i < vertices.size(); i++) {
+            indices.push_back(i);
+        }
+
+        m_VertBuf = VertBuf(vertexData, indices, GL_STATIC_DRAW);
+
+        VertBufLayout layout(2);
+        layout.PushBack<float>(3);
+        layout.PushBack<float>(2);
+
+        m_VertArr = VertArr(m_VertBuf, layout);
+    }
+
+    void Mesh::Render(const Material &material, const Camera &camera, const Core::Transform &transform) const {
         m_VertArr.Bind();
 
-        constexpr int width = 800;
+        constexpr int width  = 800;
         constexpr int height = 600;
         const glm::mat4 proj = glm::perspective<float>(
             glm::radians(60.0f),
