@@ -35,7 +35,7 @@ in vec4 color;
 out vec4 FragColor;
 void main()
 {
-	FragColor = texture(tex, uv) * color;
+    FragColor = texture(tex, uv) * color;
 })";
 
 namespace Engine::Graphics {

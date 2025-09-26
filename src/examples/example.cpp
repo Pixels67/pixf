@@ -1,18 +1,11 @@
 #include "engine.h"
 
 int main() {
-	Engine::Initialize(800, 600, "Hello Cubes");
-	while (!Engine::ShouldClose()) {
-		Engine::Update();
-	}
+    Engine::Initialize(800, 600, "Hello Cubes");
 
-	Engine::Terminate();
+    while (!Engine::ShouldClose()) {
+        Engine::Update();
+    }
 
-	while (true) {}
-
-	while (!Engine::ShouldClose()) {
-		Engine::Update();
-	}
-
-	Engine::Terminate();
+    Engine::Terminate();
 }

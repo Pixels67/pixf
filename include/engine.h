@@ -3,21 +3,21 @@
 struct GLFWwindow;
 
 namespace Engine {
-	int Initialize(int windowWidth, int windowHeight, const char *windowTitle);
+    int Initialize(int windowWidth, int windowHeight, const char *windowTitle);
 
-	bool ShouldClose();
+    bool ShouldClose();
 
-	void Update();
+    void Update();
 
-	void Tick();
+    void Tick();
 
-	void Render();
+    void Render();
 
-	void Terminate();
+    void Terminate();
 
-	void ProcessInput();
+    void ProcessInput();
 
-	void FramebufferSizeCallback(GLFWwindow *window, int width, int height);
+    void FramebufferSizeCallback(GLFWwindow *window, int width, int height);
 
-	void MouseCallback(GLFWwindow* window, double xPos, double yPos);
+    void MouseCallback(GLFWwindow* window, double xPos, double yPos);
 } // namespace Engine

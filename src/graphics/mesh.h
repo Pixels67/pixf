@@ -15,50 +15,50 @@ struct Vertex {
 };
 
 namespace Engine::Graphics {
-	// @formatter:off
-	const std::vector CUBE_VERTS{
-		Vertex{{-0.5f, -0.5f, -0.5f},  {0.0f, 0.0f}},
-		Vertex{{ 0.5f, -0.5f, -0.5f},  {1.0f, 0.0f}},
-		Vertex{{ 0.5f,  0.5f, -0.5f},  {1.0f, 1.0f}},
-		Vertex{{ 0.5f,  0.5f, -0.5f},  {1.0f, 1.0f}},
-		Vertex{{-0.5f,  0.5f, -0.5f},  {0.0f, 1.0f}},
-		Vertex{{-0.5f, -0.5f, -0.5f},  {0.0f, 0.0f}},
+    // @formatter:off
+    const std::vector CUBE_VERTS{
+        Vertex{{-0.5f, -0.5f, -0.5f},  {0.0f, 0.0f}},
+        Vertex{{ 0.5f, -0.5f, -0.5f},  {1.0f, 0.0f}},
+        Vertex{{ 0.5f,  0.5f, -0.5f},  {1.0f, 1.0f}},
+        Vertex{{ 0.5f,  0.5f, -0.5f},  {1.0f, 1.0f}},
+        Vertex{{-0.5f,  0.5f, -0.5f},  {0.0f, 1.0f}},
+        Vertex{{-0.5f, -0.5f, -0.5f},  {0.0f, 0.0f}},
 
-		Vertex{{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f}},
-		Vertex{{ 0.5f, -0.5f,  0.5f},  {1.0f, 0.0f}},
-		Vertex{{ 0.5f,  0.5f,  0.5f},  {1.0f, 1.0f}},
-		Vertex{{ 0.5f,  0.5f,  0.5f},  {1.0f, 1.0f}},
-		Vertex{{-0.5f,  0.5f,  0.5f},  {0.0f, 1.0f}},
-		Vertex{{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f}},
+        Vertex{{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f}},
+        Vertex{{ 0.5f, -0.5f,  0.5f},  {1.0f, 0.0f}},
+        Vertex{{ 0.5f,  0.5f,  0.5f},  {1.0f, 1.0f}},
+        Vertex{{ 0.5f,  0.5f,  0.5f},  {1.0f, 1.0f}},
+        Vertex{{-0.5f,  0.5f,  0.5f},  {0.0f, 1.0f}},
+        Vertex{{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f}},
 
-		Vertex{{-0.5f,  0.5f,  0.5f},  {1.0f, 0.0f}},
-		Vertex{{-0.5f,  0.5f, -0.5f},  {1.0f, 1.0f}},
-		Vertex{{-0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}},
-		Vertex{{-0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}},
-		Vertex{{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f}},
-		Vertex{{-0.5f,  0.5f,  0.5f},  {1.0f, 0.0f}},
+        Vertex{{-0.5f,  0.5f,  0.5f},  {1.0f, 0.0f}},
+        Vertex{{-0.5f,  0.5f, -0.5f},  {1.0f, 1.0f}},
+        Vertex{{-0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}},
+        Vertex{{-0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}},
+        Vertex{{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f}},
+        Vertex{{-0.5f,  0.5f,  0.5f},  {1.0f, 0.0f}},
 
-		Vertex{{0.5f,  0.5f,  0.5f},   {1.0f, 0.0f}},
-		Vertex{{0.5f,  0.5f, -0.5f},   {1.0f, 1.0f}},
-		Vertex{{0.5f, -0.5f, -0.5f},   {0.0f, 1.0f}},
-		Vertex{{0.5f, -0.5f, -0.5f},   {0.0f, 1.0f}},
-		Vertex{{0.5f, -0.5f,  0.5f},   {0.0f, 0.0f}},
-		Vertex{{0.5f,  0.5f,  0.5f},   {1.0f, 0.0f}},
+        Vertex{{0.5f,  0.5f,  0.5f},   {1.0f, 0.0f}},
+        Vertex{{0.5f,  0.5f, -0.5f},   {1.0f, 1.0f}},
+        Vertex{{0.5f, -0.5f, -0.5f},   {0.0f, 1.0f}},
+        Vertex{{0.5f, -0.5f, -0.5f},   {0.0f, 1.0f}},
+        Vertex{{0.5f, -0.5f,  0.5f},   {0.0f, 0.0f}},
+        Vertex{{0.5f,  0.5f,  0.5f},   {1.0f, 0.0f}},
 
-		Vertex{{-0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}},
-		Vertex{{ 0.5f, -0.5f, -0.5f},  {1.0f, 1.0f}},
-		Vertex{{ 0.5f, -0.5f,  0.5f},  {1.0f, 0.0f}},
-		Vertex{{ 0.5f, -0.5f,  0.5f},  {1.0f, 0.0f}},
-		Vertex{{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f}},
-		Vertex{{-0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}},
+        Vertex{{-0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}},
+        Vertex{{ 0.5f, -0.5f, -0.5f},  {1.0f, 1.0f}},
+        Vertex{{ 0.5f, -0.5f,  0.5f},  {1.0f, 0.0f}},
+        Vertex{{ 0.5f, -0.5f,  0.5f},  {1.0f, 0.0f}},
+        Vertex{{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f}},
+        Vertex{{-0.5f, -0.5f, -0.5f},  {0.0f, 1.0f}},
 
-		Vertex{{-0.5f,  0.5f, -0.5f},  {0.0f, 1.0f}},
-		Vertex{{ 0.5f,  0.5f, -0.5f},  {1.0f, 1.0f}},
-		Vertex{{ 0.5f,  0.5f,  0.5f},  {1.0f, 0.0f}},
-		Vertex{{ 0.5f,  0.5f,  0.5f},  {1.0f, 0.0f}},
-		Vertex{{-0.5f,  0.5f,  0.5f},  {0.0f, 0.0f}},
-		Vertex{{-0.5f,  0.5f, -0.5f},  {0.0f, 1.0f}},
-	};
+        Vertex{{-0.5f,  0.5f, -0.5f},  {0.0f, 1.0f}},
+        Vertex{{ 0.5f,  0.5f, -0.5f},  {1.0f, 1.0f}},
+        Vertex{{ 0.5f,  0.5f,  0.5f},  {1.0f, 0.0f}},
+        Vertex{{ 0.5f,  0.5f,  0.5f},  {1.0f, 0.0f}},
+        Vertex{{-0.5f,  0.5f,  0.5f},  {0.0f, 0.0f}},
+        Vertex{{-0.5f,  0.5f, -0.5f},  {0.0f, 1.0f}},
+    };
 
     const std::vector QUAD_VERTS{
         Vertex{{-0.5f, 0.0f, -0.5f}, {0.0f, 0.0f}},
@@ -69,7 +69,7 @@ namespace Engine::Graphics {
         Vertex{{-0.5f, 0.0f, -0.5f}, {0.0f, 0.0f}},
     };
 
-	// @formatter:on
+    // @formatter:on
 
     class Mesh {
     public:

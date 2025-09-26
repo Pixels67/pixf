@@ -8,10 +8,16 @@
 #include "graphics/graphics.h"
 #include "time/time.h"
 #include "ui/render_window.h"
+#include "entity_manager.h"
 
 namespace Engine {
     UI::RenderWindow Window;
-
+    EntityManager manager;
+    struct Velocity : Component {
+        ~Velocity() = default;
+        int x = 0, y = 0;
+    };
+    
     int Initialize(const int windowWidth, const int windowHeight, const char *windowTitle) {
         Window = UI::RenderWindow::CreateWindow(windowTitle, windowWidth, windowHeight);
 
@@ -20,6 +26,16 @@ namespace Engine {
 
         glEnable(GL_DEPTH_TEST);
         glViewport(0, 0, windowWidth, windowHeight);
+        manager.CreateEntity();
+        manager.AddComponentToEntity(0, Velocity{});
+        for (auto comp : manager.GetQuery<Velocity>().components) {
+            comp.get()->x += 1;
+        }
+
+        for (auto comp : manager.GetQuery<Velocity>().components){
+            std::cout << comp.get()->x << '\n';
+        }
+
         return 0;
     }
 
@@ -103,6 +119,7 @@ namespace Engine {
 
     void Terminate() {
         Window.Close();
+        glfwTerminate();
     }
 
     void ProcessInput() {

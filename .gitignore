@@ -11,3 +11,5 @@ cmake-build-release/'
 
 # Output directory
 out/
+
+.cache
