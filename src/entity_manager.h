@@ -16,7 +16,7 @@ struct Component {
 
 template <typename T>
 struct Query {
-  std::vector<std::shared_ptr<T> > components;
+  std::vector<Entity> entities;
 };
 
 class EntityManager {
@@ -39,8 +39,9 @@ class EntityManager {
   std::shared_ptr<T> GetEntityComponent(const Entity entity) {
     static_assert(std::is_base_of<Component, T>(),
                   "T must derive from Component");
-    if (entity.id >= components_[std::type_index(typeid(T))].size()) {
-      return components_[std::type_index(typeid(T))][entity.id];
+    if (entity.id < components_[std::type_index(typeid(T))].size()) {
+      return std::dynamic_pointer_cast<T>(
+          components_[std::type_index(typeid(T))][entity.id]);
     }
 
     return nullptr;
@@ -50,9 +51,12 @@ class EntityManager {
   Query<T> GetQuery() {
     static_assert(std::is_base_of<Component, T>(),
                   "T must derive from Component");
-    Query<T> query;
-    for (auto comp : components_[std::type_index(typeid(T))]) {
-      query.components.push_back(std::dynamic_pointer_cast<T>(comp));
+    Query<T> query{};
+    for (const auto& entity : entities_) {
+      auto comp = GetEntityComponent<T>(entity);
+      if (comp != nullptr) {
+        query.entities.push_back(entity);
+      }
     }
 
     return query;

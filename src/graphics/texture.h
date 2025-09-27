@@ -29,9 +29,9 @@ class Texture {
 
   Texture& operator=(const Texture& other);
 
-  Texture(Texture&& other);
+  Texture(Texture&& other) noexcept;
 
-  Texture& operator=(Texture&& other);
+  Texture& operator=(Texture&& other) noexcept;
 
   ~Texture();
 

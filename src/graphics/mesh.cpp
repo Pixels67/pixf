@@ -57,8 +57,8 @@ void Mesh::Render(const Material& material, const Camera& camera,
   constexpr int width = 800;
   constexpr int height = 600;
   const glm::mat4 proj = glm::perspective<float>(
-      glm::radians(60.0f),
-      static_cast<float>(width) / static_cast<float>(height), 0.1f, 100.0f);
+      glm::radians(60.0F),
+      static_cast<float>(width) / static_cast<float>(height), 0.1F, 100.0F);
 
   material.shader.SetUniform("proj", proj);
   material.shader.SetUniform("view", camera.GetViewMatrix());

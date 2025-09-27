@@ -6,9 +6,9 @@
 
 namespace engine::core {
 glm::mat4 Transform::GetMatrix() const {
-  const glm::mat4 t = translate(glm::mat4(1.0f), position);
+  const glm::mat4 t = translate(glm::mat4(1.0F), position);
   const glm::mat4 r = mat4_cast(normalize(rotation));
-  const glm::mat4 s = glm::scale(glm::mat4(1.0f), scale);
+  const glm::mat4 s = glm::scale(glm::mat4(1.0F), scale);
   return t * r * s;
 }
 

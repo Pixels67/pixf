@@ -16,7 +16,7 @@ Texture::Texture(const std::string& path, const TextureConfig config)
   int channels = 0;
 
   unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-  if (!data) {
+  if (data == nullptr) {
     std::cerr << "Failed to load texture: " << path << '\n';
     std::exit(EXIT_FAILURE);
   }
@@ -27,7 +27,7 @@ Texture::Texture(const std::string& path, const TextureConfig config)
   glGenTextures(1, &id_);
   glBindTexture(GL_TEXTURE_2D, id_);
 
-  unsigned int wrap_mode;
+  unsigned int wrap_mode = 0;
   switch (config.wrap_mode) {
     case TextureConfig::WrapMode::MIRRORED_REPEAT:
       wrap_mode = GL_MIRRORED_REPEAT;
@@ -40,7 +40,7 @@ Texture::Texture(const std::string& path, const TextureConfig config)
       break;
   }
 
-  unsigned int interp_mode;
+  unsigned int interp_mode = 0;
   switch (config.interp_mode) {
     case TextureConfig::InterpMode::LINEAR:
       interp_mode = GL_LINEAR;
@@ -55,7 +55,7 @@ Texture::Texture(const std::string& path, const TextureConfig config)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interp_mode);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interp_mode);
 
-  unsigned int format;
+  unsigned int format = 0;
 
   switch (channels) {
     case 4:
@@ -84,7 +84,9 @@ Texture::Texture(const Texture& other)
 }
 
 Texture& Texture::operator=(const Texture& other) {
-  if (this == &other) return *this;
+  if (this == &other) {
+    return *this;
+  }
 
   if (id_ != 0) {
     this->~Texture();
@@ -101,8 +103,10 @@ Texture& Texture::operator=(const Texture& other) {
   return *this;
 }
 
-Texture::Texture(Texture&& other) {
-  if (this == &other) return;
+Texture::Texture(Texture&& other) noexcept {
+  if (this == &other) {
+    return;
+  }
 
   path_ = std::move(other.path_);
   config_ = other.config_;
@@ -112,8 +116,10 @@ Texture::Texture(Texture&& other) {
   other.id_ = 0;
 }
 
-Texture& Texture::operator=(Texture&& other) {
-  if (this == &other) return *this;
+Texture& Texture::operator=(Texture&& other) noexcept {
+  if (this == &other) {
+    return *this;
+  }
 
   if (id_ != 0) {
     this->~Texture();

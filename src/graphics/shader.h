@@ -15,9 +15,9 @@ class Shader {
 
   Shader& operator=(const Shader& other);
 
-  Shader(Shader&& other);
+  Shader(Shader&& other) noexcept;
 
-  Shader& operator=(Shader&& other);
+  Shader& operator=(Shader&& other) noexcept;
 
   ~Shader();
 

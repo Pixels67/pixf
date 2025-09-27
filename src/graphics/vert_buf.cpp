@@ -5,8 +5,9 @@
 namespace engine::graphics {
 VertBuf::VertBuf(const std::vector<float>& vertices,
                  const std::vector<unsigned int>& indices,
-                 const unsigned int usage) {
-  unsigned int vbo;
+                 const unsigned int usage)
+    : index_count_(static_cast<unsigned int>(indices.size())) {
+  unsigned int vbo = 0;
   glGenBuffers(1, &vbo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glBufferData(GL_ARRAY_BUFFER,
@@ -16,7 +17,7 @@ VertBuf::VertBuf(const std::vector<float>& vertices,
   vbo_ = vbo;
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-  unsigned int ebo;
+  unsigned int ebo = 0;
   glGenBuffers(1, &ebo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
@@ -25,21 +26,19 @@ VertBuf::VertBuf(const std::vector<float>& vertices,
 
   ebo_ = ebo;
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-  index_count_ = static_cast<unsigned int>(indices.size());
 }
 
-VertBuf::VertBuf(VertBuf&& other) noexcept {
-  vbo_ = other.vbo_;
-  ebo_ = other.ebo_;
-  index_count_ = other.index_count_;
+VertBuf::VertBuf(VertBuf&& other) noexcept
+    : vbo_(other.vbo_), ebo_(other.ebo_), index_count_(other.index_count_) {
   other.vbo_ = 0;
   other.ebo_ = 0;
   other.index_count_ = 0;
 }
 
 VertBuf& VertBuf::operator=(VertBuf&& other) noexcept {
-  if (this == &other) return *this;
+  if (this == &other) {
+    return *this;
+  }
 
   vbo_ = other.vbo_;
   ebo_ = other.ebo_;

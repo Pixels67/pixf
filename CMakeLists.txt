@@ -54,6 +54,8 @@ set(PROJECT_SOURCES
         src/ui/render_window.h
         src/entity_manager.h
         src/entity_manager.cpp
+        src/systems_manager.h
+        src/systems_manager.cpp
 )
 
 set(EXAMPLE_SOURCES

@@ -27,7 +27,7 @@ VertArr::VertArr(const VertBuf& buffer, const VertBufLayout& layout) {
   unsigned int offset = 0;
   for (int i = 0; i < layout.GetSize(); i++) {
     glVertexAttribPointer(i, static_cast<GLint>(layout[i].size), layout[i].type,
-                          layout[i].normalized,
+                          static_cast<GLboolean>(layout[i].normalized),
                           static_cast<GLsizei>(layout.GetStride()),
                           reinterpret_cast<void*>(offset));
 
@@ -40,13 +40,12 @@ VertArr::VertArr(const VertBuf& buffer, const VertBufLayout& layout) {
   VertBuf::Unbind();
 }
 
-VertArr::VertArr(VertArr&& other) noexcept {
-  id_ = other.id_;
-  other.id_ = 0;
-}
+VertArr::VertArr(VertArr&& other) noexcept : id_(other.id_) { other.id_ = 0; }
 
 VertArr& VertArr::operator=(VertArr&& other) noexcept {
-  if (this == &other) return *this;
+  if (this == &other) {
+    return *this;
+  }
 
   id_ = other.id_;
   other.id_ = 0;

@@ -14,7 +14,7 @@ std::string ReadFile(const std::string& path) {
   file.seekg(0, std::ios::beg);
 
   std::string content(size, '\0');
-  file.read(&content[0], size);
+  file.read(content.data(), size);
 
   return content;
 }

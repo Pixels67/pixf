@@ -29,7 +29,8 @@ RenderWindow RenderWindow::CreateWindow(const std::string& title,
 
   glfwMakeContextCurrent(window);
 
-  if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
+  if (gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)) ==
+      0) {
     std::cerr << "Failed to initialize GLAD!\n";
     std::exit(EXIT_FAILURE);
   }
@@ -44,7 +45,7 @@ RenderWindow RenderWindow::CreateWindow(const std::string& title,
 GLFWwindow* RenderWindow::GetWindow() const { return window_; }
 
 void RenderWindow::Close() const {
-  glfwSetWindowShouldClose(window_, true);
+  glfwSetWindowShouldClose(window_, 1);
   glfwDestroyWindow(window_);
 }
 

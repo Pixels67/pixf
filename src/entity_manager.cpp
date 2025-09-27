@@ -9,5 +9,7 @@ Entity EntityManager::CreateEntity() {
   return entity;
 }
 
-unsigned int EntityManager::GenerateEntityId() const { return entities_.size(); }
+unsigned int EntityManager::GenerateEntityId() const {
+  return entities_.size();
+}
 }  // namespace engine

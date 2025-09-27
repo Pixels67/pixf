@@ -42,11 +42,11 @@ void main()
 namespace engine::graphics {
 Shader::Shader(const std::string& vert_shader_src,
                const std::string& frag_shader_src)
-    : m_vert_shader_src_(vert_shader_src), m_frag_shader_src_(frag_shader_src) {
+    : m_id_(glCreateProgram()),
+      m_vert_shader_src_(vert_shader_src),
+      m_frag_shader_src_(frag_shader_src) {
   const unsigned int vert_shader = CreateVertShader(vert_shader_src);
   const unsigned int frag_shader = CreateFragShader(frag_shader_src);
-
-  m_id_ = glCreateProgram();
 
   glAttachShader(m_id_, vert_shader);
   glAttachShader(m_id_, frag_shader);
@@ -56,13 +56,13 @@ Shader::Shader(const std::string& vert_shader_src,
   glDeleteShader(vert_shader);
   glDeleteShader(frag_shader);
 
-  int success;
+  int success = 0;
   glGetProgramiv(m_id_, GL_LINK_STATUS, &success);
 
-  if (!success) {
+  if (success == 0) {
     char info_log[512];
     glGetProgramInfoLog(m_id_, 512, nullptr, info_log);
-    std::cerr << "Shader linking failed!\n" << info_log << std::endl;
+    std::cerr << "Shader linking failed!\n" << info_log << '\n';
     exit(EXIT_FAILURE);
   }
 }
@@ -74,7 +74,9 @@ Shader::Shader(const Shader& other) {
 }
 
 Shader& Shader::operator=(const Shader& other) {
-  if (this == &other) return *this;
+  if (this == &other) {
+    return *this;
+  }
 
   if (m_id_ != 0) {
     this->~Shader();
@@ -84,15 +86,19 @@ Shader& Shader::operator=(const Shader& other) {
   return *this;
 }
 
-Shader::Shader(Shader&& other) {
-  if (this == &other) return;
+Shader::Shader(Shader&& other) noexcept {
+  if (this == &other) {
+    return;
+  }
 
   this->m_id_ = other.m_id_;
   other.m_id_ = 0;
 }
 
-Shader& Shader::operator=(Shader&& other) {
-  if (this == &other) return *this;
+Shader& Shader::operator=(Shader&& other) noexcept {
+  if (this == &other) {
+    return *this;
+  }
 
   if (m_id_ != 0) {
     this->~Shader();
@@ -119,7 +125,7 @@ void Shader::SetUniform(const std::string& name,
                         const std::initializer_list<int> values) const {
   Bind();
 
-  const auto it = values.begin();
+  const auto* const it = values.begin();
   switch (values.size()) {
     case 1:
       glUniform1i(glGetUniformLocation(m_id_, name.c_str()), *it);
@@ -147,7 +153,7 @@ void Shader::SetUniform(
     const std::initializer_list<unsigned int> values) const {
   Bind();
 
-  const auto it = values.begin();
+  const auto* const it = values.begin();
   switch (values.size()) {
     case 1:
       glUniform1ui(glGetUniformLocation(m_id_, name.c_str()), *it);
@@ -174,7 +180,7 @@ void Shader::SetUniform(const std::string& name,
                         const std::initializer_list<float> values) const {
   Bind();
 
-  const auto it = values.begin();
+  const auto* const it = values.begin();
   switch (values.size()) {
     case 1:
       glUniform1f(glGetUniformLocation(m_id_, name.c_str()), *it);
@@ -240,7 +246,9 @@ Shader::ShaderSources Shader::ParseShader(const std::string& source) {
       continue;
     }
 
-    if (!ignore) sources.vert_src += line + '\n';
+    if (!ignore) {
+      sources.vert_src += line + '\n';
+    }
   }
 
   ignore = false;
@@ -256,7 +264,9 @@ Shader::ShaderSources Shader::ParseShader(const std::string& source) {
       continue;
     }
 
-    if (!ignore) sources.frag_src += line + '\n';
+    if (!ignore) {
+      sources.frag_src += line + '\n';
+    }
   }
 
   return sources;
@@ -268,13 +278,13 @@ unsigned int Shader::CreateVertShader(const std::string& src) {
   glShaderSource(shader, 1, &c_str, nullptr);
   glCompileShader(shader);
 
-  int success;
+  int success = 0;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
-  if (!success) {
+  if (success == 0) {
     char info_log[512];
     glGetShaderInfoLog(shader, 512, nullptr, info_log);
-    std::cerr << "Vertex shader compilation failed!\n" << info_log << std::endl;
+    std::cerr << "Vertex shader compilation failed!\n" << info_log << '\n';
     exit(EXIT_FAILURE);
   }
 
@@ -287,14 +297,13 @@ unsigned int Shader::CreateFragShader(const std::string& src) {
   glShaderSource(shader, 1, &c_str, nullptr);
   glCompileShader(shader);
 
-  int success;
+  int success = 0;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
-  if (!success) {
+  if (success == 0) {
     char info_log[512];
     glGetShaderInfoLog(shader, 512, nullptr, info_log);
-    std::cerr << "Fragment shader compilation failed!\n"
-              << info_log << std::endl;
+    std::cerr << "Fragment shader compilation failed!\n" << info_log << '\n';
     exit(EXIT_FAILURE);
   }
 

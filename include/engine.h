@@ -3,7 +3,7 @@
 struct GLFWwindow;
 
 namespace engine {
-int Initialize(int windowWidth, int windowHeight, const char* windowTitle);
+int Initialize(int window_width, int window_height, const char* window_title);
 
 bool ShouldClose();
 
