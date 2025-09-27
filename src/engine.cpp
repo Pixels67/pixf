@@ -1,8 +1,8 @@
 #include "engine.h"
 
 //@formatter:off
-#include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 // @formatter:on
 
 #include <ext/vector_common.hpp>
