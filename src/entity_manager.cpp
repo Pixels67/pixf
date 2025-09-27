@@ -1,15 +1,13 @@
 #include "entity_manager.h"
 
-namespace Engine {
-    unsigned int EntityManager::CreateEntity() {
-        unsigned int id = GenerateEntityId();
-        Entity entity;
-        entity.id = id;
-        m_Entities.push_back(entity);
-        return id;
-    }
+namespace engine {
+Entity EntityManager::CreateEntity() {
+  const unsigned int id = GenerateEntityId();
+  Entity entity;
+  entity.id = id;
+  entities_.push_back(entity);
+  return entity;
+}
 
-    unsigned int EntityManager::GenerateEntityId() {
-        return m_Entities.size();
-    }
-} // namespace Engine
+unsigned int EntityManager::GenerateEntityId() const { return entities_.size(); }
+}  // namespace engine

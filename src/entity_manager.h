@@ -1,59 +1,68 @@
 #pragma once
 
-#include <unordered_map>
-#include <typeindex>
 #include <memory>
+#include <typeindex>
+#include <unordered_map>
 #include <vector>
 
-namespace Engine {
-    struct Entity {
-        unsigned int id = 0;
-    };
+namespace engine {
+struct Entity {
+  unsigned int id = 0;
+};
 
-    struct Component {
-        virtual ~Component() = default;
-    };
+struct Component {
+  virtual ~Component() = default;
+};
 
-    template<typename T>
-    struct Query {
-        std::vector<std::shared_ptr<T> > components;
-    };
+template <typename T>
+struct Query {
+  std::vector<std::shared_ptr<T> > components;
+};
 
-    class EntityManager {
-    public:
-         unsigned int CreateEntity();
+class EntityManager {
+ public:
+  Entity CreateEntity();
 
-        template<typename T>
-        void AddComponentToEntity(unsigned int entityId, T component) {
-            static_assert(std::is_base_of<Component, T>(), "T must derive from Component");
-            if (entityId >= m_Components[std::type_index(typeid(T))].size()) {
-                m_Components[std::type_index(typeid(T))].resize(entityId + 1);
-            }
-            
-            m_Components[std::type_index(typeid(T))][entityId] = std::make_shared<T>(component);
-        }
+  template <typename T>
+  void AddComponentToEntity(const Entity entity, T component) {
+    static_assert(std::is_base_of<Component, T>(),
+                  "T must derive from Component");
+    if (entity.id >= components_[std::type_index(typeid(T))].size()) {
+      components_[std::type_index(typeid(T))].resize(entity.id + 1);
+    }
 
-        template<typename T>
-        T &GetEntityComponent(unsigned int entityId) {
-            static_assert(std::is_base_of<Component, T>(), "T must derive from Component");
-            return *m_Components[std::type_index(typeid(T))][entityId].get();
-        }
+    components_[std::type_index(typeid(T))][entity.id] =
+        std::make_shared<T>(component);
+  }
 
-        template<typename T>
-        Query<T> GetQuery() {
-            static_assert(std::is_base_of<Component, T>(), "T must derive from Component");
-            Query<T> query;
-            for (auto comp : m_Components[std::type_index(typeid(T))]) {
-                query.components.push_back(std::dynamic_pointer_cast<T>(comp));
-            }
+  template <typename T>
+  std::shared_ptr<T> GetEntityComponent(const Entity entity) {
+    static_assert(std::is_base_of<Component, T>(),
+                  "T must derive from Component");
+    if (entity.id >= components_[std::type_index(typeid(T))].size()) {
+      return components_[std::type_index(typeid(T))][entity.id];
+    }
 
-            return query;
-        }
+    return nullptr;
+  }
 
-    private:
-        unsigned int GenerateEntityId();
-        
-        std::vector<Entity> m_Entities;
-        std::unordered_map<std::type_index, std::vector<std::shared_ptr<Component> > > m_Components;
-    };
-}
+  template <typename T>
+  Query<T> GetQuery() {
+    static_assert(std::is_base_of<Component, T>(),
+                  "T must derive from Component");
+    Query<T> query;
+    for (auto comp : components_[std::type_index(typeid(T))]) {
+      query.components.push_back(std::dynamic_pointer_cast<T>(comp));
+    }
+
+    return query;
+  }
+
+ private:
+  [[nodiscard]] unsigned int GenerateEntityId() const;
+
+  std::vector<Entity> entities_;
+  std::unordered_map<std::type_index, std::vector<std::shared_ptr<Component> > >
+      components_;
+};
+}  // namespace engine

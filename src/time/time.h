@@ -1,8 +1,8 @@
 #pragma once
 
-namespace Engine::Time {
-    void SetTime(double time);
+namespace engine::time {
+void SetTime(double new_time);
 
-    [[nodiscard]] double GetTime();
-    [[nodiscard]] double GetDeltaTime();
-} // namespace Engine::Time
+[[nodiscard]] double GetTime();
+[[nodiscard]] double GetDeltaTime();
+}  // namespace engine::time

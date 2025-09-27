@@ -2,37 +2,34 @@
 
 #include <vector>
 
-namespace Engine::Graphics {
-    class VertBuf {
-    public:
-        VertBuf() = default;
+namespace engine::graphics {
+class VertBuf {
+ public:
+  VertBuf() = default;
 
-        VertBuf(const std::vector<float> &vertices, const std::vector<unsigned int> &indices, unsigned int usage);
+  VertBuf(const std::vector<float>& vertices,
+          const std::vector<unsigned int>& indices, unsigned int usage);
 
+  VertBuf(const VertBuf& other) = delete;
 
-        VertBuf(const VertBuf &other) = delete;
+  VertBuf& operator=(const VertBuf& other) = delete;
 
-        VertBuf &operator=(const VertBuf &other) = delete;
+  VertBuf(VertBuf&& other) noexcept;
 
-        VertBuf(VertBuf &&other) noexcept ;
+  VertBuf& operator=(VertBuf&& other) noexcept;
 
-        VertBuf &operator=(VertBuf &&other) noexcept ;
+  ~VertBuf();
 
+  void Bind() const;
 
-        ~VertBuf();
+  static void Unbind();
 
+  [[nodiscard]] unsigned int GetIndexCount() const;
 
-        void Bind() const;
+ private:
+  unsigned int vbo_ = 0;
+  unsigned int ebo_ = 0;
 
-        static void Unbind();
-
-
-        [[nodiscard]] unsigned int GetIndexCount() const;
-
-    private:
-        unsigned int m_Vbo = 0;
-        unsigned int m_Ebo = 0;
-
-        unsigned int m_IndexCount = 0;
-    };
-} // namespace Engine::Graphics
+  unsigned int index_count_ = 0;
+};
+}  // namespace engine::graphics

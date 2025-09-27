@@ -4,68 +4,69 @@
 
 #include "gtc/type_ptr.inl"
 
-namespace Engine::Graphics {
-    Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices) {
-        std::vector<float> vertexData{};
-        for (auto [position, texCoords] : vertices) {
-            vertexData.push_back(position.x);
-            vertexData.push_back(position.y);
-            vertexData.push_back(position.z);
-            vertexData.push_back(texCoords.s);
-            vertexData.push_back(texCoords.t);
-        }
+namespace engine::graphics {
+Mesh::Mesh(const std::vector<Vertex>& vertices,
+           const std::vector<unsigned int>& indices) {
+  std::vector<float> vertex_data{};
+  for (auto [position, texCoords] : vertices) {
+    vertex_data.push_back(position.x);
+    vertex_data.push_back(position.y);
+    vertex_data.push_back(position.z);
+    vertex_data.push_back(texCoords.s);
+    vertex_data.push_back(texCoords.t);
+  }
 
-        m_VertBuf = VertBuf(vertexData, indices, GL_STATIC_DRAW);
+  vert_buf_ = VertBuf(vertex_data, indices, GL_STATIC_DRAW);
 
-        VertBufLayout layout(2);
-        layout.PushBack<float>(3);
-        layout.PushBack<float>(2);
+  VertBufLayout layout(2);
+  layout.PushBack<float>(3);
+  layout.PushBack<float>(2);
 
-        m_VertArr = VertArr(m_VertBuf, layout);
-    }
+  vert_arr_ = VertArr(vert_buf_, layout);
+}
 
-    Mesh::Mesh(const std::vector<Vertex> &vertices) {
-        std::vector<float> vertexData{};
-        for (auto [position, texCoords] : vertices) {
-            vertexData.push_back(position.x);
-            vertexData.push_back(position.y);
-            vertexData.push_back(position.z);
-            vertexData.push_back(texCoords.s);
-            vertexData.push_back(texCoords.t);
-        }
+Mesh::Mesh(const std::vector<Vertex>& vertices) {
+  std::vector<float> vertex_data{};
+  for (auto [position, texCoords] : vertices) {
+    vertex_data.push_back(position.x);
+    vertex_data.push_back(position.y);
+    vertex_data.push_back(position.z);
+    vertex_data.push_back(texCoords.s);
+    vertex_data.push_back(texCoords.t);
+  }
 
-        std::vector<unsigned int> indices{};
-        for (int i = 0; i < vertices.size(); i++) {
-            indices.push_back(i);
-        }
+  std::vector<unsigned int> indices{};
+  indices.reserve(vertices.size());
+  for (int i = 0; i < vertices.size(); i++) {
+    indices.push_back(i);
+  }
 
-        m_VertBuf = VertBuf(vertexData, indices, GL_STATIC_DRAW);
+  vert_buf_ = VertBuf(vertex_data, indices, GL_STATIC_DRAW);
 
-        VertBufLayout layout(2);
-        layout.PushBack<float>(3);
-        layout.PushBack<float>(2);
+  VertBufLayout layout(2);
+  layout.PushBack<float>(3);
+  layout.PushBack<float>(2);
 
-        m_VertArr = VertArr(m_VertBuf, layout);
-    }
+  vert_arr_ = VertArr(vert_buf_, layout);
+}
 
-    void Mesh::Render(const Material &material, const Camera &camera, const Core::Transform &transform) const {
-        m_VertArr.Bind();
+void Mesh::Render(const Material& material, const Camera& camera,
+                  const core::Transform& transform) const {
+  vert_arr_.Bind();
 
-        constexpr int width  = 800;
-        constexpr int height = 600;
-        const glm::mat4 proj = glm::perspective<float>(
-            glm::radians(60.0f),
-            static_cast<float>(width) / static_cast<float>(height),
-            0.1f,
-            100.0f
-        );
+  constexpr int width = 800;
+  constexpr int height = 600;
+  const glm::mat4 proj = glm::perspective<float>(
+      glm::radians(60.0f),
+      static_cast<float>(width) / static_cast<float>(height), 0.1f, 100.0f);
 
-        material.shader.SetUniform("proj", proj);
-        material.shader.SetUniform("view", camera.GetViewMatrix());
-        material.shader.SetUniform("model", transform.GetMatrix());
-        material.Bind();
+  material.shader.SetUniform("proj", proj);
+  material.shader.SetUniform("view", camera.GetViewMatrix());
+  material.shader.SetUniform("model", transform.GetMatrix());
+  material.Bind();
 
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_VertBuf.GetIndexCount()), GL_UNSIGNED_INT, nullptr);
-        Material::Unbind();
-    }
-} // namespace Engine::Graphics
+  glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(vert_buf_.GetIndexCount()),
+                 GL_UNSIGNED_INT, nullptr);
+  Material::Unbind();
+}
+}  // namespace engine::graphics

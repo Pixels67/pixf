@@ -4,99 +4,59 @@
 
 #include "vert_buf.h"
 
-namespace Engine::Graphics {
-    VertBufLayout::VertBufLayout(const unsigned int capacity) {
-        m_Elements.reserve(capacity);
-    }
+namespace engine::graphics {
+VertBufLayout::VertBufLayout(const unsigned int capacity) {
+  elements_.reserve(capacity);
+}
 
-    unsigned int VertBufLayout::GetSize() const {
-        return static_cast<unsigned int>(m_Elements.size());
-    }
+unsigned int VertBufLayout::GetSize() const {
+  return static_cast<unsigned int>(elements_.size());
+}
 
-    unsigned int VertBufLayout::GetStride() const {
-        return m_Stride;
-    }
+unsigned int VertBufLayout::GetStride() const { return stride_; }
 
-    const VertBufElement &VertBufLayout::operator[](const unsigned int i) const {
-        return m_Elements[i];
-    }
+const VertBufElement& VertBufLayout::operator[](const unsigned int i) const {
+  return elements_[i];
+}
 
-    VertArr::VertArr(const VertBuf &buffer, const VertBufLayout &layout) {
-        glGenVertexArrays(1, &m_Id);
-        glBindVertexArray(m_Id);
+VertArr::VertArr(const VertBuf& buffer, const VertBufLayout& layout) {
+  glGenVertexArrays(1, &id_);
+  glBindVertexArray(id_);
 
-        buffer.Bind();
-        unsigned int offset = 0;
-        for (int i = 0; i < layout.GetSize(); i++) {
-            glVertexAttribPointer(i,
-                                  static_cast<GLint>(layout[i].size),
-                                  layout[i].type,
-                                  layout[i].normalized,
-                                  static_cast<GLsizei>(layout.GetStride()),
-                                  reinterpret_cast<void *>(offset));
+  buffer.Bind();
+  unsigned int offset = 0;
+  for (int i = 0; i < layout.GetSize(); i++) {
+    glVertexAttribPointer(i, static_cast<GLint>(layout[i].size), layout[i].type,
+                          layout[i].normalized,
+                          static_cast<GLsizei>(layout.GetStride()),
+                          reinterpret_cast<void*>(offset));
 
-            glEnableVertexAttribArray(i);
+    glEnableVertexAttribArray(i);
 
-            offset += layout[i].count * layout[i].size;
-        }
+    offset += layout[i].count * layout[i].size;
+  }
 
-        glBindVertexArray(0);
-        VertBuf::Unbind();
-    }
+  glBindVertexArray(0);
+  VertBuf::Unbind();
+}
 
-    VertArr::VertArr(VertArr &&other) noexcept {
-        m_Id = other.m_Id;
-        other.m_Id = 0;
-    }
+VertArr::VertArr(VertArr&& other) noexcept {
+  id_ = other.id_;
+  other.id_ = 0;
+}
 
-    VertArr &VertArr::operator=(VertArr &&other) noexcept {
-        if (this == &other) return *this;
+VertArr& VertArr::operator=(VertArr&& other) noexcept {
+  if (this == &other) return *this;
 
-        m_Id = other.m_Id;
-        other.m_Id = 0;
+  id_ = other.id_;
+  other.id_ = 0;
 
-        return *this;
-    }
+  return *this;
+}
 
-    VertArr::~VertArr() {
-        glDeleteVertexArrays(1, &m_Id);
-    }
+VertArr::~VertArr() { glDeleteVertexArrays(1, &id_); }
 
-    void VertArr::Bind() const {
-        glBindVertexArray(m_Id);
-    }
+void VertArr::Bind() const { glBindVertexArray(id_); }
 
-    void VertArr::Unbind() {
-        glBindVertexArray(0);
-    }
-
-    template<>
-    void VertBufLayout::PushBack<float>(const unsigned int count) {
-        m_Elements.push_back({GL_FLOAT, count, sizeof(float), false});
-        m_Stride += count * sizeof(float);
-    }
-
-    template<>
-    void VertBufLayout::PushBack<int>(const unsigned int count) {
-        m_Elements.push_back({GL_INT, count, sizeof(int), false});
-        m_Stride += count * sizeof(int);
-    }
-
-    template<>
-    void VertBufLayout::PushBack<unsigned int>(const unsigned int count) {
-        m_Elements.push_back({GL_UNSIGNED_INT, sizeof(int), count, false});
-        m_Stride += count * sizeof(int);
-    }
-
-    template<>
-    void VertBufLayout::PushBack<char>(const unsigned int count) {
-        m_Elements.push_back({GL_BYTE, count, sizeof(char), true});
-        m_Stride += count * sizeof(char);
-    }
-
-    template<>
-    void VertBufLayout::PushBack<unsigned char>(const unsigned int count) {
-        m_Elements.push_back({GL_UNSIGNED_BYTE, sizeof(char), count, true});
-        m_Stride += count * sizeof(char);
-    }
-} // namespace Engine::Graphics
+void VertArr::Unbind() { glBindVertexArray(0); }
+}  // namespace engine::graphics

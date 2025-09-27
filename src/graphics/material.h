@@ -5,15 +5,15 @@
 #include "shader.h"
 #include "texture.h"
 
-namespace Engine::Graphics {
-    struct Material {
-        glm::vec4 color;
-        Texture texture;
-        Shader shader;
+namespace engine::graphics {
+struct Material {
+  glm::vec4 color;
+  Texture texture;
+  Shader shader;
 
-        void SetColor(const glm::vec4 &color);
+  void SetColor(const glm::vec4& color);
 
-        void Bind() const;
-        static void Unbind();
-    };
-} // Engine::Graphics
+  void Bind() const;
+  static void Unbind();
+};
+}  // namespace engine::graphics

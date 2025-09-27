@@ -2,71 +2,98 @@
 
 #include <vector>
 
+#include "glad/glad.h"
 #include "vert_buf.h"
 
-namespace Engine::Graphics {
-    struct VertBufElement {
-        unsigned int type;
-        unsigned int count;
-        unsigned int size;
-        bool normalized;
-    };
+namespace engine::graphics {
+struct VertBufElement {
+  unsigned int type;
+  unsigned int count;
+  unsigned int size;
+  bool normalized;
+};
 
-    class VertBufLayout {
-    public:
-        VertBufLayout() = default;
+class VertBufLayout {
+ public:
+  VertBufLayout() = default;
 
-        explicit VertBufLayout(unsigned int capacity);
+  explicit VertBufLayout(unsigned int capacity);
 
-        VertBufLayout(const VertBufLayout &other) = delete;
+  VertBufLayout(const VertBufLayout& other) = delete;
 
-        VertBufLayout &operator=(const VertBufLayout &other) = delete;
+  VertBufLayout& operator=(const VertBufLayout& other) = delete;
 
-        VertBufLayout(VertBufLayout &&other) = delete;
+  VertBufLayout(VertBufLayout&& other) = delete;
 
-        VertBufLayout &operator=(VertBufLayout &&other) = delete;
+  VertBufLayout& operator=(VertBufLayout&& other) = delete;
 
-        ~VertBufLayout() = default;
+  ~VertBufLayout() = default;
 
-        [[nodiscard]] unsigned int GetSize() const;
+  [[nodiscard]] unsigned int GetSize() const;
 
-        [[nodiscard]] unsigned int GetStride() const;
+  [[nodiscard]] unsigned int GetStride() const;
 
-        template<typename T>
-        void PushBack(unsigned int count);
+  template <typename T>
+  void PushBack(unsigned int count);
 
-        const VertBufElement &operator[](unsigned int i) const;
+  template <>
+  void PushBack<float>(const unsigned int count) {
+    elements_.push_back({GL_FLOAT, count, sizeof(float), false});
+    stride_ += count * sizeof(float);
+  }
 
-    private:
-        std::vector<VertBufElement> m_Elements;
-        unsigned int m_Stride = 0;
-    };
+  template <>
+  void PushBack<int>(const unsigned int count) {
+    elements_.push_back({GL_INT, count, sizeof(int), false});
+    stride_ += count * sizeof(int);
+  }
 
-    class VertArr {
-    public:
-        VertArr() = default;
+  template <>
+  void PushBack<unsigned int>(const unsigned int count) {
+    elements_.push_back({GL_UNSIGNED_INT, sizeof(int), count, false});
+    stride_ += count * sizeof(int);
+  }
 
-        explicit VertArr(const VertBuf &buffer, const VertBufLayout &layout);
+  template <>
+  void PushBack<char>(const unsigned int count) {
+    elements_.push_back({GL_BYTE, count, sizeof(char), true});
+    stride_ += count * sizeof(char);
+  }
 
+  template <>
+  void PushBack<unsigned char>(const unsigned int count) {
+    elements_.push_back({GL_UNSIGNED_BYTE, sizeof(char), count, true});
+    stride_ += count * sizeof(char);
+  }
 
-        VertArr(const VertArr &other) = delete;
+  const VertBufElement& operator[](unsigned int i) const;
 
-        VertArr &operator=(const VertArr &other) = delete;
+ private:
+  std::vector<VertBufElement> elements_;
+  unsigned int stride_ = 0;
+};
 
+class VertArr {
+ public:
+  VertArr() = default;
 
-        VertArr(VertArr &&other) noexcept ;
+  explicit VertArr(const VertBuf& buffer, const VertBufLayout& layout);
 
-        VertArr &operator=(VertArr &&other) noexcept ;
+  VertArr(const VertArr& other) = delete;
 
+  VertArr& operator=(const VertArr& other) = delete;
 
-        ~VertArr();
+  VertArr(VertArr&& other) noexcept;
 
+  VertArr& operator=(VertArr&& other) noexcept;
 
-        void Bind() const;
+  ~VertArr();
 
-        static void Unbind();
+  void Bind() const;
 
-    private:
-        unsigned int m_Id = 0;
-    };
-} // namespace Engine::Graphics
+  static void Unbind();
+
+ private:
+  unsigned int id_ = 0;
+};
+}  // namespace engine::graphics

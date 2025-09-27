@@ -2,6 +2,6 @@
 
 #include <string>
 
-namespace Engine::File {
-    std::string ReadFile(const std::string &path);
-} // namespace Engine::File
+namespace engine::file {
+std::string ReadFile(const std::string& path);
+}  // namespace engine::file

@@ -2,51 +2,48 @@
 
 #include <string>
 
-namespace Engine::Graphics {
-    struct TextureConfig {
-        enum class InterpMode : char {
-            Nearest,
-            Linear,
-        };
+namespace engine::graphics {
+struct TextureConfig {
+  enum class InterpMode : char {
+    NEAREST,
+    LINEAR,
+  };
 
-        enum class WrapMode : char {
-            Repeat,
-            MirroredRepeat,
-            ClampToEdge,
-        };
+  enum class WrapMode : char {
+    REPEAT,
+    MIRRORED_REPEAT,
+    CLAMP_TO_EDGE,
+  };
 
-        InterpMode interpMode = InterpMode::Nearest;
-        WrapMode wrapMode     = WrapMode::Repeat;
-    };
+  InterpMode interp_mode = InterpMode::NEAREST;
+  WrapMode wrap_mode = WrapMode::REPEAT;
+};
 
-    class Texture {
-    public:
-        explicit Texture(const std::string &path, TextureConfig config = {
-                             TextureConfig::InterpMode::Nearest, TextureConfig::WrapMode::Repeat
-                         });
+class Texture {
+ public:
+  explicit Texture(const std::string& path,
+                   TextureConfig config = {TextureConfig::InterpMode::NEAREST,
+                                           TextureConfig::WrapMode::REPEAT});
 
+  Texture(const Texture& other);
 
-        Texture(const Texture &other);
+  Texture& operator=(const Texture& other);
 
-        Texture &operator=(const Texture &other);
+  Texture(Texture&& other);
 
-        Texture(Texture &&other);
+  Texture& operator=(Texture&& other);
 
-        Texture &operator=(Texture &&other);
+  ~Texture();
 
+  void Bind(unsigned int slot) const;
 
-        ~Texture();
+  static void Unbind(unsigned int slot);
 
-
-        void Bind(unsigned int slot) const;
-
-        static void Unbind(unsigned int slot);
-
-    private:
-        std::string m_Path = "";
-        unsigned int m_Id     = 0;
-        unsigned int m_Width  = 0;
-        unsigned int m_Height = 0;
-        TextureConfig m_Config;
-    };
-} // namespace Engine::Graphics
+ private:
+  std::string path_;
+  unsigned int id_ = 0;
+  unsigned int width_ = 0;
+  unsigned int height_ = 0;
+  TextureConfig config_;
+};
+}  // namespace engine::graphics
