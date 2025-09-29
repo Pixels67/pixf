@@ -9,7 +9,7 @@ Make sure you have a C++ compiler (Clang preferred) and CMake installed and run 
 
 ```sh
 git clone --recursive https://github.com/Pixels67/pixf.git
-cd engine;
+cd pixf;
 
 cmake -S . -B build/
 cmake --build build/ --config Release
@@ -19,7 +19,7 @@ For a Debug build run the following commands:
 
 ```sh
 git clone --recursive https://github.com/Pixels67/pixf.git
-cd engine;
+cd pixf;
 
 cmake -S . -B build/
 cmake --build build/ --config Debug
