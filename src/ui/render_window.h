@@ -4,7 +4,7 @@
 
 struct GLFWwindow;
 
-namespace engine::ui {
+namespace pixf::ui {
 struct WindowConfig {
   std::string title;
   unsigned int width;
@@ -30,4 +30,4 @@ class RenderWindow {
 
   RenderWindow(const WindowConfig& config, GLFWwindow* window);
 };
-}  // namespace engine::ui
+}  // namespace pixf::ui

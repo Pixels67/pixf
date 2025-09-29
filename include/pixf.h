@@ -2,8 +2,8 @@
 
 struct GLFWwindow;
 
-namespace engine {
-int Initialize(int window_width, int window_height, const char* window_title);
+namespace pixf {
+void Initialize(int window_width, int window_height, const char* window_title);
 
 bool ShouldClose();
 
@@ -20,4 +20,4 @@ void ProcessInput();
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
 
 void MouseCallback(GLFWwindow* window, double x_pos, double y_pos);
-}  // namespace engine
+}  // namespace pixf

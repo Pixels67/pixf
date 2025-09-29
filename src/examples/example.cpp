@@ -1,11 +1,11 @@
-#include "engine.h"
+#include "pixf.h"
 
 int main() {
-  engine::Initialize(800, 600, "Hello Cubes");
+  pixf::Initialize(800, 600, "Hello Cubes");
 
-  while (!engine::ShouldClose()) {
-    engine::Update();
+  while (!pixf::ShouldClose()) {
+    pixf::Update();
   }
 
-  engine::Terminate();
+  pixf::Terminate();
 }

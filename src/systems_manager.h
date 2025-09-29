@@ -6,7 +6,7 @@
 
 #include "entity_manager.h"
 
-namespace engine {
+namespace pixf {
 struct System {
   virtual ~System() = default;
 
@@ -28,4 +28,4 @@ class SystemsManager {
  private:
   std::vector<std::unique_ptr<System> > systems_;
 };
-}  // namespace engine
+}  // namespace pixf

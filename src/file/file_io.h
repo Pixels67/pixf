@@ -2,6 +2,6 @@
 
 #include <string>
 
-namespace engine::file {
+namespace pixf::file {
 std::string ReadFile(const std::string& path);
-}  // namespace engine::file
+}  // namespace pixf::file

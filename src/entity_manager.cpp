@@ -1,6 +1,6 @@
 #include "entity_manager.h"
 
-namespace engine {
+namespace pixf {
 Entity EntityManager::CreateEntity() {
   const unsigned int id = GenerateEntityId();
   Entity entity;
@@ -12,4 +12,4 @@ Entity EntityManager::CreateEntity() {
 unsigned int EntityManager::GenerateEntityId() const {
   return entities_.size();
 }
-}  // namespace engine
+}  // namespace pixf

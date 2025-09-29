@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace engine::graphics {
+namespace pixf::graphics {
 struct TextureConfig {
   enum class InterpMode : char {
     NEAREST,
@@ -42,8 +42,9 @@ class Texture {
  private:
   std::string path_;
   unsigned int id_ = 0;
-  unsigned int width_ = 0;
-  unsigned int height_ = 0;
   TextureConfig config_;
+
+  void Init(const std::string& path, TextureConfig config = {TextureConfig::InterpMode::NEAREST,
+                                                             TextureConfig::WrapMode::REPEAT});
 };
-}  // namespace engine::graphics
+}  // namespace pixf::graphics

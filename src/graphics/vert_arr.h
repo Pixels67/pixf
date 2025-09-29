@@ -5,7 +5,7 @@
 #include "glad/glad.h"
 #include "vert_buf.h"
 
-namespace engine::graphics {
+namespace pixf::graphics {
 struct VertBufElement {
   unsigned int type;
   unsigned int count;
@@ -19,13 +19,13 @@ class VertBufLayout {
 
   explicit VertBufLayout(unsigned int capacity);
 
-  VertBufLayout(const VertBufLayout& other) = delete;
+  VertBufLayout(const VertBufLayout& other) = default;
 
-  VertBufLayout& operator=(const VertBufLayout& other) = delete;
+  VertBufLayout& operator=(const VertBufLayout& other) = default;
 
-  VertBufLayout(VertBufLayout&& other) = delete;
+  VertBufLayout(VertBufLayout&& other) = default;
 
-  VertBufLayout& operator=(VertBufLayout&& other) = delete;
+  VertBufLayout& operator=(VertBufLayout&& other) = default;
 
   ~VertBufLayout() = default;
 
@@ -96,4 +96,4 @@ class VertArr {
  private:
   unsigned int id_ = 0;
 };
-}  // namespace engine::graphics
+}  // namespace pixf::graphics

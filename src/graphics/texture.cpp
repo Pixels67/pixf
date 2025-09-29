@@ -7,9 +7,73 @@
 #include "glad/glad.h"
 #include "stb_image.h"
 
-namespace engine::graphics {
-Texture::Texture(const std::string& path, const TextureConfig config)
-    : path_(path), config_(config) {
+namespace pixf::graphics {
+Texture::Texture(const std::string& path, const TextureConfig config) {
+  Init(path, config);
+}
+
+Texture::Texture(const Texture& other) {
+  Init(other.path_, other.config_);
+}
+
+Texture& Texture::operator=(const Texture& other) {
+  if (this == &other) {
+    return *this;
+  }
+
+  if (id_ != 0) {
+    this->~Texture();
+  }
+
+  Init(other.path_, other.config_);
+
+  return *this;
+}
+
+Texture::Texture(Texture&& other) noexcept {
+  if (this == &other) {
+    return;
+  }
+
+  path_ = std::move(other.path_);
+  config_ = other.config_;
+  id_ = other.id_;
+  other.id_ = 0;
+}
+
+Texture& Texture::operator=(Texture&& other) noexcept {
+  if (this == &other) {
+    return *this;
+  }
+
+  if (id_ != 0) {
+    this->~Texture();
+  }
+
+  path_ = std::move(other.path_);
+  config_ = other.config_;
+  id_ = other.id_;
+  other.id_ = 0;
+
+  return *this;
+}
+
+Texture::~Texture() { glDeleteTextures(1, &id_); }
+
+void Texture::Bind(const unsigned int slot) const {
+  glActiveTexture(GL_TEXTURE0 + slot);
+  glBindTexture(GL_TEXTURE_2D, id_);
+}
+
+void Texture::Unbind(const unsigned int slot) {
+  glActiveTexture(GL_TEXTURE0 + slot);
+  glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Texture::Init(const std::string& path, const TextureConfig config) {
+  path_ = path;
+  config_ = config;
+
   stbi_set_flip_vertically_on_load(1);
   int width = 0;
   int height = 0;
@@ -20,9 +84,6 @@ Texture::Texture(const std::string& path, const TextureConfig config)
     std::cerr << "Failed to load texture: " << path << '\n';
     std::exit(EXIT_FAILURE);
   }
-
-  width_ = width;
-  height_ = height;
 
   glGenTextures(1, &id_);
   glBindTexture(GL_TEXTURE_2D, id_);
@@ -66,84 +127,11 @@ Texture::Texture(const std::string& path, const TextureConfig config)
       break;
   }
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format,
-               GL_UNSIGNED_BYTE, data);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, data);
   glGenerateMipmap(GL_TEXTURE_2D);
 
   glBindTexture(GL_TEXTURE_2D, 0);
 
   stbi_image_free(data);
 }
-
-Texture::Texture(const Texture& other)
-    : path_(other.path_),
-      width_(other.width_),
-      height_(other.height_),
-      config_(other.config_) {
-  *this = std::move(Texture(other.path_, other.config_));
-}
-
-Texture& Texture::operator=(const Texture& other) {
-  if (this == &other) {
-    return *this;
-  }
-
-  if (id_ != 0) {
-    this->~Texture();
-  }
-
-  path_ = other.path_;
-  config_ = other.config_;
-  width_ = other.width_;
-  height_ = other.height_;
-
-  Texture temp(other.path_, other.config_);
-  *this = std::move(temp);
-
-  return *this;
-}
-
-Texture::Texture(Texture&& other) noexcept {
-  if (this == &other) {
-    return;
-  }
-
-  path_ = std::move(other.path_);
-  config_ = other.config_;
-  width_ = other.width_;
-  height_ = other.height_;
-  id_ = other.id_;
-  other.id_ = 0;
-}
-
-Texture& Texture::operator=(Texture&& other) noexcept {
-  if (this == &other) {
-    return *this;
-  }
-
-  if (id_ != 0) {
-    this->~Texture();
-  }
-
-  path_ = std::move(other.path_);
-  config_ = other.config_;
-  width_ = other.width_;
-  height_ = other.height_;
-  id_ = other.id_;
-  other.id_ = 0;
-
-  return *this;
-}
-
-Texture::~Texture() { glDeleteTextures(1, &id_); }
-
-void Texture::Bind(const unsigned int slot) const {
-  glActiveTexture(GL_TEXTURE0 + slot);
-  glBindTexture(GL_TEXTURE_2D, id_);
-}
-
-void Texture::Unbind(const unsigned int slot) {
-  glActiveTexture(GL_TEXTURE0 + slot);
-  glBindTexture(GL_TEXTURE_2D, 0);
-}
-}  // namespace engine::graphics
+}  // namespace pixf::graphics

@@ -4,7 +4,7 @@
 #include "gtc/quaternion.hpp"
 #include "matrix.hpp"
 
-namespace engine::core {
+namespace pixf::core {
 glm::mat4 Transform::GetMatrix() const {
   const glm::mat4 t = translate(glm::mat4(1.0F), position);
   const glm::mat4 r = mat4_cast(normalize(rotation));
@@ -28,4 +28,4 @@ void Transform::LookAt(const glm::vec3 target, const glm::vec3 up) {
   const glm::vec3 forward = normalize(target - position);
   rotation = quatLookAt(normalize(forward), normalize(up));
 }
-}  // namespace engine::core
+}  // namespace pixf::core

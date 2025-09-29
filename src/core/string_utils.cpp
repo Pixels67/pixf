@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace engine::core {
+namespace pixf::core {
 std::pair<std::string, std::string> SliceStrAtDelimiter(
     const std::string_view input, const std::string_view delimiter) {
   const size_t pos = input.find(delimiter);
@@ -30,4 +30,4 @@ std::string ReplaceAll(std::string str, const std::string_view query,
 
   return str;
 }
-}  // namespace engine::core
+}  // namespace pixf::core

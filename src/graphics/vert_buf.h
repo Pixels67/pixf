@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace engine::graphics {
+namespace pixf::graphics {
 class VertBuf {
  public:
   VertBuf() = default;
@@ -24,12 +24,10 @@ class VertBuf {
 
   static void Unbind();
 
-  [[nodiscard]] unsigned int GetIndexCount() const;
+  [[nodiscard]] bool IsValid() const;
 
  private:
   unsigned int vbo_ = 0;
   unsigned int ebo_ = 0;
-
-  unsigned int index_count_ = 0;
 };
-}  // namespace engine::graphics
+}  // namespace pixf::graphics

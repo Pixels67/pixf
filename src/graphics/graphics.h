@@ -2,6 +2,7 @@
 
 #include "camera.h"
 #include "mesh.h"
+#include "rendering.h"
 #include "shader.h"
 #include "texture.h"
 #include "vert_arr.h"

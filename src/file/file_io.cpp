@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-namespace engine::file {
+namespace pixf::file {
 std::string ReadFile(const std::string& path) {
   std::ifstream file(path);
   if (!file.is_open()) {
@@ -18,4 +18,4 @@ std::string ReadFile(const std::string& path) {
 
   return content;
 }
-}  // namespace engine::file
+}  // namespace pixf::file

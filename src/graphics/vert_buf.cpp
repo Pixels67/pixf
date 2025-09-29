@@ -2,16 +2,13 @@
 
 #include <glad/glad.h>
 
-namespace engine::graphics {
-VertBuf::VertBuf(const std::vector<float>& vertices,
-                 const std::vector<unsigned int>& indices,
-                 const unsigned int usage)
-    : index_count_(static_cast<unsigned int>(indices.size())) {
+namespace pixf::graphics {
+VertBuf::VertBuf(const std::vector<float>& vertices, const std::vector<unsigned int>& indices,
+                 const unsigned int usage) {
   unsigned int vbo = 0;
   glGenBuffers(1, &vbo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER,
-               static_cast<unsigned int>(vertices.size() * sizeof(float)),
+  glBufferData(GL_ARRAY_BUFFER, static_cast<unsigned int>(vertices.size() * sizeof(float)),
                vertices.data(), usage);
 
   vbo_ = vbo;
@@ -20,8 +17,7 @@ VertBuf::VertBuf(const std::vector<float>& vertices,
   unsigned int ebo = 0;
   glGenBuffers(1, &ebo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-               static_cast<unsigned int>(indices.size() * sizeof(int)),
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<unsigned int>(indices.size() * sizeof(int)),
                indices.data(), usage);
 
   ebo_ = ebo;
@@ -29,10 +25,9 @@ VertBuf::VertBuf(const std::vector<float>& vertices,
 }
 
 VertBuf::VertBuf(VertBuf&& other) noexcept
-    : vbo_(other.vbo_), ebo_(other.ebo_), index_count_(other.index_count_) {
+    : vbo_(other.vbo_), ebo_(other.ebo_) {
   other.vbo_ = 0;
   other.ebo_ = 0;
-  other.index_count_ = 0;
 }
 
 VertBuf& VertBuf::operator=(VertBuf&& other) noexcept {
@@ -42,10 +37,8 @@ VertBuf& VertBuf::operator=(VertBuf&& other) noexcept {
 
   vbo_ = other.vbo_;
   ebo_ = other.ebo_;
-  index_count_ = other.index_count_;
   other.vbo_ = 0;
   other.ebo_ = 0;
-  other.index_count_ = 0;
 
   return *this;
 }
@@ -65,5 +58,5 @@ void VertBuf::Unbind() {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-unsigned int VertBuf::GetIndexCount() const { return index_count_; }
-}  // namespace engine::graphics
+bool VertBuf::IsValid() const { return vbo_ != 0 && ebo_ != 0; }
+}  // namespace pixf::graphics

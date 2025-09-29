@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(engine)
+project(pixf)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,8 +22,8 @@ set(VENDOR_PATH
 )
 
 set(PROJECT_SOURCES
-        include/engine.h
-        src/engine.cpp
+        include/pixf.h
+        src/pixf.cpp
         src/graphics/graphics.h
         src/graphics/shader.cpp
         src/graphics/shader.h
@@ -56,6 +56,8 @@ set(PROJECT_SOURCES
         src/entity_manager.cpp
         src/systems_manager.h
         src/systems_manager.cpp
+        src/graphics/rendering.h
+        src/graphics/rendering.cpp
 )
 
 set(EXAMPLE_SOURCES
@@ -84,7 +86,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 
 # macOS libs
-if(APPLE)
+if (APPLE)
     find_library(COCOA_LIBRARY Cocoa REQUIRED)
     find_library(IOKIT_LIBRARY IOKit REQUIRED)
     find_library(COREVIDEO_LIBRARY CoreVideo REQUIRED)
@@ -93,12 +95,12 @@ if(APPLE)
             ${IOKIT_LIBRARY}
             ${COREVIDEO_LIBRARY}
     )
-# Linux libs
-elseif(UNIX AND NOT APPLE)
+    # Linux libs
+elseif (UNIX AND NOT APPLE)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(X11 REQUIRED x11)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${X11_LIBRARIES})
-endif()
+endif ()
 
 add_executable(${PROJECT_NAME}_example ${EXAMPLE_SOURCES})
 target_link_libraries(${PROJECT_NAME}_example ${PROJECT_NAME})
