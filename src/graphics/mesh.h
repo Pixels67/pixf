@@ -57,11 +57,12 @@ class Mesh {
 
   Mesh& operator=(const Mesh& other);
 
-  Mesh(Mesh&& other) noexcept ;
+  Mesh(Mesh&& other) noexcept;
 
-  Mesh& operator=(Mesh&& other) noexcept ;
+  Mesh& operator=(Mesh&& other) noexcept;
 
-  void Render(const Material& material, const CameraTransform& camera, const glm::mat4& proj,
+  void Render(const Material& material, const ShaderManager& shader_manager,
+              const CameraTransform& camera, const glm::mat4& proj,
               const core::Transform& transform = {}) const;
 
  private:

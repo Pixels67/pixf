@@ -4,6 +4,7 @@
 #include <vec4.hpp>
 
 #include "shader.h"
+#include "shader_manager.h"
 #include "texture.h"
 
 namespace pixf::graphics {
@@ -19,21 +20,20 @@ class Material {
   Material(Material&& other) = delete;
   Material& operator=(Material&& other) = delete;
 
-  void SetShader(const Shader& shader);
+  void SetShader(ShaderHandle shader);
 
   void SetColor(const glm::vec4& color);
 
   void SetTexture(const Texture& texture);
 
-  const Shader& GetShader() const;
+  ShaderHandle GetShader() const;
 
-  void Bind() const;
+  void Bind(const ShaderManager& shader_manager) const;
   static void Unbind();
 
  private:
-  Shader shader_;
+  ShaderHandle shader_{};
   std::optional<Texture> texture_ = std::nullopt;
   glm::vec4 color_ = glm::vec4(1.0F);
-  bool default_shader_ = true;
 };
 }  // namespace pixf::graphics

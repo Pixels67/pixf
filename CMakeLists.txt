@@ -58,6 +58,8 @@ set(PROJECT_SOURCES
         src/systems_manager.cpp
         src/graphics/rendering.h
         src/graphics/rendering.cpp
+        src/graphics/shader_manager.h
+        src/graphics/shader_manager.cpp
 )
 
 set(EXAMPLE_SOURCES

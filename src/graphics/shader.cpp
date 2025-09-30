@@ -118,9 +118,7 @@ Shader& Shader::operator=(Shader&& other) noexcept {
   return *this;
 }
 
-Shader::~Shader() {
-  Cleanup();
-}
+Shader::~Shader() { Cleanup(); }
 
 void Shader::Bind() const { glUseProgram(id_); }
 

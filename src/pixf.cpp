@@ -26,14 +26,17 @@ void Initialize(const int window_width, const int window_height, const char* win
   glfwSetFramebufferSizeCallback(window.GetWindow(), FramebufferSizeCallback);
   glfwSetCursorPosCallback(window.GetWindow(), MouseCallback);
 
-  graphics::PerspectiveCamera camera;
-  camera.viewport_size = glm::vec2(800, 600);
+  manager.CreateSingleton<graphics::ShaderManager>({});
 
-  manager.AddComponentToEntity(manager.CreateEntity(), camera);
+  graphics::PerspectiveCamera camera;
+  camera.viewport_size = glm::vec2(window_width, window_height);
+  manager.CreateSingleton<graphics::PerspectiveCamera>(camera);
 
   graphics::Renderable renderable;
   renderable.mesh = graphics::Mesh(graphics::CUBE_VERTS);
-  // renderable.material.SetTexture(graphics::Texture("tex.png"));
+  renderable.material.SetTexture(graphics::Texture("tex.png"));
+  renderable.material.SetShader(
+      manager.GetSingleton<graphics::ShaderManager>()->CreateShader(true));
 
   core::Transform transform;
   transform.position = glm::vec3(-2.0F, 0.0F, -4.0F);
