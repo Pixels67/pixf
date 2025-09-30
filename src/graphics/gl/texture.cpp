@@ -7,7 +7,7 @@
 #include "glad/glad.h"
 #include "stb_image.h"
 
-namespace pixf::graphics {
+namespace pixf::graphics::gl {
 Texture::Texture(const std::string& path, const TextureConfig config) {
   Init(path, config);
 }
@@ -134,4 +134,4 @@ void Texture::Init(const std::string& path, const TextureConfig config) {
 
   stbi_image_free(data);
 }
-}  // namespace pixf::graphics
+}  // namespace pixf::graphics::gl

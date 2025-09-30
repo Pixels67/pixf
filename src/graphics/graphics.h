@@ -1,9 +1,9 @@
 #pragma once
 
 #include "camera.h"
+#include "gl/shader.h"
+#include "gl/texture.h"
+#include "gl/vert_arr.h"
+#include "gl/vert_buf.h"
 #include "mesh.h"
 #include "rendering.h"
-#include "shader.h"
-#include "texture.h"
-#include "vert_arr.h"
-#include "vert_buf.h"

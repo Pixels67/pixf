@@ -1,13 +1,10 @@
 #include "pixf.h"
 
-#define GLM_FORCE_LEFT_HANDED
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-
 #include <glad/glad.h>
 // ReSharper disable once CppWrongIncludesOrder
 #include <GLFW/glfw3.h>
 
-#include <iostream>
+#include <glm.hpp>
 
 #include "entity_manager.h"
 #include "graphics/graphics.h"
@@ -29,19 +26,27 @@ void Initialize(const int window_width, const int window_height, const char* win
   manager.CreateSingleton<graphics::ShaderManager>({});
 
   graphics::PerspectiveCamera camera;
+  camera.bg_color = glm::vec3(0.12F, 0.15F, 0.15F);
   camera.viewport_size = glm::vec2(window_width, window_height);
   manager.CreateSingleton<graphics::PerspectiveCamera>(camera);
 
   graphics::Renderable renderable;
   renderable.mesh = graphics::Mesh(graphics::CUBE_VERTS);
-  renderable.material.SetTexture(graphics::Texture("tex.png"));
+  graphics::gl::TextureConfig config{
+      graphics::gl::TextureConfig::InterpMode::NEAREST,
+      graphics::gl::TextureConfig::WrapMode::CLAMP_TO_EDGE,
+  };
+
+  renderable.material.SetTexture(graphics::gl::Texture("tex.png", config));
+  renderable.material.SetDiffuse({0.8F, 0.8F, 0.8F, 1.0F});
+  renderable.material.SetAmbient({0.8F, 0.8F, 0.8F, 1.0F});
   renderable.material.SetShader(
       manager.GetSingleton<graphics::ShaderManager>()->CreateShader(true));
 
   core::Transform transform;
-  transform.position = glm::vec3(-2.0F, 0.0F, -4.0F);
+  transform.position = glm::vec3(-2.0F, 0.0F, 4.0F);
   transform.rotation =
-      glm::quat(glm::vec3(glm::radians(45.0F), glm::radians(45.0F), glm::radians(45.0F)));
+      glm::quat(glm::vec3(glm::radians(45.0F), glm::radians(0.0F), glm::radians(45.0F)));
 
   for (int i = 0; i < 3; i++) {
     Entity entity = manager.CreateEntity();

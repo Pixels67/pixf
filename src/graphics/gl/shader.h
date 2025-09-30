@@ -3,7 +3,7 @@
 #include <matrix.hpp>
 #include <string>
 
-namespace pixf::graphics {
+namespace pixf::graphics::gl {
 class Shader {
   struct ShaderSources {
     std::string vert_src;
@@ -36,6 +36,14 @@ class Shader {
 
   void SetUniform(const std::string& name, glm::mat4 matrix) const;
 
+  void SetUniform(const std::string& name, glm::vec3 value) const;
+
+  void SetUniform(const std::string& name, glm::vec4 value) const;
+
+  void SetUniform(const std::string& name, const std::vector<float>& values) const;
+
+  void SetUniform(const std::string& name, const std::vector<glm::vec3>& values) const;
+
  private:
   std::string src_;
   unsigned int id_ = 0;
@@ -47,4 +55,4 @@ class Shader {
 
   static unsigned int CreateShader(unsigned int type, const std::string& src);
 };
-}  // namespace pixf::graphics
+}  // namespace pixf::graphics::gl

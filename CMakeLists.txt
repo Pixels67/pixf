@@ -25,12 +25,12 @@ set(PROJECT_SOURCES
         include/pixf.h
         src/pixf.cpp
         src/graphics/graphics.h
-        src/graphics/shader.cpp
-        src/graphics/shader.h
-        src/graphics/vert_arr.h
-        src/graphics/vert_arr.cpp
-        src/graphics/vert_buf.h
-        src/graphics/vert_buf.cpp
+        src/graphics/gl/shader.cpp
+        src/graphics/gl/shader.h
+        src/graphics/gl/vert_arr.h
+        src/graphics/gl/vert_arr.cpp
+        src/graphics/gl/vert_buf.h
+        src/graphics/gl/vert_buf.cpp
         src/graphics/mesh.h
         src/graphics/mesh.cpp
         src/core/string_utils.h
@@ -38,10 +38,8 @@ set(PROJECT_SOURCES
         src/file/file_io.h
         src/file/file_io.cpp
         src/file/file.h
-        vendor/stbi/include/stb_image.h
-        vendor/stbi/src/stb_image.cpp
-        src/graphics/texture.h
-        src/graphics/texture.cpp
+        src/graphics/gl/texture.h
+        src/graphics/gl/texture.cpp
         src/core/transform.cpp
         src/core/transform.h
         src/graphics/camera.cpp
@@ -60,6 +58,7 @@ set(PROJECT_SOURCES
         src/graphics/rendering.cpp
         src/graphics/shader_manager.h
         src/graphics/shader_manager.cpp
+        src/graphics/lighting/point_light.h
 )
 
 set(EXAMPLE_SOURCES
@@ -75,6 +74,8 @@ target_link_libraries(${PROJECT_NAME}
         OpenGL::GL
         glfw
         glad
+        stbi
+        glm
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

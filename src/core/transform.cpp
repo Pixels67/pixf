@@ -12,20 +12,17 @@ glm::mat4 Transform::GetMatrix() const {
   return t * r * s;
 }
 
-void Transform::Translate(const glm::vec3 translation) {
-  position += translation;
-}
+void Transform::Translate(const glm::vec3 translation) { position += translation; }
 
 void Transform::Scale(const glm::vec3 new_scale) { scale *= new_scale; }
 
 void Transform::Rotate(const float delta_angle_degrees, const glm::vec3 axis) {
-  const glm::quat deltaRotation =
-      angleAxis(glm::radians(delta_angle_degrees), normalize(axis));
+  const glm::quat deltaRotation = angleAxis(glm::radians(delta_angle_degrees), normalize(axis));
   rotation = normalize(deltaRotation * rotation);
 }
 
 void Transform::LookAt(const glm::vec3 target, const glm::vec3 up) {
   const glm::vec3 forward = normalize(target - position);
-  rotation = quatLookAt(normalize(forward), normalize(up));
+  rotation = quatLookAtLH(normalize(forward), normalize(up));
 }
 }  // namespace pixf::core

@@ -2,13 +2,13 @@
 
 #include <vector>
 
-namespace pixf::graphics {
+namespace pixf::graphics::gl {
 class VertBuf {
  public:
   VertBuf() = default;
 
-  VertBuf(const std::vector<float>& vertices,
-          const std::vector<unsigned int>& indices, unsigned int usage);
+  VertBuf(const std::vector<float>& vertices, const std::vector<unsigned int>& indices,
+          unsigned int usage);
 
   VertBuf(const VertBuf& other) = delete;
 
@@ -30,4 +30,4 @@ class VertBuf {
   unsigned int vbo_ = 0;
   unsigned int ebo_ = 0;
 };
-}  // namespace pixf::graphics
+}  // namespace pixf::graphics::gl

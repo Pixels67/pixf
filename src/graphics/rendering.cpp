@@ -25,7 +25,7 @@ void RenderSystem::OnInit(EntityManager &entity_manager) {
 void RenderSystem::OnUpdate(EntityManager &entity_manager, double delta_time) {
   const bool perspective = entity_manager.SingletonExists<PerspectiveCamera>();
   const bool orthographic = entity_manager.SingletonExists<OrthographicCamera>();
-  auto shader_manager = entity_manager.GetSingleton<ShaderManager>();
+  const auto shader_manager = entity_manager.GetSingleton<ShaderManager>();
   if (perspective) {
     const auto cam = entity_manager.GetSingleton<PerspectiveCamera>();
 
@@ -40,6 +40,7 @@ void RenderSystem::OnUpdate(EntityManager &entity_manager, double delta_time) {
 
       component->mesh.Render(component->material, *shader_manager, cam->transform,
                              cam->GetProjectionMatrix(), *transform);
+      transform->Rotate(glm::radians(45.0F), glm::vec3(0.0F, 1.0F, 0.0F));
     }
   } else if (orthographic) {
     const auto cam = entity_manager.GetSingleton<OrthographicCamera>();

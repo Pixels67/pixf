@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "core/string_utils.h"
 #include "file/file_io.h"
@@ -12,59 +13,146 @@
 
 constexpr int POS_LAYOUT_INDEX = 0;
 constexpr int UV_LAYOUT_INDEX = 1;
+constexpr int NORM_LAYOUT_INDEX = 2;
 
 constexpr auto DEFAULT_TEXTURED_SHADER = R"(#version 330 core
+
+struct FragData {
+    vec3 normal;
+    vec3 frag_pos;
+    vec2 uv;
+};
+
+struct LightingData {
+    vec3 light_diffuse;
+    vec3 light_ambient;
+    vec3 light_pos;
+};
+
+struct Properties {
+    vec4 ambient;
+    vec4 diffuse;
+};
+
 @VERTEX
+
+struct Transforms {
+    mat4 model;
+    mat4 view;
+    mat4 proj;
+};
+
 @pos in vec3 aPos;
 @uv in vec2 aUv;
-out vec2 uv;
-out vec4 color;
-uniform vec4 uColor;
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 proj;
+@norm in vec3 aNormal;
+
+uniform Transforms transforms;
+uniform Properties properties;
+uniform LightingData lighting_data;
+
+out FragData frag_data;
+out LightingData frag_lighting_data;
+out Properties frag_properties;
+
 void main()
 {
-   gl_Position = proj * view * model * vec4(aPos, 1.0);
-   uv = aUv;
-   color = uColor;
+    gl_Position = transforms.proj * transforms.view * transforms.model * vec4(aPos, 1.0);
+
+    frag_data.frag_pos = (transforms.model * vec4(aPos, 1.0)).xyz;
+    frag_data.uv = aUv;
+    frag_data.normal = mat3(transpose(inverse(transforms.model))) * aNormal;
+
+    frag_lighting_data = lighting_data;
+    frag_properties = properties;
 }
+
 @FRAGMENT
-uniform sampler2D tex;
-in vec2 uv;
-in vec4 color;
+
+in FragData frag_data;
+in LightingData frag_lighting_data;
+in Properties frag_properties;
+
 out vec4 FragColor;
+
+uniform sampler2D tex;
+
 void main()
 {
-    FragColor = texture(tex, uv) * color;
+    vec3 norm = normalize(frag_data.normal);
+    vec3 light_dir = normalize(frag_lighting_data.light_pos - frag_data.frag_pos);
+    vec4 diffuse = texture(tex, frag_data.uv) * frag_properties.diffuse * max(dot(norm, light_dir), 0.0);
+    vec4 ambient = texture(tex, frag_data.uv) * frag_properties.ambient;
+    FragColor = vec4(frag_lighting_data.light_ambient, 1.0) * ambient + vec4(frag_lighting_data.light_diffuse, 1.0) * diffuse;
 })";
 
 constexpr auto DEFAULT_SHADER = R"(#version 330 core
+
+struct FragData {
+    vec3 normal;
+    vec3 frag_pos;
+    vec2 uv;
+};
+
+struct LightingData {
+    vec3 light_diffuse;
+    vec3 light_ambient;
+    vec3 light_pos;
+};
+
+struct Properties {
+    vec4 ambient;
+    vec4 diffuse;
+};
+
 @VERTEX
+
+struct Transforms {
+    mat4 model;
+    mat4 view;
+    mat4 proj;
+};
+
 @pos in vec3 aPos;
 @uv in vec2 aUv;
-out vec2 uv;
-out vec4 color;
-uniform vec4 uColor;
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 proj;
+@norm in vec3 aNormal;
+
+uniform Transforms transforms;
+uniform Properties properties;
+uniform LightingData lighting_data;
+
+out FragData frag_data;
+out LightingData frag_lighting_data;
+out Properties frag_properties;
+
 void main()
 {
-   gl_Position = proj * view * model * vec4(aPos, 1.0);
-   uv = aUv;
-   color = uColor;
+    gl_Position = transforms.proj * transforms.view * transforms.model * vec4(aPos, 1.0);
+
+    frag_data.frag_pos = (transforms.model * vec4(aPos, 1.0)).xyz;
+    frag_data.uv = aUv;
+    frag_data.normal = mat3(transpose(inverse(transforms.model))) * aNormal;
+
+    frag_lighting_data = lighting_data;
+    frag_properties = properties;
 }
+
 @FRAGMENT
-in vec2 uv;
-in vec4 color;
+
+in FragData frag_data;
+in LightingData frag_lighting_data;
+in Properties frag_properties;
+
 out vec4 FragColor;
 void main()
 {
-    FragColor = color;
+    vec3 norm = normalize(frag_data.normal);
+    vec3 light_dir = normalize(frag_lighting_data.light_pos - frag_data.frag_pos);
+    vec4 diffuse = frag_properties.diffuse * max(dot(norm, light_dir), 0.0);
+    vec4 ambient = frag_properties.ambient;
+    FragColor = vec4(frag_lighting_data.light_ambient, 1.0) * ambient + vec4(frag_lighting_data.light_diffuse, 1.0) * diffuse;
 })";
 
-namespace pixf::graphics {
+namespace pixf::graphics::gl {
 Shader::Shader(const bool textured) {
   if (textured) {
     Init(DEFAULT_TEXTURED_SHADER);
@@ -204,6 +292,45 @@ void Shader::SetUniform(const std::string& name, glm::mat4 matrix) const {
   Unbind();
 }
 
+void Shader::SetUniform(const std::string& name, const glm::vec3 value) const {
+  Bind();
+
+  glUniform3f(glGetUniformLocation(id_, name.c_str()), value.x, value.y, value.z);
+
+  Unbind();
+}
+
+void Shader::SetUniform(const std::string& name, const glm::vec4 value) const {
+  Bind();
+
+  glUniform4f(glGetUniformLocation(id_, name.c_str()), value.x, value.y, value.z, value.w);
+
+  Unbind();
+}
+
+void Shader::SetUniform(const std::string& name, const std::vector<float>& values) const {
+  Bind();
+
+  glUniform1fv(glGetUniformLocation(id_, name.c_str()), values.size(), values.data());
+
+  Unbind();
+}
+
+void Shader::SetUniform(const std::string& name, const std::vector<glm::vec3>& values) const {
+  Bind();
+
+  std::vector<GLfloat> values_vec;
+  for (unsigned int i = 0; i < values.size(); i++) {
+    values_vec.push_back(values[i].x);
+    values_vec.push_back(values[i].y);
+    values_vec.push_back(values[i].z);
+  }
+
+  glUniform3fv(glGetUniformLocation(id_, name.c_str()), values_vec.size(), values_vec.data());
+
+  Unbind();
+}
+
 Shader Shader::LoadFromFile(const std::string& path) {
   const std::string str = file::ReadFile(path);
   return Shader(str);
@@ -250,6 +377,8 @@ Shader::ShaderSources Shader::ParseShader(const std::string& source) {
   str =
       core::ReplaceAll(str, "@pos", "layout (location = " + std::to_string(POS_LAYOUT_INDEX) + ")");
   str = core::ReplaceAll(str, "@uv", "layout (location = " + std::to_string(UV_LAYOUT_INDEX) + ")");
+  str = core::ReplaceAll(str, "@norm",
+                         "layout (location = " + std::to_string(NORM_LAYOUT_INDEX) + ")");
 
   ShaderSources sources;
   sources.vert_src = "";
@@ -326,4 +455,4 @@ unsigned int Shader::CreateShader(const unsigned int type, const std::string& sr
 
   return shader;
 }
-}  // namespace pixf::graphics
+}  // namespace pixf::graphics::gl

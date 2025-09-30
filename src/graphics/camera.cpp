@@ -16,17 +16,17 @@ void CameraTransform::Rotate(const float delta_angle_degrees, const glm::vec3 ax
 
 void CameraTransform::LookAt(const glm::vec3 target, const glm::vec3 up) {
   const glm::vec3 forward = normalize(target - position);
-  rotation = quatLookAt(forward, normalize(up));
+  rotation = quatLookAtLH(forward, normalize(up));
 }
 
 glm::mat4 PerspectiveCamera::GetProjectionMatrix() const {
   const float aspect = viewport_size.x / viewport_size.y;
-  return glm::perspective(glm::radians(fov_y), aspect, near, far);
+  return glm::perspectiveLH_NO(glm::radians(fov_y), aspect, near, far);
 }
 
 glm::mat4 OrthographicCamera::GetProjectionMatrix() const {
   const float aspect = viewport_size.x / viewport_size.y;
-  return glm::ortho(-aspect * size / 2.0F, aspect * size / 2.0F, -0.5F * size, 0.5F * size, near,
-                    far);
+  return glm::orthoLH_NO(-aspect * size / 2.0F, aspect * size / 2.0F, -0.5F * size, 0.5F * size,
+                         near, far);
 }
 }  // namespace pixf::graphics

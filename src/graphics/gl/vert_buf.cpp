@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 
-namespace pixf::graphics {
+namespace pixf::graphics::gl {
 VertBuf::VertBuf(const std::vector<float>& vertices, const std::vector<unsigned int>& indices,
                  const unsigned int usage) {
   unsigned int vbo = 0;
@@ -59,4 +59,4 @@ void VertBuf::Unbind() {
 }
 
 bool VertBuf::IsValid() const { return vbo_ != 0 && ebo_ != 0; }
-}  // namespace pixf::graphics
+}  // namespace pixf::graphics::gl

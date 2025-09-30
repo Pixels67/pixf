@@ -17,13 +17,13 @@ ShaderHandle ShaderManager::CreateShader(const std::string& src) {
   return {id};
 }
 
-const Shader& ShaderManager::GetShader(const ShaderHandle handle) const {
+const gl::Shader& ShaderManager::GetShader(const ShaderHandle handle) const {
   return shaders.at(handle.id);
 }
 
 void ShaderManager::Bind(const ShaderHandle handle) const { shaders.at(handle.id).Bind(); }
 
-void ShaderManager::Unbind() { Shader::Unbind(); }
+void ShaderManager::Unbind() { gl::Shader::Unbind(); }
 
 void ShaderManager::SetUniform(const ShaderHandle handle, const std::string& name,
                                const std::initializer_list<int> values) const {
@@ -43,6 +43,25 @@ void ShaderManager::SetUniform(const ShaderHandle handle, const std::string& nam
 void ShaderManager::SetUniform(const ShaderHandle handle, const std::string& name,
                                const glm::mat4& matrix) const {
   shaders.at(handle.id).SetUniform(name, matrix);
+}
+
+void ShaderManager::SetUniform(const ShaderHandle handle, const std::string& name,
+                               const glm::vec3 value) const {
+  shaders.at(handle.id).SetUniform(name, value);
+}
+void ShaderManager::SetUniform(const ShaderHandle handle, const std::string& name,
+                               const glm::vec4 value) const {
+  shaders.at(handle.id).SetUniform(name, value);
+}
+
+void ShaderManager::SetUniform(const ShaderHandle handle, const std::string& name,
+                               const std::vector<float>& values) const {
+  shaders.at(handle.id).SetUniform(name, values);
+}
+
+void ShaderManager::SetUniform(const ShaderHandle handle, const std::string& name,
+                               const std::vector<glm::vec3>& values) const {
+  shaders.at(handle.id).SetUniform(name, values);
 }
 
 std::optional<unsigned int> ShaderManager::GenShaderId() const {

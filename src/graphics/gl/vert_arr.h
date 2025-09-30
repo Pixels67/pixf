@@ -5,7 +5,7 @@
 #include "glad/glad.h"
 #include "vert_buf.h"
 
-namespace pixf::graphics {
+namespace pixf::graphics::gl {
 struct VertBufElement {
   unsigned int type;
   unsigned int count;
@@ -96,4 +96,4 @@ class VertArr {
  private:
   unsigned int id_ = 0;
 };
-}  // namespace pixf::graphics
+}  // namespace pixf::graphics::gl

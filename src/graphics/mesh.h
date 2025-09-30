@@ -4,45 +4,67 @@
 
 #include "camera.h"
 #include "core/transform.h"
+#include "gl/vert_arr.h"
 #include "material.h"
-#include "vert_arr.h"
 
+namespace pixf::graphics {
 struct Vertex {
   glm::vec3 position;
   glm::vec2 tex_coords;
+  glm::vec3 normal;
 };
 
-namespace pixf::graphics {
 const std::vector CUBE_VERTS{
-    Vertex{{-0.5F, -0.5F, -0.5F}, {0.0F, 0.0F}}, Vertex{{0.5F, -0.5F, -0.5F}, {1.0F, 0.0F}},
-    Vertex{{0.5F, 0.5F, -0.5F}, {1.0F, 1.0F}},   Vertex{{0.5F, 0.5F, -0.5F}, {1.0F, 1.0F}},
-    Vertex{{-0.5F, 0.5F, -0.5F}, {0.0F, 1.0F}},  Vertex{{-0.5F, -0.5F, -0.5F}, {0.0F, 0.0F}},
+    Vertex{{-0.5F, -0.5F, -0.5F}, {0.0F, 0.0F}, {0.0F, 0.0F, -1.0F}},
+    Vertex{{0.5F, -0.5F, -0.5F}, {1.0F, 0.0F}, {0.0F, 0.0F, -1.0F}},
+    Vertex{{0.5F, 0.5F, -0.5F}, {1.0F, 1.0F}, {0.0F, 0.0F, -1.0F}},
+    Vertex{{0.5F, 0.5F, -0.5F}, {1.0F, 1.0F}, {0.0F, 0.0F, -1.0F}},
+    Vertex{{-0.5F, 0.5F, -0.5F}, {0.0F, 1.0F}, {0.0F, 0.0F, -1.0F}},
+    Vertex{{-0.5F, -0.5F, -0.5F}, {0.0F, 0.0F}, {0.0F, 0.0F, -1.0F}},
 
-    Vertex{{-0.5F, -0.5F, 0.5F}, {0.0F, 0.0F}},  Vertex{{0.5F, -0.5F, 0.5F}, {1.0F, 0.0F}},
-    Vertex{{0.5F, 0.5F, 0.5F}, {1.0F, 1.0F}},    Vertex{{0.5F, 0.5F, 0.5F}, {1.0F, 1.0F}},
-    Vertex{{-0.5F, 0.5F, 0.5F}, {0.0F, 1.0F}},   Vertex{{-0.5F, -0.5F, 0.5F}, {0.0F, 0.0F}},
+    Vertex{{-0.5F, -0.5F, 0.5F}, {0.0F, 0.0F}, {0.0F, 0.0F, 1.0F}},
+    Vertex{{0.5F, -0.5F, 0.5F}, {1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}},
+    Vertex{{0.5F, 0.5F, 0.5F}, {1.0F, 1.0F}, {0.0F, 0.0F, 1.0F}},
+    Vertex{{0.5F, 0.5F, 0.5F}, {1.0F, 1.0F}, {0.0F, 0.0F, 1.0F}},
+    Vertex{{-0.5F, 0.5F, 0.5F}, {0.0F, 1.0F}, {0.0F, 0.0F, 1.0F}},
+    Vertex{{-0.5F, -0.5F, 0.5F}, {0.0F, 0.0F}, {0.0F, 0.0F, 1.0F}},
 
-    Vertex{{-0.5F, 0.5F, 0.5F}, {1.0F, 0.0F}},   Vertex{{-0.5F, 0.5F, -0.5F}, {1.0F, 1.0F}},
-    Vertex{{-0.5F, -0.5F, -0.5F}, {0.0F, 1.0F}}, Vertex{{-0.5F, -0.5F, -0.5F}, {0.0F, 1.0F}},
-    Vertex{{-0.5F, -0.5F, 0.5F}, {0.0F, 0.0F}},  Vertex{{-0.5F, 0.5F, 0.5F}, {1.0F, 0.0F}},
+    Vertex{{-0.5F, 0.5F, 0.5F}, {1.0F, 0.0F}, {-1.0F, 0.0F, 0.0F}},
+    Vertex{{-0.5F, 0.5F, -0.5F}, {1.0F, 1.0F}, {-1.0F, 0.0F, 0.0F}},
+    Vertex{{-0.5F, -0.5F, -0.5F}, {0.0F, 1.0F}, {-1.0F, 0.0F, 0.0F}},
+    Vertex{{-0.5F, -0.5F, -0.5F}, {0.0F, 1.0F}, {-1.0F, 0.0F, 0.0F}},
+    Vertex{{-0.5F, -0.5F, 0.5F}, {0.0F, 0.0F}, {-1.0F, 0.0F, 0.0F}},
+    Vertex{{-0.5F, 0.5F, 0.5F}, {1.0F, 0.0F}, {-1.0F, 0.0F, 0.0F}},
 
-    Vertex{{0.5F, 0.5F, 0.5F}, {1.0F, 0.0F}},    Vertex{{0.5F, 0.5F, -0.5F}, {1.0F, 1.0F}},
-    Vertex{{0.5F, -0.5F, -0.5F}, {0.0F, 1.0F}},  Vertex{{0.5F, -0.5F, -0.5F}, {0.0F, 1.0F}},
-    Vertex{{0.5F, -0.5F, 0.5F}, {0.0F, 0.0F}},   Vertex{{0.5F, 0.5F, 0.5F}, {1.0F, 0.0F}},
+    Vertex{{0.5F, 0.5F, 0.5F}, {1.0F, 0.0F}, {1.0F, 0.0F, 0.0F}},
+    Vertex{{0.5F, 0.5F, -0.5F}, {1.0F, 1.0F}, {1.0F, 0.0F, 0.0F}},
+    Vertex{{0.5F, -0.5F, -0.5F}, {0.0F, 1.0F}, {1.0F, 0.0F, 0.0F}},
+    Vertex{{0.5F, -0.5F, -0.5F}, {0.0F, 1.0F}, {1.0F, 0.0F, 0.0F}},
+    Vertex{{0.5F, -0.5F, 0.5F}, {0.0F, 0.0F}, {1.0F, 0.0F, 0.0F}},
+    Vertex{{0.5F, 0.5F, 0.5F}, {1.0F, 0.0F}, {1.0F, 0.0F, 0.0F}},
 
-    Vertex{{-0.5F, -0.5F, -0.5F}, {0.0F, 1.0F}}, Vertex{{0.5F, -0.5F, -0.5F}, {1.0F, 1.0F}},
-    Vertex{{0.5F, -0.5F, 0.5F}, {1.0F, 0.0F}},   Vertex{{0.5F, -0.5F, 0.5F}, {1.0F, 0.0F}},
-    Vertex{{-0.5F, -0.5F, 0.5F}, {0.0F, 0.0F}},  Vertex{{-0.5F, -0.5F, -0.5F}, {0.0F, 1.0F}},
+    Vertex{{-0.5F, -0.5F, -0.5F}, {0.0F, 1.0F}, {0.0F, -1.0F, 0.0F}},
+    Vertex{{0.5F, -0.5F, -0.5F}, {1.0F, 1.0F}, {0.0F, -1.0F, 0.0F}},
+    Vertex{{0.5F, -0.5F, 0.5F}, {1.0F, 0.0F}, {0.0F, -1.0F, 0.0F}},
+    Vertex{{0.5F, -0.5F, 0.5F}, {1.0F, 0.0F}, {0.0F, -1.0F, 0.0F}},
+    Vertex{{-0.5F, -0.5F, 0.5F}, {0.0F, 0.0F}, {0.0F, -1.0F, 0.0F}},
+    Vertex{{-0.5F, -0.5F, -0.5F}, {0.0F, 1.0F}, {0.0F, -1.0F, 0.0F}},
 
-    Vertex{{-0.5F, 0.5F, -0.5F}, {0.0F, 1.0F}},  Vertex{{0.5F, 0.5F, -0.5F}, {1.0F, 1.0F}},
-    Vertex{{0.5F, 0.5F, 0.5F}, {1.0F, 0.0F}},    Vertex{{0.5F, 0.5F, 0.5F}, {1.0F, 0.0F}},
-    Vertex{{-0.5F, 0.5F, 0.5F}, {0.0F, 0.0F}},   Vertex{{-0.5F, 0.5F, -0.5F}, {0.0F, 1.0F}},
+    Vertex{{-0.5F, 0.5F, -0.5F}, {0.0F, 1.0F}, {0.0F, 1.0F, 0.0F}},
+    Vertex{{0.5F, 0.5F, -0.5F}, {1.0F, 1.0F}, {0.0F, 1.0F, 0.0F}},
+    Vertex{{0.5F, 0.5F, 0.5F}, {1.0F, 0.0F}, {0.0F, 1.0F, 0.0F}},
+    Vertex{{0.5F, 0.5F, 0.5F}, {1.0F, 0.0F}, {0.0F, 1.0F, 0.0F}},
+    Vertex{{-0.5F, 0.5F, 0.5F}, {0.0F, 0.0F}, {0.0F, 1.0F, 0.0F}},
+    Vertex{{-0.5F, 0.5F, -0.5F}, {0.0F, 1.0F}, {0.0F, 1.0F, 0.0F}},
 };
 
 const std::vector QUAD_VERTS{
-    Vertex{{-0.5F, 0.0F, -0.5F}, {0.0F, 0.0F}}, Vertex{{0.5F, 0.0F, -0.5F}, {1.0F, 0.0F}},
-    Vertex{{0.5F, 0.0F, 0.5F}, {1.0F, 1.0F}},   Vertex{{0.5F, 0.0F, 0.5F}, {1.0F, 1.0F}},
-    Vertex{{-0.5F, 0.0F, 0.5F}, {0.0F, 1.0F}},  Vertex{{-0.5F, 0.0F, -0.5F}, {0.0F, 0.0F}},
+    Vertex{{-0.5F, 0.0F, -0.5F}, {0.0F, 0.0F}, {0.0F, -1.0F, 0.0F}},
+    Vertex{{0.5F, 0.0F, -0.5F}, {1.0F, 0.0F}, {0.0F, -1.0F, 0.0F}},
+    Vertex{{0.5F, 0.0F, 0.5F}, {1.0F, 1.0F}, {0.0F, -1.0F, 0.0F}},
+    Vertex{{0.5F, 0.0F, 0.5F}, {1.0F, 1.0F}, {0.0F, -1.0F, 0.0F}},
+    Vertex{{-0.5F, 0.0F, 0.5F}, {0.0F, 1.0F}, {0.0F, -1.0F, 0.0F}},
+    Vertex{{-0.5F, 0.0F, -0.5F}, {0.0F, 0.0F}, {0.0F, -1.0F, 0.0F}},
 };
 
 class Mesh {
@@ -66,8 +88,8 @@ class Mesh {
               const core::Transform& transform = {}) const;
 
  private:
-  VertArr vert_arr_;
-  VertBuf vert_buf_;
+  gl::VertArr vert_arr_;
+  gl::VertBuf vert_buf_;
   std::vector<Vertex> vertices_;
   std::vector<unsigned int> indices_;
 

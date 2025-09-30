@@ -4,7 +4,7 @@
 
 #include "vert_buf.h"
 
-namespace pixf::graphics {
+namespace pixf::graphics::gl {
 VertBufLayout::VertBufLayout(const unsigned int capacity) {
   elements_.reserve(capacity);
 }
@@ -58,4 +58,4 @@ VertArr::~VertArr() { glDeleteVertexArrays(1, &id_); }
 void VertArr::Bind() const { glBindVertexArray(id_); }
 
 void VertArr::Unbind() { glBindVertexArray(0); }
-}  // namespace pixf::graphics
+}  // namespace pixf::graphics::gl
