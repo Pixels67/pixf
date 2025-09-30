@@ -58,7 +58,6 @@ set(PROJECT_SOURCES
         src/graphics/rendering.cpp
         src/graphics/shader_manager.h
         src/graphics/shader_manager.cpp
-        src/graphics/lighting/point_light.h
 )
 
 set(EXAMPLE_SOURCES
