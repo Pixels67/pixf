@@ -19,6 +19,7 @@ SystemsManager sys_manager;
 
 void Initialize(const int window_width, const int window_height, const char* window_title) {
   window = ui::RenderWindow::CreateWindow(window_title, window_width, window_height);
+  glfwSwapInterval(0);
 
   glfwSetFramebufferSizeCallback(window.GetWindow(), FramebufferSizeCallback);
   glfwSetCursorPosCallback(window.GetWindow(), MouseCallback);
@@ -72,6 +73,8 @@ void Update() {
 void Tick() {
   time::SetTime(glfwGetTime());
   ProcessInput();
+  glfwSetWindowTitle(window.GetWindow(),
+                     std::to_string(static_cast<int>(1.0F / time::GetDeltaTime())).c_str());
 }
 
 void Terminate() {

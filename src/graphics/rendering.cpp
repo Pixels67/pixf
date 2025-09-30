@@ -40,7 +40,7 @@ void RenderSystem::OnUpdate(EntityManager &entity_manager, double delta_time) {
 
       component->mesh.Render(component->material, *shader_manager, cam->transform,
                              cam->GetProjectionMatrix(), *transform);
-      transform->Rotate(glm::radians(45.0F), glm::vec3(0.0F, 1.0F, 0.0F));
+      transform->Rotate(glm::radians(4500.0F * delta_time), glm::vec3(0.0F, 1.0F, 0.0F));
     }
   } else if (orthographic) {
     const auto cam = entity_manager.GetSingleton<OrthographicCamera>();

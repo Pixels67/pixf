@@ -2,6 +2,7 @@
 
 #include <matrix.hpp>
 #include <string>
+#include <vector>
 
 namespace pixf::graphics::gl {
 class Shader {
