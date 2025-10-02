@@ -28,6 +28,11 @@ void RenderSystem::OnUpdate(EntityManager &entity_manager, const double delta_ti
   const bool perspective = entity_manager.SingletonExists<PerspectiveCamera>();
   const bool orthographic = entity_manager.SingletonExists<OrthographicCamera>();
   const auto shader_manager = entity_manager.GetSingleton<ShaderManager>();
+  std::vector<gl::lighting::PointLight> point_lights;
+  for (const auto &[entity, light] : entity_manager.Query<gl::lighting::PointLight>()) {
+    point_lights.push_back(*light);
+  }
+
   if (perspective) {
     const auto cam = entity_manager.GetSingleton<PerspectiveCamera>();
 
@@ -41,7 +46,7 @@ void RenderSystem::OnUpdate(EntityManager &entity_manager, const double delta_ti
       }
 
       component->mesh.Render(component->material, *shader_manager, cam->transform,
-                             cam->GetProjectionMatrix(), *transform);
+                             cam->GetProjectionMatrix(), cam->bg_color, point_lights, *transform);
       transform->Rotate(glm::radians(3000.0F * delta_time),
                         normalize(glm::vec3(0.68F, 1.0F, 0.24F)));
       transform->Rotate(glm::radians(3000.0F * delta_time),
@@ -62,7 +67,7 @@ void RenderSystem::OnUpdate(EntityManager &entity_manager, const double delta_ti
       }
 
       component->mesh.Render(component->material, *shader_manager, cam->transform,
-                             cam->GetProjectionMatrix(), *transform);
+                             cam->GetProjectionMatrix(), cam->bg_color, point_lights, *transform);
     }
   }
 }

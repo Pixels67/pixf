@@ -19,7 +19,7 @@ SystemsManager sys_manager;
 
 void Initialize(const int window_width, const int window_height, const char* window_title) {
   window = ui::RenderWindow::CreateWindow(window_title, window_width, window_height);
-  glfwSwapInterval(1);
+  glfwSwapInterval(0);
 
   glfwSetFramebufferSizeCallback(window.GetWindow(), FramebufferSizeCallback);
   glfwSetCursorPosCallback(window.GetWindow(), MouseCallback);
@@ -30,6 +30,22 @@ void Initialize(const int window_width, const int window_height, const char* win
   camera.bg_color = glm::vec3(0.12F, 0.15F, 0.15F);
   camera.viewport_size = glm::vec2(window_width, window_height);
   manager.CreateSingleton<graphics::PerspectiveCamera>(camera);
+
+  graphics::gl::lighting::PointLight point_light;
+  point_light.position = glm::vec3(-4.0F, 0.0F, 3.0F);
+  point_light.color = glm::vec3(1.0F, 0.5F, 0.0F);
+  point_light.intensity = 0.5f;
+  manager.AddComponentToEntity<graphics::gl::lighting::PointLight>(manager.CreateEntity(),
+                                                                   point_light);
+  point_light.position = glm::vec3(4.0F, 0.0F, 3.0F);
+  point_light.color = glm::vec3(0.0F, 0.5F, 1.0F);
+  manager.AddComponentToEntity<graphics::gl::lighting::PointLight>(manager.CreateEntity(),
+                                                                   point_light);
+
+  point_light.position = glm::vec3(0.0F, 0.0F, 10.0F);
+  point_light.color = glm::vec3(0.25F, 1.0F, 0.25F);
+  manager.AddComponentToEntity<graphics::gl::lighting::PointLight>(manager.CreateEntity(),
+                                                                   point_light);
 
   graphics::Renderable renderable;
   renderable.mesh = graphics::Mesh(graphics::CUBE_VERTS);
@@ -54,7 +70,7 @@ void Initialize(const int window_width, const int window_height, const char* win
 
       transform.position.x = 2.0F * (i - 1);
       transform.position.z = 2.0F * (k + 2);
-      transform.position.y = 1.0F * (k - 1.0F);
+      transform.position.y = 1.0F * (k - 1);
 
       manager.AddComponentToEntity(entity, transform);
       manager.AddComponentToEntity(entity, renderable);

@@ -5,6 +5,7 @@
 #include "camera.h"
 #include "core/transform.h"
 #include "gl/vert_arr.h"
+#include "lighting/point_light.h"
 #include "material.h"
 
 namespace pixf::graphics {
@@ -84,7 +85,8 @@ class Mesh {
   Mesh& operator=(Mesh&& other) noexcept;
 
   void Render(const Material& material, const ShaderManager& shader_manager,
-              const CameraTransform& camera, const glm::mat4& proj,
+              const CameraTransform& camera, const glm::mat4& proj, glm::vec3 ambient_light,
+              std::vector<gl::lighting::PointLight> point_lights,
               const core::Transform& transform = {}) const;
 
  private:

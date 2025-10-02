@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 
 #include "gtc/type_ptr.inl"
+#include "lighting/point_light.h"
 
 namespace pixf::graphics {
 gl::VertBufLayout GetLayout() {
@@ -105,6 +106,7 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
 
 void Mesh::Render(const Material& material, const ShaderManager& shader_manager,
                   const CameraTransform& camera, const glm::mat4& proj,
+                  const glm::vec3 ambient_light, std::vector<gl::lighting::PointLight> point_lights,
                   const core::Transform& transform) const {
   if (!vert_buf_.IsValid()) {
     return;
@@ -115,12 +117,21 @@ void Mesh::Render(const Material& material, const ShaderManager& shader_manager,
   shader_manager.SetUniform(material.shader, "transforms.view", camera.GetViewMatrix());
   shader_manager.SetUniform(material.shader, "transforms.model", transform.GetMatrix());
 
-  shader_manager.SetUniform(material.shader, "lighting_data.light_diffuse",
-                            glm::vec3(1.0F, 0.9F, 0.8F));
-  shader_manager.SetUniform(material.shader, "lighting_data.light_ambient",
-                            glm::vec3(0.2F, 0.3F, 0.3F));
-  shader_manager.SetUniform(material.shader, "lighting_data.light_pos",
-                            glm::vec3(-5.0F, 10.0F, 0.0F));
+  shader_manager.SetUniform(material.shader, "point_light_count",
+                            {static_cast<int>(point_lights.size())});
+
+  for (int i = 0; i < point_lights.size(); i++) {
+    std::string element = "point_light[" + std::to_string(i) + "]";
+    shader_manager.SetUniform(material.shader, element + ".light_color",
+                              point_lights[i].color * point_lights[i].intensity);
+    shader_manager.SetUniform(material.shader, element + ".light_pos", point_lights[i].position);
+    shader_manager.SetUniform(material.shader, element + ".k_linear",
+                              {point_lights[i].linear_falloff});
+    shader_manager.SetUniform(material.shader, element + ".k_quadratic",
+                              {point_lights[i].quadratic_falloff});
+  }
+
+  shader_manager.SetUniform(material.shader, "ambient_light", ambient_light);
 
   material.Bind(shader_manager);
 

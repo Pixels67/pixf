@@ -1,8 +1,6 @@
 #include "material.h"
 
-constexpr unsigned int DIFFUSE_MAP_ID = 0;
-constexpr unsigned int ROUGHNESS_MAP_ID = 1;
-constexpr unsigned int METALLIC_MAP_ID = 2;
+#include "graphics.h"
 
 namespace pixf::graphics {
 void Material::Bind(const ShaderManager& shader_manager) const {
