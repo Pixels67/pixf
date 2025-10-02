@@ -8,6 +8,8 @@
 namespace pixf::graphics {
 void RenderSystem::OnInit(EntityManager &entity_manager) {
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   const bool perspective = entity_manager.SingletonExists<PerspectiveCamera>();
   const bool orthographic = entity_manager.SingletonExists<OrthographicCamera>();
@@ -22,7 +24,7 @@ void RenderSystem::OnInit(EntityManager &entity_manager) {
   }
 }
 
-void RenderSystem::OnUpdate(EntityManager &entity_manager, double delta_time) {
+void RenderSystem::OnUpdate(EntityManager &entity_manager, const double delta_time) {
   const bool perspective = entity_manager.SingletonExists<PerspectiveCamera>();
   const bool orthographic = entity_manager.SingletonExists<OrthographicCamera>();
   const auto shader_manager = entity_manager.GetSingleton<ShaderManager>();
@@ -40,7 +42,12 @@ void RenderSystem::OnUpdate(EntityManager &entity_manager, double delta_time) {
 
       component->mesh.Render(component->material, *shader_manager, cam->transform,
                              cam->GetProjectionMatrix(), *transform);
-      transform->Rotate(glm::radians(4500.0F * delta_time), glm::vec3(0.0F, 1.0F, 0.0F));
+      transform->Rotate(glm::radians(3000.0F * delta_time),
+                        normalize(glm::vec3(0.68F, 1.0F, 0.24F)));
+      transform->Rotate(glm::radians(3000.0F * delta_time),
+                        normalize(glm::vec3(0.23F, -0.54F, -0.82F)));
+      transform->Rotate(glm::radians(3000.0F * delta_time),
+                        normalize(glm::vec3(-0.28F, 0.29F, -0.54F)));
     }
   } else if (orthographic) {
     const auto cam = entity_manager.GetSingleton<OrthographicCamera>();

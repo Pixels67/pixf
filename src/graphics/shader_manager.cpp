@@ -5,9 +5,9 @@
 #include <unordered_map>
 
 namespace pixf::graphics {
-ShaderHandle ShaderManager::CreateShader(const bool textured) {
+ShaderHandle ShaderManager::CreateShader() {
   const unsigned int id = GenShaderId().value();
-  shaders.emplace(id, textured);
+  shaders.emplace(id, std::move(gl::Shader()));
   return {id};
 }
 

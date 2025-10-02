@@ -1,66 +1,41 @@
 #include "material.h"
 
+constexpr unsigned int DIFFUSE_MAP_ID = 0;
+constexpr unsigned int ROUGHNESS_MAP_ID = 1;
+constexpr unsigned int METALLIC_MAP_ID = 2;
+
 namespace pixf::graphics {
-Material::Material(const gl::Texture& texture) : texture_(texture) {}
-
-Material::Material(const Material& other) {
-  if (this == &other) {
-    return;
-  }
-
-  shader_ = other.shader_;
-  diffuse_ = other.diffuse_;
-  if (other.texture_.has_value()) {
-    texture_ = other.texture_.value();
-  } else {
-    texture_ = std::nullopt;
-  }
-}
-
-Material& Material::operator=(const Material& other) {
-  if (this == &other) {
-    return *this;
-  }
-
-  shader_ = other.shader_;
-  diffuse_ = other.diffuse_;
-  if (other.texture_.has_value()) {
-    texture_ = other.texture_.value();
-  } else {
-    texture_ = std::nullopt;
-  }
-
-  return *this;
-}
-
-void Material::SetShader(const ShaderHandle shader) { this->shader_ = shader; }
-
-void Material::SetDiffuse(const glm::vec4& color) { this->diffuse_ = color; }
-
-void Material::SetAmbient(const glm::vec4& color) { this->ambient_ = color; }
-
-void Material::SetSpecular(const glm::vec4& color) { this->specular_ = color; }
-
-void Material::SetTexture(const gl::Texture& texture) { this->texture_ = texture; }
-
-ShaderHandle Material::GetShader() const { return shader_; }
-
-glm::vec4 Material::GetDiffuse() const { return diffuse_; }
-
-glm::vec4 Material::GetAmbient() const { return ambient_; }
-
-glm::vec4 Material::GetSpecular() const { return specular_; }
-
 void Material::Bind(const ShaderManager& shader_manager) const {
-  shader_manager.SetUniform(shader_, "uColor", {diffuse_.r, diffuse_.g, diffuse_.b, diffuse_.a});
-  shader_manager.Bind(shader_);
-  if (texture_.has_value()) {
-    texture_.value().Bind(0);
+  shader_manager.SetUniform(shader, "properties.diffuse", diffuse);
+  shader_manager.SetUniform(shader, "properties.metallic", {metallic});
+  shader_manager.SetUniform(shader, "properties.roughness", {roughness});
+
+  shader_manager.SetUniform(shader, "has_diffuse_map",
+                            {static_cast<const int>(diffuse_map.has_value())});
+  shader_manager.SetUniform(shader, "has_metallic_map",
+                            {static_cast<const int>(metallic_map.has_value())});
+  shader_manager.SetUniform(shader, "has_roughness_map",
+                            {static_cast<const int>(roughness_map.has_value())});
+
+  shader_manager.Bind(shader);
+
+  if (diffuse_map.has_value()) {
+    diffuse_map.value().Bind(DIFFUSE_MAP_ID);
+  }
+
+  if (roughness_map.has_value()) {
+    roughness_map.value().Bind(ROUGHNESS_MAP_ID);
+  }
+
+  if (metallic_map.has_value()) {
+    metallic_map.value().Bind(METALLIC_MAP_ID);
   }
 }
 
 void Material::Unbind() {
   gl::Shader::Unbind();
-  gl::Texture::Unbind(0);
+  gl::Texture::Unbind(DIFFUSE_MAP_ID);
+  gl::Texture::Unbind(ROUGHNESS_MAP_ID);
+  gl::Texture::Unbind(METALLIC_MAP_ID);
 }
 }  // namespace pixf::graphics

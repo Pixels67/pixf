@@ -111,23 +111,21 @@ void Mesh::Render(const Material& material, const ShaderManager& shader_manager,
   }
   vert_arr_.Bind();
 
-  shader_manager.SetUniform(material.GetShader(), "transforms.proj", proj);
-  shader_manager.SetUniform(material.GetShader(), "transforms.view", camera.GetViewMatrix());
-  shader_manager.SetUniform(material.GetShader(), "transforms.model", transform.GetMatrix());
+  shader_manager.SetUniform(material.shader, "transforms.proj", proj);
+  shader_manager.SetUniform(material.shader, "transforms.view", camera.GetViewMatrix());
+  shader_manager.SetUniform(material.shader, "transforms.model", transform.GetMatrix());
 
-  shader_manager.SetUniform(material.GetShader(), "lighting_data.light_diffuse",
+  shader_manager.SetUniform(material.shader, "lighting_data.light_diffuse",
                             glm::vec3(1.0F, 0.9F, 0.8F));
-  shader_manager.SetUniform(material.GetShader(), "lighting_data.light_ambient",
-                            glm::vec3(0.7F, 0.9F, 1.0F));
-  shader_manager.SetUniform(material.GetShader(), "lighting_data.light_pos",
+  shader_manager.SetUniform(material.shader, "lighting_data.light_ambient",
+                            glm::vec3(0.2F, 0.3F, 0.3F));
+  shader_manager.SetUniform(material.shader, "lighting_data.light_pos",
                             glm::vec3(-5.0F, 10.0F, 0.0F));
 
-  shader_manager.SetUniform(material.GetShader(), "properties.diffuse", material.GetDiffuse());
-  shader_manager.SetUniform(material.GetShader(), "properties.ambient", material.GetAmbient());
-  shader_manager.SetUniform(material.GetShader(), "properties.specular", material.GetAmbient());
   material.Bind(shader_manager);
 
   glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_count_), GL_UNSIGNED_INT, nullptr);
+
   Material::Unbind();
 }
 }  // namespace pixf::graphics

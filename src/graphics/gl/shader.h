@@ -12,7 +12,7 @@ class Shader {
   };
 
  public:
-  explicit Shader(bool textured = false);
+  explicit Shader();
   explicit Shader(const std::string& src);
 
   Shader(const Shader& other);

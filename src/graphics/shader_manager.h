@@ -15,7 +15,7 @@ namespace pixf::graphics {
 struct ShaderManager final : Component {
   std::unordered_map<unsigned int, gl::Shader> shaders{};
 
-  ShaderHandle CreateShader(bool textured = false);
+  ShaderHandle CreateShader();
   ShaderHandle CreateShader(const std::string& src);
 
   const gl::Shader& GetShader(ShaderHandle handle) const;

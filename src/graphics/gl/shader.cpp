@@ -15,76 +15,6 @@ constexpr int POS_LAYOUT_INDEX = 0;
 constexpr int UV_LAYOUT_INDEX = 1;
 constexpr int NORM_LAYOUT_INDEX = 2;
 
-constexpr auto DEFAULT_TEXTURED_SHADER = R"(#version 330 core
-
-struct FragData {
-    vec3 normal;
-    vec3 frag_pos;
-    vec2 uv;
-};
-
-struct LightingData {
-    vec3 light_diffuse;
-    vec3 light_ambient;
-    vec3 light_pos;
-};
-
-struct Properties {
-    vec4 ambient;
-    vec4 diffuse;
-};
-
-@VERTEX
-
-struct Transforms {
-    mat4 model;
-    mat4 view;
-    mat4 proj;
-};
-
-@pos in vec3 aPos;
-@uv in vec2 aUv;
-@norm in vec3 aNormal;
-
-uniform Transforms transforms;
-uniform Properties properties;
-uniform LightingData lighting_data;
-
-out FragData frag_data;
-out LightingData frag_lighting_data;
-out Properties frag_properties;
-
-void main()
-{
-    gl_Position = transforms.proj * transforms.view * transforms.model * vec4(aPos, 1.0);
-
-    frag_data.frag_pos = (transforms.model * vec4(aPos, 1.0)).xyz;
-    frag_data.uv = aUv;
-    frag_data.normal = mat3(transpose(inverse(transforms.model))) * aNormal;
-
-    frag_lighting_data = lighting_data;
-    frag_properties = properties;
-}
-
-@FRAGMENT
-
-in FragData frag_data;
-in LightingData frag_lighting_data;
-in Properties frag_properties;
-
-out vec4 FragColor;
-
-uniform sampler2D tex;
-
-void main()
-{
-    vec3 norm = normalize(frag_data.normal);
-    vec3 light_dir = normalize(frag_lighting_data.light_pos - frag_data.frag_pos);
-    vec4 diffuse = texture(tex, frag_data.uv) * frag_properties.diffuse * max(dot(norm, light_dir), 0.0);
-    vec4 ambient = texture(tex, frag_data.uv) * frag_properties.ambient;
-    FragColor = vec4(frag_lighting_data.light_ambient, 1.0) * ambient + vec4(frag_lighting_data.light_diffuse, 1.0) * diffuse;
-})";
-
 constexpr auto DEFAULT_SHADER = R"(#version 330 core
 
 struct FragData {
@@ -100,8 +30,9 @@ struct LightingData {
 };
 
 struct Properties {
-    vec4 ambient;
     vec4 diffuse;
+    float metallic;
+    float roughness;
 };
 
 @VERTEX
@@ -128,11 +59,13 @@ void main()
 {
     gl_Position = transforms.proj * transforms.view * transforms.model * vec4(aPos, 1.0);
 
-    frag_data.frag_pos = (transforms.model * vec4(aPos, 1.0)).xyz;
+    frag_data.frag_pos = (transforms.view * transforms.model * vec4(aPos, 1.0)).xyz;
     frag_data.uv = aUv;
-    frag_data.normal = mat3(transpose(inverse(transforms.model))) * aNormal;
+    frag_data.normal = mat3(transpose(inverse(transforms.view * transforms.model))) * aNormal;
 
     frag_lighting_data = lighting_data;
+    frag_lighting_data.light_pos = (transforms.view * vec4(lighting_data.light_pos, 1.0)).xyz;
+
     frag_properties = properties;
 }
 
@@ -142,24 +75,66 @@ in FragData frag_data;
 in LightingData frag_lighting_data;
 in Properties frag_properties;
 
+uniform int has_diffuse_map;
+uniform int has_roughness_map;
+uniform int has_metallic_map;
+
 out vec4 FragColor;
+
+uniform sampler2D diffuse_map;
+uniform sampler2D roughness_map;
+uniform sampler2D metallic_map;
+
+float diffuse(vec3 light_dir, vec3 normal) {
+    return max(dot(normal, light_dir), 0.0);
+}
+
+float specular(vec3 light_dir, vec3 normal, vec3 view_dir, float shininess) {
+    vec3 reflect_dir = reflect(-light_dir, normal);
+    return pow(max(dot(view_dir, reflect_dir), 0.0), shininess);
+}
+
 void main()
 {
     vec3 norm = normalize(frag_data.normal);
     vec3 light_dir = normalize(frag_lighting_data.light_pos - frag_data.frag_pos);
-    vec4 diffuse = frag_properties.diffuse * max(dot(norm, light_dir), 0.0);
-    vec4 ambient = frag_properties.ambient;
-    FragColor = vec4(frag_lighting_data.light_ambient, 1.0) * ambient + vec4(frag_lighting_data.light_diffuse, 1.0) * diffuse;
+    vec3 view_dir = normalize(-frag_data.frag_pos);
+
+    vec4 amb;
+    vec4 diff;
+    if (has_diffuse_map != 0) {
+        vec4 col = texture(diffuse_map, frag_data.uv);
+        amb = vec4(frag_lighting_data.light_ambient * col.rgb, col.a);
+        diff = vec4(col.rgb * diffuse(light_dir, norm) * frag_lighting_data.light_diffuse, col.a);
+    } else {
+        amb = vec4(frag_lighting_data.light_ambient * frag_properties.diffuse.rgb, frag_properties.diffuse.a);
+        diff = vec4(frag_properties.diffuse.rgb * diffuse(light_dir, norm) * frag_lighting_data.light_diffuse, frag_properties.diffuse.a);
+    }
+
+    float shininess;
+    if (has_metallic_map != 0) {
+        vec4 col = texture(metallic_map, frag_data.uv);
+        shininess = pow(2.0, clamp((col.r + col.g + col.b) * 8.0 / 3.0, 0.0, 8.0));
+    } else {
+        shininess = pow(2.0, clamp(frag_properties.metallic * 8.0, 0.0, 8.0));
+    }
+
+    float smoothness;
+    if (has_roughness_map != 0) {
+        vec4 col = texture(roughness_map, frag_data.uv);
+        smoothness = 1.0 - (col.r + col.g + col.b) / 3.0;
+    } else {
+        smoothness = 1.0 - frag_properties.roughness * 1.0;
+    }
+
+    vec4 spec = vec4(smoothness * frag_lighting_data.light_diffuse * specular(light_dir, norm, view_dir, shininess), 1.0);
+
+    vec4 result = amb + diff + spec;
+    FragColor = result;
 })";
 
 namespace pixf::graphics::gl {
-Shader::Shader(const bool textured) {
-  if (textured) {
-    Init(DEFAULT_TEXTURED_SHADER);
-  } else {
-    Init(DEFAULT_SHADER);
-  }
-}
+Shader::Shader() { Init(DEFAULT_SHADER); }
 
 Shader::Shader(const std::string& src) { Init(src); }
 
@@ -208,7 +183,13 @@ Shader& Shader::operator=(Shader&& other) noexcept {
 
 Shader::~Shader() { Cleanup(); }
 
-void Shader::Bind() const { glUseProgram(id_); }
+void Shader::Bind() const {
+  glUseProgram(id_);
+
+  glUniform1i(glGetUniformLocation(id_, "diffuse_map"), 0);
+  glUniform1i(glGetUniformLocation(id_, "roughness_map"), 1);
+  glUniform1i(glGetUniformLocation(id_, "metallic_map"), 2);
+}
 
 void Shader::SetUniform(const std::string& name, const std::initializer_list<int> values) const {
   Bind();
