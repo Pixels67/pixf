@@ -1,15 +1,14 @@
 #pragma once
 
 #include "entity_manager.h"
-#include "mesh.h"
+#include "material.h"
+#include "resource_manager.h"
 #include "systems_manager.h"
 
 namespace pixf::graphics {
 struct Renderable final : Component {
-  Mesh mesh;
+  MeshHandle mesh;
   Material material;
-
-  Renderable& operator=(const Renderable& other) = default;
 };
 
 struct RenderSystem final : System {

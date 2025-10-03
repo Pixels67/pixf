@@ -5,8 +5,11 @@
 #include "gl/texture.h"
 #include "gl/vert_arr.h"
 #include "gl/vert_buf.h"
+#include "lighting/point_light.h"
+#include "material.h"
 #include "mesh.h"
 #include "rendering.h"
+#include "resource_manager.h"
 
 constexpr unsigned int DIFFUSE_MAP_ID = 0;
 constexpr unsigned int ROUGHNESS_MAP_ID = 1;

@@ -48,7 +48,8 @@ void Initialize(const int window_width, const int window_height, const char* win
                                                                    point_light);
 
   graphics::Renderable renderable;
-  renderable.mesh = graphics::Mesh(graphics::CUBE_VERTS);
+  renderable.mesh =
+      manager.GetSingleton<graphics::ResourceManager>()->CreateMesh(graphics::CUBE_VERTS);
   graphics::gl::TextureConfig config{
       graphics::gl::TextureConfig::InterpMode::NEAREST,
       graphics::gl::TextureConfig::WrapMode::CLAMP_TO_EDGE,
@@ -61,7 +62,7 @@ void Initialize(const int window_width, const int window_height, const char* win
   renderable.material.roughness_map =
       manager.GetSingleton<graphics::ResourceManager>()->CreateTexture("roughness.png", config);
 
-  ShaderHandle shader = manager.GetSingleton<graphics::ResourceManager>()->CreateShader();
+  graphics::ShaderHandle shader = manager.GetSingleton<graphics::ResourceManager>()->CreateShader();
   renderable.material.shader = shader;
 
   core::Transform transform;

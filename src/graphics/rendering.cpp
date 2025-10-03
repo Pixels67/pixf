@@ -2,7 +2,9 @@
 
 #include <memory>
 
+#include "camera.h"
 #include "entity_manager.h"
+#include "lighting/point_light.h"
 #include "mesh.h"
 
 namespace pixf::graphics {
@@ -27,7 +29,7 @@ void RenderSystem::OnInit(EntityManager &entity_manager) {
 void RenderSystem::OnUpdate(EntityManager &entity_manager, const double delta_time) {
   const bool perspective = entity_manager.SingletonExists<PerspectiveCamera>();
   const bool orthographic = entity_manager.SingletonExists<OrthographicCamera>();
-  const auto shader_manager = entity_manager.GetSingleton<ResourceManager>();
+  const auto resource_manager = entity_manager.GetSingleton<ResourceManager>();
   std::vector<gl::lighting::PointLight> point_lights;
   for (const auto &[entity, light] : entity_manager.Query<gl::lighting::PointLight>()) {
     point_lights.push_back(*light);
@@ -45,8 +47,9 @@ void RenderSystem::OnUpdate(EntityManager &entity_manager, const double delta_ti
         continue;
       }
 
-      component->mesh.Render(component->material, *shader_manager, cam->transform,
-                             cam->GetProjectionMatrix(), cam->bg_color, point_lights, *transform);
+      const std::shared_ptr<const Mesh> mesh = resource_manager->GetMesh(component->mesh);
+      mesh->Render(component->material, *resource_manager, cam->transform,
+                   cam->GetProjectionMatrix(), cam->bg_color, point_lights, *transform);
       transform->Rotate(glm::radians(3000.0F * delta_time),
                         normalize(glm::vec3(0.68F, 1.0F, 0.24F)));
       transform->Rotate(glm::radians(3000.0F * delta_time),
@@ -66,8 +69,9 @@ void RenderSystem::OnUpdate(EntityManager &entity_manager, const double delta_ti
         continue;
       }
 
-      component->mesh.Render(component->material, *shader_manager, cam->transform,
-                             cam->GetProjectionMatrix(), cam->bg_color, point_lights, *transform);
+      const std::shared_ptr<const Mesh> mesh = resource_manager->GetMesh(component->mesh);
+      mesh->Render(component->material, *resource_manager, cam->transform,
+                   cam->GetProjectionMatrix(), cam->bg_color, point_lights, *transform);
     }
   }
 }

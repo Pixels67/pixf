@@ -2,13 +2,17 @@
 
 #include <vector>
 
-#include "camera.h"
 #include "core/transform.h"
 #include "gl/vert_arr.h"
-#include "lighting/point_light.h"
-#include "material.h"
 
 namespace pixf::graphics {
+namespace gl::lighting {
+struct PointLight;
+}
+struct CameraTransform;
+struct Material;
+struct ResourceManager;
+
 struct Vertex {
   glm::vec3 position;
   glm::vec2 tex_coords;

@@ -3,7 +3,6 @@
 #include <optional>
 #include <vec4.hpp>
 
-#include "gl/shader.h"
 #include "resource_manager.h"
 
 namespace pixf::graphics {

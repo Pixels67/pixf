@@ -2,8 +2,12 @@
 
 #include <glad/glad.h>
 
+#include "camera.h"
+#include "gl/shader.h"
 #include "gtc/type_ptr.inl"
 #include "lighting/point_light.h"
+#include "material.h"
+#include "resource_manager.h"
 
 namespace pixf::graphics {
 gl::VertBufLayout GetLayout() {
