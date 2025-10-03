@@ -24,7 +24,7 @@ void Initialize(const int window_width, const int window_height, const char* win
   glfwSetFramebufferSizeCallback(window.GetWindow(), FramebufferSizeCallback);
   glfwSetCursorPosCallback(window.GetWindow(), MouseCallback);
 
-  manager.CreateSingleton<graphics::ShaderManager>({});
+  manager.CreateSingleton<graphics::ResourceManager>({});
 
   graphics::PerspectiveCamera camera;
   camera.bg_color = glm::vec3(0.12F, 0.15F, 0.15F);
@@ -54,9 +54,14 @@ void Initialize(const int window_width, const int window_height, const char* win
       graphics::gl::TextureConfig::WrapMode::CLAMP_TO_EDGE,
   };
 
-  renderable.material.diffuse_map = graphics::gl::Texture("tex.png", config);
-  renderable.material.metallic_map = graphics::gl::Texture("metallic.png", config);
-  ShaderHandle shader = manager.GetSingleton<graphics::ShaderManager>()->CreateShader();
+  renderable.material.diffuse_map =
+      manager.GetSingleton<graphics::ResourceManager>()->CreateTexture("tex.png", config);
+  renderable.material.metallic_map =
+      manager.GetSingleton<graphics::ResourceManager>()->CreateTexture("metallic.png", config);
+  renderable.material.roughness_map =
+      manager.GetSingleton<graphics::ResourceManager>()->CreateTexture("roughness.png", config);
+
+  ShaderHandle shader = manager.GetSingleton<graphics::ResourceManager>()->CreateShader();
   renderable.material.shader = shader;
 
   core::Transform transform;
@@ -115,58 +120,58 @@ void ProcessInput() {
 
   if (glfwGetKey(window.GetWindow(), GLFW_KEY_W) == GLFW_PRESS) {
     const auto cam = manager.GetSingleton<graphics::PerspectiveCamera>();
-    cam->transform.position +=
-        0.1F * normalize(cam->transform.rotation * glm::vec3(0.0F, 0.0F, 1.0F));
+    cam->transform.position += 10.0F * static_cast<float>(time::GetDeltaTime()) *
+                               normalize(cam->transform.rotation * glm::vec3(0.0F, 0.0F, 1.0F));
   }
 
   if (glfwGetKey(window.GetWindow(), GLFW_KEY_S) == GLFW_PRESS) {
     const auto cam = manager.GetSingleton<graphics::PerspectiveCamera>();
-    cam->transform.position -=
-        0.1F * normalize(cam->transform.rotation * glm::vec3(0.0F, 0.0F, 1.0F));
+    cam->transform.position -= 10.0F * static_cast<float>(time::GetDeltaTime()) *
+                               normalize(cam->transform.rotation * glm::vec3(0.0F, 0.0F, 1.0F));
   }
 
   if (glfwGetKey(window.GetWindow(), GLFW_KEY_D) == GLFW_PRESS) {
     const auto cam = manager.GetSingleton<graphics::PerspectiveCamera>();
-    cam->transform.position +=
-        0.1F * normalize(cam->transform.rotation * glm::vec3(1.0F, 0.0F, 0.0F));
+    cam->transform.position += 10.0F * static_cast<float>(time::GetDeltaTime()) *
+                               normalize(cam->transform.rotation * glm::vec3(1.0F, 0.0F, 0.0F));
   }
 
   if (glfwGetKey(window.GetWindow(), GLFW_KEY_A) == GLFW_PRESS) {
     const auto cam = manager.GetSingleton<graphics::PerspectiveCamera>();
-    cam->transform.position -=
-        0.1F * normalize(cam->transform.rotation * glm::vec3(1.0F, 0.0F, 0.0F));
+    cam->transform.position -= 10.0F * static_cast<float>(time::GetDeltaTime()) *
+                               normalize(cam->transform.rotation * glm::vec3(1.0F, 0.0F, 0.0F));
   }
 
   if (glfwGetKey(window.GetWindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
     const auto cam = manager.GetSingleton<graphics::PerspectiveCamera>();
-    cam->transform.position +=
-        0.1F * normalize(cam->transform.rotation * glm::vec3(0.0F, 1.0F, 0.0F));
+    cam->transform.position += 10.0F * static_cast<float>(time::GetDeltaTime()) *
+                               normalize(cam->transform.rotation * glm::vec3(0.0F, 1.0F, 0.0F));
   }
 
   if (glfwGetKey(window.GetWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
     const auto cam = manager.GetSingleton<graphics::PerspectiveCamera>();
-    cam->transform.position -=
-        0.1F * normalize(cam->transform.rotation * glm::vec3(0.0F, 1.0F, 0.0F));
+    cam->transform.position -= 10.0F * static_cast<float>(time::GetDeltaTime()) *
+                               normalize(cam->transform.rotation * glm::vec3(0.0F, 1.0F, 0.0F));
   }
 
   if (glfwGetKey(window.GetWindow(), GLFW_KEY_E) == GLFW_PRESS) {
     manager.GetSingleton<graphics::PerspectiveCamera>()->transform.Rotate(
-        1.0F, glm::vec3(0.0F, 1.0F, 0.0F));
+        100.0F * static_cast<float>(time::GetDeltaTime()), glm::vec3(0.0F, 1.0F, 0.0F));
   }
 
   if (glfwGetKey(window.GetWindow(), GLFW_KEY_Q) == GLFW_PRESS) {
     manager.GetSingleton<graphics::PerspectiveCamera>()->transform.Rotate(
-        -1.0F, glm::vec3(0.0F, 1.0F, 0.0F));
+        -100.0F * static_cast<float>(time::GetDeltaTime()), glm::vec3(0.0F, 1.0F, 0.0F));
   }
 
   if (glfwGetKey(window.GetWindow(), GLFW_KEY_F) == GLFW_PRESS) {
     manager.GetSingleton<graphics::PerspectiveCamera>()->transform.Rotate(
-        1.0F, glm::vec3(1.0F, 0.0F, 0.0F));
+        100.0F * static_cast<float>(time::GetDeltaTime()), glm::vec3(1.0F, 0.0F, 0.0F));
   }
 
   if (glfwGetKey(window.GetWindow(), GLFW_KEY_R) == GLFW_PRESS) {
     manager.GetSingleton<graphics::PerspectiveCamera>()->transform.Rotate(
-        -1.0F, glm::vec3(1.0F, 0.0F, 0.0F));
+        -100.0F * static_cast<float>(time::GetDeltaTime()), glm::vec3(1.0F, 0.0F, 0.0F));
   }
 }
 

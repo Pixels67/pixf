@@ -84,7 +84,7 @@ class Mesh {
 
   Mesh& operator=(Mesh&& other) noexcept;
 
-  void Render(const Material& material, const ShaderManager& shader_manager,
+  void Render(const Material& material, const ResourceManager& resource_manager,
               const CameraTransform& camera, const glm::mat4& proj, glm::vec3 ambient_light,
               std::vector<gl::lighting::PointLight> point_lights,
               const core::Transform& transform = {}) const;

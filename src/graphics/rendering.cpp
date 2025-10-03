@@ -27,7 +27,7 @@ void RenderSystem::OnInit(EntityManager &entity_manager) {
 void RenderSystem::OnUpdate(EntityManager &entity_manager, const double delta_time) {
   const bool perspective = entity_manager.SingletonExists<PerspectiveCamera>();
   const bool orthographic = entity_manager.SingletonExists<OrthographicCamera>();
-  const auto shader_manager = entity_manager.GetSingleton<ShaderManager>();
+  const auto shader_manager = entity_manager.GetSingleton<ResourceManager>();
   std::vector<gl::lighting::PointLight> point_lights;
   for (const auto &[entity, light] : entity_manager.Query<gl::lighting::PointLight>()) {
     point_lights.push_back(*light);

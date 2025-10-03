@@ -3,30 +3,30 @@
 #include "graphics.h"
 
 namespace pixf::graphics {
-void Material::Bind(const ShaderManager& shader_manager) const {
-  shader_manager.SetUniform(shader, "properties.diffuse", diffuse);
-  shader_manager.SetUniform(shader, "properties.metallic", {metallic});
-  shader_manager.SetUniform(shader, "properties.roughness", {roughness});
+void Material::Bind(const ResourceManager& resource_manager) const {
+  resource_manager.GetShader(shader)->SetUniform("properties.diffuse", diffuse);
+  resource_manager.GetShader(shader)->SetUniform("properties.metallic", {metallic});
+  resource_manager.GetShader(shader)->SetUniform("properties.roughness", {roughness});
 
-  shader_manager.SetUniform(shader, "has_diffuse_map",
-                            {static_cast<const int>(diffuse_map.has_value())});
-  shader_manager.SetUniform(shader, "has_metallic_map",
-                            {static_cast<const int>(metallic_map.has_value())});
-  shader_manager.SetUniform(shader, "has_roughness_map",
-                            {static_cast<const int>(roughness_map.has_value())});
+  resource_manager.GetShader(shader)->SetUniform("has_diffuse_map",
+                                                 {static_cast<const int>(diffuse_map.has_value())});
+  resource_manager.GetShader(shader)->SetUniform(
+      "has_metallic_map", {static_cast<const int>(metallic_map.has_value())});
+  resource_manager.GetShader(shader)->SetUniform(
+      "has_roughness_map", {static_cast<const int>(roughness_map.has_value())});
 
-  shader_manager.Bind(shader);
+  resource_manager.GetShader(shader)->Bind();
 
   if (diffuse_map.has_value()) {
-    diffuse_map.value().Bind(DIFFUSE_MAP_ID);
+    resource_manager.GetTexture(diffuse_map.value())->Bind(DIFFUSE_MAP_ID);
   }
 
   if (roughness_map.has_value()) {
-    roughness_map.value().Bind(ROUGHNESS_MAP_ID);
+    resource_manager.GetTexture(roughness_map.value())->Bind(ROUGHNESS_MAP_ID);
   }
 
   if (metallic_map.has_value()) {
-    metallic_map.value().Bind(METALLIC_MAP_ID);
+    resource_manager.GetTexture(metallic_map.value())->Bind(METALLIC_MAP_ID);
   }
 }
 

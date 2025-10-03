@@ -104,7 +104,7 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
   return *this;
 }
 
-void Mesh::Render(const Material& material, const ShaderManager& shader_manager,
+void Mesh::Render(const Material& material, const ResourceManager& resource_manager,
                   const CameraTransform& camera, const glm::mat4& proj,
                   const glm::vec3 ambient_light, std::vector<gl::lighting::PointLight> point_lights,
                   const core::Transform& transform) const {
@@ -113,27 +113,30 @@ void Mesh::Render(const Material& material, const ShaderManager& shader_manager,
   }
   vert_arr_.Bind();
 
-  shader_manager.SetUniform(material.shader, "transforms.proj", proj);
-  shader_manager.SetUniform(material.shader, "transforms.view", camera.GetViewMatrix());
-  shader_manager.SetUniform(material.shader, "transforms.model", transform.GetMatrix());
+  resource_manager.GetShader(material.shader)->SetUniform("transforms.proj", proj);
+  resource_manager.GetShader(material.shader)
+      ->SetUniform("transforms.view", camera.GetViewMatrix());
+  resource_manager.GetShader(material.shader)
+      ->SetUniform("transforms.model", transform.GetMatrix());
 
-  shader_manager.SetUniform(material.shader, "point_light_count",
-                            {static_cast<int>(point_lights.size())});
+  resource_manager.GetShader(material.shader)
+      ->SetUniform("point_light_count", {static_cast<int>(point_lights.size())});
 
   for (int i = 0; i < point_lights.size(); i++) {
     std::string element = "point_light[" + std::to_string(i) + "]";
-    shader_manager.SetUniform(material.shader, element + ".light_color",
-                              point_lights[i].color * point_lights[i].intensity);
-    shader_manager.SetUniform(material.shader, element + ".light_pos", point_lights[i].position);
-    shader_manager.SetUniform(material.shader, element + ".k_linear",
-                              {point_lights[i].linear_falloff});
-    shader_manager.SetUniform(material.shader, element + ".k_quadratic",
-                              {point_lights[i].quadratic_falloff});
+    resource_manager.GetShader(material.shader)
+        ->SetUniform(element + ".light_color", point_lights[i].color * point_lights[i].intensity);
+    resource_manager.GetShader(material.shader)
+        ->SetUniform(element + ".light_pos", point_lights[i].position);
+    resource_manager.GetShader(material.shader)
+        ->SetUniform(element + ".k_linear", {point_lights[i].linear_falloff});
+    resource_manager.GetShader(material.shader)
+        ->SetUniform(element + ".k_quadratic", {point_lights[i].quadratic_falloff});
   }
 
-  shader_manager.SetUniform(material.shader, "ambient_light", ambient_light);
+  resource_manager.GetShader(material.shader)->SetUniform("ambient_light", ambient_light);
 
-  material.Bind(shader_manager);
+  material.Bind(resource_manager);
 
   glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_count_), GL_UNSIGNED_INT, nullptr);
 

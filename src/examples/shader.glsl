@@ -1,4 +1,4 @@
-version 330 core
+#version 330 core
 
 struct FragData {
     vec3 normal;
@@ -47,11 +47,11 @@ void main()
 @FRAGMENT
 
 struct PointLight {
-    vec3 light_color[1024];
-    vec3 light_pos[1024];
-    float k_const[1024];
-    float k_linear[32];
-    float k_quadratic[32];
+    vec3 light_color;
+    vec3 light_pos;
+    float k_const;
+    float k_linear;
+    float k_quadratic;
 };
 
 in FragData frag_data;
@@ -62,7 +62,8 @@ uniform int has_diffuse_map;
 uniform int has_roughness_map;
 uniform int has_metallic_map;
 uniform vec3 ambient_light;
-uniform PointLight point_light;
+uniform PointLight point_light[128];
+
 uniform int point_light_count;
 
 out vec4 FragColor;
@@ -84,23 +85,23 @@ void main()
 {
     vec4 result = vec4(0.0);
     for (int i = 0; i < point_light_count; i++) {
-        vec3 light_pos = (view_trans * vec4(point_light.light_pos[i], 1.0)).xyz;
+        vec3 light_pos = (view_trans * vec4(point_light[i].light_pos, 1.0)).xyz;
         vec3 norm = normalize(frag_data.normal);
         vec3 light_dir = normalize(light_pos - frag_data.frag_pos);
         vec3 view_dir = normalize(-frag_data.frag_pos);
 
         float light_dist = length(light_pos - frag_data.frag_pos);
-        float light_i = 1.0 / (point_light.k_const[i] + point_light.k_linear[i] * light_dist + point_light.k_quadratic[i] * light_dist * light_dist);
+        float light_i = 1.0 / (point_light[i].k_const + point_light[i].k_linear * light_dist + point_light[i].k_quadratic * light_dist * light_dist);
 
         vec4 amb;
         vec4 diff;
         if (has_diffuse_map != 0) {
             vec4 col = texture(diffuse_map, frag_data.uv);
             amb = vec4(ambient_light * col.rgb, col.a);
-            diff = vec4(col.rgb * diffuse(light_dir, norm) * point_light.light_color[i] * light_i, col.a);
+            diff = vec4(col.rgb * diffuse(light_dir, norm) * point_light[i].light_color * light_i, col.a);
         } else {
             amb = vec4(ambient_light * frag_properties.diffuse.rgb, frag_properties.diffuse.a);
-            diff = vec4(frag_properties.diffuse.rgb * diffuse(light_dir, norm) * point_light.light_color[i] * light_i, frag_properties.diffuse.a);
+            diff = vec4(frag_properties.diffuse.rgb * diffuse(light_dir, norm) * point_light[i].light_color * light_i, frag_properties.diffuse.a);
         }
 
         float shininess;
@@ -119,10 +120,10 @@ void main()
             smoothness = 1.0 - frag_properties.roughness * 1.0;
         }
 
-        vec4 spec = vec4(smoothness * point_light.light_color[i] * light_i * specular(light_dir, norm, view_dir, shininess), 1.0);
+        vec4 spec = vec4(smoothness * point_light[i].light_color * light_i * specular(light_dir, norm, view_dir, shininess), 1.0);
 
         result += amb + diff + spec;
     }
 
-    FragColor = result;
+    FragColor += result;
 }
