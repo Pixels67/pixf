@@ -2,13 +2,19 @@
 
 #include "entity_manager.h"
 #include "material.h"
+#include "model.h"
 #include "resource_manager.h"
 #include "systems_manager.h"
 
 namespace pixf::graphics {
-struct Renderable final : Component {
-  MeshHandle mesh;
-  Material material;
+struct MeshRenderer final : Component {
+  MeshHandle mesh = {};
+  Material material = {};
+};
+
+struct ModelRenderer final : Component {
+  Model model = {};
+  Material material = {};
 };
 
 struct RenderSystem final : System {

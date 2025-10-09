@@ -11,6 +11,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glfw)
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glad)
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/stbi)
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glm)
+add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/assimp)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/lib/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/bin/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
@@ -21,48 +22,15 @@ set(VENDOR_PATH
         ${PROJECT_SOURCE_DIR}/vendor
 )
 
-set(PROJECT_SOURCES
-        include/pixf.h
-        src/pixf.cpp
-        src/graphics/graphics.h
-        src/graphics/gl/shader.cpp
-        src/graphics/gl/shader.h
-        src/graphics/gl/vert_arr.h
-        src/graphics/gl/vert_arr.cpp
-        src/graphics/gl/vert_buf.h
-        src/graphics/gl/vert_buf.cpp
-        src/graphics/mesh.h
-        src/graphics/mesh.cpp
-        src/core/string_utils.h
-        src/core/string_utils.cpp
-        src/file/file_io.h
-        src/file/file_io.cpp
-        src/file/file.h
-        src/graphics/gl/texture.h
-        src/graphics/gl/texture.cpp
-        src/core/transform.cpp
-        src/core/transform.h
-        src/graphics/camera.cpp
-        src/graphics/camera.h
-        src/time/time.cpp
-        src/time/time.h
-        src/graphics/material.cpp
-        src/graphics/material.h
-        src/ui/render_window.cpp
-        src/ui/render_window.h
-        src/entity_manager.h
-        src/entity_manager.cpp
-        src/systems_manager.h
-        src/systems_manager.cpp
-        src/graphics/rendering.h
-        src/graphics/rendering.cpp
-        src/graphics/resource_manager.h
-        src/graphics/resource_manager.cpp
-        src/graphics/lighting/point_light.h
+file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_LIST_DIR}/include/*.h"
+        "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/*.h"
 )
 
+
 set(EXAMPLE_SOURCES
-        src/examples/example.cpp
+        examples/example.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC
@@ -76,6 +44,7 @@ target_link_libraries(${PROJECT_NAME}
         glad
         stbi
         glm
+        assimp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -85,6 +54,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         ${VENDOR_PATH}/glad/include
         ${VENDOR_PATH}/stbi/include
         ${VENDOR_PATH}/glm/glm
+        ${VENDOR_PATH}/assimp/include
 )
 
 

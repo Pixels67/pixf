@@ -4,7 +4,7 @@
 
 #include "entity_manager.h"
 
-namespace pixf::graphics::gl::lighting {
+namespace pixf::graphics::lighting {
 struct PointLight final : Component {
   glm::vec3 position{};
   glm::vec3 color = glm::vec3{1.0F};
@@ -12,4 +12,4 @@ struct PointLight final : Component {
   float linear_falloff = 0.045F;
   float quadratic_falloff = 0.0075F;
 };
-}  // namespace pixf::graphics::gl::lighting
+}  // namespace pixf::graphics::lighting

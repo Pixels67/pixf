@@ -35,6 +35,8 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>&
 
   vert_buf_ = gl::VertBuf(vertex_data, indices, GL_STATIC_DRAW);
   vert_arr_ = gl::VertArr(vert_buf_, GetLayout());
+
+  sub_meshes_.push_back({});
 }
 
 Mesh::Mesh(const std::vector<Vertex>& vertices) {
@@ -61,6 +63,8 @@ Mesh::Mesh(const std::vector<Vertex>& vertices) {
   vert_arr_ = gl::VertArr(vert_buf_, GetLayout());
   vertices_ = vertices;
   indices_ = indices;
+
+  sub_meshes_.push_back({});
 }
 
 Mesh::Mesh(const Mesh& other) {
@@ -92,6 +96,7 @@ Mesh::Mesh(Mesh&& other) noexcept {
   this->index_count_ = other.index_count_;
   this->vertices_ = std::move(other.vertices_);
   this->indices_ = std::move(other.indices_);
+  this->sub_meshes_ = std::move(other.sub_meshes_);
 }
 
 Mesh& Mesh::operator=(Mesh&& other) noexcept {
@@ -104,19 +109,49 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
   this->index_count_ = other.index_count_;
   this->vertices_ = std::move(other.vertices_);
   this->indices_ = std::move(other.indices_);
+  this->sub_meshes_ = std::move(other.sub_meshes_);
 
   return *this;
 }
 
-void Mesh::Render(const Material& material, const ResourceManager& resource_manager,
-                  const CameraTransform& camera, const glm::mat4& proj,
-                  const glm::vec3 ambient_light, std::vector<gl::lighting::PointLight> point_lights,
-                  const core::Transform& transform) const {
+void Mesh::Render(const MeshRenderConfig& mesh_render_config) const {
+  if (mesh_render_config.materials.empty() ||
+      mesh_render_config.materials.size() != sub_meshes_.size()) {
+    std::cerr << "Invalid number of materials provided!\n";
+    return;
+  }
+
+  if (index_count_ <= 0) {
+    return;
+  }
+
   if (!vert_buf_.IsValid()) {
     return;
   }
-  vert_arr_.Bind();
 
+  vert_arr_.Bind();
+  for (int i = 0; i < sub_meshes_.size(); i++) {
+    BindMaterial(mesh_render_config.materials[i], mesh_render_config.resource_manager,
+                 mesh_render_config.proj, mesh_render_config.ambient_light,
+                 mesh_render_config.point_lights, mesh_render_config.camera,
+                 mesh_render_config.transform);
+    if (sub_meshes_[i].count == 0) {
+      glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_count_), GL_UNSIGNED_INT,
+                     reinterpret_cast<void*>(sub_meshes_[i].start_index));
+      break;
+    }
+
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(sub_meshes_[i].count), GL_UNSIGNED_INT,
+                   reinterpret_cast<void*>(sub_meshes_[i].start_index));
+  }
+
+  Material::Unbind();
+}
+
+void Mesh::BindMaterial(const Material& material, const ResourceManager& resource_manager,
+                        const glm::mat4& proj, const glm::vec3 ambient_light,
+                        const std::vector<lighting::PointLight>& point_lights,
+                        const CameraTransform& camera, const core::Transform& transform) {
   resource_manager.GetShader(material.shader)->SetUniform("transforms.proj", proj);
   resource_manager.GetShader(material.shader)
       ->SetUniform("transforms.view", camera.GetViewMatrix());
@@ -141,9 +176,5 @@ void Mesh::Render(const Material& material, const ResourceManager& resource_mana
   resource_manager.GetShader(material.shader)->SetUniform("ambient_light", ambient_light);
 
   material.Bind(resource_manager);
-
-  glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_count_), GL_UNSIGNED_INT, nullptr);
-
-  Material::Unbind();
 }
 }  // namespace pixf::graphics

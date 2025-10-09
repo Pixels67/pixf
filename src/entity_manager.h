@@ -83,6 +83,13 @@ class EntityManager {
   }
 
   template <typename T>
+  bool IsComponentRegistered() {
+    static_assert(std::is_base_of<Component, T>(), "T must derive from Component");
+
+    return components_.find(std::type_index(typeid(T))) != components_.end();
+  }
+
+  template <typename T>
   std::vector<QueryElement<T>> Query() {
     static_assert(std::is_base_of<Component, T>(), "T must derive from Component");
 
@@ -90,7 +97,7 @@ class EntityManager {
     const auto type = std::type_index(typeid(T));
 
     if (components_.find(type) == components_.end()) {
-      std::cerr << "Component does not exist!\n";
+      std::cerr << "Component is not registered!\n";
       return query;
     }
 
@@ -144,7 +151,7 @@ class EntityManager {
   }
 
   template <typename T>
-  bool SingletonExists() {
+  bool IsSingletonRegistered() {
     static_assert(std::is_base_of<Component, T>(), "T must derive from Component");
     if (singletons_.find(std::type_index(typeid(T))) == singletons_.end()) {
       return false;
