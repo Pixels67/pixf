@@ -28,7 +28,18 @@ struct MeshHandle {
 namespace gl {
 class Shader;
 }
+
+struct TextureInfo {
+  std::string path;
+  gl::TextureConfig config;
+
+  bool operator==(const TextureInfo& other) const;
+  bool operator!=(const TextureInfo& other) const;
+};
+
 struct ResourceManager final : Component {
+  ShaderHandle GetDefaultShader();
+
   ShaderHandle CreateShader();
   ShaderHandle CreateShader(const std::string& src);
 
@@ -45,9 +56,9 @@ struct ResourceManager final : Component {
   std::shared_ptr<const Mesh> GetMesh(MeshHandle handle) const;
 
  private:
-  std::unordered_map<unsigned int, std::shared_ptr<gl::Shader>> shaders{};
-  std::unordered_map<unsigned int, std::shared_ptr<gl::Texture>> textures{};
-  std::unordered_map<unsigned int, std::shared_ptr<Mesh>> meshes{};
+  std::unordered_map<unsigned int, std::shared_ptr<gl::Shader>> shaders;
+  std::unordered_map<unsigned int, std::shared_ptr<gl::Texture>> textures;
+  std::unordered_map<unsigned int, std::shared_ptr<Mesh>> meshes;
 
   std::optional<unsigned int> GenShaderId() const;
   std::optional<unsigned int> GenTextureId() const;

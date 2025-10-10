@@ -11,10 +11,11 @@
 #include "mesh.h"
 #include "resource_manager.h"
 
-constexpr float IMPORT_SCALE_FACTOR = 0.01F;
+constexpr float IMPORT_SCALE_FACTOR = 1.0F;
 
 namespace pixf::graphics {
 Model::Model(const std::string& filepath, ResourceManager& resource_manager) {
+  std::cout << "Importing model: " << filepath << '\n';
   Assimp::Importer importer;
 
   unsigned int flags = aiProcess_Triangulate | aiProcess_GenNormals |
@@ -33,6 +34,8 @@ Model::Model(const std::string& filepath, ResourceManager& resource_manager) {
   }
 
   ProcessNode(scene->mRootNode, scene, resource_manager);
+
+  std::cout << "Finished importing model: " << filepath << '\n';
 }
 
 Model::~Model() {}
@@ -56,12 +59,12 @@ void Model::Render(const ModelRenderConfig& render_config,
 void Model::ProcessNode(const aiNode* node, const aiScene* scene,
                         ResourceManager& resource_manager) {
   for (unsigned int i = 0; i < node->mNumMeshes; i++) {
-    const aiMesh* mesh = scene->mMeshes[i];
+    const aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
 
     for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
-      Vertex vertex;
+      Vertex vertex{};
       vertex.position.x = mesh->mVertices[v].x * IMPORT_SCALE_FACTOR;
       vertex.position.y = mesh->mVertices[v].y * IMPORT_SCALE_FACTOR;
       vertex.position.z = mesh->mVertices[v].z * IMPORT_SCALE_FACTOR;

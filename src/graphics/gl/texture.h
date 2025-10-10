@@ -17,6 +17,8 @@ struct TextureConfig {
 
   InterpMode interp_mode = InterpMode::NEAREST;
   WrapMode wrap_mode = WrapMode::REPEAT;
+  bool operator==(const TextureConfig& config) const;
+  bool operator!=(const TextureConfig& config) const;
 };
 
 class Texture {
@@ -26,18 +28,18 @@ class Texture {
                                            TextureConfig::WrapMode::REPEAT});
 
   Texture(const Texture& other);
-
   Texture& operator=(const Texture& other);
 
   Texture(Texture&& other) noexcept;
-
   Texture& operator=(Texture&& other) noexcept;
 
   ~Texture();
 
   void Bind(unsigned int slot) const;
-
   static void Unbind(unsigned int slot);
+
+  std::string GetPath() const;
+  TextureConfig GetConfig() const;
 
  private:
   std::string path_;

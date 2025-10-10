@@ -9,6 +9,19 @@
 #include "mesh.h"
 
 namespace pixf::graphics {
+bool TextureInfo::operator==(const TextureInfo& other) const {
+  return path == other.path && config == other.config;
+}
+bool TextureInfo::operator!=(const TextureInfo& other) const { return !(*this == other); }
+
+ShaderHandle ResourceManager::GetDefaultShader() {
+  if (shaders.find(0) == shaders.end()) {
+    shaders.emplace(0, std::make_shared<gl::Shader>(gl::Shader()));
+  }
+
+  return {};
+}
+
 ShaderHandle ResourceManager::CreateShader() {
   const unsigned int id = GenShaderId().value();
   shaders.emplace(id, std::make_shared<gl::Shader>(gl::Shader()));
@@ -23,6 +36,12 @@ ShaderHandle ResourceManager::CreateShader(const std::string& src) {
 
 TextureHandle ResourceManager::CreateTexture(const std::string& path,
                                              const gl::TextureConfig config) {
+  for (const auto& [id, tex] : textures) {
+    if (tex->GetPath() == path && tex->GetConfig() == config) {
+      return {id};
+    }
+  }
+
   const unsigned int id = GenTextureId().value();
   textures.emplace(id, std::make_shared<gl::Texture>(gl::Texture(path, config)));
   return {id};
@@ -42,10 +61,6 @@ MeshHandle ResourceManager::CreateMesh(const std::vector<Vertex>& vertices) {
 }
 
 std::shared_ptr<const gl::Shader> ResourceManager::GetShader(const ShaderHandle handle) const {
-  if (handle.id == 0) {
-    return nullptr;
-  }
-
   return shaders.at(handle.id);
 }
 

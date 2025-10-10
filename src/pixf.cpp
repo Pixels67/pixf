@@ -36,24 +36,20 @@ void Initialize(const int window_width, const int window_height, const char* win
   entity_manager.CreateSingleton<graphics::Camera>(camera);
 
   graphics::lighting::PointLight point_light;
+  point_light.position = glm::vec3(4.0F, -2.0F, 8.0F);
+  point_light.color = glm::vec3(0.5F, 0.4F, 0.3F);
+  point_light.intensity = 1.0F;
+  entity_manager.AddComponentToEntity<graphics::lighting::PointLight>(entity_manager.CreateEntity(),
+                                                                      point_light);
   point_light.position = glm::vec3(-4.0F, 0.0F, 4.0F);
-  point_light.color = glm::vec3(0.5F, 0.25F, 0.0F);
+  point_light.color = glm::vec3(0.0F, 0.1F, 0.2F);
   point_light.intensity = 0.5F;
-  entity_manager.AddComponentToEntity<graphics::lighting::PointLight>(entity_manager.CreateEntity(),
-                                                                      point_light);
-  point_light.position = glm::vec3(4.0F, 0.0F, 4.0F);
-  point_light.color = glm::vec3(0.0F, 0.25F, 0.5F);
-  entity_manager.AddComponentToEntity<graphics::lighting::PointLight>(entity_manager.CreateEntity(),
-                                                                      point_light);
-
-  point_light.position = glm::vec3(0.0F, 4.0F, 4.0F);
-  point_light.color = glm::vec3(0.125F, 0.5F, 0.125F);
   entity_manager.AddComponentToEntity<graphics::lighting::PointLight>(entity_manager.CreateEntity(),
                                                                       point_light);
 
   graphics::ModelRenderer object{};
-  object.model = graphics::Model{"Duck.gltf", resource_manager};
-  object.materials = graphics::Material::LoadFromModel("Duck.gltf", resource_manager);
+  object.model = graphics::Model{"backpack.obj", resource_manager};
+  object.materials = graphics::Material::LoadFromModel("backpack.obj", resource_manager);
 
   core::Transform transform;
   transform.position = glm::vec3(0.0F, -1.2F, 4.0F);

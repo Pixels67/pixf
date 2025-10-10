@@ -1,7 +1,6 @@
 #include "material.h"
 
 #include "assimp/Importer.hpp"
-#include "assimp/postprocess.h"
 #include "graphics.h"
 
 namespace pixf::graphics {
@@ -35,6 +34,7 @@ void Material::Unbind() {
 
 std::vector<Material> Material::LoadFromModel(const std::string& filepath,
                                               ResourceManager& resource_manager) {
+  std::cout << "Importing model materials for: " << filepath << '\n';
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(filepath, 0);
 
@@ -50,6 +50,8 @@ std::vector<Material> Material::LoadFromModel(const std::string& filepath,
     mats.push_back(mat);
   }
 
+  std::cout << "Finished importing model materials for: " << filepath << '\n';
+
   return mats;
 }
 
@@ -58,7 +60,7 @@ std::vector<Material> Material::ProcessNode(const aiNode* node, const aiScene* s
   std::vector<Material> materials{};
   materials.reserve(scene->mNumMaterials);
   for (unsigned int i = 0; i < node->mNumMeshes; i++) {
-    const aiMesh* mesh = scene->mMeshes[i];
+    const aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
     const aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
 
     aiString diff_path;
@@ -74,7 +76,11 @@ std::vector<Material> Material::ProcessNode(const aiNode* node, const aiScene* s
       material.specular_map = resource_manager.CreateTexture(spec_path.C_Str());
     }
 
-    material.shader = resource_manager.CreateShader();
+    if (float gloss = 0.0f; mat->Get(AI_MATKEY_SHININESS, gloss) == AI_SUCCESS) {
+      material.gloss = gloss;
+    }
+
+    material.shader = resource_manager.GetDefaultShader();
     materials.push_back(material);
   }
 

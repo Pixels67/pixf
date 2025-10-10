@@ -8,13 +8,17 @@
 #include "stb_image.h"
 
 namespace pixf::graphics::gl {
-Texture::Texture(const std::string& path, const TextureConfig config) {
-  Init(path, config);
+bool TextureConfig::operator==(const TextureConfig& config) const {
+  return this->interp_mode == config.interp_mode && this->wrap_mode == config.wrap_mode;
 }
 
-Texture::Texture(const Texture& other) {
-  Init(other.path_, other.config_);
+bool TextureConfig::operator!=(const TextureConfig& config) const {
+  return this->interp_mode != config.interp_mode || this->wrap_mode != config.wrap_mode;
 }
+
+Texture::Texture(const std::string& path, const TextureConfig config) { Init(path, config); }
+
+Texture::Texture(const Texture& other) { Init(other.path_, other.config_); }
 
 Texture& Texture::operator=(const Texture& other) {
   if (this == &other) {
@@ -69,6 +73,9 @@ void Texture::Unbind(const unsigned int slot) {
   glActiveTexture(GL_TEXTURE0 + slot);
   glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+std::string Texture::GetPath() const { return path_; }
+TextureConfig Texture::GetConfig() const { return config_; }
 
 void Texture::Init(const std::string& path, const TextureConfig config) {
   path_ = path;
