@@ -4,6 +4,7 @@
 
 #include "core/transform.h"
 #include "gl/vert_arr.h"
+#include "material.h"
 
 namespace pixf::graphics {
 namespace lighting {
@@ -18,16 +19,6 @@ struct Vertex {
   glm::vec3 position;
   glm::vec2 tex_coords;
   glm::vec3 normal;
-};
-
-struct MeshRenderConfig {
-  const std::vector<Material>& materials;
-  const ResourceManager& resource_manager;
-  const CameraTransform& camera;
-  const std::vector<lighting::PointLight>& point_lights;
-  glm::mat4 proj;
-  core::Transform transform = {};
-  glm::vec3 ambient_light;
 };
 
 const std::vector CUBE_VERTS{
@@ -83,9 +74,13 @@ const std::vector QUAD_VERTS{
     Vertex{{-0.5F, 0.0F, -0.5F}, {0.0F, 0.0F}, {0.0F, -1.0F, 0.0F}},
 };
 
-struct SubMesh {
-  unsigned int start_index = 0;
-  unsigned int count = 0;
+struct MeshRenderConfig {
+  const CameraTransform& camera;
+  const std::vector<lighting::PointLight>& point_lights;
+  glm::mat4 proj;
+  Material material;
+  core::Transform transform = {};
+  glm::vec3 ambient_light;
 };
 
 class Mesh {
@@ -102,14 +97,14 @@ class Mesh {
 
   ~Mesh() = default;
 
-  void Render(const MeshRenderConfig& mesh_render_config) const;
+  void Render(const MeshRenderConfig& mesh_render_config,
+              const ResourceManager& resource_manager) const;
 
  private:
   gl::VertArr vert_arr_;
   gl::VertBuf vert_buf_;
   std::vector<Vertex> vertices_{};
   std::vector<unsigned int> indices_{};
-  std::vector<SubMesh> sub_meshes_{};
   unsigned int index_count_ = 0;
 
   static void BindMaterial(const Material& material, const ResourceManager& resource_manager,

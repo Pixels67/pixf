@@ -11,12 +11,21 @@
 #include "mesh.h"
 #include "resource_manager.h"
 
+constexpr float IMPORT_SCALE_FACTOR = 0.01F;
+
 namespace pixf::graphics {
 Model::Model(const std::string& filepath, ResourceManager& resource_manager) {
   Assimp::Importer importer;
-  const aiScene* scene =
-      importer.ReadFile(filepath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals |
-                                      aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace);
+
+  unsigned int flags = aiProcess_Triangulate | aiProcess_GenNormals |
+                       aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace;
+
+  if (const std::string extension = filepath.substr(filepath.find_last_of('.') + 1);
+      extension == "obj" || extension == "fbx") {
+    flags |= aiProcess_FlipUVs;
+  }
+
+  const aiScene* scene = importer.ReadFile(filepath, flags);
 
   if (scene == nullptr) {
     std::cerr << importer.GetErrorString() << '\n';
@@ -28,9 +37,19 @@ Model::Model(const std::string& filepath, ResourceManager& resource_manager) {
 
 Model::~Model() {}
 
-void Model::Render(const MeshRenderConfig& render_config) const {
+void Model::Render(const ModelRenderConfig& render_config,
+                   const ResourceManager& resource_manager) const {
   for (unsigned int i = 0; i < meshes_.size(); i++) {
-    render_config.resource_manager.GetMesh(meshes_[i])->Render(render_config);
+    Material material = {};
+    if (i < render_config.materials.size()) {
+      material = render_config.materials[i];
+    }
+
+    MeshRenderConfig config = {render_config.camera,    render_config.point_lights,
+                               render_config.proj,      material,
+                               render_config.transform, render_config.ambient_light};
+
+    resource_manager.GetMesh(meshes_[i])->Render(config, resource_manager);
   }
 }
 
@@ -43,9 +62,9 @@ void Model::ProcessNode(const aiNode* node, const aiScene* scene,
 
     for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
       Vertex vertex;
-      vertex.position.x = mesh->mVertices[v].x * 10.0F;
-      vertex.position.y = mesh->mVertices[v].y * 10.0F;
-      vertex.position.z = mesh->mVertices[v].z * 10.0F;
+      vertex.position.x = mesh->mVertices[v].x * IMPORT_SCALE_FACTOR;
+      vertex.position.y = mesh->mVertices[v].y * IMPORT_SCALE_FACTOR;
+      vertex.position.z = mesh->mVertices[v].z * IMPORT_SCALE_FACTOR;
 
       if (mesh->HasNormals()) {
         vertex.normal.x = mesh->mNormals[v].x;

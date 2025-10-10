@@ -11,6 +11,10 @@ std::string ReadFile(const std::string& path) {
 
   file.seekg(0, std::ios::end);
   const auto size = file.tellg();
+  if (size <= 0) {
+    return "";
+  }
+
   file.seekg(0, std::ios::beg);
 
   std::string content(size, '\0');

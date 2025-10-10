@@ -24,8 +24,6 @@ class RenderWindow {
 
  private:
   std::string title_;
-  unsigned int width_ = 0;
-  unsigned int height_ = 0;
   GLFWwindow* window_ = nullptr;
 
   RenderWindow(const WindowConfig& config, GLFWwindow* window);

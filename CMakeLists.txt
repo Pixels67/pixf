@@ -3,6 +3,8 @@ project(pixf)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(GLFW_BUILD_DOCS OFF)
 option(GLFW_BUILD_EXAMPLES OFF)
@@ -56,6 +58,44 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         ${VENDOR_PATH}/glm/glm
         ${VENDOR_PATH}/assimp/include
 )
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if (MSVC)
+        target_compile_options(${PROJECT_NAME} PRIVATE
+                /W4
+                /Zi
+                /RTC1
+        )
+    else ()
+        target_compile_options(${PROJECT_NAME} PRIVATE
+                -Wall -Wextra -Wpedantic
+                -g3
+        )
+    endif ()
+endif ()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    if (MSVC)
+        target_compile_options(${PROJECT_NAME} PRIVATE
+                /O2
+                /GL
+                /fp:fast
+        )
+        target_link_options(${PROJECT_NAME} PRIVATE
+                /LTCG
+        )
+    else ()
+        target_compile_options(${PROJECT_NAME} PRIVATE
+                -O3
+                -march=native
+                -flto
+                -DNDEBUG
+        )
+        target_link_options(${PROJECT_NAME} PRIVATE
+                -flto
+        )
+    endif ()
+endif ()
 
 
 # macOS libs

@@ -8,11 +8,11 @@ struct FragData {
 
 struct Properties {
     vec4 diffuse;
-    float metallic;
-    float roughness;
+    vec4 specular;
+    float gloss;
 };
 
-@VERTEX
+//@VERTEX
 
 struct Transforms {
     mat4 model;
@@ -20,9 +20,9 @@ struct Transforms {
     mat4 proj;
 };
 
-@pos in vec3 aPos;
-@uv in vec2 aUv;
-@norm in vec3 aNormal;
+/*@pos*/ in vec3 aPos;
+/*@uv*/ in vec2 aUv;
+/*@norm*/ in vec3 aNormal;
 
 uniform Transforms transforms;
 uniform Properties properties;
@@ -44,7 +44,7 @@ void main()
     frag_properties = properties;
 }
 
-@FRAGMENT
+//@FRAGMENT
 
 struct PointLight {
     vec3 light_color;
@@ -58,27 +58,27 @@ in FragData frag_data;
 in Properties frag_properties;
 in mat4x4 view_trans;
 
-uniform int has_diffuse_map;
-uniform int has_roughness_map;
-uniform int has_metallic_map;
+uniform bool has_diffuse_map;
+uniform bool has_specular_map;
+
 uniform vec3 ambient_light;
 uniform PointLight point_light[128];
-
 uniform int point_light_count;
 
-out vec4 FragColor;
-
 uniform sampler2D diffuse_map;
-uniform sampler2D roughness_map;
-uniform sampler2D metallic_map;
+uniform sampler2D specular_map;
+
+uniform float gloss;
+
+out vec4 FragColor;
 
 float diffuse(vec3 light_dir, vec3 normal) {
     return max(dot(normal, light_dir), 0.0);
 }
 
-float specular(vec3 light_dir, vec3 normal, vec3 view_dir, float shininess) {
+float specular(vec3 light_dir, vec3 normal, vec3 view_dir, float gloss) {
     vec3 reflect_dir = reflect(-light_dir, normal);
-    return pow(max(dot(view_dir, reflect_dir), 0.0), shininess);
+    return pow(max(dot(view_dir, reflect_dir), 0.0), gloss);
 }
 
 void main()
@@ -92,35 +92,26 @@ void main()
 
         float light_dist = length(light_pos - frag_data.frag_pos);
         float light_i = 1.0 / (point_light[i].k_const + point_light[i].k_linear * light_dist + point_light[i].k_quadratic * light_dist * light_dist);
+        vec3 light_f = light_i * point_light[i].light_color;
 
-        vec4 amb;
-        vec4 diff;
-        if (has_diffuse_map != 0) {
-            vec4 col = texture(diffuse_map, frag_data.uv);
-            amb = vec4(ambient_light * col.rgb, col.a);
-            diff = vec4(col.rgb * diffuse(light_dir, norm) * point_light[i].light_color * light_i, col.a);
+        vec4 col;
+        if (has_diffuse_map) {
+            col = texture(diffuse_map, frag_data.uv) * frag_properties.diffuse;
         } else {
-            amb = vec4(ambient_light * frag_properties.diffuse.rgb, frag_properties.diffuse.a);
-            diff = vec4(frag_properties.diffuse.rgb * diffuse(light_dir, norm) * point_light[i].light_color * light_i, frag_properties.diffuse.a);
+            col = frag_properties.diffuse;
         }
 
-        float shininess;
-        if (has_metallic_map != 0) {
-            vec4 col = texture(metallic_map, frag_data.uv);
-            shininess = pow(2.0, clamp((col.r + col.g + col.b) * 8.0 / 3.0, 0.0, 8.0));
+        vec4 amb = vec4(col.rgb * ambient_light, col.a);
+        vec4 diff = vec4(col.rgb * diffuse(light_dir, norm) * light_f, col.a);
+
+        vec4 col;
+        if (has_specular_map) {
+            col = texture(specular_map, frag_data.uv) * frag_properties.specular;
         } else {
-            shininess = pow(2.0, clamp(frag_properties.metallic * 8.0, 0.0, 8.0));
+            col = frag_properties.specular;
         }
 
-        float smoothness;
-        if (has_roughness_map != 0) {
-            vec4 col = texture(roughness_map, frag_data.uv);
-            smoothness = 1.0 - (col.r + col.g + col.b) / 3.0;
-        } else {
-            smoothness = 1.0 - frag_properties.roughness * 1.0;
-        }
-
-        vec4 spec = vec4(smoothness * point_light[i].light_color * light_i * specular(light_dir, norm, view_dir, shininess), 1.0);
+        vec4 spec = vec4(light_f * specular(light_dir, norm, view_dir, gloss), 1.0);
 
         result += amb + diff + spec;
     }

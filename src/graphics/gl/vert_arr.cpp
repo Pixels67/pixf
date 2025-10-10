@@ -5,19 +5,13 @@
 #include "vert_buf.h"
 
 namespace pixf::graphics::gl {
-VertBufLayout::VertBufLayout(const unsigned int capacity) {
-  elements_.reserve(capacity);
-}
+VertBufLayout::VertBufLayout(const unsigned int capacity) { elements_.reserve(capacity); }
 
-unsigned int VertBufLayout::GetSize() const {
-  return static_cast<unsigned int>(elements_.size());
-}
+unsigned int VertBufLayout::GetSize() const { return static_cast<unsigned int>(elements_.size()); }
 
 unsigned int VertBufLayout::GetStride() const { return stride_; }
 
-const VertBufElement& VertBufLayout::operator[](const unsigned int i) const {
-  return elements_[i];
-}
+const VertBufElement& VertBufLayout::operator[](const unsigned int i) const { return elements_[i]; }
 
 VertArr::VertArr(const VertBuf& buffer, const VertBufLayout& layout) {
   glGenVertexArrays(1, &id_);
@@ -25,7 +19,7 @@ VertArr::VertArr(const VertBuf& buffer, const VertBufLayout& layout) {
 
   buffer.Bind();
   unsigned int offset = 0;
-  for (int i = 0; i < layout.GetSize(); i++) {
+  for (unsigned int i = 0; i < layout.GetSize(); i++) {
     glVertexAttribPointer(i, static_cast<GLint>(layout[i].size), layout[i].type,
                           static_cast<GLboolean>(layout[i].normalized),
                           static_cast<GLsizei>(layout.GetStride()),

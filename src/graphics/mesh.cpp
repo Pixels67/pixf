@@ -35,8 +35,6 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>&
 
   vert_buf_ = gl::VertBuf(vertex_data, indices, GL_STATIC_DRAW);
   vert_arr_ = gl::VertArr(vert_buf_, GetLayout());
-
-  sub_meshes_.push_back({});
 }
 
 Mesh::Mesh(const std::vector<Vertex>& vertices) {
@@ -54,7 +52,7 @@ Mesh::Mesh(const std::vector<Vertex>& vertices) {
 
   std::vector<unsigned int> indices{};
   indices.reserve(vertices.size());
-  for (int i = 0; i < vertices.size(); i++) {
+  for (size_t i = 0; i < vertices.size(); i++) {
     indices.push_back(i);
   }
 
@@ -63,8 +61,6 @@ Mesh::Mesh(const std::vector<Vertex>& vertices) {
   vert_arr_ = gl::VertArr(vert_buf_, GetLayout());
   vertices_ = vertices;
   indices_ = indices;
-
-  sub_meshes_.push_back({});
 }
 
 Mesh::Mesh(const Mesh& other) {
@@ -96,7 +92,6 @@ Mesh::Mesh(Mesh&& other) noexcept {
   this->index_count_ = other.index_count_;
   this->vertices_ = std::move(other.vertices_);
   this->indices_ = std::move(other.indices_);
-  this->sub_meshes_ = std::move(other.sub_meshes_);
 }
 
 Mesh& Mesh::operator=(Mesh&& other) noexcept {
@@ -109,19 +104,13 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
   this->index_count_ = other.index_count_;
   this->vertices_ = std::move(other.vertices_);
   this->indices_ = std::move(other.indices_);
-  this->sub_meshes_ = std::move(other.sub_meshes_);
 
   return *this;
 }
 
-void Mesh::Render(const MeshRenderConfig& mesh_render_config) const {
-  if (mesh_render_config.materials.empty() ||
-      mesh_render_config.materials.size() != sub_meshes_.size()) {
-    std::cerr << "Invalid number of materials provided!\n";
-    return;
-  }
-
-  if (index_count_ <= 0) {
+void Mesh::Render(const MeshRenderConfig& mesh_render_config,
+                  const ResourceManager& resource_manager) const {
+  if (index_count_ == 0) {
     return;
   }
 
@@ -130,20 +119,10 @@ void Mesh::Render(const MeshRenderConfig& mesh_render_config) const {
   }
 
   vert_arr_.Bind();
-  for (int i = 0; i < sub_meshes_.size(); i++) {
-    BindMaterial(mesh_render_config.materials[i], mesh_render_config.resource_manager,
-                 mesh_render_config.proj, mesh_render_config.ambient_light,
-                 mesh_render_config.point_lights, mesh_render_config.camera,
-                 mesh_render_config.transform);
-    if (sub_meshes_[i].count == 0) {
-      glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_count_), GL_UNSIGNED_INT,
-                     reinterpret_cast<void*>(sub_meshes_[i].start_index));
-      break;
-    }
-
-    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(sub_meshes_[i].count), GL_UNSIGNED_INT,
-                   reinterpret_cast<void*>(sub_meshes_[i].start_index));
-  }
+  BindMaterial(mesh_render_config.material, resource_manager, mesh_render_config.proj,
+               mesh_render_config.ambient_light, mesh_render_config.point_lights,
+               mesh_render_config.camera, mesh_render_config.transform);
+  glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_count_), GL_UNSIGNED_INT, nullptr);
 
   Material::Unbind();
 }
@@ -161,7 +140,7 @@ void Mesh::BindMaterial(const Material& material, const ResourceManager& resourc
   resource_manager.GetShader(material.shader)
       ->SetUniform("point_light_count", {static_cast<int>(point_lights.size())});
 
-  for (int i = 0; i < point_lights.size(); i++) {
+  for (size_t i = 0; i < point_lights.size(); i++) {
     std::string element = "point_light[" + std::to_string(i) + "]";
     resource_manager.GetShader(material.shader)
         ->SetUniform(element + ".light_color", point_lights[i].color * point_lights[i].intensity);

@@ -14,7 +14,7 @@ struct MeshRenderer final : Component {
 
 struct ModelRenderer final : Component {
   Model model = {};
-  Material material = {};
+  std::vector<Material> materials = {};
 };
 
 struct RenderSystem final : System {
