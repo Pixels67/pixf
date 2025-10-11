@@ -6,14 +6,18 @@
 
 #include <iostream>
 
+constexpr unsigned int GL_VERSION_MAJOR = 3;
+constexpr unsigned int GL_VERSION_MINOR = 3;
+constexpr unsigned int SAMPLE_COUNT = 4;
+
 namespace pixf::ui {
 RenderWindow RenderWindow::CreateWindow(const std::string& title, const unsigned int width,
                                         const unsigned int height) {
   glfwInit();
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GL_VERSION_MAJOR);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GL_VERSION_MINOR);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_SAMPLES, 4);
+  glfwWindowHint(GLFW_SAMPLES, SAMPLE_COUNT);
 
 #if __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -34,18 +38,21 @@ RenderWindow RenderWindow::CreateWindow(const std::string& title, const unsigned
     std::exit(EXIT_FAILURE);
   }
 
-  // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
   const WindowConfig config{title, width, height};
+
+  glfwMakeContextCurrent(nullptr);
 
   return {config, window};
 }
 
 GLFWwindow* RenderWindow::GetWindow() const { return window_; }
 
-void RenderWindow::Close() const {
-  glfwSetWindowShouldClose(window_, 1);
-  glfwDestroyWindow(window_);
+void RenderWindow::Close() const { glfwSetWindowShouldClose(window_, 1); }
+
+void RenderWindow::SetTargetWindow() const { glfwMakeContextCurrent(window_); }
+void RenderWindow::ClearRenderTarget() { glfwMakeContextCurrent(nullptr); }
+void RenderWindow::ResizeRenderTarget(const unsigned int width, const unsigned int height) {
+  glViewport(0, 0, width, height);
 }
 
 RenderWindow::RenderWindow(const WindowConfig& config, GLFWwindow* window)

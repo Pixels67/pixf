@@ -13,14 +13,17 @@ struct WindowConfig {
 
 class RenderWindow {
  public:
+  RenderWindow() = default;
   static RenderWindow CreateWindow(const std::string& title, unsigned int width,
                                    unsigned int height);
-
-  RenderWindow() = default;
 
   [[nodiscard]] GLFWwindow* GetWindow() const;
 
   void Close() const;
+
+  void SetTargetWindow() const;
+  static void ClearRenderTarget();
+  static void ResizeRenderTarget(unsigned int width, unsigned int height);
 
  private:
   std::string title_;

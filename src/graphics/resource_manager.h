@@ -43,9 +43,7 @@ struct ResourceManager final : Component {
   ShaderHandle CreateShader();
   ShaderHandle CreateShader(const std::string& src);
 
-  TextureHandle CreateTexture(const std::string& path,
-                              gl::TextureConfig config = {gl::TextureConfig::InterpMode::NEAREST,
-                                                          gl::TextureConfig::WrapMode::REPEAT});
+  TextureHandle CreateTexture(const std::string& path, gl::TextureConfig config = {});
 
   MeshHandle CreateMesh(const std::vector<Vertex>& vertices,
                         const std::vector<unsigned int>& indices);

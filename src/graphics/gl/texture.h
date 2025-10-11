@@ -15,7 +15,7 @@ struct TextureConfig {
     CLAMP_TO_EDGE,
   };
 
-  InterpMode interp_mode = InterpMode::NEAREST;
+  InterpMode interp_mode = InterpMode::LINEAR;
   WrapMode wrap_mode = WrapMode::REPEAT;
   bool operator==(const TextureConfig& config) const;
   bool operator!=(const TextureConfig& config) const;
@@ -23,9 +23,7 @@ struct TextureConfig {
 
 class Texture {
  public:
-  explicit Texture(const std::string& path,
-                   TextureConfig config = {TextureConfig::InterpMode::NEAREST,
-                                           TextureConfig::WrapMode::REPEAT});
+  explicit Texture(const std::string& path, TextureConfig config = {});
 
   Texture(const Texture& other);
   Texture& operator=(const Texture& other);

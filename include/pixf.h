@@ -18,6 +18,4 @@ void Terminate();
 void ProcessInput();
 
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
-
-void MouseCallback(GLFWwindow* window, double x_pos, double y_pos);
 }  // namespace pixf

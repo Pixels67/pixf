@@ -88,11 +88,11 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
         target_compile_options(${PROJECT_NAME} PRIVATE
                 -O3
                 -march=native
-                -flto
+                #-flto
                 -DNDEBUG
         )
         target_link_options(${PROJECT_NAME} PRIVATE
-                -flto
+                #-flto
         )
     endif ()
 endif ()
