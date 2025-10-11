@@ -1,5 +1,7 @@
 #include "event.h"
 
+#include <algorithm>
+
 namespace pixf::event {
 
 void EventQueue::Enqueue(const std::shared_ptr<Event>& event) { events.push(event); }
