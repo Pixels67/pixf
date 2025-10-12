@@ -88,11 +88,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
         target_compile_options(${PROJECT_NAME} PRIVATE
                 -O3
                 -march=native
-                #-flto
                 -DNDEBUG
-        )
-        target_link_options(${PROJECT_NAME} PRIVATE
-                #-flto
         )
     endif ()
 endif ()
@@ -116,8 +112,9 @@ elseif (UNIX AND NOT APPLE)
 endif ()
 
 add_executable(${PROJECT_NAME}_example ${EXAMPLE_SOURCES})
-target_link_libraries(${PROJECT_NAME}_example ${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME}_example ${PROJECT_NAME} glm)
 target_include_directories(${PROJECT_NAME}_example PRIVATE
         src
         include
+        ${VENDOR_PATH}/glm/glm
 )

@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 
-#include "assimp/scene.h"
 #include "mesh.h"
 #include "resource_manager.h"
 

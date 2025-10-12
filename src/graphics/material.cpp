@@ -1,6 +1,11 @@
 #include "material.h"
 
-#include "assimp/Importer.hpp"
+#include <assimp/material.h>
+#include <assimp/mesh.h>
+#include <assimp/scene.h>
+
+#include <assimp/Importer.hpp>
+
 #include "graphics.h"
 
 namespace pixf::graphics {

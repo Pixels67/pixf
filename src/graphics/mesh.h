@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "core/transform.h"
+// #include "gl/vert_arr.h"
 #include "gl/vert_arr.h"
 #include "material.h"
 

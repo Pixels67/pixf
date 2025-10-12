@@ -3,8 +3,10 @@
 #include <optional>
 #include <vec4.hpp>
 
-#include "assimp/scene.h"
 #include "resource_manager.h"
+
+struct aiScene;
+struct aiNode;
 
 namespace pixf::graphics {
 

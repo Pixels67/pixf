@@ -1,5 +1,7 @@
 #include "rendering.h"
 
+#include <glad/glad.h>
+
 #include <memory>
 
 #include "camera.h"
@@ -23,6 +25,8 @@ void RenderSystem::OnInit(EntityManager &entity_manager) {
 }
 
 void RenderSystem::OnUpdate(EntityManager &entity_manager, const double delta_time) {
+  glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   if (!entity_manager.IsSingletonRegistered<Camera>()) {
     return;
   }

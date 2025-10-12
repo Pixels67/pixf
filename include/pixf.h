@@ -1,21 +1,17 @@
 #pragma once
 
-struct GLFWwindow;
+#include "core/transform.h"
+#include "graphics/camera.h"
+#include "graphics/lighting/point_light.h"
+#include "graphics/material.h"
+#include "graphics/model.h"
+#include "graphics/rendering.h"
+#include "input/input_manager.h"
+#include "instance.h"
+#include "time/time.h"
 
-namespace pixf {
-void Initialize(int window_width, int window_height, const char* window_title);
-
-bool ShouldClose();
-
-void Update();
-
-void Tick();
-
-void Render();
-
-void Terminate();
-
-void ProcessInput();
-
-void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
-}  // namespace pixf
+#define INIT(config, init)                 \
+  int main() {                             \
+    pixf::Instance instance(config, init); \
+    instance.Run();                        \
+  }

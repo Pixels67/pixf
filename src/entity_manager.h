@@ -118,14 +118,15 @@ class EntityManager {
   }
 
   template <typename T>
-  void CreateSingleton(T component) {
+  std::shared_ptr<T> CreateSingleton(T component) {
     static_assert(std::is_base_of<Component, T>(), "T must derive from Component");
     if (singletons_.find(std::type_index(typeid(T))) != singletons_.end()) {
       std::cerr << "Singleton already exists!\n";
-      return;
+      return nullptr;
     }
 
     singletons_[std::type_index(typeid(T))] = std::make_shared<T>(component);
+    return std::dynamic_pointer_cast<T>(singletons_[std::type_index(typeid(T))]);
   }
 
   template <typename T>

@@ -6,7 +6,7 @@
 #include "vec3.hpp"
 
 namespace pixf::core {
-struct Transform : Component {
+struct Transform final : Component {
   glm::vec3 position = glm::vec3(0.0F, 0.0F, 0.0F);
   glm::quat rotation = glm::quat(1.0F, 0.0F, 0.0F, 0.0F);
   glm::vec3 scale = glm::vec3(1.0F, 1.0F, 1.0F);

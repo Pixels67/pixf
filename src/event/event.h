@@ -7,16 +7,19 @@
 
 namespace pixf::event {
 
-struct Event {
+class Event {
+ public:
   virtual ~Event() = default;
 };
 
-struct EventListener {
+class EventListener {
+ public:
   virtual ~EventListener() = default;
   virtual void OnEvent(std::shared_ptr<Event> event) = 0;
 };
 
-struct EventQueue {
+class EventQueue {
+ public:
   std::queue<std::shared_ptr<Event>> events;
 
   void Enqueue(const std::shared_ptr<Event>& event);
