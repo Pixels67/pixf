@@ -2,8 +2,6 @@
 
 #include <unordered_map>
 
-#include "World.hpp"
-
 namespace Pixf::Core::Entities {
     void SystemsManager::RemoveSystem(const unsigned int systemId) { m_Systems.erase(systemId); }
     void SystemsManager::OnAwake(World &world) {

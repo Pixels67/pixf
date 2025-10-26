@@ -2,6 +2,7 @@
 #define SYSTEMSMANAGER_HPP
 
 #include <unordered_map>
+#include <memory>
 
 namespace Pixf::Core::Entities {
     class World;
