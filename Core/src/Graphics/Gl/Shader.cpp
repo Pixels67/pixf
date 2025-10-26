@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "../../Common.hpp"
+#include "Common.hpp"
 #include "Debug/Logger.hpp"
 #include "Gl.hpp"
 

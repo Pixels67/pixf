@@ -23,7 +23,7 @@
 
 #else
 
-#define GL_CALL(x) x
+#define PIXF_GL_CALL(x) x
 
 #endif
 

@@ -1,6 +1,7 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
+#include <cstdint>
 #include <iostream>
 
 #include "Time/LocalTime.hpp"
