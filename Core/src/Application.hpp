@@ -54,7 +54,7 @@ namespace Pixf::Core {
     };
 } // namespace Pixf::Core
 
-#define RUN_APPLICATION(x)                                                                                             \
+#define PIXF_RUN_APPLICATION(x)                                                                                             \
     int main() {                                                                                                       \
         x app;                                                                                                         \
         app.Run();                                                                                                     \

@@ -26,9 +26,9 @@ namespace Pixf::Core::Graphics::Gl {
     void VertexLayout::Bind() const {
         unsigned int offset = 0;
         for (size_t i = 0; i < m_Elements.size(); i++) {
-            GL_CALL(glVertexAttribPointer(i, m_Elements.at(i).count, m_Elements.at(i).type, m_Elements.at(i).normalized,
+            PIXF_GL_CALL(glVertexAttribPointer(i, m_Elements.at(i).count, m_Elements.at(i).type, m_Elements.at(i).normalized,
                                           m_Stride, reinterpret_cast<void *>(static_cast<size_t>(offset))));
-            GL_CALL(glEnableVertexAttribArray(i));
+            PIXF_GL_CALL(glEnableVertexAttribArray(i));
             offset += m_Elements.at(i).count * m_Elements.at(i).GetSize();
         }
     }
@@ -36,7 +36,7 @@ namespace Pixf::Core::Graphics::Gl {
     void VertexLayout::Unbind() const {
         for (size_t i = 0; i < m_Elements.size(); i++) {
             std::cout << "unbind\n";
-            GL_CALL(glDisableVertexAttribArray(i));
+            PIXF_GL_CALL(glDisableVertexAttribArray(i));
         }
     }
 } // namespace Pixf::Core::Graphics::Gl

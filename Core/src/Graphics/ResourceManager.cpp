@@ -4,6 +4,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "Debug/Logger.hpp"
+#include "Gl/Gl.hpp"
 #include "Gl/Shader.hpp"
 #include "Material.hpp"
 #include "Mesh.hpp"
@@ -84,7 +86,7 @@ namespace Pixf::Core::Graphics {
     }
 
     Error::Result<std::shared_ptr<Mesh>, ResourceError> ResourceManager::GetMesh(const MeshHandle handle) {
-        if (m_Meshes.find(handle.id) == m_Meshes.end()) {
+        if (!m_Meshes.contains(handle.id)) {
             return ResourceError::NotFound;
         }
 
@@ -92,7 +94,7 @@ namespace Pixf::Core::Graphics {
     }
 
     Error::Result<std::shared_ptr<Gl::Shader>, ResourceError> ResourceManager::GetShader(const ShaderHandle handle) {
-        if (m_Shaders.find(handle.id) == m_Shaders.end()) {
+        if (!m_Shaders.contains(handle.id)) {
             return ResourceError::NotFound;
         }
 
@@ -101,7 +103,7 @@ namespace Pixf::Core::Graphics {
 
     Error::Result<std::shared_ptr<Gl::Texture2D>, ResourceError>
     ResourceManager::GetTexture2D(const Texture2DHandle handle) {
-        if (m_Textures2D.find(handle.id) == m_Textures2D.end()) {
+        if (!m_Textures2D.contains(handle.id)) {
             return ResourceError::NotFound;
         }
 
@@ -109,7 +111,7 @@ namespace Pixf::Core::Graphics {
     }
 
     Error::Result<std::shared_ptr<Material>, ResourceError> ResourceManager::GetMaterial(const MaterialHandle handle) {
-        if (m_Materials.find(handle.id) == m_Materials.end()) {
+        if (!m_Materials.contains(handle.id)) {
             return ResourceError::NotFound;
         }
 
@@ -117,7 +119,7 @@ namespace Pixf::Core::Graphics {
     }
 
     Error::Result<std::shared_ptr<Model>, ResourceError> ResourceManager::GetModel(const ModelHandle handle) {
-        if (m_Models.find(handle.id) == m_Models.end()) {
+        if (!m_Models.contains(handle.id)) {
             return ResourceError::NotFound;
         }
 
@@ -133,4 +135,29 @@ namespace Pixf::Core::Graphics {
     void ResourceManager::DeleteMaterial(const MaterialHandle handle) { m_Materials.erase(handle.id); }
 
     void ResourceManager::DeleteModel(const ModelHandle handle) { m_Models.erase(handle.id); }
+
+    ResourceManager::~ResourceManager() {
+        PIXF_LOG_INFO("Cleaning resources");
+
+        int vao, vbo, ebo, program, texture;
+
+        glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vao);
+        glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &vbo);
+        glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &ebo);
+        glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+        glGetIntegerv(GL_TEXTURE_BINDING_2D, &texture);
+
+        PIXF_LOG_INFO("VAO bound: ", vao);
+        PIXF_LOG_INFO("VBO bound: ", vbo);
+        PIXF_LOG_INFO("EBO bound: ", ebo);
+        PIXF_LOG_INFO("Shader bound: ", program);
+        PIXF_LOG_INFO("Texture bound: ", texture);
+
+        Mesh::Unbind();
+        for (auto &[id, mesh]: m_Meshes) {
+            mesh->Cleanup();
+        }
+
+        Material::Unbind();
+    }
 } // namespace Pixf::Core::Graphics

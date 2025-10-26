@@ -39,6 +39,11 @@ namespace Pixf::Core::Audio {
         return AudioClipHandle(m_AudioClipCounter);
     }
 
+    void AudioManager::SetListener(const ListenerConfig &config) {
+        ma_engine_listener_set_position(&m_Engine, 0, config.position.x, config.position.y, config.position.z);
+        ma_engine_listener_set_direction(&m_Engine, 0, config.direction.x, config.direction.y, config.direction.z);
+    }
+
     void AudioManager::PlayAudioClip(const AudioClipHandle handle, const AudioPlayConfig &config) {
         if (!m_AudioClips.contains(handle.m_Id)) {
             return;

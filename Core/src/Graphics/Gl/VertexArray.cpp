@@ -1,11 +1,10 @@
 #include "VertexArray.hpp"
 
+#include "Debug/Logger.hpp"
 #include "Gl.hpp"
 
 namespace Pixf::Core::Graphics::Gl {
-    void VertexArray::Init() {
-        GL_CALL(glGenVertexArrays(1, &m_Id));
-    }
+    void VertexArray::Init() { PIXF_GL_CALL(glGenVertexArrays(1, &m_Id)); }
 
     VertexArray::VertexArray(VertexArray &&other) noexcept : m_Id{other.m_Id} { other.m_Id = 0; }
 
@@ -22,21 +21,19 @@ namespace Pixf::Core::Graphics::Gl {
         return *this;
     }
 
-    VertexArray::~VertexArray() { Cleanup(); }
-
-    void VertexArray::Bind() const {
-        GL_CALL(glBindVertexArray(m_Id));
+    VertexArray::~VertexArray() {
+        Cleanup();
     }
 
-    void VertexArray::Unbind() {
-        GL_CALL(glBindVertexArray(0));
-    }
+    void VertexArray::Bind() const { PIXF_GL_CALL(glBindVertexArray(m_Id)); }
+
+    void VertexArray::Unbind() { PIXF_GL_CALL(glBindVertexArray(0)); }
 
     void VertexArray::Cleanup() const {
         if (m_Id == 0) {
             return;
         }
 
-        GL_CALL(glDeleteVertexArrays(1, &m_Id));
+        PIXF_GL_CALL(glDeleteVertexArrays(1, &m_Id));
     }
 } // namespace Pixf::Core::Graphics::Gl

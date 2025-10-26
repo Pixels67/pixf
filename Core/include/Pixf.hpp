@@ -4,8 +4,11 @@
 #include "Application.hpp"
 #include "Audio/AudioManager.hpp"
 #include "Common.hpp"
+#include "Debug/Logger.hpp"
 #include "Entities/ComponentManager.hpp"
 #include "Entities/ComponentRegistry.hpp"
+#include "Entities/Components/Audio/AudioListener.hpp"
+#include "Entities/Components/Audio/AudioSource.hpp"
 #include "Entities/Components/Graphics/AmbientLight.hpp"
 #include "Entities/Components/Graphics/Camera.hpp"
 #include "Entities/Components/Graphics/DirectionalLight.hpp"
@@ -31,6 +34,7 @@
 #include "Graphics/Vertex.hpp"
 #include "Input/InputManager.hpp"
 #include "Time/Clock.hpp"
+#include "Time/LocalTime.hpp"
 #include "WorldManager.hpp"
 
 #endif // PIXF_HPP

@@ -9,7 +9,7 @@
 
 #ifndef NDEBUG
 
-#define GL_CALL(x)                                                                                                     \
+#define PIXF_GL_CALL(x)                                                                                                     \
     do {                                                                                                               \
         while (glGetError() != GL_NO_ERROR) {                                                                          \
         };                                                                                                             \

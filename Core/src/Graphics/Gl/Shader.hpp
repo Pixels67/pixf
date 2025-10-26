@@ -6,7 +6,7 @@
 
 #include "../../Common.hpp"
 
-constexpr unsigned int maxTextureCount = 16;
+constexpr unsigned int g_MaxTextureCount = 16;
 constexpr unsigned int maxTextureNameLength = 256;
 
 namespace Pixf::Core::Graphics::Gl {

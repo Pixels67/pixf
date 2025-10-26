@@ -33,6 +33,11 @@ namespace Pixf::Core::Audio {
         bool spatialize = false;
     };
 
+    struct ListenerConfig {
+        vec3 position = vec3(0.0F);
+        vec3 direction = vec3(0.0F);
+    };
+
     struct AudioClip {
         friend class AudioManager;
 
@@ -72,6 +77,8 @@ namespace Pixf::Core::Audio {
         ~AudioManager();
 
         AudioImportResult ImportAudioClip(const std::string &path);
+
+        void SetListener(const ListenerConfig &config);
 
         void PlayAudioClip(AudioClipHandle handle, const AudioPlayConfig &config = {});
 

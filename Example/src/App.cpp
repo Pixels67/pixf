@@ -6,12 +6,46 @@ using namespace Pixf::Core::Entities;
 using namespace Pixf::Core::Entities::Components;
 using namespace Pixf::Core::Entities::Components::Graphics;
 
+struct MusicPlayer final : System {
+    void OnAwake(World &world) override {
+        for (auto query = world.GetEntityManager().Query<Components::Audio::AudioSource>().Unwrap();
+             auto &[id, comp]: query) {
+            world.GetAudioManager().PlayAudioClip(comp->clip, comp->config);
+        }
+    }
+};
+
+struct CameraController final : System {
+    void OnUpdate(World &world, const double deltaTime) override {
+        EntityManager &entityManager = world.GetEntityManager();
+
+        if (world.GetInputManager().IsKeyDown(Input::Key::W)) {
+            entityManager.GetSingleton<Camera>().Unwrap()->transform.Translate(vec3(0.0F, 0.0F, 20.0F * deltaTime));
+        }
+
+        if (world.GetInputManager().IsKeyDown(Input::Key::S)) {
+            entityManager.GetSingleton<Camera>().Unwrap()->transform.Translate(vec3(0.0F, 0.0F, -20.0F * deltaTime));
+        }
+
+        if (world.GetInputManager().IsKeyDown(Input::Key::D)) {
+            entityManager.GetSingleton<Camera>().Unwrap()->transform.Translate(vec3(20.0F * deltaTime, 0.0F, 0.0F));
+        }
+
+        if (world.GetInputManager().IsKeyDown(Input::Key::A)) {
+            entityManager.GetSingleton<Camera>().Unwrap()->transform.Translate(vec3(-20.0F * deltaTime, 0.0F, 0.0F));
+        }
+    }
+};
+
 class App final : public Application {
 public:
     explicit App() : Application({}) {}
 
     void OnAwake() override {
-        World world;
+        PIXF_LOG_INFO("Using OpenGL ", glGetString(GL_VERSION));
+
+        World world(*this);
+
         EntityManager &entityManager = world.GetEntityManager();
         const Entity backpack = world.GetEntityManager().CreateEntity();
 
@@ -23,8 +57,8 @@ public:
         entityManager.AddComponent<ModelRenderer>(backpack, ModelRenderer(model));
 
         Camera camera{};
-        camera.aspect = 800.0f / 600.0f;
-        camera.fov = 60.0f;
+        camera.aspect = 800.0F / 600.0F;
+        camera.fov = 60.0F;
         camera.type = CameraType::Perspective;
 
         entityManager.CreateSingleton<Camera>(camera);
@@ -36,11 +70,15 @@ public:
         entityManager.CreateEntityWithComponent<PointLight>(
                 PointLight(vec3(-2.0F, 0.0F, 4.0F), vec3(0.0F, 0.5F, 1.0F), 1.0F, 0.1F, 0.032F));
 
+        const Entity audioSource = entityManager.CreateEntityWithComponent<Components::Audio::AudioSource>();
+        entityManager.GetComponent<Components::Audio::AudioSource>(audioSource).Unwrap()->clip =
+                world.GetAudioManager().ImportAudioClip("sound.wav").Unwrap();
+
+        world.GetSystemsManager().AddSystem<MusicPlayer>();
+        world.GetSystemsManager().AddSystem<CameraController>();
+
         GetWorldManager().CreateWorld("1", world);
         GetWorldManager().SetActiveWorld("1");
-
-        const Audio::AudioClipHandle sound = GetAudioManager().ImportAudioClip("sound.wav").Unwrap();
-        GetAudioManager().PlayAudioClip(sound, {.loop = true});
     }
 
     void OnUpdate(const double deltaTime) override {
@@ -54,25 +92,8 @@ public:
             Exit();
         }
 
-        if (GetInputManager().IsKeyDown(Input::Key::W)) {
-            entityManager.GetSingleton<Camera>().Unwrap()->transform.Translate(vec3(0.0F, 0.0F, 20.0F * deltaTime));
-        }
-
-        if (GetInputManager().IsKeyDown(Input::Key::S)) {
-            entityManager.GetSingleton<Camera>().Unwrap()->transform.Translate(vec3(0.0F, 0.0F, -20.0F * deltaTime));
-        }
-
-        if (GetInputManager().IsKeyDown(Input::Key::D)) {
-            entityManager.GetSingleton<Camera>().Unwrap()->transform.Translate(vec3(20.0F * deltaTime, 0.0F, 0.0F));
-        }
-
-        if (GetInputManager().IsKeyDown(Input::Key::A)) {
-            entityManager.GetSingleton<Camera>().Unwrap()->transform.Translate(vec3(-20.0F * deltaTime, 0.0F, 0.0F));
-        }
-
-        GetWindow().SetTitle(std::string("OpenGL") + reinterpret_cast<const char *>(glGetString(GL_VERSION)) +
-                             ", FPS: " + std::to_string(static_cast<int>(1.0 / deltaTime)));
+        GetWindow().SetTitle("FPS: " + std::to_string(static_cast<int>(1.0 / deltaTime)));
     }
 };
 
-RUN_APPLICATION(App);
+PIXF_RUN_APPLICATION(App);

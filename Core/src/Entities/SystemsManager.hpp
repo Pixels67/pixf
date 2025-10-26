@@ -3,17 +3,17 @@
 
 #include <unordered_map>
 
-#include "EntityManager.hpp"
-
 namespace Pixf::Core::Entities {
+    class World;
+
     struct System {
         virtual ~System() = default;
 
-        virtual void OnAwake(EntityManager &entityManager) {}
+        virtual void OnAwake(World &entityManager) {}
 
-        virtual void OnUpdate(EntityManager &entityManager, double deltaTime) {}
-        virtual void OnLateUpdate(EntityManager &entityManager, double deltaTime) {}
-        virtual void OnRender(EntityManager &entityManager) {}
+        virtual void OnUpdate(World &entityManager, double deltaTime) {}
+        virtual void OnLateUpdate(World &entityManager, double deltaTime) {}
+        virtual void OnRender(World &entityManager) {}
     };
 
     class SystemsManager {
@@ -38,10 +38,10 @@ namespace Pixf::Core::Entities {
 
         void RemoveSystem(unsigned int systemId);
 
-        void OnAwake(EntityManager &entityManager);
-        void OnUpdate(EntityManager &entityManager, double deltaTime);
-        void OnLateUpdate(EntityManager &entityManager, double deltaTime);
-        void OnRender(EntityManager &entityManager);
+        void OnAwake(World &world);
+        void OnUpdate(World &world, double deltaTime);
+        void OnLateUpdate(World &world, double deltaTime);
+        void OnRender(World &world);
 
     private:
         std::unordered_map<unsigned int, std::shared_ptr<System>> m_Systems;

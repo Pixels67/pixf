@@ -2,6 +2,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include "Debug/Logger.hpp"
 #include "Error/Result.hpp"
 
 constexpr unsigned int GL_VERSION_MAJOR = 3;
@@ -60,6 +61,7 @@ namespace Pixf::Core::Graphics::Gl {
         Cleanup();
 
         if (s_WindowCount == 0) {
+            PIXF_LOG_INFO("Terminating GLFW");
             TerminateGlfw();
         }
     }
@@ -129,6 +131,7 @@ namespace Pixf::Core::Graphics::Gl {
             return;
         }
 
+        PIXF_LOG_INFO("Cleaning window");
         glfwDestroyWindow(m_GlfwWindowPtr);
     }
 } // namespace Pixf::Core::Graphics::Gl

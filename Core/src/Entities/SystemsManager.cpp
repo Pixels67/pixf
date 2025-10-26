@@ -2,29 +2,31 @@
 
 #include <unordered_map>
 
+#include "World.hpp"
+
 namespace Pixf::Core::Entities {
     void SystemsManager::RemoveSystem(const unsigned int systemId) { m_Systems.erase(systemId); }
-    void SystemsManager::OnAwake(EntityManager &entityManager) {
+    void SystemsManager::OnAwake(World &world) {
         for (auto &[_, system]: m_Systems) {
-            system->OnAwake(entityManager);
+            system->OnAwake(world);
         }
     }
 
-    void SystemsManager::OnUpdate(EntityManager &entityManager, const double deltaTime) {
+    void SystemsManager::OnUpdate(World &world, const double deltaTime) {
         for (auto &[_, system]: m_Systems) {
-            system->OnUpdate(entityManager, deltaTime);
+            system->OnUpdate(world, deltaTime);
         }
     }
 
-    void SystemsManager::OnLateUpdate(EntityManager &entityManager, const double deltaTime) {
+    void SystemsManager::OnLateUpdate(World &world, const double deltaTime) {
         for (auto &[_, system]: m_Systems) {
-            system->OnLateUpdate(entityManager, deltaTime);
+            system->OnLateUpdate(world, deltaTime);
         }
     }
 
-    void SystemsManager::OnRender(EntityManager &entityManager) {
+    void SystemsManager::OnRender(World &world) {
         for (auto &[_, system]: m_Systems) {
-            system->OnRender(entityManager);
+            system->OnRender(world);
         }
     }
 } // namespace Pixf::Core::Entities

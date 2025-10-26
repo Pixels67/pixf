@@ -210,7 +210,7 @@ namespace Pixf::Core::Graphics {
         ResourceManager &operator=(const ResourceManager &) = delete;
         ResourceManager &operator=(ResourceManager &&) = default;
 
-        ~ResourceManager() = default;
+        ~ResourceManager();
 
         MeshHandle CreateMesh(const std::vector<Vertex> &vertices, std::vector<unsigned int> indices = {});
         ShaderHandle CreateShader(const std::string &vertSrc = defaultVertShader,

@@ -1,5 +1,6 @@
 #include "Texture2D.hpp"
 
+#include "Debug/Logger.hpp"
 #include "Gl.hpp"
 #include "stb_image.h"
 
@@ -68,24 +69,24 @@ namespace Pixf::Core::Graphics::Gl {
 
         unsigned int id;
 
-        GL_CALL(glGenTextures(1, &id));
-        GL_CALL(glActiveTexture(GL_TEXTURE0));
-        GL_CALL(glBindTexture(GL_TEXTURE_2D, id));
+        PIXF_GL_CALL(glGenTextures(1, &id));
+        PIXF_GL_CALL(glActiveTexture(GL_TEXTURE0));
+        PIXF_GL_CALL(glBindTexture(GL_TEXTURE_2D, id));
 
-        GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, config.GetGlWrap()));
-        GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, config.GetGlWrap()));
+        PIXF_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, config.GetGlWrap()));
+        PIXF_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, config.GetGlWrap()));
 
-        GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, config.GetGlMinFilter()));
-        GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, config.GetGlMagFilter()));
+        PIXF_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, config.GetGlMinFilter()));
+        PIXF_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, config.GetGlMagFilter()));
 
         const unsigned int format = channels == 3 ? GL_RGB : GL_RGBA;
-        GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data));
+        PIXF_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data));
 
         if (config.generateMipmaps) {
-            GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
+            PIXF_GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
         }
 
-        GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+        PIXF_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 
         stbi_image_free(data);
 
@@ -108,21 +109,23 @@ namespace Pixf::Core::Graphics::Gl {
         return *this;
     }
 
-    Texture2D::~Texture2D() { Cleanup(); }
+    Texture2D::~Texture2D() {
+        Cleanup();
+    }
 
     void Texture2D::Bind(const unsigned int index) const {
-        GL_CALL(glActiveTexture(GL_TEXTURE0 + index));
-        GL_CALL(glBindTexture(GL_TEXTURE_2D, m_Id));
+        PIXF_GL_CALL(glActiveTexture(GL_TEXTURE0 + index));
+        PIXF_GL_CALL(glBindTexture(GL_TEXTURE_2D, m_Id));
     }
 
     void Texture2D::Unbind(const unsigned int index) {
-        GL_CALL(glActiveTexture(GL_TEXTURE0 + index));
-        GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+        PIXF_GL_CALL(glActiveTexture(GL_TEXTURE0 + index));
+        PIXF_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
     }
 
     TextureConfig Texture2D::GetConfig() const { return m_Config; }
 
     Texture2D::Texture2D(const unsigned int id, const TextureConfig config) : m_Id(id), m_Config(config) {}
 
-    void Texture2D::Cleanup() const { GL_CALL(glDeleteTextures(1, &m_Id)); }
+    void Texture2D::Cleanup() const { PIXF_GL_CALL(glDeleteTextures(1, &m_Id)); }
 } // namespace Pixf::Core::Graphics::Gl

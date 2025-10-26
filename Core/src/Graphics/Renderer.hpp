@@ -28,8 +28,8 @@ namespace Pixf::Core::Graphics {
         void Render();
 
     private:
-        RenderQueue m_RenderQueue;
         ResourceManager m_ResourceManager;
+        RenderQueue m_RenderQueue;
         RendererConfig m_RenderConfig;
     };
 } // namespace Pixf::Core::Graphics

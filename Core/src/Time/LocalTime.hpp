@@ -1,31 +1,21 @@
-//
-// Created by  Hasan Rasheed on 26/10/2025.
-//
-
 #ifndef LOCALTIME_HPP
 #define LOCALTIME_HPP
 
-namespace Pixf {
-namespace Core {
-namespace Time {
+#include <string>
 
-class LocalTime {
-public:
-    LocalTime() = default;
-    
-    LocalTime(const LocalTime &) = delete;
-    LocalTime(LocalTime &&) = delete;
-    LocalTime &operator=(const LocalTime &) = delete;
-    LocalTime &operator=(LocalTime &&) = delete;
-    
-    ~LocalTime() = default;
-    
-private:
-    
-};
+namespace Pixf::Core::Time {
+    struct LocalTime {
+        unsigned int year;
+        unsigned int month;
+        unsigned int day;
+        unsigned int hour;
+        unsigned int minute;
+        unsigned int second;
 
-} // Time
-} // Core
-} // Pixf
+        std::string ToString() const;
+    };
 
-#endif //LOCALTIME_HPP
+    LocalTime GetLocalTime();
+} // namespace Pixf::Core::Time
+
+#endif // LOCALTIME_HPP

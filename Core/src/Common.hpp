@@ -1,11 +1,11 @@
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef COMMON_HPP
+#define COMMON_HPP
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
-#define ASSERT(expr, ...)                                                                                              \
+#define PIXF_ASSERT(expr, ...)                                                                                              \
     do {                                                                                                               \
         if (!(expr)) {                                                                                                 \
             const char *msg = __VA_ARGS__;                                                                             \
@@ -21,4 +21,4 @@ namespace Pixf::Core {
     using namespace glm;
 } // namespace Pixf::Core
 
-#endif // COMMON_H
+#endif // COMMON_HPP

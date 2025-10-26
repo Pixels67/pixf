@@ -143,6 +143,12 @@ set(
         src/Entities/Components/Graphics/ModelRenderer.hpp
         src/Audio/AudioManager.cpp
         src/Audio/AudioManager.hpp
+        src/Entities/Components/Audio/AudioListener.hpp
+        src/Entities/Components/Audio/AudioSource.hpp
+        src/Debug/Logger.cpp
+        src/Debug/Logger.hpp
+        src/Time/LocalTime.cpp
+        src/Time/LocalTime.hpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})

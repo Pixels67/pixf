@@ -20,7 +20,7 @@ namespace Pixf::Core::Graphics::Gl {
     public:
         template<typename T>
         void Push(unsigned int count) {
-            ASSERT(false, "Not implemented");
+            PIXF_ASSERT(false, "Not implemented");
         }
 
         template<>

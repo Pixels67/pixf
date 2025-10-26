@@ -26,6 +26,8 @@ namespace Pixf::Core::Graphics {
         layout.Bind();
 
         Gl::VertexArray::Unbind();
+        Gl::VertexBuffer::Unbind();
+        Gl::IndexBuffer::Unbind();
     }
 
     Mesh::Mesh(Mesh &&other) noexcept :

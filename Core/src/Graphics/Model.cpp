@@ -3,6 +3,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
+#include "Debug/Logger.hpp"
 #include "Material.hpp"
 
 constexpr float importScale = 1.0F;
@@ -10,6 +11,8 @@ constexpr float importScale = 1.0F;
 struct aiScene;
 namespace Pixf::Core::Graphics {
     Error::Result<Model, ModelError> Model::LoadModel(const std::string &path, ResourceManager &resourceManager) {
+        PIXF_LOG_INFO("Importing model: ", path);
+
         Assimp::Importer importer;
         unsigned int flags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_JoinIdenticalVertices |
                              aiProcess_CalcTangentSpace;
@@ -27,6 +30,8 @@ namespace Pixf::Core::Graphics {
 
         Model model;
         model.ProcessNode(scene->mRootNode, scene, resourceManager);
+
+        PIXF_LOG_INFO("Imported model: ", path);
         return Error::Result<Model, ModelError>(model);
     }
 

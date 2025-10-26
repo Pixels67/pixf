@@ -1,13 +1,31 @@
 #include "World.hpp"
 
+#include "Application.hpp"
+
 namespace Pixf::Core::Entities {
+    World::World(Application &application) : m_Application(application) {}
+
     EntityManager &World::GetEntityManager() { return m_EntityManager; }
 
-    void World::Awake() { m_SystemsManager.OnAwake(m_EntityManager); }
+    SystemsManager &World::GetSystemsManager() { return m_SystemsManager; }
 
-    void World::Update(const double deltaTime) { m_SystemsManager.OnUpdate(m_EntityManager, deltaTime); }
+    Graphics::Gl::Window &World::GetWindow() const { return m_Application.GetWindow(); }
 
-    void World::LateUpdate(const double deltaTime) { m_SystemsManager.OnLateUpdate(m_EntityManager, deltaTime); }
+    Input::InputManager &World::GetInputManager() const { return m_Application.GetInputManager(); }
 
-    void World::Render() { m_SystemsManager.OnRender(m_EntityManager); }
+    Graphics::Renderer &World::GetRenderer() const { return m_Application.GetRenderer(); }
+
+    Audio::AudioManager &World::GetAudioManager() const { return m_Application.GetAudioManager(); }
+
+    Event::EventManager &World::GetEventManager() const { return m_Application.GetEventManager(); }
+
+    WorldManager &World::GetWorldManager() const { return m_Application.GetWorldManager(); }
+
+    void World::Awake() { m_SystemsManager.OnAwake(*this); }
+
+    void World::Update(const double deltaTime) { m_SystemsManager.OnUpdate(*this, deltaTime); }
+
+    void World::LateUpdate(const double deltaTime) { m_SystemsManager.OnLateUpdate(*this, deltaTime); }
+
+    void World::Render() { m_SystemsManager.OnRender(*this); }
 } // namespace Pixf::Core::Entities

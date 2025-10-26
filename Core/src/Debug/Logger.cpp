@@ -1,12 +1,13 @@
-//
-// Created by  Hasan Rasheed on 26/10/2025.
-//
-
 #include "Logger.hpp"
 
-namespace Pixf {
-namespace Core {
-namespace Debug {
-} // Debug
-} // Core
-} // Pixf
+namespace Pixf::Core::Debug {
+    Logger Logger::s_Instance = {};
+
+    void Logger::Init(const LoggerConfig config) {
+        s_Instance.config = config;
+    }
+
+    Logger &Logger::GetInstance() {
+        return s_Instance;
+    }
+} // namespace Pixf::Core::Debug

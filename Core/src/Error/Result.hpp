@@ -23,22 +23,22 @@ namespace Pixf::Core::Error {
         ~Result() = default;
 
         const T &Unwrap() const & {
-            ASSERT(IsSuccess(), "Unwrap on non-successful Result<T, E>");
+            PIXF_ASSERT(IsSuccess(), "Unwrap on non-successful Result<T, E>");
             return std::get<T>(m_Data);
         }
 
         T &&Unwrap() && {
-            ASSERT(IsSuccess(), "Unwrap on non-successful Result<T, E>");
+            PIXF_ASSERT(IsSuccess(), "Unwrap on non-successful Result<T, E>");
             return std::move(std::get<T>(m_Data));
         }
 
         const E &UnwrapError() const & {
-            ASSERT(IsError(), "UnwrapError on successful Result<T, E>");
+            PIXF_ASSERT(IsError(), "UnwrapError on successful Result<T, E>");
             return std::get<E>(m_Data);
         }
 
         E &&UnwrapError() && {
-            ASSERT(IsError(), "UnwrapError on successful Result<T, E>");
+            PIXF_ASSERT(IsError(), "UnwrapError on successful Result<T, E>");
             return std::move(std::get<E>(m_Data));
         }
 

@@ -10,15 +10,15 @@
 namespace Pixf::Core::Graphics {
     Renderer::Renderer(const RendererConfig &config) : m_RenderConfig(config) {
         if (gladLoadGL() == 0) {
-            ASSERT(false, "Failed to initialize GLAD");
+            PIXF_ASSERT(false, "Failed to initialize GLAD");
         }
 
         gladLoadGLLoader(reinterpret_cast<void *(*) (const char *)>(glfwGetProcAddress));
-        GL_CALL(glViewport(config.viewportOrigin.x, config.viewportOrigin.y, config.viewportAspect.x,
+        PIXF_GL_CALL(glViewport(config.viewportOrigin.x, config.viewportOrigin.y, config.viewportAspect.x,
                            config.viewportAspect.y));
 
-        GL_CALL(glEnable(GL_MULTISAMPLE));
-        GL_CALL(glEnable(GL_DEPTH_TEST));
+        PIXF_GL_CALL(glEnable(GL_MULTISAMPLE));
+        PIXF_GL_CALL(glEnable(GL_DEPTH_TEST));
     }
 
     ResourceManager &Renderer::GetResourceManager() { return m_ResourceManager; }
@@ -29,8 +29,8 @@ namespace Pixf::Core::Graphics {
         const auto bgColor = vec3(m_RenderConfig.backgroundColor.r, m_RenderConfig.backgroundColor.g,
                                       m_RenderConfig.backgroundColor.b);
 
-        GL_CALL(glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0F));
-        GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        PIXF_GL_CALL(glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0F));
+        PIXF_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
         while (!m_RenderQueue.IsEmpty(RenderType::Opaque)) {
             const auto [ambientLight, directionalLights, pointLights, mesh, material, model, view, projection] =
@@ -71,7 +71,7 @@ namespace Pixf::Core::Graphics {
 
             m_ResourceManager.GetMesh(mesh).Unwrap()->Bind();
 
-            GL_CALL(glDrawElements(GL_TRIANGLES, m_ResourceManager.GetMesh(mesh).Unwrap()->GetIndexCount(),
+            PIXF_GL_CALL(glDrawElements(GL_TRIANGLES, m_ResourceManager.GetMesh(mesh).Unwrap()->GetIndexCount(),
                                    GL_UNSIGNED_INT, nullptr));
 
             Material::Unbind();

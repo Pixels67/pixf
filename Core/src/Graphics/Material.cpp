@@ -206,7 +206,7 @@ namespace Pixf::Core::Graphics {
 
     void Material::Unbind() {
         Gl::Shader::Unbind();
-        for (size_t i = 0; i < maxTextureCount; i++) {
+        for (size_t i = 0; i < g_MaxTextureCount; i++) {
             Gl::Texture2D::Unbind(i);
         }
     }
