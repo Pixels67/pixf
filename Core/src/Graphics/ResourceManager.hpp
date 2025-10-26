@@ -10,7 +10,7 @@
 #include "Gl/Texture2D.hpp"
 #include "Mesh.hpp"
 
-const auto defaultVertShader = R"(
+const auto g_DefaultVertShader = R"(
 #version 330 core
 
 layout(location = 0) in vec3 aVertPos;
@@ -35,7 +35,7 @@ void main() {
 }
 )";
 
-const auto defaultFragShader = R"(
+const auto g_DefaultFragShader = R"(
 #version 330 core
 
 #define MAX_DIRECTIONAL_LIGHTS 8
@@ -213,8 +213,8 @@ namespace Pixf::Core::Graphics {
         ~ResourceManager();
 
         MeshHandle CreateMesh(const std::vector<Vertex> &vertices, std::vector<unsigned int> indices = {});
-        ShaderHandle CreateShader(const std::string &vertSrc = defaultVertShader,
-                                  const std::string &fragSrc = defaultFragShader);
+        ShaderHandle CreateShader(const std::string &vertSrc = g_DefaultVertShader,
+                                  const std::string &fragSrc = g_DefaultFragShader);
         Error::Result<Texture2DHandle, ResourceError> ImportTexture2D(const std::string &path,
                                                                       Gl::TextureConfig config = {});
         MaterialHandle CreateMaterial();

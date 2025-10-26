@@ -27,5 +27,5 @@ namespace Pixf::Core::Entities {
 
     void World::LateUpdate(const double deltaTime) { m_SystemsManager.OnLateUpdate(*this, deltaTime); }
 
-    void World::Render() { m_SystemsManager.OnRender(*this); }
+    void World::Render(const double deltaTime) { m_SystemsManager.OnRender(*this, deltaTime); }
 } // namespace Pixf::Core::Entities

@@ -24,7 +24,8 @@ namespace Pixf::Core {
         virtual void OnAwake() {}
         virtual void OnUpdate(double deltaTime) {}
         virtual void OnLateUpdate(double deltaTime) {}
-        virtual void OnRender() {}
+        virtual void OnRender(double deltaTime) {}
+        virtual void OnRenderGui(double deltaTime) {}
         virtual void OnShutdown() {}
 
         void Run();

@@ -1,8 +1,8 @@
 #ifndef SYSTEMSMANAGER_HPP
 #define SYSTEMSMANAGER_HPP
 
-#include <unordered_map>
 #include <memory>
+#include <unordered_map>
 
 namespace Pixf::Core::Entities {
     class World;
@@ -14,7 +14,7 @@ namespace Pixf::Core::Entities {
 
         virtual void OnUpdate(World &entityManager, double deltaTime) {}
         virtual void OnLateUpdate(World &entityManager, double deltaTime) {}
-        virtual void OnRender(World &entityManager) {}
+        virtual void OnRender(World &entityManager, double deltaTime) {}
     };
 
     class SystemsManager {
@@ -42,7 +42,7 @@ namespace Pixf::Core::Entities {
         void OnAwake(World &world);
         void OnUpdate(World &world, double deltaTime);
         void OnLateUpdate(World &world, double deltaTime);
-        void OnRender(World &world);
+        void OnRender(World &world, double deltaTime);
 
     private:
         std::unordered_map<unsigned int, std::shared_ptr<System>> m_Systems;

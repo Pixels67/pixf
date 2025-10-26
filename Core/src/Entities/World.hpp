@@ -53,7 +53,7 @@ namespace Pixf::Core::Entities {
         void Awake();
         void Update(double deltaTime);
         void LateUpdate(double deltaTime);
-        void Render();
+        void Render(double deltaTime);
 
     private:
         EntityManager m_EntityManager;

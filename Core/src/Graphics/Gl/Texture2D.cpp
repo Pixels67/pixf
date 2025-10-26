@@ -1,6 +1,5 @@
 #include "Texture2D.hpp"
 
-#include "Debug/Logger.hpp"
 #include "Gl.hpp"
 #include "stb_image.h"
 
@@ -19,16 +18,27 @@ namespace Pixf::Core::Graphics::Gl {
     }
 
     unsigned int TextureConfig::GetGlMinFilter() const {
+        // May god forgive me for what I'm about to do...
         switch (filterMode) {
             case FilterMode::Linear:
                 if (generateMipmaps) {
-                    return GL_LINEAR_MIPMAP_LINEAR;
+                    switch (mipmapFilterMode) {
+                        case FilterMode::Linear:
+                            return GL_LINEAR_MIPMAP_LINEAR;
+                        case FilterMode::Nearest:
+                            return GL_LINEAR_MIPMAP_NEAREST;
+                    }
                 }
 
                 return GL_LINEAR;
             case FilterMode::Nearest:
                 if (generateMipmaps) {
-                    return GL_NEAREST_MIPMAP_NEAREST;
+                    switch (mipmapFilterMode) {
+                        case FilterMode::Linear:
+                            return GL_NEAREST_MIPMAP_LINEAR;
+                        case FilterMode::Nearest:
+                            return GL_NEAREST_MIPMAP_NEAREST;
+                    }
                 }
 
                 return GL_NEAREST;
@@ -109,9 +119,7 @@ namespace Pixf::Core::Graphics::Gl {
         return *this;
     }
 
-    Texture2D::~Texture2D() {
-        Cleanup();
-    }
+    Texture2D::~Texture2D() { Cleanup(); }
 
     void Texture2D::Bind(const unsigned int index) const {
         PIXF_GL_CALL(glActiveTexture(GL_TEXTURE0 + index));

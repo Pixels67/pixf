@@ -219,6 +219,6 @@ namespace Pixf::Core::Graphics {
         SetSpecularTexture2D(std::nullopt);
 
         SetSpecularStrength(1.0F);
-        SetShininess(16.0F);
+        SetShininess(2.0F);
     }
 } // namespace Pixf::Core::Graphics

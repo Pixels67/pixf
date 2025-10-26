@@ -1,4 +1,5 @@
-#pragma once
+#ifndef INPUTMANAGER_HPP
+#define INPUTMANAGER_HPP
 
 #include "../Common.hpp"
 #include "Event/Event.hpp"
@@ -188,3 +189,5 @@ namespace Pixf::Core::Input {
     };
 
 } // namespace Pixf::Core::Input
+
+#endif // INPUTMANAGER_HPP

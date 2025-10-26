@@ -9,6 +9,7 @@
 #include "Graphics/Gl/Window.hpp"
 #include "Graphics/Model.hpp"
 #include "Graphics/Renderer.hpp"
+#include "Gui/Gui.hpp"
 #include "Input/InputManager.hpp"
 #include "Time/Clock.hpp"
 
@@ -22,6 +23,7 @@ namespace Pixf::Core {
 
         while (!m_Window.ShouldClose() && m_IsRunning) {
             Graphics::Gl::Window::PollEvents();
+            m_EventManager.ProcessEvents();
 
             this->OnUpdate(m_Clock.GetDeltaTime());
 
@@ -37,11 +39,17 @@ namespace Pixf::Core {
 
             Render();
 
-            this->OnRender();
+            this->OnRender(m_Clock.GetDeltaTime());
 
             if (const auto activeWorld = m_WorldManager.GetActiveWorld(); activeWorld.IsSuccess()) {
-                activeWorld.Unwrap()->Render();
+                activeWorld.Unwrap()->Render(m_Clock.GetDeltaTime());
             }
+
+            Gui::BeginRenderGui();
+
+            this->OnRenderGui(m_Clock.GetDeltaTime());
+
+            Gui::EndRenderGui();
 
             Graphics::Gl::Window::SwapBuffers();
 
@@ -49,6 +57,7 @@ namespace Pixf::Core {
         }
 
         this->OnShutdown();
+        Gui::Terminate();
     }
 
     void Application::Exit() { m_IsRunning = false; }
@@ -139,5 +148,6 @@ namespace Pixf::Core {
         m_Window(CreateWindow(config.windowConfig)), m_Renderer(config.rendererConfig),
         m_InputManager(m_EventManager, m_Window), m_AppConfig(config) {
         m_AudioManager.InitAudioManager(config.audioManagerConfig);
+        Gui::Init(m_Window);
     }
 } // namespace Pixf::Core

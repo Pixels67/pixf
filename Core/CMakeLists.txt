@@ -71,6 +71,32 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(miniaudio)
 
+FetchContent_Declare(
+        imgui
+        GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
+        GIT_TAG "v1.92.4"
+        GIT_PROGRESS TRUE
+)
+
+FetchContent_MakeAvailable(imgui)
+
+add_library(imgui STATIC
+        ${imgui_SOURCE_DIR}/imgui.cpp
+        ${imgui_SOURCE_DIR}/imgui_demo.cpp
+        ${imgui_SOURCE_DIR}/imgui_draw.cpp
+        ${imgui_SOURCE_DIR}/imgui_tables.cpp
+        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+)
+
+target_include_directories(imgui PUBLIC
+        ${imgui_SOURCE_DIR}
+        ${imgui_SOURCE_DIR}/backends
+)
+
+target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
+
 find_package(OpenGL REQUIRED)
 
 set(
@@ -132,7 +158,6 @@ set(
         src/Entities/Components/Graphics/PointLight.hpp
         src/Graphics/Model.cpp
         src/Graphics/Model.hpp
-        src/Event/Event.cpp
         src/Event/Event.hpp
         src/Input/InputManager.cpp
         src/Input/InputManager.hpp
@@ -149,6 +174,8 @@ set(
         src/Debug/Logger.hpp
         src/Time/LocalTime.cpp
         src/Time/LocalTime.hpp
+        src/Gui/Gui.cpp
+        src/Gui/Gui.hpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
@@ -164,8 +191,14 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         GLM_FORCE_LEFT_HANDED
 )
 
-target_link_libraries(${PROJECT_NAME}
-        PUBLIC OpenGL::GL glfw glm assimp miniaudio)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+        OpenGL::GL
+        glfw
+        glm
+        assimp
+        miniaudio
+        imgui
+)
 
 # Tests
 enable_testing()

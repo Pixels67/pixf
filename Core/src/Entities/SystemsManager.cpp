@@ -22,9 +22,9 @@ namespace Pixf::Core::Entities {
         }
     }
 
-    void SystemsManager::OnRender(World &world) {
+    void SystemsManager::OnRender(World &world, const double deltaTime) {
         for (auto &[_, system]: m_Systems) {
-            system->OnRender(world);
+            system->OnRender(world, deltaTime);
         }
     }
 } // namespace Pixf::Core::Entities

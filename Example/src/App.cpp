@@ -39,7 +39,7 @@ struct CameraController final : System {
 
 class App final : public Application {
 public:
-    explicit App() : Application({}) {}
+    explicit App() : Application({.windowConfig = {.title = "Title"}}) {}
 
     void OnAwake() override {
         PIXF_LOG_INFO("Using OpenGL ", glGetString(GL_VERSION));
@@ -53,7 +53,7 @@ public:
         transform.Translate(vec3(0.0F, -0.5F, 6.0F));
         entityManager.AddComponent<Transform>(backpack, transform);
 
-        const ModelHandle model = GetRenderer().GetResourceManager().ImportModel("backpack.obj").Unwrap();
+        model = GetRenderer().GetResourceManager().ImportModel("backpack.obj").Unwrap();
         entityManager.AddComponent<ModelRenderer>(backpack, ModelRenderer(model));
 
         Camera camera{};
@@ -85,15 +85,40 @@ public:
         EntityManager &entityManager = GetWorldManager().GetActiveWorld().Unwrap()->GetEntityManager();
 
         for (auto query = entityManager.Query<Transform>().Unwrap(); auto &[id, comp]: query) {
-            comp->RotateAround(vec3(0.0F, 1.0F, 0.0F), 60.0F * deltaTime);
+            comp->rotation = quat(vec3(0.0F, rot, 0.0F));
+            comp->position = pos;
+        }
+
+        auto mats = GetRenderer().GetResourceManager().GetModel(model).Unwrap()->GetMaterials();
+        for (int i = 0; i < mats.size(); ++i) {
+            GetRenderer().GetResourceManager().GetMaterial(mats[i]).Unwrap()->SetShininess(shininess);
         }
 
         if (GetInputManager().IsKeyDown(Input::Key::Escape)) {
             Exit();
         }
-
-        GetWindow().SetTitle("FPS: " + std::to_string(static_cast<int>(1.0 / deltaTime)));
     }
+
+    void OnRenderGui(const double deltaTime) override {
+        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_Always);
+
+        ImGui::Begin("Debug", nullptr,
+                     ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+        ImGui::Text("FPS: %d", static_cast<int>(1.0 / deltaTime));
+
+        ImGui::DragFloat3("Position", &pos.x, 0.2F);
+
+        ImGui::DragFloat("Rotation", &rot, 0.2F);
+        ImGui::DragFloat("Shininess", &shininess, 0.2F);
+
+        ImGui::End();
+    }
+
+    vec3 pos = vec3();
+    float rot = 0.0F;
+    float shininess = 2.0F;
+    ModelHandle model;
 };
 
 PIXF_RUN_APPLICATION(App);

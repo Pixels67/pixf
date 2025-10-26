@@ -32,6 +32,7 @@
 #include "Graphics/Renderer.hpp"
 #include "Graphics/ResourceManager.hpp"
 #include "Graphics/Vertex.hpp"
+#include "Gui/Gui.hpp"
 #include "Input/InputManager.hpp"
 #include "Time/Clock.hpp"
 #include "Time/LocalTime.hpp"
