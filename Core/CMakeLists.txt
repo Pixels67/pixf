@@ -197,6 +197,7 @@ set(
         src/Gui/Gui.hpp
         src/File/File.hpp
         src/File/File.cpp
+        src/Json/Json.hpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})

@@ -91,6 +91,9 @@ namespace Pixf::Core::Debug {
 #define PIXF_LOG_WARN(...) Pixf::Core::Debug::Logger::GetInstance().Warn(__VA_ARGS__)
 #define PIXF_LOG_FATAL(...) Pixf::Core::Debug::Logger::GetInstance().Fatal(__VA_ARGS__)
 
+#define PIXF_PRINT(...) Pixf::Core::Debug::Logger::Print(__VA_ARGS__)
+#define PIXF_PRINT_ERROR(...) Pixf::Core::Debug::Logger::PrintError(__VA_ARGS__)
+
 } // namespace Pixf::Core::Debug
 
 #endif // LOGGER_HPP

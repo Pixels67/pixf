@@ -14,7 +14,11 @@ namespace Pixf::Core::File {
         }
 
         std::string data;
-        file >> data;
+        std::string buffer;
+        while (std::getline(file, buffer)) {
+            data += buffer;
+        }
+
         file.close();
 
         return data;

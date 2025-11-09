@@ -94,13 +94,9 @@ public:
         EntityManager &entityManager = GetWorldManager().GetActiveWorld().Unwrap()->GetEntityManager();
 
         for (auto query = entityManager.Query<Transform>().Unwrap(); auto &[id, comp]: query) {
-            comp->rotation = quat(vec3(0.0F, radians(rot), 0.0F));
+            comp->rotation = quat(vec3(radians(rot.x), radians(rot.y), radians(rot.z)));
             comp->position = pos;
-        }
-
-        const auto mats = GetRenderer().GetResourceManager().GetModel(model).Unwrap()->GetMaterials();
-        for (int i = 0; i < mats.size(); ++i) {
-            GetRenderer().GetResourceManager().GetMaterial(mats[i]).Unwrap()->SetShininess(shininess);
+            comp->scale = scale;
         }
 
         if (GetInputManager().IsKeyDown(Input::Key::Escape)) {
@@ -117,16 +113,15 @@ public:
         ImGui::Text("FPS: %d", static_cast<int>(1.0 / deltaTime));
 
         ImGui::DragFloat3("Position", &pos.x, 0.2F);
-
-        ImGui::DragFloat("Rotation", &rot, 0.2F);
-        ImGui::DragFloat("Shininess", &shininess, 0.2F);
+        ImGui::DragFloat3("Rotation", &rot.x, 0.2F);
+        ImGui::DragFloat3("Scale", &scale.x, 0.2F);
 
         ImGui::End();
     }
 
     vec3 pos = vec3();
-    float rot = 0.0F;
-    float shininess = 2.0F;
+    vec3 rot = vec3();
+    vec3 scale = vec3(1.0F);
     AssetHandle model;
 };
 

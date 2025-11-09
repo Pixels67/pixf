@@ -1,9 +1,13 @@
 #include "AssetManager.hpp"
 
-#include <boost/uuid.hpp>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <unordered_map>
+
+#include <boost/json/object.hpp>
+#include <boost/json/parse.hpp>
+#include <boost/uuid.hpp>
 
 #include "Debug/Logger.hpp"
 #include "File/File.hpp"
@@ -12,6 +16,7 @@
 #include "Graphics/Material.hpp"
 #include "Graphics/Mesh.hpp"
 #include "Graphics/Model.hpp"
+#include "Json/Json.hpp"
 
 namespace Pixf::Core::Graphics {
     AssetManager::~AssetManager() {
@@ -56,14 +61,7 @@ namespace Pixf::Core::Graphics {
             return AssetError::FailedToLoad;
         }
 
-        boost::uuids::uuid uuid = {};
-        if (const auto metaFile = File::ReadFile(path + ".meta"); metaFile.IsSuccess()) {
-            uuid = boost::uuids::string_generator()(metaFile.Unwrap());
-        } else {
-            uuid = m_UuidGenerator(path);
-            File::WriteFile(path + ".meta", to_string(uuid));
-        }
-
+        const boost::uuids::uuid uuid = GetUuid(path, AssetType::Texture2D).Unwrap();
         m_Textures2D[uuid] = std::make_shared<Gl::Texture2D>(std::move(tex).Unwrap());
         m_Texture2DPaths[path] = uuid;
         return AssetHandle(uuid, AssetType::Texture2D);
@@ -77,14 +75,7 @@ namespace Pixf::Core::Graphics {
 
         const Model &model = result.Unwrap();
 
-        boost::uuids::uuid uuid = {};
-        if (const auto metaFile = File::ReadFile(path + ".meta"); metaFile.IsSuccess()) {
-            uuid = boost::uuids::string_generator()(metaFile.Unwrap());
-        } else {
-            uuid = m_UuidGenerator(path);
-            File::WriteFile(path + ".meta", to_string(uuid));
-        }
-
+        const boost::uuids::uuid uuid = GetUuid(path, AssetType::Model).Unwrap();
         m_Models[uuid] = std::make_shared<Model>(model);
         return AssetHandle(uuid, AssetType::Model);
     }
@@ -173,4 +164,34 @@ namespace Pixf::Core::Graphics {
     }
 
     void AssetManager::DeleteMesh(const AssetHandle &handle) { m_Meshes.erase(handle.uuid); }
-} // namespace Pixf::Core::Assets
+
+    Error::Result<boost::uuids::uuid, AssetError> AssetManager::GetUuid(const std::string &path,
+                                                                        const AssetType type) const {
+        boost::uuids::uuid uuid = {};
+        if (const auto metaFile = File::ReadFile(path + ".meta"); metaFile.IsSuccess()) {
+            boost::json::object json;
+
+            try {
+                json = boost::json::parse(metaFile.Unwrap()).as_object();
+            } catch (const boost::system::system_error &e) {
+                PIXF_LOG_ERROR("Failed to parse JSON object. Error: ", e.what());
+                return AssetError::FailedToParseMetaFile;
+            }
+
+            if (json["type"].as_string() != ToString(type)) {
+                return AssetError::MismatchedType;
+            }
+
+            uuid = boost::uuids::string_generator()(json["uuid"].as_string().c_str());
+        } else {
+            uuid = m_UuidGenerator(path);
+            boost::json::object json;
+            json["uuid"] = to_string(uuid);
+            json["type"] = ToString(type);
+
+            File::WriteFile(path + ".meta", Json::ToPrettyJson(json));
+        }
+
+        return uuid;
+    }
+} // namespace Pixf::Core::Graphics

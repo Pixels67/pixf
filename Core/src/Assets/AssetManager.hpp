@@ -1,6 +1,7 @@
 #ifndef RESOURCEMANAGER_HPP
 #define RESOURCEMANAGER_HPP
 
+#include <boost/json/value.hpp>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -155,6 +156,25 @@ namespace Pixf::Core::Graphics {
         Model,
     };
 
+    inline std::string ToString(const AssetType assetType) {
+        switch (assetType) {
+            case AssetType::None:
+                return "None";
+            case AssetType::Mesh:
+                return "Mesh";
+            case AssetType::Shader:
+                return "Shader";
+            case AssetType::Texture2D:
+                return "Texture2D";
+            case AssetType::Material:
+                return "Material";
+            case AssetType::Model:
+                return "Model";
+            default:
+                return "Unknown";
+        }
+    }
+
     struct AssetHandle {
         friend class AssetManager;
         AssetHandle() = default;
@@ -170,6 +190,8 @@ namespace Pixf::Core::Graphics {
         None = 0,
         NotFound,
         FailedToLoad,
+        FailedToParseMetaFile,
+        MismatchedType,
     };
 
     class AssetManager {
@@ -218,7 +240,9 @@ namespace Pixf::Core::Graphics {
         std::unordered_map<boost::uuids::uuid, std::shared_ptr<Model>> m_Models;
 
         std::unordered_map<std::string, boost::uuids::uuid> m_Texture2DPaths;
+
+        Error::Result<boost::uuids::uuid, AssetError> GetUuid(const std::string &path, AssetType type) const;
     };
-} // namespace Pixf::Core::Assets
+} // namespace Pixf::Core::Graphics
 
 #endif // RESOURCEMANAGER_HPP

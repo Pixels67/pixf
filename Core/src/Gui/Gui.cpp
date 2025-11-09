@@ -267,6 +267,7 @@ namespace Pixf::Core::Gui {
         ImGui::StyleColorsDark();
 
         ImGuiIO &io = ImGui::GetIO();
+        io.IniFilename = nullptr;
 
         eventManager.Subscribe<Graphics::Gl::WindowSizeChangedEvent>(
                 [&](const Graphics::Gl::WindowSizeChangedEvent &event) {
