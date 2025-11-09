@@ -8,14 +8,21 @@ using namespace Pixf::Core::Entities::Components::Graphics;
 
 struct MusicPlayer final : System {
     void OnAwake(World &world) override {
-        for (auto query = world.GetEntityManager().Query<Components::Audio::AudioSource>().Unwrap();
-             auto &[id, comp]: query) {
-            world.GetAudioManager().PlayAudioClip(comp->clip, comp->config);
-        }
+        // for (auto query = world.GetEntityManager().Query<Components::Audio::AudioSource>().Unwrap();
+        //      auto &[id, comp]: query) {
+        //     world.GetAudioManager().PlayAudioClip(comp->clip, comp->config);
+        // }
     }
 };
 
 struct CameraController final : System {
+    void OnAwake(World &world) override {
+        world.GetEventManager().Subscribe<Gl::WindowSizeChangedEvent>([&](const Gl::WindowSizeChangedEvent &event) {
+            world.GetEntityManager().GetSingleton<Camera>().Unwrap()->aspect =
+                    static_cast<float>(event.newWidth) / static_cast<float>(event.newHeight);
+        });
+    }
+
     void OnUpdate(World &world, const double deltaTime) override {
         EntityManager &entityManager = world.GetEntityManager();
 
@@ -39,7 +46,9 @@ struct CameraController final : System {
 
 class App final : public Application {
 public:
-    explicit App() : Application({.windowConfig = {.title = "Title"}}) {}
+    explicit App() :
+        Application({.windowConfig = {.title = "Title", .size = uvec2(1080, 720)},
+                     .rendererConfig = {.viewportOrigin = ivec2(0, 0), .viewportAspect = ivec2(1080, 720)}}) {}
 
     void OnAwake() override {
         PIXF_LOG_INFO("Using OpenGL ", glGetString(GL_VERSION));
@@ -57,7 +66,7 @@ public:
         entityManager.AddComponent<ModelRenderer>(backpack, ModelRenderer(model));
 
         Camera camera{};
-        camera.aspect = 800.0F / 600.0F;
+        camera.aspect = 1080.0F / 720.0F;
         camera.fov = 60.0F;
         camera.type = CameraType::Perspective;
 
@@ -85,11 +94,11 @@ public:
         EntityManager &entityManager = GetWorldManager().GetActiveWorld().Unwrap()->GetEntityManager();
 
         for (auto query = entityManager.Query<Transform>().Unwrap(); auto &[id, comp]: query) {
-            comp->rotation = quat(vec3(0.0F, rot, 0.0F));
+            comp->rotation = quat(vec3(0.0F, radians(rot), 0.0F));
             comp->position = pos;
         }
 
-        auto mats = GetRenderer().GetResourceManager().GetModel(model).Unwrap()->GetMaterials();
+        const auto mats = GetRenderer().GetResourceManager().GetModel(model).Unwrap()->GetMaterials();
         for (int i = 0; i < mats.size(); ++i) {
             GetRenderer().GetResourceManager().GetMaterial(mats[i]).Unwrap()->SetShininess(shininess);
         }
@@ -118,7 +127,7 @@ public:
     vec3 pos = vec3();
     float rot = 0.0F;
     float shininess = 2.0F;
-    ModelHandle model;
+    AssetHandle model;
 };
 
 PIXF_RUN_APPLICATION(App);

@@ -108,10 +108,15 @@ namespace Pixf::Core::Entities {
         }
 
         template<typename T>
+        bool HasSingleton() const {
+            return m_Singletons.contains(std::type_index(typeid(T)));
+        }
+
+        template<typename T>
         Error::Result<std::shared_ptr<T>, SingletonError> GetSingleton() {
             static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
 
-            if (!m_Singletons.contains(std::type_index(typeid(T)))) {
+            if (!HasSingleton<T>()) {
                 return SingletonError::NotFound;
             }
 
@@ -122,7 +127,7 @@ namespace Pixf::Core::Entities {
         void DestroySingleton() {
             static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
 
-            if (!m_Singletons.contains(std::type_index(typeid(T)))) {
+            if (!HasSingleton<T>()) {
                 return;
             }
 

@@ -12,10 +12,11 @@ namespace Pixf::Core::Audio {
         return AudioClipError::None;
     }
 
-    AudioClip::~AudioClip() {
-        if (m_IsInitialized) {
-            ma_sound_uninit(&m_Clip);
-        }
+    void AudioClip::Cleanup() {
+        if (!m_IsInitialized) return;
+
+        ma_sound_uninit(&m_Clip);
+        m_IsInitialized = false;
     }
 
     AudioManagerError AudioManager::InitAudioManager(AudioManagerConfig config) {
@@ -26,7 +27,13 @@ namespace Pixf::Core::Audio {
         return AudioManagerError::None;
     }
 
-    AudioManager::~AudioManager() { ma_engine_uninit(&m_Engine); }
+    AudioManager::~AudioManager() {
+        for (auto &[id, clip] : m_AudioClips) {
+            clip.Cleanup();
+        }
+
+        ma_engine_uninit(&m_Engine);
+    }
 
     AudioImportResult AudioManager::ImportAudioClip(const std::string &path) {
         m_AudioClipCounter++;

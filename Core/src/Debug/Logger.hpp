@@ -7,10 +7,10 @@
 #include "Time/LocalTime.hpp"
 
 namespace Pixf::Core::Debug {
-    enum class Severity : uint8_t { Info = 0, Warning = 1, Error = 2, Fatal = 3 };
+    enum class Severity : uint8_t { Trace = 0, Debug = 1, Info = 2, Warning = 3, Error = 4, Fatal = 5 };
 
     struct LoggerConfig {
-        Severity logLevel = Severity::Info;
+        Severity logLevel = Severity::Trace;
     };
 
     class Logger {
@@ -28,6 +28,20 @@ namespace Pixf::Core::Debug {
         static void PrintError(Args... args) {
             ((std::cerr << args), ...);
             std::cerr << '\n';
+        }
+
+        template<typename... Args>
+        void Trace(Args... args) {
+            if (static_cast<int>(config.logLevel) <= static_cast<int>(Severity::Trace)) {
+                Print("[", Time::GetLocalTime().ToString(), "] [TRACE] ", args...);
+            }
+        }
+
+        template<typename... Args>
+        void Debug(Args... args) {
+            if (static_cast<int>(config.logLevel) <= static_cast<int>(Severity::Debug)) {
+                Print("[", Time::GetLocalTime().ToString(), "] [DEBUG] ", args...);
+            }
         }
 
         template<typename... Args>
@@ -65,14 +79,16 @@ namespace Pixf::Core::Debug {
     };
 
 #ifndef NDEBUG
-#define PIXF_LOG_INFO(...) Pixf::Core::Debug::Logger::GetInstance().Info(__VA_ARGS__)
-#define PIXF_LOG_WARN(...) Pixf::Core::Debug::Logger::GetInstance().Warn(__VA_ARGS__)
+#define PIXF_LOG_TRACE(...) Pixf::Core::Debug::Logger::GetInstance().Trace(__VA_ARGS__)
+#define PIXF_LOG_DEBUG(...) Pixf::Core::Debug::Logger::GetInstance().Debug(__VA_ARGS__)
 #else
-#define PIXF_LOG_INFO(...)
-#define PIXF_LOG_WARN(...)
+#define PIXF_LOG_TRACE(...)
+#define PIXF_LOG_DEBUG(...)
 #endif
 
+#define PIXF_LOG_INFO(...) Pixf::Core::Debug::Logger::GetInstance().Info(__VA_ARGS__)
 #define PIXF_LOG_ERROR(...) Pixf::Core::Debug::Logger::GetInstance().Error(__VA_ARGS__)
+#define PIXF_LOG_WARN(...) Pixf::Core::Debug::Logger::GetInstance().Warn(__VA_ARGS__)
 #define PIXF_LOG_FATAL(...) Pixf::Core::Debug::Logger::GetInstance().Fatal(__VA_ARGS__)
 
 } // namespace Pixf::Core::Debug

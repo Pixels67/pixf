@@ -8,16 +8,15 @@
 #include <unordered_map>
 
 namespace Pixf::Core::Event {
-
     class Event {
     public:
         virtual ~Event() = default;
+        bool handled = false;
     };
 
     template<typename T>
-    using EventCallback = std::function<void(const T &)>;
-
-    using GenericCallback = std::function<void(const Event &)>;
+    using EventCallback = std::function<void(T &)>;
+    using GenericCallback = std::function<void(Event &)>;
 
     class EventManager {
     public:
@@ -25,21 +24,33 @@ namespace Pixf::Core::Event {
         void Subscribe(EventCallback<T> callback) {
             const auto typeIndex = std::type_index(typeid(T));
 
-            m_Listeners[typeIndex].push_back([callback](const Event &e) { callback(static_cast<const T &>(e)); });
+            m_Callbacks[typeIndex].push_back([callback](Event &e) { callback(static_cast<T &>(e)); });
         }
 
         template<typename T>
-        void QueueEvent(T event) {
+        void QueueEvent(T event = {}) {
             m_EventQueue.push(std::make_unique<T>(std::move(event)));
         }
 
         template<typename T>
-        void DispatchEvent(const T &event) {
+        void DispatchEvent(T &event) {
             const auto typeIndex = std::type_index(typeid(T));
 
-            if (const auto it = m_Listeners.find(typeIndex); it != m_Listeners.end()) {
+            if (const auto it = m_Callbacks.find(typeIndex); it != m_Callbacks.end()) {
                 for (auto &callback: it->second) {
                     callback(event);
+                }
+            }
+        }
+
+        template<typename T>
+        void DispatchEvent(T &&event) {
+            const auto typeIndex = std::type_index(typeid(T));
+            T e = std::forward<T>(event);
+
+            if (const auto it = m_Callbacks.find(typeIndex); it != m_Callbacks.end()) {
+                for (auto &callback: it->second) {
+                    callback(e);
                 }
             }
         }
@@ -49,7 +60,7 @@ namespace Pixf::Core::Event {
                 auto &event = m_EventQueue.front();
                 auto typeIndex = std::type_index(typeid(*event));
 
-                if (auto it = m_Listeners.find(typeIndex); it != m_Listeners.end()) {
+                if (auto it = m_Callbacks.find(typeIndex); it != m_Callbacks.end()) {
                     for (auto &callback: it->second) {
                         callback(*event);
                     }
@@ -62,7 +73,7 @@ namespace Pixf::Core::Event {
         void Clear() { m_EventQueue = {}; }
 
     private:
-        std::unordered_map<std::type_index, std::vector<GenericCallback>> m_Listeners;
+        std::unordered_map<std::type_index, std::vector<GenericCallback>> m_Callbacks;
         std::queue<std::unique_ptr<Event>> m_EventQueue;
     };
 

@@ -40,12 +40,11 @@ namespace Pixf::Core::Audio {
 
     struct AudioClip {
         friend class AudioManager;
-
         AudioClip() = default;
-        ~AudioClip();
 
     private:
         AudioClipError Load(const std::string &path, ma_engine &engine);
+        void Cleanup();
 
         ma_sound m_Clip;
         bool m_IsInitialized = false;

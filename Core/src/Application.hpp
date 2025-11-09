@@ -39,23 +39,24 @@ namespace Pixf::Core {
         WorldManager &GetWorldManager();
 
     private:
+        Event::EventManager m_EventManager = {};
         Graphics::Gl::Window m_Window;
         Graphics::Renderer m_Renderer;
         Audio::AudioManager m_AudioManager;
-        Event::EventManager m_EventManager;
         Input::InputManager m_InputManager;
         WorldManager m_WorldManager;
         Time::Clock m_Clock;
         ApplicationConfig m_AppConfig;
         bool m_IsRunning = true;
 
-        static Graphics::Gl::Window CreateWindow(const Graphics::Gl::WindowConfig &config);
+        static Graphics::Gl::Window CreateWindow(const Graphics::Gl::WindowConfig &config,
+                                                 Event::EventManager &eventManager);
 
         void Render();
     };
 } // namespace Pixf::Core
 
-#define PIXF_RUN_APPLICATION(x)                                                                                             \
+#define PIXF_RUN_APPLICATION(x)                                                                                        \
     int main() {                                                                                                       \
         x app;                                                                                                         \
         app.Run();                                                                                                     \

@@ -3,21 +3,21 @@
 #include <unordered_map>
 #include <optional>
 
-#include "../Common.hpp"
-#include "ResourceManager.hpp"
+#include "Assets/AssetManager.hpp"
+#include "Common.hpp"
 
 namespace Pixf::Core::Graphics {
-    Material::Material(ResourceManager &resourceManager) : m_ResourceManager(resourceManager) {
+    Material::Material(AssetManager &resourceManager) : m_ResourceManager(resourceManager) {
         m_Shader = m_ResourceManager.CreateShader();
         SetupDefaults();
     }
 
-    Material::Material(ResourceManager &resourceManager, const ShaderHandle shader) :
+    Material::Material(AssetManager &resourceManager, const AssetHandle shader) :
         m_Shader(shader), m_ResourceManager(resourceManager) {
         SetupDefaults();
     }
 
-    MaterialPropertyError Material::SetShader(const ShaderHandle handle) {
+    MaterialPropertyError Material::SetShader(const AssetHandle handle) {
         if (const auto shader = m_ResourceManager.GetShader(m_Shader); shader.IsError()) {
             return MaterialPropertyError::InvalidShader;
         }
@@ -26,11 +26,11 @@ namespace Pixf::Core::Graphics {
         return MaterialPropertyError::None;
     }
 
-    ShaderHandle Material::GetShader() const { return m_Shader; }
+    AssetHandle Material::GetShader() const { return m_Shader; }
 
     void Material::SetDiffuse(const vec4 color) { SetVec4("uDiffuse", color); }
 
-    void Material::SetDiffuseTexture2D(const std::optional<Texture2DHandle> texture) {
+    void Material::SetDiffuseTexture2D(const std::optional<AssetHandle> texture) {
         SetInt("uHasDiffuseTex", texture.has_value());
         if (texture.has_value()) {
             SetTexture2D("uDiffuseTex", texture.value());
@@ -39,7 +39,7 @@ namespace Pixf::Core::Graphics {
 
     void Material::SetSpecular(const vec4 color) { SetVec4("uSpecular", color); }
 
-    void Material::SetSpecularTexture2D(const std::optional<Texture2DHandle> texture) {
+    void Material::SetSpecularTexture2D(const std::optional<AssetHandle> texture) {
         SetInt("uHasSpecularTex", texture.has_value());
         if (texture.has_value()) {
             SetTexture2D("uSpecularTex", texture.value());
@@ -52,7 +52,7 @@ namespace Pixf::Core::Graphics {
 
     vec4 Material::GetDiffuse() { return GetVec4("uDiffuse").UnwrapOr(vec4(0.0F)); }
 
-    std::optional<Texture2DHandle> Material::GetDiffuseTexture2D() {
+    std::optional<AssetHandle> Material::GetDiffuseTexture2D() {
         if (GetInt("uHasDiffuseTex").UnwrapOr(false)) {
             return GetTexture2D("uDiffuseTex").Unwrap();
         }
@@ -94,7 +94,7 @@ namespace Pixf::Core::Graphics {
         return MaterialPropertyError::None;
     }
 
-    MaterialPropertyError Material::SetTexture2D(const std::string &name, const Texture2DHandle handle) {
+    MaterialPropertyError Material::SetTexture2D(const std::string &name, const AssetHandle handle) {
         m_Textures2D[name] = handle;
 
         return MaterialPropertyError::None;
@@ -156,7 +156,7 @@ namespace Pixf::Core::Graphics {
         return m_Mats.at(name);
     }
 
-    Error::Result<Texture2DHandle, MaterialPropertyError> Material::GetTexture2D(const std::string &name) {
+    Error::Result<AssetHandle, MaterialPropertyError> Material::GetTexture2D(const std::string &name) {
         if (m_Textures2D.find(name) == m_Textures2D.end()) {
             return MaterialPropertyError::NotFound;
         }

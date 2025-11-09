@@ -4,8 +4,8 @@
 #include <unordered_map>
 #include <optional>
 
+#include "../Assets/AssetManager.hpp"
 #include "../Common.hpp"
-#include "ResourceManager.hpp"
 
 namespace Pixf::Core::Graphics {
     enum class MaterialPropertyError : uint8_t {
@@ -16,8 +16,8 @@ namespace Pixf::Core::Graphics {
 
     class Material {
     public:
-        explicit Material(ResourceManager &resourceManager);
-        Material(ResourceManager &resourceManager, ShaderHandle shader);
+        explicit Material(AssetManager &resourceManager);
+        Material(AssetManager &resourceManager, AssetHandle shader);
 
         Material(const Material &) = default;
         Material(Material &&) = delete;
@@ -26,18 +26,18 @@ namespace Pixf::Core::Graphics {
 
         ~Material() = default;
 
-        MaterialPropertyError SetShader(ShaderHandle handle);
-        ShaderHandle GetShader() const;
+        MaterialPropertyError SetShader(AssetHandle handle);
+        AssetHandle GetShader() const;
 
         void SetDiffuse(vec4 color);
-        void SetDiffuseTexture2D(std::optional<Texture2DHandle> texture);
+        void SetDiffuseTexture2D(std::optional<AssetHandle> texture);
         void SetSpecular(vec4 color);
-        void SetSpecularTexture2D(std::optional<Texture2DHandle> texture);
+        void SetSpecularTexture2D(std::optional<AssetHandle> texture);
         void SetSpecularStrength(float value);
         void SetShininess(float value);
 
         vec4 GetDiffuse();
-        std::optional<Texture2DHandle> GetDiffuseTexture2D();
+        std::optional<AssetHandle> GetDiffuseTexture2D();
         float GetSpecularStrength();
         float GetShininess();
 
@@ -48,7 +48,7 @@ namespace Pixf::Core::Graphics {
         MaterialPropertyError SetVec4(const std::string &name, vec4 value);
         MaterialPropertyError SetMat4(const std::string &name, const mat4 &value);
 
-        MaterialPropertyError SetTexture2D(const std::string &name, Texture2DHandle handle);
+        MaterialPropertyError SetTexture2D(const std::string &name, AssetHandle handle);
 
         Error::Result<float, MaterialPropertyError> GetFloat(const std::string &name);
         Error::Result<int,  MaterialPropertyError> GetInt(const std::string &name);
@@ -58,7 +58,7 @@ namespace Pixf::Core::Graphics {
         Error::Result<vec4, MaterialPropertyError> GetVec4(const std::string &name);
         Error::Result<mat4, MaterialPropertyError> GetMat4(const std::string &name);
 
-        Error::Result<Texture2DHandle, MaterialPropertyError> GetTexture2D(const std::string &name);
+        Error::Result<AssetHandle, MaterialPropertyError> GetTexture2D(const std::string &name);
 
         void Bind() const;
         static void Unbind();
@@ -73,10 +73,10 @@ namespace Pixf::Core::Graphics {
         std::unordered_map<std::string, vec4> m_Vecs4D;
 
         std::unordered_map<std::string, mat4> m_Mats;
-        std::unordered_map<std::string, Texture2DHandle> m_Textures2D;
+        std::unordered_map<std::string, AssetHandle> m_Textures2D;
 
-        ShaderHandle m_Shader;
-        ResourceManager &m_ResourceManager;
+        AssetHandle m_Shader;
+        AssetManager &m_ResourceManager;
 
         void SetupDefaults();
     };

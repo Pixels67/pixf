@@ -4,6 +4,7 @@
 #include "Common.hpp"
 #include "Entities/ComponentManager.hpp"
 #include "Entities/Components/RigidTransform.hpp"
+#include "Graphics/Gl/Window.hpp"
 
 namespace Pixf::Core::Entities::Components::Graphics {
     enum class CameraType : uint8_t { Orthographic, Perspective };
@@ -13,7 +14,7 @@ namespace Pixf::Core::Entities::Components::Graphics {
 
         float near = 0.1F;
         float far = 100.0F;
-        float aspect;
+        float aspect = Core::Graphics::Gl::g_DefaultWindowSize.x / Core::Graphics::Gl::g_DefaultWindowSize.y;
 
         CameraType type;
 

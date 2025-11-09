@@ -1,6 +1,7 @@
 #ifndef PIXF_HPP
 #define PIXF_HPP
 
+#include "../src/Assets/AssetManager.hpp"
 #include "Application.hpp"
 #include "Audio/AudioManager.hpp"
 #include "Common.hpp"
@@ -30,7 +31,6 @@
 #include "Graphics/RenderCommand.hpp"
 #include "Graphics/RenderQueue.hpp"
 #include "Graphics/Renderer.hpp"
-#include "Graphics/ResourceManager.hpp"
 #include "Graphics/Vertex.hpp"
 #include "Gui/Gui.hpp"
 #include "Input/InputManager.hpp"

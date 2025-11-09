@@ -5,8 +5,8 @@
 
 #include <assimp/scene.h>
 
+#include "../Assets/AssetManager.hpp"
 #include "Error/Result.hpp"
-#include "ResourceManager.hpp"
 
 namespace Pixf::Core::Graphics {
     enum class ModelError {
@@ -16,9 +16,9 @@ namespace Pixf::Core::Graphics {
 
     class Model {
     public:
-        static Error::Result<Model, ModelError> LoadModel(const std::string &path, ResourceManager &resourceManager);
+        static Error::Result<Model, ModelError> LoadModel(const std::string &path, AssetManager &assetManager);
         Model() = default;
-        explicit Model(const std::vector<MeshHandle> &meshes, const std::vector<MaterialHandle> &materials);
+        explicit Model(const std::vector<AssetHandle> &meshes, const std::vector<AssetHandle> &materials);
 
         Model(const Model &) = default;
         Model(Model &&) = default;
@@ -27,14 +27,16 @@ namespace Pixf::Core::Graphics {
 
         ~Model() = default;
 
-        const std::vector<MeshHandle> &GetMeshes() const;
-        const std::vector<MaterialHandle> &GetMaterials() const;
+        const std::vector<AssetHandle> &GetMeshes() const;
+        const std::vector<AssetHandle> &GetMaterials() const;
+
+        void Cleanup(AssetManager &assetManager) const;
 
     private:
-        std::vector<MeshHandle> m_Meshes;
-        std::vector<MaterialHandle> m_Materials;
+        std::vector<AssetHandle> m_Meshes;
+        std::vector<AssetHandle> m_Materials;
 
-        void ProcessNode(const aiNode *node, const aiScene *scene, ResourceManager &resourceManager);
+        void ProcessNode(const aiNode *node, const aiScene *scene, AssetManager &assetManager);
     };
 
 } // namespace Pixf::Core::Graphics

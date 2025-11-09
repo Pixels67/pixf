@@ -8,10 +8,10 @@
 #include "Graphics/Gl/Window.hpp"
 
 namespace Pixf::Core::Gui {
-    void Init(const Graphics::Gl::Window &window);
+    void Init(Event::EventManager &eventManager);
     void Terminate();
 
-    void BeginRenderGui();
+    void BeginRenderGui(double deltaTime);
     void EndRenderGui();
 } // namespace Pixf::Core::Gui
 

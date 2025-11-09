@@ -18,6 +18,13 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
+# Uncomment when debugging memory issues
+#
+#if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT MSVC)
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -g")
+#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -g")
+#endif()
+
 FetchContent_Declare(
         glfw
         GIT_REPOSITORY "https://github.com/glfw/glfw.git"
@@ -80,6 +87,18 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(imgui)
 
+FetchContent_Declare(
+        boost
+        GIT_REPOSITORY "https://github.com/boostorg/boost.git"
+        GIT_TAG "boost-1.89.0"
+        GIT_PROGRESS TRUE
+)
+
+set(BOOST_INCLUDE_LIBRARIES uuid json)
+set(BOOST_ENABLE_CMAKE ON)
+
+FetchContent_MakeAvailable(boost)
+
 add_library(imgui STATIC
         ${imgui_SOURCE_DIR}/imgui.cpp
         ${imgui_SOURCE_DIR}/imgui_demo.cpp
@@ -138,8 +157,8 @@ set(
         src/Time/Clock.hpp
         src/Graphics/Renderer.cpp
         src/Graphics/Renderer.hpp
-        src/Graphics/ResourceManager.cpp
-        src/Graphics/ResourceManager.hpp
+        src/Assets/AssetManager.cpp
+        src/Assets/AssetManager.hpp
         src/Graphics/Gl/Texture2D.cpp
         src/Graphics/Gl/Texture2D.hpp
         src/Entities/Components/Transform.cpp
@@ -176,6 +195,8 @@ set(
         src/Time/LocalTime.hpp
         src/Gui/Gui.cpp
         src/Gui/Gui.hpp
+        src/File/File.hpp
+        src/File/File.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
@@ -198,6 +219,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         assimp
         miniaudio
         imgui
+        Boost::uuid
+        Boost::json
 )
 
 # Tests

@@ -1,9 +1,11 @@
 #include "Window.hpp"
 
-#include <GLFW/glfw3.h>
+#include <string>
 
-#include "Debug/Logger.hpp"
+#include "Common.hpp"
 #include "Error/Result.hpp"
+#include "Event/Event.hpp"
+#include "Gl.hpp"
 
 constexpr unsigned int GL_VERSION_MAJOR = 3;
 constexpr unsigned int GL_VERSION_MINOR = 3;
@@ -12,7 +14,7 @@ namespace Pixf::Core::Graphics::Gl {
     Error::Result<Window, WindowError> Window::Create(const WindowConfig &config) {
         if (s_WindowCount == 0) {
             if (const auto err = InitGlfw(config.samplesPerPixel); err != WindowError::None) {
-                return Error::Result<Window, WindowError>(err);
+                return err;
             }
         }
 
@@ -66,9 +68,11 @@ namespace Pixf::Core::Graphics::Gl {
         }
     }
 
-    void Window::SetRenderTarget() const {
+    void Window::SetRenderTarget(Event::EventManager &eventManager) const {
+        s_EventManager = &eventManager;
         s_CurrentRenderTarget = m_GlfwWindowPtr;
         glfwMakeContextCurrent(s_CurrentRenderTarget);
+        SetupCallbacks();
     }
 
     void Window::SwapBuffers() {
@@ -102,7 +106,22 @@ namespace Pixf::Core::Graphics::Gl {
 
     Window::Window(GLFWwindow *glfwWindowPtr) : m_GlfwWindowPtr(glfwWindowPtr) {}
 
-    WindowError Window::InitGlfw(unsigned int sampleCount) {
+    void Window::SetupCallbacks() const {
+        glfwSetWindowUserPointer(m_GlfwWindowPtr, s_EventManager);
+
+        // Window size changed
+        glfwSetWindowSizeCallback(m_GlfwWindowPtr, [](GLFWwindow *window, const int width, const int height) {
+            const auto eventManager = static_cast<Event::EventManager *>(glfwGetWindowUserPointer(window));
+            const auto event = WindowSizeChangedEvent(width, height);
+            PIXF_LOG_TRACE("Window size changed to: ", width, ", ", height);
+            eventManager->QueueEvent<WindowSizeChangedEvent>(event);
+        });
+
+        const auto event = WindowSizeChangedEvent(GetSize().x, GetSize().y);
+        s_EventManager->QueueEvent<WindowSizeChangedEvent>(event);
+    }
+
+    WindowError Window::InitGlfw(const unsigned int sampleCount) {
 
         if (glfwInit() == 0) {
             constexpr auto err = WindowError::GlfwInitFailed;
@@ -132,6 +151,7 @@ namespace Pixf::Core::Graphics::Gl {
         }
 
         PIXF_LOG_INFO("Cleaning window");
+        glfwSetWindowUserPointer(m_GlfwWindowPtr, nullptr);
         glfwDestroyWindow(m_GlfwWindowPtr);
     }
 } // namespace Pixf::Core::Graphics::Gl

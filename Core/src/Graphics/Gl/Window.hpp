@@ -1,16 +1,19 @@
 #ifndef WINDOW_HPP
 #define WINDOW_HPP
 
-#include "../../Common.hpp"
-#include "Error/Result.hpp"
-#include "Gl.hpp"
-
 #include <string>
 
+#include "Common.hpp"
+#include "Error/Result.hpp"
+#include "Event/Event.hpp"
+#include "Gl.hpp"
+
 namespace Pixf::Core::Graphics::Gl {
+    constexpr auto g_DefaultWindowSize = uvec2(800, 600);
+
     struct WindowConfig {
         std::string title;
-        uvec2 size = vec2(800U, 600U);
+        uvec2 size = g_DefaultWindowSize;
         uint8_t samplesPerPixel = 4;
         bool vsync = true;
     };
@@ -19,6 +22,16 @@ namespace Pixf::Core::Graphics::Gl {
         None = 0,
         GlfwInitFailed,
         GlfwWindowCreationFailed,
+    };
+
+    class WindowSizeChangedEvent final : public Event::Event {
+    public:
+        unsigned int newWidth = 0;
+        unsigned int newHeight = 0;
+
+        WindowSizeChangedEvent() = default;
+        WindowSizeChangedEvent(const unsigned int newWidth, const unsigned int newHeight) :
+            newWidth(newWidth), newHeight(newHeight) {}
     };
 
     class Window {
@@ -33,7 +46,7 @@ namespace Pixf::Core::Graphics::Gl {
 
         ~Window();
 
-        void SetRenderTarget() const;
+        void SetRenderTarget(Event::EventManager &eventManager) const;
         static void ResetRenderTarget();
 
         static void SwapBuffers();
@@ -51,15 +64,18 @@ namespace Pixf::Core::Graphics::Gl {
     private:
         static inline GLFWwindow *s_CurrentRenderTarget = nullptr;
         static inline unsigned int s_WindowCount = 0;
+        static inline Event::EventManager *s_EventManager = nullptr;
         GLFWwindow *m_GlfwWindowPtr;
 
         explicit Window(GLFWwindow *glfwWindowPtr);
+
+        void SetupCallbacks() const;
 
         static WindowError InitGlfw(unsigned int sampleCount);
         static void TerminateGlfw();
 
         void Cleanup() const;
     };
-} // namespace Pixf::Core::Graphics::Gl
+} // namespace Pixf::Core::Assets::Gl
 
 #endif // WINDOW_HPP

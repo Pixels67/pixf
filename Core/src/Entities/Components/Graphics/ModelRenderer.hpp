@@ -1,15 +1,15 @@
 #ifndef MODELRENDERER_HPP
 #define MODELRENDERER_HPP
 
+#include "../../../Assets/AssetManager.hpp"
 #include "Entities/ComponentManager.hpp"
-#include "Graphics/ResourceManager.hpp"
 
 namespace Pixf::Core::Entities::Components::Graphics {
     struct ModelRenderer final : Component {
-        Core::Graphics::ModelHandle model;
+        Core::Graphics::AssetHandle model;
 
         ModelRenderer() = default;
-        explicit ModelRenderer(const Core::Graphics::ModelHandle model) : model(model) {}
+        explicit ModelRenderer(const Core::Graphics::AssetHandle model) : model(model) {}
     };
 } // namespace Pixf::Core::Entities::Components::Graphics
 

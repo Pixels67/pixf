@@ -45,7 +45,7 @@ namespace Pixf::Core {
                 activeWorld.Unwrap()->Render(m_Clock.GetDeltaTime());
             }
 
-            Gui::BeginRenderGui();
+            Gui::BeginRenderGui(m_Clock.GetDeltaTime());
 
             this->OnRenderGui(m_Clock.GetDeltaTime());
 
@@ -74,9 +74,10 @@ namespace Pixf::Core {
 
     WorldManager &Application::GetWorldManager() { return m_WorldManager; }
 
-    Graphics::Gl::Window Application::CreateWindow(const Graphics::Gl::WindowConfig &config) {
+    Graphics::Gl::Window Application::CreateWindow(const Graphics::Gl::WindowConfig &config,
+                                                   Event::EventManager &eventManager) {
         Graphics::Gl::Window window = Graphics::Gl::Window::Create(config).Unwrap();
-        window.SetRenderTarget();
+        window.SetRenderTarget(eventManager);
         return window;
     }
 
@@ -88,7 +89,7 @@ namespace Pixf::Core {
 
         Entities::World &world = *worldResult.Unwrap();
 
-        Graphics::ResourceManager &resourceManager = m_Renderer.GetResourceManager();
+        Graphics::AssetManager &resourceManager = m_Renderer.GetResourceManager();
         Entities::EntityManager &entityManager = world.GetEntityManager();
 
         auto camResult = entityManager.GetSingleton<Entities::Components::Graphics::Camera>();
@@ -145,9 +146,9 @@ namespace Pixf::Core {
     }
 
     Application::Application(const ApplicationConfig &config) :
-        m_Window(CreateWindow(config.windowConfig)), m_Renderer(config.rendererConfig),
+        m_Window(CreateWindow(config.windowConfig, m_EventManager)), m_Renderer(config.rendererConfig),
         m_InputManager(m_EventManager, m_Window), m_AppConfig(config) {
         m_AudioManager.InitAudioManager(config.audioManagerConfig);
-        Gui::Init(m_Window);
+        Gui::Init(m_EventManager);
     }
 } // namespace Pixf::Core

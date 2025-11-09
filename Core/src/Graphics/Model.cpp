@@ -10,7 +10,7 @@ constexpr float importScale = 1.0F;
 
 struct aiScene;
 namespace Pixf::Core::Graphics {
-    Error::Result<Model, ModelError> Model::LoadModel(const std::string &path, ResourceManager &resourceManager) {
+    Error::Result<Model, ModelError> Model::LoadModel(const std::string &path, AssetManager &assetManager) {
         PIXF_LOG_INFO("Importing model: ", path);
 
         Assimp::Importer importer;
@@ -29,20 +29,30 @@ namespace Pixf::Core::Graphics {
         }
 
         Model model;
-        model.ProcessNode(scene->mRootNode, scene, resourceManager);
+        model.ProcessNode(scene->mRootNode, scene, assetManager);
 
         PIXF_LOG_INFO("Imported model: ", path);
         return Error::Result<Model, ModelError>(model);
     }
 
-    Model::Model(const std::vector<MeshHandle> &meshes, const std::vector<MaterialHandle> &materials) :
+    Model::Model(const std::vector<AssetHandle> &meshes, const std::vector<AssetHandle> &materials) :
         m_Meshes(meshes), m_Materials(materials) {}
 
-    const std::vector<MeshHandle> &Model::GetMeshes() const { return m_Meshes; }
+    const std::vector<AssetHandle> &Model::GetMeshes() const { return m_Meshes; }
 
-    const std::vector<MaterialHandle> &Model::GetMaterials() const { return m_Materials; }
+    const std::vector<AssetHandle> &Model::GetMaterials() const { return m_Materials; }
 
-    void Model::ProcessNode(const aiNode *node, const aiScene *scene, ResourceManager &resourceManager) {
+    void Model::Cleanup(AssetManager &assetManager) const {
+        for (unsigned int i = 0; i < m_Meshes.size(); i++) {
+            assetManager.DeleteMesh(m_Meshes[i]);
+        }
+
+        for (unsigned int i = 0; i < m_Materials.size(); i++) {
+            assetManager.DeleteMaterial(m_Materials[i]);
+        }
+    }
+
+    void Model::ProcessNode(const aiNode *node, const aiScene *scene, AssetManager &assetManager) {
         for (unsigned int i = 0; i < node->mNumMeshes; i++) {
             const aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
             std::vector<Vertex> vertices;
@@ -82,11 +92,11 @@ namespace Pixf::Core::Graphics {
 
             // TODO: Get rid of Unwraps
 
-            const MaterialHandle matHandle = resourceManager.CreateMaterial();
-            Material &material = *resourceManager.GetMaterial(matHandle).Unwrap();
+            const AssetHandle matHandle = assetManager.CreateMaterial();
+            Material &material = *assetManager.GetMaterial(matHandle).Unwrap();
 
             if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &diffPath) == AI_SUCCESS) {
-                material.SetDiffuseTexture2D(resourceManager.ImportTexture2D(diffPath.C_Str()).Unwrap());
+                material.SetDiffuseTexture2D(assetManager.ImportTexture2D(diffPath.C_Str()).Unwrap());
             } else {
                 aiColor3D diffuseColor(1.0F, 1.0F, 1.0F);
                 mat->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
@@ -94,19 +104,19 @@ namespace Pixf::Core::Graphics {
             }
 
             if (mat->GetTexture(aiTextureType_SPECULAR, 0, &specPath) == AI_SUCCESS) {
-                material.SetSpecularTexture2D(resourceManager.ImportTexture2D(specPath.C_Str()).Unwrap());
+                material.SetSpecularTexture2D(assetManager.ImportTexture2D(specPath.C_Str()).Unwrap());
             } else {
                 aiColor3D specularColor(1.0F, 1.0F, 1.0F);
                 mat->Get(AI_MATKEY_COLOR_SPECULAR, specularColor);
                 material.SetSpecular(vec4(specularColor.r, specularColor.g, specularColor.b, 1.0F));
             }
 
-            m_Meshes.push_back(resourceManager.CreateMesh(vertices, indices));
+            m_Meshes.push_back(assetManager.CreateMesh(vertices, indices));
             m_Materials.push_back(matHandle);
         }
 
         for (unsigned int i = 0; i < node->mNumChildren; i++) {
-            ProcessNode(node->mChildren[i], scene, resourceManager);
+            ProcessNode(node->mChildren[i], scene, assetManager);
         }
     }
 } // namespace Pixf::Core::Graphics

@@ -1,11 +1,11 @@
 #include "Renderer.hpp"
 
+#include "Assets/AssetManager.hpp"
 #include "Gl/Gl.hpp"
 #include "Gl/Window.hpp"
 #include "Material.hpp"
 #include "RenderCommand.hpp"
 #include "RenderQueue.hpp"
-#include "ResourceManager.hpp"
 
 namespace Pixf::Core::Graphics {
     Renderer::Renderer(const RendererConfig &config) : m_RenderConfig(config) {
@@ -21,7 +21,7 @@ namespace Pixf::Core::Graphics {
         PIXF_GL_CALL(glEnable(GL_DEPTH_TEST));
     }
 
-    ResourceManager &Renderer::GetResourceManager() { return m_ResourceManager; }
+    AssetManager &Renderer::GetResourceManager() { return m_ResourceManager; }
 
     RenderQueue &Renderer::GetRenderQueue() { return m_RenderQueue; }
 
