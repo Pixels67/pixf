@@ -26,8 +26,6 @@ namespace Pixf::Core::Serialization {
     inline vec3 DeserializeVec3(Json::object json) {
         vec3 vector;
 
-        PIXF_LOG_TRACE("Deserializing vec3: ", serialize(json));
-
         vector.x = json["x"].to_number<double>();
         vector.y = json["y"].to_number<double>();
         vector.z = json["z"].to_number<double>();

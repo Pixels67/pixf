@@ -10,10 +10,10 @@ using namespace Pixf::Core::Entities::Components::Graphics;
 
 struct MusicPlayer final : System {
     void OnAwake(World &world) override {
-        // for (auto query = world.GetEntityManager().Query<Components::Audio::AudioSource>().Unwrap();
-        //      auto &[id, comp]: query) {
-        //     world.GetAudioManager().PlayAudioClip(comp->clip, comp->config);
-        // }
+        for (auto query = world.GetEntityManager().Query<Components::Audio::AudioSource>().Unwrap();
+             auto &[id, comp]: query) {
+            world.GetAudioManager().PlayAudioClip(comp->clip, comp->config);
+        }
     }
 };
 
@@ -60,22 +60,8 @@ public:
         EntityManager &entityManager = world.GetEntityManager();
         backpack = world.GetEntityManager().CreateEntity();
 
-        Transform transform{};
-        transform.Translate(vec3(0.0F, -0.5F, 6.0F));
-        entityManager.AddComponent<Transform>(backpack, transform);
-
-        PIXF_LOG_TRACE("Backpack created: ", backpack.GetId());
-
-        Entity trans1 = entityManager.CreateEntityWithComponent<Transform>();
-
-        PIXF_LOG_TRACE("Transform created: ", trans1.GetId());
-
-        Entity trans2 = entityManager.CreateEntityWithComponent<Transform>();
-
-        PIXF_LOG_TRACE("Transform created: ", trans2.GetId());
-
-        model = GetAssetManager().ImportModel("Assets/backpack.obj").Unwrap();
-        entityManager.AddComponent<ModelRenderer>(backpack, ModelRenderer(model));
+        world.GetEntityManager().CreateEntity();
+        world.GetEntityManager().CreateEntity();
 
         Camera camera{};
         camera.aspect = 1080.0F / 720.0F;
@@ -85,18 +71,17 @@ public:
         entityManager.CreateSingleton<Camera>(camera);
         entityManager.CreateSingleton<AmbientLight>();
 
-        entityManager.CreateEntityWithComponent<PointLight>(
-                PointLight(vec3(2.0F, 0.0F, 4.0F), vec3(1.0F, 0.5F, 0.0F), 1.0F, 0.1F, 0.032F));
+        //const Entity audioSource = entityManager.CreateEntityWithComponent<Components::Audio::AudioSource>();
+        //entityManager.GetComponent<Components::Audio::AudioSource>(audioSource).Unwrap()->clip =
+        //        world.GetAudioManager().ImportAudioClip("Assets/sound.wav").Unwrap();
 
-        entityManager.CreateEntityWithComponent<PointLight>(
-                PointLight(vec3(-2.0F, 0.0F, 4.0F), vec3(0.0F, 0.5F, 1.0F), 1.0F, 0.1F, 0.032F));
+        //world.GetSystemsManager().AddSystem<MusicPlayer>();
 
-        const Entity audioSource = entityManager.CreateEntityWithComponent<Components::Audio::AudioSource>();
-        entityManager.GetComponent<Components::Audio::AudioSource>(audioSource).Unwrap()->clip =
-                world.GetAudioManager().ImportAudioClip("Assets/sound.wav").Unwrap();
-
-        world.GetSystemsManager().AddSystem<MusicPlayer>();
         world.GetSystemsManager().AddSystem<CameraController>();
+
+        world.GetEntityManager().RegisterComponent<Transform>();
+        world.GetEntityManager().RegisterComponent<ModelRenderer>();
+        world.GetEntityManager().RegisterComponent<PointLight>();
 
         GetWorldManager().CreateWorld("1", world);
         GetWorldManager().SetActiveWorld("1");
@@ -111,25 +96,25 @@ public:
 
             if (event.key == Input::Key::T) {
                 auto &em = GetWorldManager().GetActiveWorld().Unwrap()->GetEntityManager();
-                auto comp = em.GetComponent<Transform>(backpack).Unwrap();
+                const auto comp = em.GetComponent<Transform>(backpack).Unwrap();
 
                 comp->rotation = quat(vec3(radians(rot.x), radians(rot.y), radians(rot.z)));
                 comp->position = pos;
                 comp->scale = scale;
 
-                auto reg = em.GetRegistry<Transform>().Unwrap();
-                Json::object json = reg->Serialize();
-                File::WriteFile("registry.json", Json::ToPrettyJson(json));
+                auto &comps = em.GetComponentManager();
+                const Json::object json = comps.Serialize();
+                File::WriteFile("components.json", Json::ToPrettyJson(json));
             }
 
             if (event.key == Input::Key::R) {
                 auto &em = GetWorldManager().GetActiveWorld().Unwrap()->GetEntityManager();
 
-                std::string str = File::ReadFile("registry.json").Unwrap();
-                Json::object json = Json::parse(str).as_object();
+                const std::string str = File::ReadFile("components.json").Unwrap();
+                const Json::object json = Json::parse(str).as_object();
 
-                auto reg = em.GetRegistry<Transform>().Unwrap();
-                reg->Deserialize(json, GetAssetManager());
+                auto &comps = em.GetComponentManager();
+                comps.Deserialize(json, GetAssetManager());
             }
         });
     }

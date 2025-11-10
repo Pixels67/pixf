@@ -30,6 +30,7 @@ namespace Pixf::Core::Assets {
             try {
                 json::object json = json::parse(File::ReadFile(path).Unwrap()).as_object();
                 uuids::uuid uuid = uuids::string_generator()(json["uuid"].as_string().c_str());
+                path.erase(path.find_last_of('.'));
                 m_AssetPaths[uuid] = path;
             } catch ([[maybe_unused]] const system::system_error &e) {}
         }
@@ -84,6 +85,10 @@ namespace Pixf::Core::Assets {
     }
 
     Error::Result<AssetHandle, AssetError> AssetManager::ImportModel(const std::string &path) {
+        if (m_ModelPaths.contains(path)) {
+            return AssetHandle(*this, m_ModelPaths[path], AssetType::Texture2D);
+        }
+
         const auto result = Model::LoadModel(path, *this);
         if (result.IsError()) {
             return AssetError::FailedToLoad;
@@ -93,6 +98,7 @@ namespace Pixf::Core::Assets {
 
         const uuids::uuid uuid = GetUuid(path, AssetType::Model).Unwrap();
         m_Models[uuid] = std::make_shared<Model>(model);
+        m_ModelPaths[path] = uuid;
         return AssetHandle(*this, uuid, AssetType::Model);
     }
 

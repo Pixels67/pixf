@@ -254,6 +254,8 @@ namespace Pixf::Core::Assets {
         std::unordered_map<uuids::uuid, std::shared_ptr<Graphics::Model>> m_Models;
 
         std::unordered_map<std::string, uuids::uuid> m_Texture2DPaths;
+        std::unordered_map<std::string, uuids::uuid> m_ModelPaths;
+
         std::unordered_map<uuids::uuid, std::string> m_AssetPaths;
 
         Error::Result<uuids::uuid, AssetError> GetUuid(const std::string &path, AssetType type) const;

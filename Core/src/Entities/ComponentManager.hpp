@@ -6,6 +6,7 @@
 
 #include "ComponentRegistry.hpp"
 #include "Error/Result.hpp"
+#include "Input/InputManager.hpp"
 
 namespace Pixf::Core::Entities {
     enum class ComponentError : uint8_t {
@@ -14,7 +15,7 @@ namespace Pixf::Core::Entities {
         NotRegistered,
     };
 
-    class ComponentManager {
+    class ComponentManager final : Serialization::Serializable {
     public:
         ComponentManager() = default;
 
@@ -23,12 +24,15 @@ namespace Pixf::Core::Entities {
         ComponentManager &operator=(const ComponentManager &) = default;
         ComponentManager &operator=(ComponentManager &&) = delete;
 
-        ~ComponentManager() = default;
+        ~ComponentManager() override = default;
 
         template<typename T>
         void RegisterComponent() {
-            m_Registries[GetTypeIndex<T>()] =
-                    std::dynamic_pointer_cast<IComponentRegistry>(std::make_shared<ComponentRegistry<T>>());
+            std::shared_ptr<ComponentRegistry<T>> ptr = std::make_shared<ComponentRegistry<T>>();
+
+            m_Registries[GetTypeIndex<T>()] = std::static_pointer_cast<IComponentRegistry>(ptr);
+            const std::string name = ptr->GetTypeName();
+            m_Types.insert({name, GetTypeIndex<T>()});
         }
 
         template<typename T>
@@ -96,8 +100,31 @@ namespace Pixf::Core::Entities {
             return std::dynamic_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeIndex<T>()]);
         }
 
+        Json::object Serialize() override {
+            Json::object json;
+
+            for (auto &[id, registry]: m_Registries) {
+                json[std::string(registry->GetTypeName())] =
+                        std::dynamic_pointer_cast<Serializable>(registry)->Serialize();
+            }
+
+            return json;
+        }
+
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
+            for (auto &[key, value]: json) {
+                if (!m_Types.contains(key)) {
+                    PIXF_LOG_ERROR("Component ", key, " not registered!");
+                    continue;
+                }
+
+                m_Registries[m_Types.at(key)]->Deserialize(value.as_object(), assetManager);
+            }
+        }
+
     private:
         std::unordered_map<std::type_index, std::shared_ptr<IComponentRegistry>> m_Registries;
+        std::unordered_map<std::string, std::type_index> m_Types;
 
         template<typename T>
         static std::type_index GetTypeIndex() {

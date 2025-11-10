@@ -7,6 +7,7 @@
 
 #include "Error/Result.hpp"
 #include "Serialization/Serializable.hpp"
+#include "Serialization/Serialization.hpp"
 
 namespace Pixf::Core::Entities {
     struct Component {
@@ -18,18 +19,21 @@ namespace Pixf::Core::Entities {
         NotFound,
     };
 
-    class IComponentRegistry {
+    class IComponentRegistry : public Serialization::Serializable {
     public:
-        virtual ~IComponentRegistry() = default;
+        ~IComponentRegistry() override = default;
 
         virtual void Add(size_t index) = 0;
         virtual bool Has(size_t index) const = 0;
         virtual void Remove(size_t index) = 0;
         virtual void Clear() = 0;
+
+        virtual constexpr const char *GetTypeName() = 0;
+        virtual constexpr uint64_t GetTypeId() = 0;
     };
 
     template<typename T>
-    class ComponentRegistry final : public IComponentRegistry, Serialization::Serializable {
+    class ComponentRegistry final : public IComponentRegistry {
     public:
         ComponentRegistry() = default;
 
@@ -123,8 +127,9 @@ namespace Pixf::Core::Entities {
             Json::object json = {};
 
             if constexpr (Serialization::SerializableType<T>) {
-                for (auto &[id, component] : GetAll()) {
-                    if (!component) continue;
+                for (auto &[id, component]: GetAll()) {
+                    if (!component)
+                        continue;
                     json[std::to_string(id)] = component->Serialize();
                 }
             }
@@ -136,7 +141,7 @@ namespace Pixf::Core::Entities {
             Clear();
 
             if constexpr (Serialization::SerializableType<T>) {
-                for (auto& [key, value] : json) {
+                for (auto &[key, value]: json) {
                     size_t id = std::stoull(key);
 
                     T component{};
@@ -145,6 +150,16 @@ namespace Pixf::Core::Entities {
                 }
             }
         }
+
+        constexpr const char *GetTypeName() override {
+            if constexpr (Serialization::SerializableType<T>) {
+                return T::GetTypeName();
+            }
+
+            return nullptr;
+        }
+
+        constexpr uint64_t GetTypeId() override { return Serialization::HashString(GetTypeName()); }
 
     private:
         std::vector<std::optional<size_t>> m_SparseArray;

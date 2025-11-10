@@ -157,6 +157,8 @@ namespace Pixf::Core::Entities {
             m_Singletons.erase(std::type_index(typeid(T)));
         }
 
+        ComponentManager &GetComponentManager() { return m_ComponentManager; }
+
     private:
         std::vector<Entity> m_Entities;
         std::unordered_map<std::type_index, std::shared_ptr<Component>> m_Singletons;

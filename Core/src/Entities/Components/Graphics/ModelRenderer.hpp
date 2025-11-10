@@ -27,7 +27,8 @@ namespace Pixf::Core::Entities::Components::Graphics {
 
         void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
             const uuids::uuid uuid = uuids::string_generator()(json.at("uuid").as_string().c_str());
-            model = assetManager.ImportModel(assetManager.GetAssetPath(uuid).value()).Unwrap();
+            const std::string path = assetManager.GetAssetPath(uuid).value();
+            model = assetManager.ImportModel(path).Unwrap();
         }
     };
 } // namespace Pixf::Core::Entities::Components::Graphics
