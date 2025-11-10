@@ -1,5 +1,6 @@
 #include "File.hpp"
 
+#include <filesystem>
 #include <fstream>
 #include <string>
 
@@ -36,5 +37,46 @@ namespace Pixf::Core::File {
         file.close();
 
         return FileError::None;
+    }
+
+    std::vector<std::string> GetFilesInDirectory(const std::string &directory, const bool recursive) {
+        std::vector<std::string> files;
+
+        if (recursive) {
+            for (const auto &entry: std::filesystem::recursive_directory_iterator(directory)) {
+                if (entry.is_regular_file()) {
+                    files.push_back(entry.path());
+                }
+            }
+        } else {
+            for (const auto &entry: std::filesystem::directory_iterator(directory)) {
+                if (entry.is_regular_file()) {
+                    files.push_back(entry.path());
+                }
+            }
+        }
+
+        return files;
+    }
+
+    std::vector<std::string> GetFilesInDirectory(const std::string &directory, const std::string &extension,
+                                                 const bool recursive) {
+        std::vector<std::string> files;
+
+        if (recursive) {
+            for (const auto &entry: std::filesystem::recursive_directory_iterator(directory)) {
+                if (entry.is_regular_file() && entry.path().extension() == extension) {
+                    files.push_back(entry.path());
+                }
+            }
+        } else {
+            for (const auto &entry: std::filesystem::directory_iterator(directory)) {
+                if (entry.is_regular_file() && entry.path().extension() == extension) {
+                    files.push_back(entry.path());
+                }
+            }
+        }
+
+        return files;
     }
 } // namespace Pixf::Core::File

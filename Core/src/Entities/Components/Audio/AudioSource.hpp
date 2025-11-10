@@ -6,6 +6,8 @@
 
 namespace Pixf::Core::Entities::Components::Audio {
     struct AudioSource final : Component {
+        PIXF_COMPONENT(DirectionalLight)
+
         Core::Audio::AudioClipHandle clip;
         Core::Audio::AudioPlayConfig config;
     };

@@ -25,6 +25,8 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 #    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -g")
 #endif()
 
+enable_testing()
+
 FetchContent_Declare(
         glfw
         GIT_REPOSITORY "https://github.com/glfw/glfw.git"
@@ -198,6 +200,8 @@ set(
         src/File/File.hpp
         src/File/File.cpp
         src/Json/Json.hpp
+        src/Serialization/Serialization.hpp
+        src/Serialization/Serializable.hpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
@@ -225,8 +229,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 )
 
 # Tests
-enable_testing()
-
 add_executable(${PROJECT_NAME}_tests
         tests/EntityManagerTests.cpp
 )
@@ -244,7 +246,7 @@ target_include_directories(${PROJECT_NAME}_tests
         ${VENDOR_DIR}/stbi)
 
 include(GoogleTest)
-gtest_discover_tests(${PROJECT_NAME}_tests)
+gtest_discover_tests(${PROJECT_NAME}_tests DISCOVERY_MODE PRE_TEST)
 
 # macOS libs
 if (APPLE)

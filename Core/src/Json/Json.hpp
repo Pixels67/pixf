@@ -8,7 +8,9 @@
 #include <boost/json.hpp>
 
 namespace Pixf::Core::Json {
-    inline std::string ToPrettyJson(const boost::json::value &json, std::optional<std::string> indent = std::nullopt) {
+    using namespace boost::json;
+
+    inline std::string ToPrettyJson(const value &json, std::optional<std::string> indent = std::nullopt) {
         using namespace boost;
 
         std::stringstream ss;
@@ -17,13 +19,13 @@ namespace Pixf::Core::Json {
             indent = "";
 
         switch (json.kind()) {
-            case json::kind::object: {
+            case kind::object: {
                 ss << "{\n";
                 indent->append(4, ' ');
                 if (auto const &obj = json.get_object(); !obj.empty()) {
                     auto it = obj.begin();
                     for (;;) {
-                        ss << *indent << json::serialize(it->key()) << " : ";
+                        ss << *indent << serialize(it->key()) << " : ";
                         ss << ToPrettyJson(it->value(), indent);
                         if (++it == obj.end())
                             break;
@@ -36,7 +38,7 @@ namespace Pixf::Core::Json {
                 break;
             }
 
-            case json::kind::array: {
+            case kind::array: {
                 ss << "[\n";
                 indent->append(4, ' ');
                 if (auto const &arr = json.get_array(); !arr.empty()) {
@@ -55,31 +57,31 @@ namespace Pixf::Core::Json {
                 break;
             }
 
-            case json::kind::string: {
-                ss << json::serialize(json.get_string());
+            case kind::string: {
+                ss << serialize(json.get_string());
                 break;
             }
 
-            case json::kind::uint64:
+            case kind::uint64:
                 ss << json.get_uint64();
                 break;
 
-            case json::kind::int64:
+            case kind::int64:
                 ss << json.get_int64();
                 break;
 
-            case json::kind::double_:
+            case kind::double_:
                 ss << json.get_double();
                 break;
 
-            case json::kind::bool_:
+            case kind::bool_:
                 if (json.get_bool())
                     ss << "true";
                 else
                     ss << "false";
                 break;
 
-            case json::kind::null:
+            case kind::null:
                 ss << "null";
                 break;
         }

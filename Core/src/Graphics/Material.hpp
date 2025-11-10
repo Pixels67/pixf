@@ -16,8 +16,8 @@ namespace Pixf::Core::Graphics {
 
     class Material {
     public:
-        explicit Material(AssetManager &resourceManager);
-        Material(AssetManager &resourceManager, AssetHandle shader);
+        explicit Material(Assets::AssetManager &resourceManager);
+        Material(Assets::AssetManager &resourceManager, const Assets::AssetHandle &shader);
 
         Material(const Material &) = default;
         Material(Material &&) = delete;
@@ -26,20 +26,20 @@ namespace Pixf::Core::Graphics {
 
         ~Material() = default;
 
-        MaterialPropertyError SetShader(AssetHandle handle);
-        AssetHandle GetShader() const;
+        MaterialPropertyError SetShader(const Assets::AssetHandle &handle);
+        Assets::AssetHandle GetShader() const;
 
         void SetDiffuse(vec4 color);
-        void SetDiffuseTexture2D(std::optional<AssetHandle> texture);
+        void SetDiffuseTexture2D(const std::optional<Assets::AssetHandle> &texture);
         void SetSpecular(vec4 color);
-        void SetSpecularTexture2D(std::optional<AssetHandle> texture);
+        void SetSpecularTexture2D(const std::optional<Assets::AssetHandle> &texture);
         void SetSpecularStrength(float value);
         void SetShininess(float value);
 
-        vec4 GetDiffuse();
-        std::optional<AssetHandle> GetDiffuseTexture2D();
-        float GetSpecularStrength();
-        float GetShininess();
+        vec4 GetDiffuse() const;
+        std::optional<Assets::AssetHandle> GetDiffuseTexture2D() const;
+        float GetSpecularStrength() const;
+        float GetShininess() const;
 
         MaterialPropertyError SetFloat(const std::string &name, float value);
         MaterialPropertyError SetInt(const std::string &name, int value);
@@ -48,17 +48,17 @@ namespace Pixf::Core::Graphics {
         MaterialPropertyError SetVec4(const std::string &name, vec4 value);
         MaterialPropertyError SetMat4(const std::string &name, const mat4 &value);
 
-        MaterialPropertyError SetTexture2D(const std::string &name, AssetHandle handle);
+        MaterialPropertyError SetTexture2D(const std::string &name, const Assets::AssetHandle &handle);
 
-        Error::Result<float, MaterialPropertyError> GetFloat(const std::string &name);
-        Error::Result<int,  MaterialPropertyError> GetInt(const std::string &name);
-        Error::Result<char, MaterialPropertyError> GetChar(const std::string &name);
-        Error::Result<vec2, MaterialPropertyError> GetVec2(const std::string &name);
-        Error::Result<vec3, MaterialPropertyError> GetVec3(const std::string &name);
-        Error::Result<vec4, MaterialPropertyError> GetVec4(const std::string &name);
-        Error::Result<mat4, MaterialPropertyError> GetMat4(const std::string &name);
+        Error::Result<float, MaterialPropertyError> GetFloat(const std::string &name) const;
+        Error::Result<int,  MaterialPropertyError> GetInt(const std::string &name) const;
+        Error::Result<char, MaterialPropertyError> GetChar(const std::string &name) const;
+        Error::Result<vec2, MaterialPropertyError> GetVec2(const std::string &name) const;
+        Error::Result<vec3, MaterialPropertyError> GetVec3(const std::string &name) const;
+        Error::Result<vec4, MaterialPropertyError> GetVec4(const std::string &name) const;
+        Error::Result<mat4, MaterialPropertyError> GetMat4(const std::string &name) const;
 
-        Error::Result<AssetHandle, MaterialPropertyError> GetTexture2D(const std::string &name);
+        Error::Result<Assets::AssetHandle, MaterialPropertyError> GetTexture2D(const std::string &name) const;
 
         void Bind() const;
         static void Unbind();
@@ -73,10 +73,10 @@ namespace Pixf::Core::Graphics {
         std::unordered_map<std::string, vec4> m_Vecs4D;
 
         std::unordered_map<std::string, mat4> m_Mats;
-        std::unordered_map<std::string, AssetHandle> m_Textures2D;
+        std::unordered_map<std::string, Assets::AssetHandle> m_Textures2D;
 
-        AssetHandle m_Shader;
-        AssetManager &m_ResourceManager;
+        Assets::AssetHandle m_Shader;
+        Assets::AssetManager &m_AssetManager;
 
         void SetupDefaults();
     };

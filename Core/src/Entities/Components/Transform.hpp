@@ -3,9 +3,13 @@
 
 #include "Common.hpp"
 #include "Entities/ComponentManager.hpp"
+#include "Serialization/Serializable.hpp"
+#include "Serialization/Serialization.hpp"
 
 namespace Pixf::Core::Entities::Components {
-    struct Transform final : Component {
+    struct Transform final : Component, Serialization::Serializable {
+        PIXF_COMPONENT(Transform)
+
         vec3 position = vec3(0.0F, 0.0F, 0.0F);
         quat rotation = quat(1.0F, 0.0F, 0.0F, 0.0F);
         vec3 scale = vec3(1.0F, 1.0F, 1.0F);
@@ -19,6 +23,9 @@ namespace Pixf::Core::Entities::Components {
         mat4 GetMatrix() const;
 
         Transform() = default;
+
+        Json::object Serialize() override;
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override;
     };
 } // namespace Pixf::Core::Entities::Components
 

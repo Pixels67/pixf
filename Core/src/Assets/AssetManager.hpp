@@ -1,5 +1,5 @@
-#ifndef RESOURCEMANAGER_HPP
-#define RESOURCEMANAGER_HPP
+#ifndef ASSETMANAGER_HPP
+#define ASSETMANAGER_HPP
 
 #include <boost/json/value.hpp>
 #include <memory>
@@ -146,7 +146,9 @@ void main() {
 namespace Pixf::Core::Graphics {
     class Model;
     class Material;
+} // namespace Pixf::Core::Graphics
 
+namespace Pixf::Core::Assets {
     enum class AssetType : uint8_t {
         None = 0,
         Mesh,
@@ -175,15 +177,23 @@ namespace Pixf::Core::Graphics {
         }
     }
 
+    class AssetManager;
+
     struct AssetHandle {
         friend class AssetManager;
         AssetHandle() = default;
 
-    private:
-        boost::uuids::uuid uuid = {};
-        AssetType type = AssetType::None;
+        uuids::uuid GetUuid() const { return uuid; }
+        AssetType GetType() const { return type; }
+        AssetManager *GetAssetManager() const { return assetManager; }
 
-        explicit AssetHandle(const boost::uuids::uuid uuid, const AssetType type) : uuid(uuid), type(type) {}
+    private:
+        uuids::uuid uuid = {};
+        AssetType type = AssetType::None;
+        AssetManager *assetManager = nullptr;
+
+        explicit AssetHandle(AssetManager &assetManager, const uuids::uuid uuid, const AssetType type) :
+            uuid(uuid), type(type), assetManager(&assetManager) {}
     };
 
     enum class AssetError : uint8_t {
@@ -196,7 +206,7 @@ namespace Pixf::Core::Graphics {
 
     class AssetManager {
     public:
-        AssetManager() = default;
+        AssetManager();
 
         AssetManager(const AssetManager &) = delete;
         AssetManager(AssetManager &&) = default;
@@ -205,7 +215,8 @@ namespace Pixf::Core::Graphics {
 
         ~AssetManager();
 
-        Error::Result<AssetHandle, AssetError> ImportTexture2D(const std::string &path, Gl::TextureConfig config = {});
+        Error::Result<AssetHandle, AssetError> ImportTexture2D(const std::string &path,
+                                                               Graphics::Gl::TextureConfig config = {});
         Error::Result<AssetHandle, AssetError> ImportModel(const std::string &path);
 
         AssetHandle CreateShader(const std::string &vertSrc = g_DefaultVertShader,
@@ -213,36 +224,40 @@ namespace Pixf::Core::Graphics {
         AssetHandle CreateMaterial();
         AssetHandle CreateMaterial(const AssetHandle &shader);
 
-        Error::Result<std::shared_ptr<Gl::Shader>, AssetError> GetShader(const AssetHandle &handle);
-        Error::Result<std::shared_ptr<Gl::Texture2D>, AssetError> GetTexture2D(const AssetHandle &handle);
-        Error::Result<std::shared_ptr<Material>, AssetError> GetMaterial(const AssetHandle &handle);
-        Error::Result<std::shared_ptr<Model>, AssetError> GetModel(const AssetHandle &handle);
+        Error::Result<std::shared_ptr<Graphics::Gl::Shader>, AssetError> GetShader(const AssetHandle &handle);
+        Error::Result<std::shared_ptr<Graphics::Gl::Texture2D>, AssetError> GetTexture2D(const AssetHandle &handle);
+        Error::Result<std::shared_ptr<Graphics::Material>, AssetError> GetMaterial(const AssetHandle &handle);
+        Error::Result<std::shared_ptr<Graphics::Model>, AssetError> GetModel(const AssetHandle &handle);
 
         void DeleteShader(const AssetHandle &handle);
         void DeleteTexture2D(const AssetHandle &handle);
         void DeleteMaterial(const AssetHandle &handle);
         void DeleteModel(const AssetHandle &handle);
 
-        AssetHandle CreateMesh(const std::vector<Vertex> &vertices, std::vector<unsigned int> indices = {});
+        AssetHandle CreateMesh(const std::vector<Graphics::Vertex> &vertices, std::vector<unsigned int> indices = {});
 
-        Error::Result<std::shared_ptr<Mesh>, AssetError> GetMesh(const AssetHandle &handle);
+        Error::Result<std::shared_ptr<Graphics::Mesh>, AssetError> GetMesh(const AssetHandle &handle);
 
         void DeleteMesh(const AssetHandle &handle);
 
+        std::optional<std::string> GetAssetPath(const AssetHandle &handle);
+        std::optional<std::string> GetAssetPath(const uuids::uuid &uuid);
+
     private:
-        boost::uuids::name_generator m_UuidGenerator = boost::uuids::name_generator(boost::uuids::ns::url());
-        boost::uuids::random_generator m_RandomUuidGenerator = {};
+        uuids::name_generator m_UuidGenerator = uuids::name_generator(uuids::ns::url());
+        uuids::random_generator m_RandomUuidGenerator = {};
 
-        std::unordered_map<boost::uuids::uuid, std::shared_ptr<Mesh>> m_Meshes;
-        std::unordered_map<boost::uuids::uuid, std::shared_ptr<Gl::Shader>> m_Shaders;
-        std::unordered_map<boost::uuids::uuid, std::shared_ptr<Gl::Texture2D>> m_Textures2D;
-        std::unordered_map<boost::uuids::uuid, std::shared_ptr<Material>> m_Materials;
-        std::unordered_map<boost::uuids::uuid, std::shared_ptr<Model>> m_Models;
+        std::unordered_map<uuids::uuid, std::shared_ptr<Graphics::Mesh>> m_Meshes;
+        std::unordered_map<uuids::uuid, std::shared_ptr<Graphics::Gl::Shader>> m_Shaders;
+        std::unordered_map<uuids::uuid, std::shared_ptr<Graphics::Gl::Texture2D>> m_Textures2D;
+        std::unordered_map<uuids::uuid, std::shared_ptr<Graphics::Material>> m_Materials;
+        std::unordered_map<uuids::uuid, std::shared_ptr<Graphics::Model>> m_Models;
 
-        std::unordered_map<std::string, boost::uuids::uuid> m_Texture2DPaths;
+        std::unordered_map<std::string, uuids::uuid> m_Texture2DPaths;
+        std::unordered_map<uuids::uuid, std::string> m_AssetPaths;
 
-        Error::Result<boost::uuids::uuid, AssetError> GetUuid(const std::string &path, AssetType type) const;
+        Error::Result<uuids::uuid, AssetError> GetUuid(const std::string &path, AssetType type) const;
     };
-} // namespace Pixf::Core::Graphics
+} // namespace Pixf::Core::Assets
 
-#endif // RESOURCEMANAGER_HPP
+#endif // ASSETMANAGER_HPP

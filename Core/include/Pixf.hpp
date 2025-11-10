@@ -1,7 +1,7 @@
 #ifndef PIXF_HPP
 #define PIXF_HPP
 
-#include "../src/Assets/AssetManager.hpp"
+#include "Assets/AssetManager.hpp"
 #include "Application.hpp"
 #include "Audio/AudioManager.hpp"
 #include "Common.hpp"

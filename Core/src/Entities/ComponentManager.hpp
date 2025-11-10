@@ -33,7 +33,7 @@ namespace Pixf::Core::Entities {
 
         template<typename T>
         void AddComponent(size_t index) {
-            if (m_Registries.find(GetTypeIndex<T>()) == m_Registries.end()) {
+            if (!m_Registries.contains(GetTypeIndex<T>())) {
                 RegisterComponent<T>();
             }
 
@@ -42,7 +42,7 @@ namespace Pixf::Core::Entities {
 
         template<typename T>
         void AddComponent(size_t index, T component) {
-            if (m_Registries.find(GetTypeIndex<T>()) == m_Registries.end()) {
+            if (!m_Registries.contains(GetTypeIndex<T>())) {
                 RegisterComponent<T>();
             }
 
@@ -51,7 +51,7 @@ namespace Pixf::Core::Entities {
 
         template<typename T>
         Error::Result<std::shared_ptr<T>, ComponentError> GetComponent(size_t index) {
-            if (m_Registries.find(GetTypeIndex<T>()) == m_Registries.end()) {
+            if (!m_Registries.contains(GetTypeIndex<T>())) {
                 return ComponentError::NotRegistered;
             }
 
@@ -68,7 +68,7 @@ namespace Pixf::Core::Entities {
 
         template<typename T>
         bool HasComponent(size_t index) {
-            if (m_Registries.find(GetTypeIndex<T>()) == m_Registries.end()) {
+            if (!m_Registries.contains(GetTypeIndex<T>())) {
                 return false;
             }
 
@@ -77,7 +77,7 @@ namespace Pixf::Core::Entities {
 
         template<typename T>
         void RemoveComponent(size_t index) {
-            if (m_Registries.find(GetTypeIndex<T>()) == m_Registries.end()) {
+            if (!m_Registries.contains(GetTypeIndex<T>())) {
                 return;
             }
 
@@ -89,7 +89,7 @@ namespace Pixf::Core::Entities {
 
         template<typename T>
         Error::Result<std::shared_ptr<ComponentRegistry<T>>, ComponentError> QueryComponents() {
-            if (m_Registries.find(GetTypeIndex<T>()) == m_Registries.end()) {
+            if (!m_Registries.contains(GetTypeIndex<T>())) {
                 return ComponentError::NotRegistered;
             }
 

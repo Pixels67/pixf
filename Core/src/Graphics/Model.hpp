@@ -16,9 +16,9 @@ namespace Pixf::Core::Graphics {
 
     class Model {
     public:
-        static Error::Result<Model, ModelError> LoadModel(const std::string &path, AssetManager &assetManager);
+        static Error::Result<Model, ModelError> LoadModel(const std::string &path, Assets::AssetManager &assetManager);
         Model() = default;
-        explicit Model(const std::vector<AssetHandle> &meshes, const std::vector<AssetHandle> &materials);
+        explicit Model(const std::vector<Assets::AssetHandle> &meshes, const std::vector<Assets::AssetHandle> &materials);
 
         Model(const Model &) = default;
         Model(Model &&) = default;
@@ -27,16 +27,16 @@ namespace Pixf::Core::Graphics {
 
         ~Model() = default;
 
-        const std::vector<AssetHandle> &GetMeshes() const;
-        const std::vector<AssetHandle> &GetMaterials() const;
+        const std::vector<Assets::AssetHandle> &GetMeshes() const;
+        const std::vector<Assets::AssetHandle> &GetMaterials() const;
 
-        void Cleanup(AssetManager &assetManager) const;
+        void Cleanup(Assets::AssetManager &assetManager) const;
 
     private:
-        std::vector<AssetHandle> m_Meshes;
-        std::vector<AssetHandle> m_Materials;
+        std::vector<Assets::AssetHandle> m_Meshes;
+        std::vector<Assets::AssetHandle> m_Materials;
 
-        void ProcessNode(const aiNode *node, const aiScene *scene, AssetManager &assetManager);
+        void ProcessNode(const std::string &directory, const aiNode *node, const aiScene *scene, Assets::AssetManager &assetManager);
     };
 
 } // namespace Pixf::Core::Graphics

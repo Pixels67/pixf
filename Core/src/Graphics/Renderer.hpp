@@ -1,7 +1,7 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
-#include "../Assets/AssetManager.hpp"
+#include "Assets/AssetManager.hpp"
 #include "RenderQueue.hpp"
 
 namespace Pixf::Core::Graphics {
@@ -22,13 +22,11 @@ namespace Pixf::Core::Graphics {
 
         ~Renderer() = default;
 
-        AssetManager &GetResourceManager();
         RenderQueue &GetRenderQueue();
 
-        void Render();
+        void Render(Assets::AssetManager &assetManager);
 
     private:
-        AssetManager m_ResourceManager;
         RenderQueue m_RenderQueue;
         RendererConfig m_RenderConfig;
     };

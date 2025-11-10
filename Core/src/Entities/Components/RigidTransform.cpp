@@ -17,4 +17,18 @@ namespace Pixf::Core::Entities::Components {
     }
 
     mat4 RigidTransform::GetMatrix() const { return translate(mat4(1.0F), position) * mat4_cast(rotation); }
+
+    Json::object RigidTransform::Serialize() {
+        Json::object json;
+
+        json["position"] = Serialization::SerializeVec3(position);
+        json["rotation"] = Serialization::SerializeQuat(rotation);
+
+        return json;
+    }
+
+    void RigidTransform::Deserialize(const Json::object &json, Assets::AssetManager &assetManager) {
+        position = Serialization::DeserializeVec3(json.at("position").as_object());
+        rotation = Serialization::DeserializeVec3(json.at("rotation").as_object());
+    }
 } // namespace Pixf::Core::Entities::Components

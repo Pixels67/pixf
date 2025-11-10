@@ -6,6 +6,8 @@
 
 #include "Debug/Logger.hpp"
 
+namespace boost {}
+
 #define PIXF_ASSERT(expr, ...)                                                                                         \
     do {                                                                                                               \
         if (!(expr)) {                                                                                                 \
@@ -18,6 +20,7 @@
 
 namespace Pixf::Core {
     using namespace glm;
+    using namespace boost;
 } // namespace Pixf::Core
 
 #endif // COMMON_HPP

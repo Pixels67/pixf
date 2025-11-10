@@ -21,11 +21,9 @@ namespace Pixf::Core::Graphics {
         PIXF_GL_CALL(glEnable(GL_DEPTH_TEST));
     }
 
-    AssetManager &Renderer::GetResourceManager() { return m_ResourceManager; }
-
     RenderQueue &Renderer::GetRenderQueue() { return m_RenderQueue; }
 
-    void Renderer::Render() {
+    void Renderer::Render(Assets::AssetManager &assetManager) {
         const auto bgColor = vec3(m_RenderConfig.backgroundColor.r, m_RenderConfig.backgroundColor.g,
                                       m_RenderConfig.backgroundColor.b);
 
@@ -36,10 +34,10 @@ namespace Pixf::Core::Graphics {
             const auto [ambientLight, directionalLights, pointLights, mesh, material, model, view, projection] =
                     m_RenderQueue.Pop(RenderType::Opaque);
 
-            const auto mat = m_ResourceManager.GetMaterial(material).Unwrap();
+            const auto mat = assetManager.GetMaterial(material).Unwrap();
             mat->Bind();
 
-            Gl::Shader &shader = *m_ResourceManager.GetShader(mat->GetShader()).Unwrap();
+            Gl::Shader &shader = *assetManager.GetShader(mat->GetShader()).Unwrap();
 
             shader.SetUniform("uModel", model);
             shader.SetUniform("uView", view);
@@ -69,9 +67,9 @@ namespace Pixf::Core::Graphics {
                 shader.SetUniform(name + ".quadraticFalloff", pointLights[j].quadraticFalloff);
             }
 
-            m_ResourceManager.GetMesh(mesh).Unwrap()->Bind();
+            assetManager.GetMesh(mesh).Unwrap()->Bind();
 
-            PIXF_GL_CALL(glDrawElements(GL_TRIANGLES, m_ResourceManager.GetMesh(mesh).Unwrap()->GetIndexCount(),
+            PIXF_GL_CALL(glDrawElements(GL_TRIANGLES, assetManager.GetMesh(mesh).Unwrap()->GetIndexCount(),
                                    GL_UNSIGNED_INT, nullptr));
 
             Material::Unbind();

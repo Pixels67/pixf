@@ -18,7 +18,23 @@
 #include "Graphics/Model.hpp"
 #include "Json/Json.hpp"
 
-namespace Pixf::Core::Graphics {
+using namespace boost;
+
+const std::string assetPath = "Assets/";
+
+namespace Pixf::Core::Assets {
+    using namespace Graphics;
+
+    AssetManager::AssetManager() {
+        for (auto path : File::GetFilesInDirectory(assetPath, ".meta", true)) {
+            try {
+                json::object json = json::parse(File::ReadFile(path).Unwrap()).as_object();
+                uuids::uuid uuid = uuids::string_generator()(json["uuid"].as_string().c_str());
+                m_AssetPaths[uuid] = path;
+            } catch ([[maybe_unused]] const system::system_error &e) {}
+        }
+    }
+    
     AssetManager::~AssetManager() {
         PIXF_LOG_INFO("Cleaning resources");
 
@@ -52,7 +68,7 @@ namespace Pixf::Core::Graphics {
                                                                          const Gl::TextureConfig config) {
         if (m_Texture2DPaths.contains(path)) {
             if (m_Textures2D.at(m_Texture2DPaths[path])->GetConfig() == config) {
-                return AssetHandle(m_Texture2DPaths[path], AssetType::Texture2D);
+                return AssetHandle(*this, m_Texture2DPaths[path], AssetType::Texture2D);
             }
         }
 
@@ -61,10 +77,10 @@ namespace Pixf::Core::Graphics {
             return AssetError::FailedToLoad;
         }
 
-        const boost::uuids::uuid uuid = GetUuid(path, AssetType::Texture2D).Unwrap();
+        const uuids::uuid uuid = GetUuid(path, AssetType::Texture2D).Unwrap();
         m_Textures2D[uuid] = std::make_shared<Gl::Texture2D>(std::move(tex).Unwrap());
         m_Texture2DPaths[path] = uuid;
-        return AssetHandle(uuid, AssetType::Texture2D);
+        return AssetHandle(*this, uuid, AssetType::Texture2D);
     }
 
     Error::Result<AssetHandle, AssetError> AssetManager::ImportModel(const std::string &path) {
@@ -75,31 +91,31 @@ namespace Pixf::Core::Graphics {
 
         const Model &model = result.Unwrap();
 
-        const boost::uuids::uuid uuid = GetUuid(path, AssetType::Model).Unwrap();
+        const uuids::uuid uuid = GetUuid(path, AssetType::Model).Unwrap();
         m_Models[uuid] = std::make_shared<Model>(model);
-        return AssetHandle(uuid, AssetType::Model);
+        return AssetHandle(*this, uuid, AssetType::Model);
     }
 
     AssetHandle AssetManager::CreateShader(const std::string &vertSrc, const std::string &fragSrc) {
-        const boost::uuids::uuid uuid = m_RandomUuidGenerator();
+        const uuids::uuid uuid = m_RandomUuidGenerator();
         m_Shaders[uuid] = std::make_shared<Gl::Shader>(Gl::Shader(vertSrc, fragSrc));
-        return AssetHandle(uuid, AssetType::Shader);
+        return AssetHandle(*this, uuid, AssetType::Shader);
     }
 
     AssetHandle AssetManager::CreateMaterial() {
         Material material(*this);
 
-        const boost::uuids::uuid uuid = m_RandomUuidGenerator();
+        const uuids::uuid uuid = m_RandomUuidGenerator();
         m_Materials[uuid] = std::make_shared<Material>(material);
-        return AssetHandle(uuid, AssetType::Material);
+        return AssetHandle(*this, uuid, AssetType::Material);
     }
 
     AssetHandle AssetManager::CreateMaterial(const AssetHandle &shader) {
         Material material(*this, shader);
 
-        const boost::uuids::uuid uuid = m_RandomUuidGenerator();
+        const uuids::uuid uuid = m_RandomUuidGenerator();
         m_Materials[uuid] = std::make_shared<Material>(material);
-        return AssetHandle(uuid, AssetType::Material);
+        return AssetHandle(*this, uuid, AssetType::Material);
     }
 
     Error::Result<std::shared_ptr<Gl::Shader>, AssetError> AssetManager::GetShader(const AssetHandle &handle) {
@@ -150,9 +166,9 @@ namespace Pixf::Core::Graphics {
             }
         }
 
-        const boost::uuids::uuid uuid = m_RandomUuidGenerator();
+        const uuids::uuid uuid = m_RandomUuidGenerator();
         m_Meshes[uuid] = std::make_shared<Mesh>(Mesh(vertices, indices));
-        return AssetHandle(uuid, AssetType::Mesh);
+        return AssetHandle(*this, uuid, AssetType::Mesh);
     }
 
     Error::Result<std::shared_ptr<Mesh>, AssetError> AssetManager::GetMesh(const AssetHandle &handle) {
@@ -165,15 +181,27 @@ namespace Pixf::Core::Graphics {
 
     void AssetManager::DeleteMesh(const AssetHandle &handle) { m_Meshes.erase(handle.uuid); }
 
-    Error::Result<boost::uuids::uuid, AssetError> AssetManager::GetUuid(const std::string &path,
+    std::optional<std::string> AssetManager::GetAssetPath(const AssetHandle &handle) {
+        return GetAssetPath(handle.uuid);
+    }
+
+    std::optional<std::string> AssetManager::GetAssetPath(const uuids::uuid &uuid) {
+        if (m_AssetPaths.contains(uuid)) {
+            return m_AssetPaths.at(uuid);
+        }
+
+        return std::nullopt;
+    }
+
+    Error::Result<uuids::uuid, AssetError> AssetManager::GetUuid(const std::string &path,
                                                                         const AssetType type) const {
-        boost::uuids::uuid uuid = {};
+        uuids::uuid uuid = {};
         if (const auto metaFile = File::ReadFile(path + ".meta"); metaFile.IsSuccess()) {
-            boost::json::object json;
+            json::object json;
 
             try {
-                json = boost::json::parse(metaFile.Unwrap()).as_object();
-            } catch (const boost::system::system_error &e) {
+                json = json::parse(metaFile.Unwrap()).as_object();
+            } catch (const system::system_error &e) {
                 PIXF_LOG_ERROR("Failed to parse JSON object. Error: ", e.what());
                 return AssetError::FailedToParseMetaFile;
             }
@@ -182,10 +210,10 @@ namespace Pixf::Core::Graphics {
                 return AssetError::MismatchedType;
             }
 
-            uuid = boost::uuids::string_generator()(json["uuid"].as_string().c_str());
+            uuid = uuids::string_generator()(json["uuid"].as_string().c_str());
         } else {
             uuid = m_UuidGenerator(path);
-            boost::json::object json;
+            json::object json;
             json["uuid"] = to_string(uuid);
             json["type"] = ToString(type);
 

@@ -66,6 +66,8 @@ namespace Pixf::Core {
 
     Input::InputManager &Application::GetInputManager() { return m_InputManager; }
 
+    Assets::AssetManager &Application::GetAssetManager() { return m_AssetManager; }
+
     Graphics::Renderer &Application::GetRenderer() { return m_Renderer; }
 
     Audio::AudioManager &Application::GetAudioManager() { return m_AudioManager; }
@@ -88,8 +90,6 @@ namespace Pixf::Core {
         }
 
         Entities::World &world = *worldResult.Unwrap();
-
-        Graphics::AssetManager &resourceManager = m_Renderer.GetResourceManager();
         Entities::EntityManager &entityManager = world.GetEntityManager();
 
         auto camResult = entityManager.GetSingleton<Entities::Components::Graphics::Camera>();
@@ -115,8 +115,8 @@ namespace Pixf::Core {
 
         for (auto query = world.GetEntityManager().Query<Entities::Components::Graphics::ModelRenderer>();
              const auto &[id, comp]: query.Unwrap()) {
-            auto meshes = resourceManager.GetModel(comp->model).Unwrap()->GetMeshes();
-            auto materials = resourceManager.GetModel(comp->model).Unwrap()->GetMaterials();
+            auto meshes = m_AssetManager.GetModel(comp->model).Unwrap()->GetMeshes();
+            auto materials = m_AssetManager.GetModel(comp->model).Unwrap()->GetMaterials();
 
             const Entities::Entity entity = entityManager.GetEntity(id).value();
             Entities::Components::Transform transform;
@@ -142,7 +142,7 @@ namespace Pixf::Core {
             }
         }
 
-        m_Renderer.Render();
+        m_Renderer.Render(m_AssetManager);
     }
 
     Application::Application(const ApplicationConfig &config) :

@@ -33,6 +33,7 @@ namespace Pixf::Core {
 
         Graphics::Gl::Window &GetWindow();
         Input::InputManager &GetInputManager();
+        Assets::AssetManager &GetAssetManager();
         Graphics::Renderer &GetRenderer();
         Audio::AudioManager &GetAudioManager();
         Event::EventManager &GetEventManager();
@@ -41,6 +42,7 @@ namespace Pixf::Core {
     private:
         Event::EventManager m_EventManager = {};
         Graphics::Gl::Window m_Window;
+        Assets::AssetManager m_AssetManager;
         Graphics::Renderer m_Renderer;
         Audio::AudioManager m_AudioManager;
         Input::InputManager m_InputManager;
