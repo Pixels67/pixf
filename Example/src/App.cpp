@@ -56,12 +56,11 @@ public:
         PIXF_LOG_INFO("Using OpenGL ", glGetString(GL_VERSION));
 
         World world(*this);
-
         EntityManager &entityManager = world.GetEntityManager();
-        backpack = world.GetEntityManager().CreateEntity();
 
-        world.GetEntityManager().CreateEntity();
-        world.GetEntityManager().CreateEntity();
+        world.GetEntityManager().RegisterComponent<Transform>();
+        world.GetEntityManager().RegisterComponent<ModelRenderer>();
+        world.GetEntityManager().RegisterComponent<PointLight>();
 
         Camera camera{};
         camera.aspect = 1080.0F / 720.0F;
@@ -71,17 +70,7 @@ public:
         entityManager.CreateSingleton<Camera>(camera);
         entityManager.CreateSingleton<AmbientLight>();
 
-        //const Entity audioSource = entityManager.CreateEntityWithComponent<Components::Audio::AudioSource>();
-        //entityManager.GetComponent<Components::Audio::AudioSource>(audioSource).Unwrap()->clip =
-        //        world.GetAudioManager().ImportAudioClip("Assets/sound.wav").Unwrap();
-
-        //world.GetSystemsManager().AddSystem<MusicPlayer>();
-
         world.GetSystemsManager().AddSystem<CameraController>();
-
-        world.GetEntityManager().RegisterComponent<Transform>();
-        world.GetEntityManager().RegisterComponent<ModelRenderer>();
-        world.GetEntityManager().RegisterComponent<PointLight>();
 
         GetWorldManager().CreateWorld("1", world);
         GetWorldManager().SetActiveWorld("1");
@@ -96,25 +85,18 @@ public:
 
             if (event.key == Input::Key::T) {
                 auto &em = GetWorldManager().GetActiveWorld().Unwrap()->GetEntityManager();
-                const auto comp = em.GetComponent<Transform>(backpack).Unwrap();
 
-                comp->rotation = quat(vec3(radians(rot.x), radians(rot.y), radians(rot.z)));
-                comp->position = pos;
-                comp->scale = scale;
-
-                auto &comps = em.GetComponentManager();
-                const Json::object json = comps.Serialize();
-                File::WriteFile("components.json", Json::ToPrettyJson(json));
+                const Json::object json = em.Serialize();
+                File::WriteFile("entities.json", Json::ToPrettyJson(json));
             }
 
             if (event.key == Input::Key::R) {
                 auto &em = GetWorldManager().GetActiveWorld().Unwrap()->GetEntityManager();
 
-                const std::string str = File::ReadFile("components.json").Unwrap();
+                const std::string str = File::ReadFile("entities.json").Unwrap();
                 const Json::object json = Json::parse(str).as_object();
 
-                auto &comps = em.GetComponentManager();
-                comps.Deserialize(json, GetAssetManager());
+                em.Deserialize(json, GetAssetManager());
             }
         });
     }
@@ -127,18 +109,8 @@ public:
                      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
         ImGui::Text("FPS: %d", static_cast<int>(1.0 / deltaTime));
 
-        ImGui::DragFloat3("Position", &pos.x, 0.1F, 0, 0, "%.1f");
-        ImGui::DragFloat3("Rotation", &rot.x, 0.1F, 0, 0, "%.1f");
-        ImGui::DragFloat3("Scale", &scale.x, 0.1F, 0, 0, "%.1f");
-
         ImGui::End();
     }
-
-    vec3 pos = vec3();
-    vec3 rot = vec3();
-    vec3 scale = vec3(1.0F);
-    Assets::AssetHandle model;
-    Entity backpack = Entity{};
 };
 
 PIXF_RUN_APPLICATION(App);

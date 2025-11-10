@@ -48,7 +48,7 @@ namespace Pixf::Core::Entities {
         NotFound,
     };
 
-    class EntityManager {
+    class EntityManager final : Serialization::Serializable {
     public:
         EntityManager() = default;
 
@@ -57,7 +57,7 @@ namespace Pixf::Core::Entities {
         EntityManager &operator=(const EntityManager &) = default;
         EntityManager &operator=(EntityManager &&) = delete;
 
-        ~EntityManager() = default;
+        ~EntityManager() override = default;
 
         Entity CreateEntity();
         std::optional<Entity> GetEntity(unsigned int id) const;
@@ -126,7 +126,9 @@ namespace Pixf::Core::Entities {
                 return SingletonError::AlreadyExists;
             }
 
-            m_Singletons[std::type_index(typeid(T))] = std::make_shared<T>(singleton);
+            auto ptr = std::make_shared<T>(singleton);
+            m_Singletons[std::type_index(typeid(T))] = ptr;
+
             return SingletonError::None;
         }
 
@@ -158,6 +160,32 @@ namespace Pixf::Core::Entities {
         }
 
         ComponentManager &GetComponentManager() { return m_ComponentManager; }
+
+        Json::object Serialize() override {
+            Json::object json;
+
+            json["entities"] = Json::array();
+
+            for (auto &entity: m_Entities) {
+                json["entities"].as_array().push_back(entity.Serialize());
+            }
+
+            json["components"] = m_ComponentManager.Serialize();
+
+            return json;
+        }
+
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
+            Clear();
+
+            for (Json::array entities = json.at("entities").as_array(); auto &entity: entities) {
+                Entity e{};
+                e.Deserialize(entity.as_object(), assetManager);
+                m_Entities.emplace_back(std::move(e));
+            }
+
+            m_ComponentManager.Deserialize(json.at("components").as_object(), assetManager);
+        }
 
     private:
         std::vector<Entity> m_Entities;

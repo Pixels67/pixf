@@ -11,7 +11,7 @@ namespace Pixf::Core::Entities {
         }
     }
 
-    void ComponentManager::ClearComponents() const {
+    void ComponentManager::Clear() const {
         for (const auto &[_, registry]: m_Registries) {
             registry->Clear();
         }

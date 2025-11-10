@@ -45,7 +45,7 @@ namespace Pixf::Core::Entities {
 
     void EntityManager::Clear() {
         m_Entities.clear();
-        m_ComponentManager.ClearComponents();
+        m_ComponentManager.Clear();
     }
 
     size_t EntityManager::GenEntityId() {

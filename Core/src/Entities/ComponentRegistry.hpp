@@ -4,6 +4,7 @@
 #include <memory>
 #include <optional>
 #include <vector>
+#include <map>
 
 #include "Error/Result.hpp"
 #include "Serialization/Serializable.hpp"
@@ -114,8 +115,8 @@ namespace Pixf::Core::Entities {
             m_SparseArray.clear();
         }
 
-        std::unordered_map<size_t, std::shared_ptr<T>> GetAll() const {
-            std::unordered_map<size_t, std::shared_ptr<T>> result;
+        std::map<size_t, std::shared_ptr<T>> GetAll() const {
+            std::map<size_t, std::shared_ptr<T>> result;
             for (size_t i = 0; i < m_DenseArray.size(); i++) {
                 result[m_DenseArray[i]] = std::dynamic_pointer_cast<T>(m_Components.at(i));
             }

@@ -89,7 +89,7 @@ namespace Pixf::Core::Entities {
         }
 
         void ClearComponents(size_t index) const;
-        void ClearComponents() const;
+        void Clear() const;
 
         template<typename T>
         Error::Result<std::shared_ptr<ComponentRegistry<T>>, ComponentError> QueryComponents() {
