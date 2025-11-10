@@ -45,13 +45,13 @@ namespace Pixf::Core::File {
         if (recursive) {
             for (const auto &entry: std::filesystem::recursive_directory_iterator(directory)) {
                 if (entry.is_regular_file()) {
-                    files.push_back(entry.path());
+                    files.push_back(entry.path().c_str());
                 }
             }
         } else {
             for (const auto &entry: std::filesystem::directory_iterator(directory)) {
                 if (entry.is_regular_file()) {
-                    files.push_back(entry.path());
+                    files.push_back(entry.path().c_str());
                 }
             }
         }
@@ -66,13 +66,13 @@ namespace Pixf::Core::File {
         if (recursive) {
             for (const auto &entry: std::filesystem::recursive_directory_iterator(directory)) {
                 if (entry.is_regular_file() && entry.path().extension() == extension) {
-                    files.push_back(entry.path());
+                    files.push_back(entry.path().c_str());
                 }
             }
         } else {
             for (const auto &entry: std::filesystem::directory_iterator(directory)) {
                 if (entry.is_regular_file() && entry.path().extension() == extension) {
-                    files.push_back(entry.path());
+                    files.push_back(entry.path().c_str());
                 }
             }
         }

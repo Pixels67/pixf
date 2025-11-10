@@ -58,13 +58,21 @@ public:
         World world(*this);
 
         EntityManager &entityManager = world.GetEntityManager();
-        const Entity backpack = world.GetEntityManager().CreateEntity();
+        backpack = world.GetEntityManager().CreateEntity();
 
         Transform transform{};
         transform.Translate(vec3(0.0F, -0.5F, 6.0F));
         entityManager.AddComponent<Transform>(backpack, transform);
 
-        entityManager.CreateEntityWithComponent<Transform>();
+        PIXF_LOG_TRACE("Backpack created: ", backpack.GetId());
+
+        Entity trans1 = entityManager.CreateEntityWithComponent<Transform>();
+
+        PIXF_LOG_TRACE("Transform created: ", trans1.GetId());
+
+        Entity trans2 = entityManager.CreateEntityWithComponent<Transform>();
+
+        PIXF_LOG_TRACE("Transform created: ", trans2.GetId());
 
         model = GetAssetManager().ImportModel("Assets/backpack.obj").Unwrap();
         entityManager.AddComponent<ModelRenderer>(backpack, ModelRenderer(model));
@@ -94,36 +102,36 @@ public:
         GetWorldManager().SetActiveWorld("1");
 
         GetEventManager().Subscribe<Input::KeyEvent>([&](auto event) {
-            if (event.action != Input::KeyAction::Press) return;
+            if (event.action != Input::KeyAction::Press)
+                return;
 
             if (event.key == Input::Key::Escape) {
                 Exit();
             }
 
             if (event.key == Input::Key::T) {
-                auto reg = GetWorldManager().GetActiveWorld().Unwrap()->GetEntityManager().GetRegistry<Transform>().Unwrap();
+                auto &em = GetWorldManager().GetActiveWorld().Unwrap()->GetEntityManager();
+                auto comp = em.GetComponent<Transform>(backpack).Unwrap();
+
+                comp->rotation = quat(vec3(radians(rot.x), radians(rot.y), radians(rot.z)));
+                comp->position = pos;
+                comp->scale = scale;
+
+                auto reg = em.GetRegistry<Transform>().Unwrap();
                 Json::object json = reg->Serialize();
                 File::WriteFile("registry.json", Json::ToPrettyJson(json));
             }
 
             if (event.key == Input::Key::R) {
+                auto &em = GetWorldManager().GetActiveWorld().Unwrap()->GetEntityManager();
+
                 std::string str = File::ReadFile("registry.json").Unwrap();
                 Json::object json = Json::parse(str).as_object();
 
-                auto reg = GetWorldManager().GetActiveWorld().Unwrap()->GetEntityManager().GetRegistry<Transform>().Unwrap();
+                auto reg = em.GetRegistry<Transform>().Unwrap();
                 reg->Deserialize(json, GetAssetManager());
             }
         });
-    }
-
-    void OnUpdate(const double deltaTime) override {
-        EntityManager &entityManager = GetWorldManager().GetActiveWorld().Unwrap()->GetEntityManager();
-
-        for (auto query = entityManager.Query<Transform>().Unwrap(); auto &[id, comp]: query) {
-            comp->rotation = quat(vec3(radians(rot.x), radians(rot.y), radians(rot.z)));
-            comp->position = pos;
-            comp->scale = scale;
-        }
     }
 
     void OnRenderGui(const double deltaTime) override {
@@ -145,6 +153,7 @@ public:
     vec3 rot = vec3();
     vec3 scale = vec3(1.0F);
     Assets::AssetHandle model;
+    Entity backpack = Entity{};
 };
 
 PIXF_RUN_APPLICATION(App);
