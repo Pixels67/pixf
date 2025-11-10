@@ -3,13 +3,15 @@
 
 #include <memory>
 #include <optional>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 #include "ComponentManager.hpp"
+#include "Json/Json.hpp"
+#include "Serialization/Serializable.hpp"
 
 namespace Pixf::Core::Entities {
-    struct Entity {
+    struct Entity final : Serialization::Serializable {
         friend class EntityManager;
         explicit Entity() = default;
         explicit Entity(const unsigned int id) : id(id), active(true) {}
@@ -17,6 +19,22 @@ namespace Pixf::Core::Entities {
         unsigned int GetId() const { return id; }
         uint8_t GetVersion() const { return version; }
         bool IsActive() const { return active; }
+
+        Json::object Serialize() override {
+            Json::object json;
+
+            json["id"] = id;
+            json["version"] = version;
+            json["active"] = active;
+
+            return json;
+        }
+
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
+            id = json.at("id").to_number<unsigned int>();
+            version = json.at("version").to_number<uint8_t>();
+            active = json.at("active").as_bool();
+        }
 
     private:
         unsigned int id = 0;
