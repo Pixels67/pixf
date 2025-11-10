@@ -111,10 +111,6 @@ namespace Pixf::Core::Serialization {
         return vector;
     }
 
-#define PIXF_COMPONENT(Name)                                                                                           \
-    static constexpr const char *GetTypeName() { return #Name; }                                                       \
-    static constexpr uint64_t GetTypeId() { return Pixf::Core::Serialization::HashString(GetTypeName()); }
-
 } // namespace Pixf::Core::Serialization
 
 #endif // PIXF_SERIALIZATION_HPP

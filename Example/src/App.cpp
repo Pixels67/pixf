@@ -64,6 +64,8 @@ public:
         transform.Translate(vec3(0.0F, -0.5F, 6.0F));
         entityManager.AddComponent<Transform>(backpack, transform);
 
+        entityManager.CreateEntityWithComponent<Transform>();
+
         model = GetAssetManager().ImportModel("Assets/backpack.obj").Unwrap();
         entityManager.AddComponent<ModelRenderer>(backpack, ModelRenderer(model));
 
@@ -99,24 +101,17 @@ public:
             }
 
             if (event.key == Input::Key::T) {
-                Transform trans{};
-                trans.position = pos;
-                trans.rotation = quat(vec3(radians(rot.x), radians(rot.y), radians(rot.z)));
-                trans.scale = scale;
-
-                const Json::object json = trans.Serialize();
-                File::WriteFile("transform.json", Json::ToPrettyJson(json));
+                auto reg = GetWorldManager().GetActiveWorld().Unwrap()->GetEntityManager().GetRegistry<Transform>().Unwrap();
+                Json::object json = reg->Serialize();
+                File::WriteFile("registry.json", Json::ToPrettyJson(json));
             }
 
             if (event.key == Input::Key::R) {
-                const std::string str = File::ReadFile("transform.json").Unwrap();
-                const Json::object json = Json::parse(str).as_object();
+                std::string str = File::ReadFile("registry.json").Unwrap();
+                Json::object json = Json::parse(str).as_object();
 
-                Transform trans{};
-                trans.Deserialize(json, GetAssetManager());
-                pos = trans.position;
-                rot = degrees(eulerAngles(trans.rotation));
-                scale = trans.scale;
+                auto reg = GetWorldManager().GetActiveWorld().Unwrap()->GetEntityManager().GetRegistry<Transform>().Unwrap();
+                reg->Deserialize(json, GetAssetManager());
             }
         });
     }

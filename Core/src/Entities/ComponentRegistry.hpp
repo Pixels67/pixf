@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Error/Result.hpp"
+#include "Serialization/Serializable.hpp"
 
 namespace Pixf::Core::Entities {
     struct Component {
@@ -28,7 +29,7 @@ namespace Pixf::Core::Entities {
     };
 
     template<typename T>
-    class ComponentRegistry final : public IComponentRegistry {
+    class ComponentRegistry final : public IComponentRegistry, Serialization::Serializable {
     public:
         ComponentRegistry() = default;
 
@@ -116,6 +117,33 @@ namespace Pixf::Core::Entities {
             }
 
             return result;
+        }
+
+        Json::object Serialize() override {
+            Json::object json = {};
+
+            if constexpr (Serialization::SerializableType<T>) {
+                for (auto &[id, component] : GetAll()) {
+                    if (!component) continue;
+                    json[std::to_string(id)] = component->Serialize();
+                }
+            }
+
+            return json;
+        }
+
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
+            Clear();
+
+            if constexpr (Serialization::SerializableType<T>) {
+                for (auto& [key, value] : json) {
+                    size_t id = std::stoull(key);
+
+                    T component{};
+                    component.Deserialize(value.as_object(), assetManager);
+                    Add(id, component);
+                }
+            }
         }
 
     private:

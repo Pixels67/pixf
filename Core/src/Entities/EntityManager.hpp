@@ -96,7 +96,7 @@ namespace Pixf::Core::Entities {
             m_ComponentManager.RemoveComponent<T>(entity.id);
         }
 
-        void ClearComponents(const Entity entity) const { m_ComponentManager.ClearComponents(entity.id); }
+        void ClearComponents(const Entity &entity) const { m_ComponentManager.ClearComponents(entity.id); }
 
         template<typename T>
         Error::Result<std::unordered_map<unsigned int, std::shared_ptr<T>>, ComponentError> Query() {
@@ -111,6 +111,11 @@ namespace Pixf::Core::Entities {
             }
 
             return result;
+        }
+
+        template<typename T>
+        Error::Result<std::shared_ptr<ComponentRegistry<T>>, ComponentError> GetRegistry() {
+            return m_ComponentManager.QueryComponents<T>();
         }
 
         template<typename T>
