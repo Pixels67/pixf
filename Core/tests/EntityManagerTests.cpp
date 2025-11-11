@@ -10,7 +10,7 @@ struct TransformComponent final : Component {
     float z = 0.0F;
 
     TransformComponent() = default;
-    TransformComponent(float x, float y, float z) : x(x), y(y), z(z) {}
+    TransformComponent(const float x, const float y, const float z) : x(x), y(y), z(z) {}
 };
 
 struct HealthComponent final : Component {
@@ -140,20 +140,4 @@ TEST_F(EntityManagerTest, GetComponent_NonRegisteredComponent_ReturnsError) {
 
     EXPECT_TRUE(result.IsError());
     EXPECT_EQ(result.UnwrapError(), ComponentError::NotRegistered);
-}
-
-
-TEST_F(EntityManagerTest, Query_ReturnsCorrectComponents) {
-    const Entity entity1 = entityManager.CreateEntity();
-    const Entity entity2 = entityManager.CreateEntity();
-
-    const HealthComponent health(1);
-
-    entityManager.AddComponent<HealthComponent>(entity1, health);
-    entityManager.AddComponent<TransformComponent>(entity2);
-
-    auto result = entityManager.Query<HealthComponent>();
-
-    EXPECT_TRUE(result.IsSuccess());
-    EXPECT_EQ(*result.Unwrap().at(entity1.GetId()), health);
 }

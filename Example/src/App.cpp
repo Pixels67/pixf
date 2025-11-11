@@ -107,13 +107,10 @@ public:
 
     void OnUpdate(double deltaTime) override {
         if (const auto activeWorld = GetWorldManager().GetActiveWorld(); activeWorld.IsSuccess()) {
-            for (auto query = activeWorld.Unwrap()->GetEntityManager().Query<Backpack>().Unwrap();
-                 auto &[id, comp]: query) {
-                *activeWorld.Unwrap()
-                         ->GetEntityManager()
-                         .GetComponent<Transform>(activeWorld.Unwrap()->GetEntityManager().GetEntity(id).value())
-                         .Unwrap() = transform;
-            }
+            auto entityManager = activeWorld.Unwrap()->GetEntityManager();
+            entityManager.ForEachEntity<Backpack>([&](const Entity &entity, Backpack &backpack) {
+                *entityManager.GetComponent<Transform>(entity).Unwrap() = transform;
+            });
         }
     }
 

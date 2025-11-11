@@ -99,17 +99,15 @@ namespace Pixf::Core {
 
         const auto cam = camResult.Unwrap();
 
-        auto dirLights = entityManager.Query<DirectionalLight>().UnwrapOr({});
-        std::vector<DirectionalLight> dirLightsVec;
-        for (const auto &[_, comp]: dirLights) {
-            dirLightsVec.push_back(*comp);
-        }
+        std::vector<DirectionalLight> dirLights;
+        entityManager.ForEach<DirectionalLight>([&dirLights](const DirectionalLight &light) {
+            dirLights.push_back(light);
+        });
 
-        auto pointLights = entityManager.Query<PointLight>().UnwrapOr({});
-        std::vector<PointLight> pointLightsVec;
-        for (const auto &[_, comp]: pointLights) {
-            pointLightsVec.push_back(*comp);
-        }
+        std::vector<PointLight> pointLights;
+        entityManager.ForEach<PointLight>([&pointLights](const PointLight &light) {
+            pointLights.push_back(light);
+        });
 
         const auto ambientLight = entityManager.GetSingleton<AmbientLight>().UnwrapOr({});
 
@@ -127,8 +125,8 @@ namespace Pixf::Core {
             for (size_t i = 0; i < meshes.size(); i++) {
                 RenderCommand cmd = {
                         .ambientLight = *ambientLight,
-                        .directionalLights = dirLightsVec,
-                        .pointLights = pointLightsVec,
+                        .directionalLights = dirLights,
+                        .pointLights = pointLights,
                         .mesh = meshes[i],
                         .material = materials[i],
                         .model = transform.GetMatrix(),

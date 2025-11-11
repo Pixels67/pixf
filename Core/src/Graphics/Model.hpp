@@ -5,7 +5,7 @@
 
 #include <assimp/scene.h>
 
-#include "../Assets/AssetManager.hpp"
+#include "Assets/AssetManager.hpp"
 #include "Error/Result.hpp"
 
 namespace Pixf::Core::Graphics {

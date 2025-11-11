@@ -4,8 +4,8 @@
 #include <unordered_map>
 #include <optional>
 
-#include "../Assets/AssetManager.hpp"
-#include "../Common.hpp"
+#include "Assets/AssetManager.hpp"
+#include "Common.hpp"
 
 namespace Pixf::Core::Graphics {
     enum class MaterialPropertyError : uint8_t {

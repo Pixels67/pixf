@@ -19,7 +19,8 @@ namespace Pixf::Core::File {
     void DeleteFile(const std::string &path);
 
     std::vector<std::string> GetFilesInDirectory(const std::string &directory, bool recursive = false);
-    std::vector<std::string> GetFilesInDirectory(const std::string &directory, const std::string &extension, bool recursive = false);
+    std::vector<std::string> GetFilesInDirectory(const std::string &directory, const std::string &extension,
+                                                          bool recursive = false);
 } // namespace Pixf::Core::File
 
 #endif // PIXF_FILE_HPP

@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "../../Common.hpp"
+#include "Common.hpp"
 
 constexpr unsigned int g_MaxTextureCount = 16;
 constexpr unsigned int maxTextureNameLength = 256;

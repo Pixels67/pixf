@@ -1,7 +1,7 @@
 #ifndef VERTEX_HPP
 #define VERTEX_HPP
 
-#include "../Common.hpp"
+#include "Common.hpp"
 
 namespace Pixf::Core::Graphics {
     struct Vertex {

@@ -1,12 +1,13 @@
 #ifndef PIXF_BLUEPRINT_HPP
 #define PIXF_BLUEPRINT_HPP
+
 #include <functional>
 
 #include "EntityManager.hpp"
 #include "SystemsManager.hpp"
+#include "Common.hpp"
 
 namespace Pixf::Core::Entities {
-
     class Blueprint {
     public:
         Blueprint() = default;
@@ -24,7 +25,6 @@ namespace Pixf::Core::Entities {
     private:
         std::function<void(EntityManager &, SystemsManager &)> m_Init;
     };
-
 } // namespace Pixf::Core::Entities
 
 #endif // PIXF_BLUEPRINT_HPP

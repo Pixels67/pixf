@@ -4,6 +4,8 @@
 #include <memory>
 #include <unordered_map>
 
+#include "Common.hpp"
+
 namespace Pixf::Core::Entities {
     class World;
 

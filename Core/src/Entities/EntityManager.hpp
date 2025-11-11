@@ -9,6 +9,7 @@
 #include "ComponentManager.hpp"
 #include "Json/Json.hpp"
 #include "Serialization/Serializable.hpp"
+#include "Common.hpp"
 
 namespace Pixf::Core::Entities {
     struct Entity final : Serialization::Serializable {
@@ -97,21 +98,6 @@ namespace Pixf::Core::Entities {
         }
 
         void ClearComponents(const Entity &entity) const { m_ComponentManager.ClearComponents(entity.id); }
-
-        template<typename T>
-        Error::Result<std::unordered_map<unsigned int, std::shared_ptr<T>>, ComponentError> Query() {
-            auto query = m_ComponentManager.QueryComponents<T>();
-            if (query.IsError()) {
-                return query.UnwrapError();
-            }
-
-            std::unordered_map<unsigned int, std::shared_ptr<T>> result;
-            for (const auto &[id, comp]: query.Unwrap()->GetAll()) {
-                result[id] = comp;
-            }
-
-            return result;
-        }
 
         template<typename... T>
         std::vector<Entity> GetEntitiesWith() {

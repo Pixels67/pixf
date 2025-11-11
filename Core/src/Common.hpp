@@ -18,6 +18,20 @@ namespace boost {}
         }                                                                                                              \
     } while (0)
 
+#if defined(_WIN32) || defined(_WIN64)
+#if defined(PIXF_EXPORTS)
+#define __declspec(dllexport)
+#else
+#define __declspec(dllimport)
+#endif
+#else
+#if defined(PIXF_EXPORTS)
+#define PIXF_API
+#else
+#define PIXF_API
+#endif
+#endif
+
 namespace Pixf::Core {
     using namespace glm;
     using namespace boost;
