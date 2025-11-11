@@ -14,6 +14,10 @@
 #include "Window.hpp"
 
 namespace Pixf::Core {
+    using namespace Graphics;
+    using namespace Entities::Components;
+    using namespace Entities::Components::Graphics;
+
     void Application::Run() {
         this->OnAwake();
 
@@ -65,63 +69,63 @@ namespace Pixf::Core {
 
     Assets::AssetManager &Application::GetAssetManager() { return m_AssetManager; }
 
-    Graphics::Renderer &Application::GetRenderer() { return m_Renderer; }
+    Renderer &Application::GetRenderer() { return m_Renderer; }
 
     Event::EventManager &Application::GetEventManager() { return m_EventManager; }
 
     WorldManager &Application::GetWorldManager() { return m_WorldManager; }
 
     Window Application::CreateWindow(const WindowConfig &config, Event::EventManager &eventManager) {
-        Window window = Window::Create(config).Unwrap();
+        Window window = Window::Create(config).Unwrap("Failed to create window!");
         window.SetRenderTarget(eventManager);
         return window;
     }
 
     void Application::Render() {
-        auto worldResult = m_WorldManager.GetActiveWorld();
+        const auto worldResult = m_WorldManager.GetActiveWorld();
         if (worldResult.IsError()) {
+            PIXF_LOG_WARN("No active world!");
             return;
         }
 
         Entities::World &world = *worldResult.Unwrap();
         Entities::EntityManager &entityManager = world.GetEntityManager();
 
-        auto camResult = entityManager.GetSingleton<Entities::Components::Graphics::Camera>();
+        const auto camResult = entityManager.GetSingleton<Camera>();
         if (camResult.IsError()) {
+            PIXF_LOG_WARN("No camera found!");
             return;
         }
 
-        auto cam = camResult.Unwrap();
+        const auto cam = camResult.Unwrap();
 
-        auto dirLights = entityManager.Query<Entities::Components::Graphics::DirectionalLight>().UnwrapOr({});
-        std::vector<Entities::Components::Graphics::DirectionalLight> dirLightsVec;
+        auto dirLights = entityManager.Query<DirectionalLight>().UnwrapOr({});
+        std::vector<DirectionalLight> dirLightsVec;
         for (const auto &[_, comp]: dirLights) {
             dirLightsVec.push_back(*comp);
         }
 
-        auto pointLights = entityManager.Query<Entities::Components::Graphics::PointLight>().UnwrapOr({});
-        std::vector<Entities::Components::Graphics::PointLight> pointLightsVec;
+        auto pointLights = entityManager.Query<PointLight>().UnwrapOr({});
+        std::vector<PointLight> pointLightsVec;
         for (const auto &[_, comp]: pointLights) {
             pointLightsVec.push_back(*comp);
         }
 
-        auto ambientLight = entityManager.GetSingleton<Entities::Components::Graphics::AmbientLight>().UnwrapOr({});
+        const auto ambientLight = entityManager.GetSingleton<AmbientLight>().UnwrapOr({});
 
-        for (auto query = world.GetEntityManager().Query<Entities::Components::Graphics::ModelRenderer>();
-             const auto &[id, comp]: query.Unwrap()) {
-            auto meshes = m_AssetManager.GetModel(comp->model).Unwrap()->GetMeshes();
-            auto materials = m_AssetManager.GetModel(comp->model).Unwrap()->GetMaterials();
+        world.GetEntityManager().ForEachEntity<ModelRenderer>([&](Entities::Entity entity, ModelRenderer &comp) {
+            auto meshes = m_AssetManager.GetModel(comp.model).Unwrap("Invalid ModelRenderer.model")->GetMeshes();
+            auto materials = m_AssetManager.GetModel(comp.model).Unwrap("Invalid ModelRenderer.model")->GetMaterials();
 
-            const Entities::Entity entity = entityManager.GetEntity(id).value();
-            Entities::Components::Transform transform;
-            if (auto result = entityManager.GetComponent<Entities::Components::Transform>(entity); result.IsError()) {
+            Transform transform;
+            if (auto result = entityManager.GetComponent<Transform>(entity); result.IsError()) {
                 transform = {};
             } else {
                 transform = *result.Unwrap();
             }
 
             for (size_t i = 0; i < meshes.size(); i++) {
-                Graphics::RenderCommand cmd = {
+                RenderCommand cmd = {
                         .ambientLight = *ambientLight,
                         .directionalLights = dirLightsVec,
                         .pointLights = pointLightsVec,
@@ -132,9 +136,9 @@ namespace Pixf::Core {
                         .projection = cam->GetProjectionMatrix(),
                 };
 
-                GetRenderer().GetRenderQueue().Push(cmd, Graphics::RenderType::Opaque);
+                GetRenderer().GetRenderQueue().Push(cmd, RenderType::Opaque);
             }
-        }
+        });
 
         m_Renderer.Render(m_AssetManager);
     }

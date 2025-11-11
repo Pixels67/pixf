@@ -1,11 +1,10 @@
 #ifndef RESULT_HPP
 #define RESULT_HPP
 
-#include <iostream>
 #include <utility>
 #include <variant>
 
-#include "../Common.hpp"
+#include "Common.hpp"
 
 namespace Pixf::Core::Error {
     template<typename T, typename E = std::string>
@@ -23,22 +22,32 @@ namespace Pixf::Core::Error {
         ~Result() = default;
 
         const T &Unwrap() const & {
-            PIXF_ASSERT(IsSuccess(), "Unwrap on non-successful Result<T, E>");
+            PIXF_ASSERT(IsSuccess(), "Unwrap on non-successful Result");
             return std::get<T>(m_Data);
         }
 
         T &&Unwrap() && {
-            PIXF_ASSERT(IsSuccess(), "Unwrap on non-successful Result<T, E>");
+            PIXF_ASSERT(IsSuccess(), "Unwrap on non-successful Result");
+            return std::move(std::get<T>(m_Data));
+        }
+
+        const T &Unwrap(const std::string &message) const & {
+            PIXF_ASSERT(IsSuccess(), message.c_str());
+            return std::get<T>(m_Data);
+        }
+
+        T &&Unwrap(const std::string &message) && {
+            PIXF_ASSERT(IsSuccess(), message.c_str());
             return std::move(std::get<T>(m_Data));
         }
 
         const E &UnwrapError() const & {
-            PIXF_ASSERT(IsError(), "UnwrapError on successful Result<T, E>");
+            PIXF_ASSERT(IsError(), "UnwrapError on successful Result");
             return std::get<E>(m_Data);
         }
 
         E &&UnwrapError() && {
-            PIXF_ASSERT(IsError(), "UnwrapError on successful Result<T, E>");
+            PIXF_ASSERT(IsError(), "UnwrapError on successful Result");
             return std::move(std::get<E>(m_Data));
         }
 

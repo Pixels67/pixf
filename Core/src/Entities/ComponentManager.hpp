@@ -65,6 +65,8 @@ namespace Pixf::Core::Entities {
                 if (result.UnwrapError() == ComponentRegistryError::NotFound) {
                     return ComponentError::NotFound;
                 }
+
+                PIXF_ASSERT(false, "Unknown error");
             }
 
             return result.Unwrap();

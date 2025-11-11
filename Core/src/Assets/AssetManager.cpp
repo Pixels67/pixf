@@ -29,11 +29,14 @@ namespace Pixf::Core::Assets {
     AssetManager::AssetManager() {
         for (auto path: File::GetFilesInDirectory(assetPath, ".meta", true)) {
             try {
-                json::object json = json::parse(File::ReadFile(path).Unwrap()).as_object();
+                json::object json = json::parse(File::ReadFile(path).Unwrap(
+                                                        "Failed to build Asset Database: Unable to read file " + path))
+                                            .as_object();
                 uuids::uuid uuid = uuids::string_generator()(json["uuid"].as_string().c_str());
                 path.erase(path.find_last_of('.'));
                 m_AssetPaths[uuid] = path;
             } catch ([[maybe_unused]] const system::system_error &e) {
+                PIXF_LOG_ERROR("Failed to parse JSON file: ", e.what());
             }
         }
     }
@@ -84,7 +87,8 @@ namespace Pixf::Core::Assets {
             return AssetError::FailedToLoad;
         }
 
-        const uuids::uuid uuid = GetUuid(path, AssetType::Texture2D).Unwrap();
+        const uuids::uuid uuid =
+                GetUuid(path, AssetType::Texture2D).Unwrap("Failed to import Texture2D: Unable to generate UUID");
         m_Textures2D[uuid] = std::make_shared<Gl::Texture2D>(std::move(tex).Unwrap());
         m_Texture2DPaths[path] = uuid;
         return AssetHandle(*this, uuid, AssetType::Texture2D);
@@ -102,7 +106,8 @@ namespace Pixf::Core::Assets {
 
         const Model &model = result.Unwrap();
 
-        const uuids::uuid uuid = GetUuid(path, AssetType::Model).Unwrap();
+        const uuids::uuid uuid =
+                GetUuid(path, AssetType::Model).Unwrap("Failed to import Model: Unable to generate UUID");
         m_Models[uuid] = std::make_shared<Model>(model);
         m_ModelPaths[path] = uuid;
         return AssetHandle(*this, uuid, AssetType::Model);
@@ -113,7 +118,8 @@ namespace Pixf::Core::Assets {
             return AssetHandle(*this, m_AudioClipPaths[path], AssetType::AudioClip);
         }
 
-        const uuids::uuid uuid = GetUuid(path, AssetType::AudioClip).Unwrap();
+        const uuids::uuid uuid =
+                GetUuid(path, AssetType::AudioClip).Unwrap("Failed to import AudioClip: Unable to generate UUID");
         m_AudioClips[uuid] = std::make_shared<Audio::AudioClip>();
 
         if (const auto result = m_AudioClips[uuid]->Load(path); result != Audio::AudioClipError::None) {
@@ -220,16 +226,16 @@ namespace Pixf::Core::Assets {
 
     void AssetManager::DeleteMesh(const AssetHandle &handle) { m_Meshes.erase(handle.uuid); }
 
-    std::optional<std::string> AssetManager::GetAssetPath(const AssetHandle &handle) {
+    Error::Result<std::string, AssetError> AssetManager::GetAssetPath(const AssetHandle &handle) {
         return GetAssetPath(handle.uuid);
     }
 
-    std::optional<std::string> AssetManager::GetAssetPath(const uuids::uuid &uuid) {
+    Error::Result<std::string, AssetError> AssetManager::GetAssetPath(const uuids::uuid &uuid) {
         if (m_AssetPaths.contains(uuid)) {
             return m_AssetPaths.at(uuid);
         }
 
-        return std::nullopt;
+        return AssetError::NotRegistered;
     }
 
     Error::Result<uuids::uuid, AssetError> AssetManager::GetUuid(const std::string &path, const AssetType type) const {
@@ -240,11 +246,12 @@ namespace Pixf::Core::Assets {
             try {
                 json = json::parse(metaFile.Unwrap()).as_object();
             } catch (const system::system_error &e) {
-                PIXF_LOG_ERROR("Failed to parse JSON object. Error: ", e.what());
+                PIXF_LOG_ERROR("Failed to parse JSON file: ", e.what());
                 return AssetError::FailedToParseMetaFile;
             }
 
             if (json["type"].as_string() != ToString(type)) {
+                PIXF_LOG_ERROR("Failed to retrieve UUID: Mismatched types");
                 return AssetError::MismatchedType;
             }
 

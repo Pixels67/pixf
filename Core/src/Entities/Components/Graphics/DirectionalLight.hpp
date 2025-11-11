@@ -8,7 +8,7 @@
 
 namespace Pixf::Core::Entities::Components::Graphics {
     struct DirectionalLight final : Component, Serialization::Serializable {
-        SERIALIZABLE(DirectionalLight)
+        PIXF_SERIALIZABLE(DirectionalLight)
 
         vec3 direction = vec3(0.0F, 0.0F, -1.0F);
         vec3 color = vec3(1.0F);
@@ -31,7 +31,7 @@ namespace Pixf::Core::Entities::Components::Graphics {
         void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
             direction = Serialization::DeserializeVec3(json.at("direction").as_object());
             color = Serialization::DeserializeColorRgb(json.at("color").as_object());
-            intensity = json.at("intensity").to_number<double>();
+            intensity = json.at("intensity").to_number<float>();
         }
     };
 } // namespace Pixf::Core::Entities::Components::Graphics

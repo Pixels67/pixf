@@ -113,6 +113,44 @@ namespace Pixf::Core::Entities {
             return result;
         }
 
+        template<typename... T>
+        std::vector<Entity> GetEntitiesWith() {
+            std::vector<Entity> result;
+
+            for (auto entity: m_Entities) {
+                if ((HasComponent<T>(entity) && ...)) {
+                    result.push_back(entity);
+                }
+            }
+
+            return result;
+        }
+
+        template<typename... T, typename Func>
+        void ForEach(Func &&func) {
+            for (auto entity: m_Entities) {
+                if ((HasComponent<T>(entity) && ...)) {
+                    func(*GetComponent<T>(entity).Unwrap()...);
+                }
+            }
+        }
+
+        template<typename Func>
+        void ForEachEntity(Func &&func) {
+            for (auto entity: m_Entities) {
+                func(entity);
+            }
+        }
+
+        template<typename... T, typename Func>
+        void ForEachEntity(Func &&func) {
+            for (auto entity: m_Entities) {
+                if ((HasComponent<T>(entity) && ...)) {
+                    func(entity, *GetComponent<T>(entity).Unwrap()...);
+                }
+            }
+        }
+
         template<typename T>
         Error::Result<std::shared_ptr<ComponentRegistry<T>>, ComponentError> GetRegistry() {
             return m_ComponentManager.QueryComponents<T>();

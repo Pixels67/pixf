@@ -4,10 +4,14 @@
 
 namespace Pixf::Core::Audio {
     AudioClipError AudioClip::Load(const std::string &path) {
+        PIXF_LOG_INFO("Importing audio clip: ", path);
+
         if (ma_sound_init_from_file(AudioEngine::GetEngine(), path.c_str(), 0, nullptr, nullptr, &m_Clip) !=
             MA_SUCCESS) {
             return AudioClipError::FailedToLoad;
         }
+
+        PIXF_LOG_INFO("Imported audio clip: ", path);
 
         m_IsInitialized = true;
         return AudioClipError::None;

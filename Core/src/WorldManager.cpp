@@ -59,8 +59,9 @@ namespace Pixf::Core {
         }
     }
 
-    void WorldManager::LoadWorld(const std::string &path, const std::string &name, const Entities::Blueprint &blueprint) {
-        const std::string str = File::ReadFile(path).Unwrap();
+    void WorldManager::LoadWorld(const std::string &path, const std::string &name,
+                                 const Entities::Blueprint &blueprint) {
+        const std::string str = File::ReadFile(path).Unwrap("Failed to load world: Unable to read file " + path);
         const Json::object json = Json::parse(str).as_object();
 
         Entities::World world(m_Application, blueprint);

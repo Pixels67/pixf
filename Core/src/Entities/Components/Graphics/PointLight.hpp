@@ -8,7 +8,7 @@
 
 namespace Pixf::Core::Entities::Components::Graphics {
     struct PointLight final : Component, Serialization::Serializable {
-        SERIALIZABLE(PointLight)
+        PIXF_SERIALIZABLE(PointLight)
 
         vec3 position = vec3(0.0F);
         vec3 color = vec3(1.0F);
@@ -38,9 +38,9 @@ namespace Pixf::Core::Entities::Components::Graphics {
         void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
             position = Serialization::DeserializeVec3(json.at("position").as_object());
             color = Serialization::DeserializeColorRgb(json.at("color").as_object());
-            intensity = json.at("intensity").to_number<double>();
-            linearFalloff = json.at("linearFalloff").to_number<double>();
-            quadraticFalloff = json.at("quadraticFalloff").to_number<double>();
+            intensity = json.at("intensity").to_number<float>();
+            linearFalloff = json.at("linearFalloff").to_number<float>();
+            quadraticFalloff = json.at("quadraticFalloff").to_number<float>();
         }
     };
 } // namespace Pixf::Core::Entities::Components::Graphics

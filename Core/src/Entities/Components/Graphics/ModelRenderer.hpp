@@ -10,7 +10,7 @@
 
 namespace Pixf::Core::Entities::Components::Graphics {
     struct ModelRenderer final : Component, Serialization::Serializable {
-        SERIALIZABLE(ModelRenderer)
+        PIXF_SERIALIZABLE(ModelRenderer)
 
         Assets::AssetHandle model;
 
@@ -27,8 +27,13 @@ namespace Pixf::Core::Entities::Components::Graphics {
 
         void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
             const uuids::uuid uuid = uuids::string_generator()(json.at("uuid").as_string().c_str());
-            const std::string path = assetManager.GetAssetPath(uuid).value();
-            model = assetManager.ImportModel(path).Unwrap();
+            const std::string path = assetManager.GetAssetPath(uuid).Unwrap(
+                    std::string("Failed to deserialize ModelRenderer: Asset UUID ") +
+                    json.at("uuid").as_string().c_str() + " not registered");
+
+            model = assetManager.ImportModel(path).Unwrap(
+                    std::string("Failed to deserialize ModelRenderer: Unable to import model ") +
+                    json.at("uuid").as_string().c_str());
         }
     };
 } // namespace Pixf::Core::Entities::Components::Graphics

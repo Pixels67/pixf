@@ -8,7 +8,7 @@
 
 namespace Pixf::Core::Entities::Components::Graphics {
     struct AmbientLight final : Component, Serialization::Serializable {
-        SERIALIZABLE(AmbientLight)
+        PIXF_SERIALIZABLE(AmbientLight)
 
         vec3 color = vec3(1.0F);
         float intensity = 0.2F;
@@ -27,7 +27,7 @@ namespace Pixf::Core::Entities::Components::Graphics {
 
         void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
             color = Serialization::DeserializeColorRgb(json.at("color").as_object());
-            intensity = json.at("intensity").to_number<double>();
+            intensity = json.at("intensity").to_number<float>();
         }
     };
 } // namespace Pixf::Core::Entities::Components::Graphics

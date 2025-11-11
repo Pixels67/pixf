@@ -10,18 +10,16 @@ using namespace Pixf::Core::Entities::Components::Audio;
 
 struct AudioPlayer final : System {
     void OnAwake(World &world) override {
-        for (auto query = world.GetEntityManager().Query<Components::Audio::AudioSource>().Unwrap();
-             auto &[id, comp]: query) {
-            world.GetAssetManager().GetAudioClip(comp->clip).Unwrap()->Play(comp->config);
-        }
+        world.GetEntityManager().ForEach<AudioSource>([&](const AudioSource &comp) {
+            world.GetAssetManager().GetAudioClip(comp.clip).Unwrap()->Play(comp.config);
+        });
     }
 };
 
 struct CameraController final : System {
     void OnAwake(World &world) override {
         world.GetEventManager().Subscribe<WindowSizeChangedEvent>([&](const WindowSizeChangedEvent &event) {
-            PIXF_LOG_TRACE("Changing aspect to: ", event.newWidth / event.newHeight);
-            world.GetEntityManager().GetSingleton<Camera>().Unwrap()->aspect =
+            world.GetEntityManager().GetSingleton<Camera>().UnwrapOr({})->aspect =
                     static_cast<float>(event.newWidth) / static_cast<float>(event.newHeight);
         });
     }
@@ -48,7 +46,7 @@ struct CameraController final : System {
 };
 
 struct Backpack final : Component, Serialization::Serializable {
-    SERIALIZABLE(Backpack)
+    PIXF_SERIALIZABLE(Backpack)
 
     Json::object Serialize() override { return Json::object{}; }
     void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {}

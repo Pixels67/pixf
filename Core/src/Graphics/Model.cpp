@@ -55,7 +55,8 @@ namespace Pixf::Core::Graphics {
         }
     }
 
-    void Model::ProcessNode(const std::string &directory, const aiNode *node, const aiScene *scene, Assets::AssetManager &assetManager) {
+    void Model::ProcessNode(const std::string &directory, const aiNode *node, const aiScene *scene,
+                            Assets::AssetManager &assetManager) {
         for (unsigned int i = 0; i < node->mNumMeshes; i++) {
             const aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
             std::vector<Vertex> vertices;
@@ -93,13 +94,14 @@ namespace Pixf::Core::Graphics {
             aiString diffPath;
             aiString specPath;
 
-            // TODO: Get rid of Unwraps
-
             const Assets::AssetHandle matHandle = assetManager.CreateMaterial();
             Material &material = *assetManager.GetMaterial(matHandle).Unwrap();
 
             if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &diffPath) == AI_SUCCESS) {
-                material.SetDiffuseTexture2D(assetManager.ImportTexture2D(directory + diffPath.C_Str()).Unwrap());
+                material.SetDiffuseTexture2D(
+                        assetManager.ImportTexture2D(directory + diffPath.C_Str())
+                                .Unwrap(std::string("Failed to import model: Unable to import Texture2D ") +
+                                        diffPath.C_Str()));
             } else {
                 aiColor3D diffuseColor(1.0F, 1.0F, 1.0F);
                 mat->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
@@ -107,7 +109,10 @@ namespace Pixf::Core::Graphics {
             }
 
             if (mat->GetTexture(aiTextureType_SPECULAR, 0, &specPath) == AI_SUCCESS) {
-                material.SetSpecularTexture2D(assetManager.ImportTexture2D(directory + specPath.C_Str()).Unwrap());
+                material.SetSpecularTexture2D(
+                        assetManager.ImportTexture2D(directory + specPath.C_Str())
+                                .Unwrap(std::string("Failed to import model: Unable to import Texture2D ") +
+                                        specPath.C_Str()));
             } else {
                 aiColor3D specularColor(1.0F, 1.0F, 1.0F);
                 mat->Get(AI_MATKEY_COLOR_SPECULAR, specularColor);

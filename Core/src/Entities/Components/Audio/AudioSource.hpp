@@ -9,7 +9,7 @@
 
 namespace Pixf::Core::Entities::Components::Audio {
     struct AudioSource final : Component, Serialization::Serializable {
-        SERIALIZABLE(AudioSource)
+        PIXF_SERIALIZABLE(AudioSource)
 
         Assets::AssetHandle clip;
         Core::Audio::AudioPlayConfig config;
@@ -25,7 +25,13 @@ namespace Pixf::Core::Entities::Components::Audio {
 
         void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
             const auto uuid = uuids::string_generator()(json.at("uuid").as_string().c_str());
-            clip = assetManager.ImportAudioClip(assetManager.GetAssetPath(uuid).value()).Unwrap();
+            const std::string path = assetManager.GetAssetPath(uuid).Unwrap(
+                    std::string("Failed to deserialize AudioSourcec: Asset UUID ") +
+                    json.at("uuid").as_string().c_str() + " not registered");
+
+            clip = assetManager.ImportAudioClip(path).Unwrap(
+                    std::string("Failed to deserialize AudioSource: Unable to import audio clip ") +
+                    json.at("uuid").as_string().c_str());
 
             config.Deserialize(json.at("config").as_object(), assetManager);
         }

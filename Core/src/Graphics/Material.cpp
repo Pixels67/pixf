@@ -1,5 +1,6 @@
 #include "Material.hpp"
 
+#include <boost/uuid/uuid_io.hpp>
 #include <optional>
 #include <unordered_map>
 
@@ -165,9 +166,8 @@ namespace Pixf::Core::Graphics {
     }
 
     void Material::Bind() const {
-        // TODO: Get rid of Unwraps
-
-        const auto shader = m_AssetManager.GetShader(m_Shader).Unwrap();
+        const auto shader =
+                m_AssetManager.GetShader(m_Shader).Unwrap("Failed to bind material: Invalid Material.shader");
         shader->Bind();
 
         for (const auto &[name, value]: m_Floats) {
@@ -200,7 +200,10 @@ namespace Pixf::Core::Graphics {
 
         auto textureMap = shader->GetTextureMap();
         for (const auto &[name, value]: m_Textures2D) {
-            m_AssetManager.GetTexture2D(value).Unwrap()->Bind(textureMap[name]);
+            m_AssetManager.GetTexture2D(value)
+                    .Unwrap("Failed to bind material: " + name + " Texture2D with ID " +
+                            uuids::to_string(value.GetUuid()) + " not found!")
+                    ->Bind(textureMap[name]);
         }
     }
 

@@ -21,7 +21,7 @@ namespace Pixf::Core::Serialization {
         { obj.Deserialize(json, assetManager) } -> std::same_as<void>;
     };
 
-#define SERIALIZABLE(Name)                                                                                             \
+#define PIXF_SERIALIZABLE(Name)                                                                                             \
     static constexpr const char *GetTypeName() { return #Name; }                                                       \
     static constexpr uint64_t GetTypeId() { return Pixf::Core::Serialization::HashString(GetTypeName()); }
 

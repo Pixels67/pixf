@@ -5,6 +5,9 @@
 #include "RenderQueue.hpp"
 
 namespace Pixf::Core::Graphics {
+    constexpr unsigned int g_MaxDirectionalLights = 8;
+    constexpr unsigned int g_MaxPointLights = 16;
+
     struct RendererConfig {
         ivec2 viewportOrigin = ivec2(0, 0);
         ivec2 viewportAspect = ivec2(1080, 720);
@@ -29,6 +32,9 @@ namespace Pixf::Core::Graphics {
     private:
         RenderQueue m_RenderQueue;
         RendererConfig m_RenderConfig;
+
+        std::vector<Entities::Components::Graphics::PointLight>
+        static FilterPointLights(const std::vector<Entities::Components::Graphics::PointLight> &lights, vec3 position);
     };
 } // namespace Pixf::Core::Graphics
 

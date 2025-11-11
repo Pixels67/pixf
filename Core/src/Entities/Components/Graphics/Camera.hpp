@@ -33,7 +33,7 @@ namespace Pixf::Core::Entities::Components::Graphics {
     }
 
     struct Camera final : Component, Serialization::Serializable {
-        SERIALIZABLE(Camera)
+        PIXF_SERIALIZABLE(Camera)
 
         RigidTransform transform;
 
@@ -69,12 +69,12 @@ namespace Pixf::Core::Entities::Components::Graphics {
         void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
             transform.Deserialize(json.at("transform").as_object(), assetManager);
 
-            near = json.at("near").to_number<double>();
-            far = json.at("far").to_number<double>();
-            aspect = json.at("aspect").to_number<double>();
+            near = json.at("near").to_number<float>();
+            far = json.at("far").to_number<float>();
+            aspect = json.at("aspect").to_number<float>();
             type = FromString(json.at("type").as_string().c_str());
-            size = json.at("size").to_number<double>();
-            fov = json.at("fov").to_number<double>();
+            size = json.at("size").to_number<float>();
+            fov = json.at("fov").to_number<float>();
         }
     };
 } // namespace Pixf::Core::Entities::Components::Graphics

@@ -209,6 +209,7 @@ namespace Pixf::Core::Assets {
         FailedToLoad,
         FailedToParseMetaFile,
         MismatchedType,
+        NotRegistered,
     };
 
     class AssetManager {
@@ -250,8 +251,8 @@ namespace Pixf::Core::Assets {
 
         void DeleteMesh(const AssetHandle &handle);
 
-        std::optional<std::string> GetAssetPath(const AssetHandle &handle);
-        std::optional<std::string> GetAssetPath(const uuids::uuid &uuid);
+        Error::Result<std::string, AssetError> GetAssetPath(const AssetHandle &handle);
+        Error::Result<std::string, AssetError> GetAssetPath(const uuids::uuid &uuid);
 
     private:
         uuids::name_generator m_UuidGenerator = uuids::name_generator(uuids::ns::url());
