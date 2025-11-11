@@ -1,6 +1,7 @@
 #ifndef WORLD_HPP
 #define WORLD_HPP
 
+#include "Blueprint.hpp"
 #include "EntityManager.hpp"
 #include "SystemsManager.hpp"
 
@@ -30,16 +31,16 @@ namespace Pixf::Core {
 } // namespace Pixf::Core
 
 namespace Pixf::Core::Entities {
-    class World {
+    class World final : Serialization::Serializable {
     public:
-        explicit World(Application &application);
+        explicit World(Application &application, const Blueprint &blueprint);
 
         World(const World &other) = default;
         World(World &&other) = delete;
-        World &operator=(const World &other) = default;
+        World &operator=(const World &other) = delete;
         World &operator=(World &&other) = delete;
 
-        ~World() = default;
+        ~World() override = default;
 
         EntityManager &GetEntityManager();
         SystemsManager &GetSystemsManager();
@@ -54,6 +55,14 @@ namespace Pixf::Core::Entities {
         void Update(double deltaTime);
         void LateUpdate(double deltaTime);
         void Render(double deltaTime);
+
+        Json::object Serialize() override {
+            return m_EntityManager.Serialize();
+        }
+
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
+            m_EntityManager.Deserialize(json, assetManager);
+        }
 
     private:
         EntityManager m_EntityManager;

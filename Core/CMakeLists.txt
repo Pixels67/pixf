@@ -202,6 +202,8 @@ set(
         src/Json/Json.hpp
         src/Serialization/Serialization.hpp
         src/Serialization/Serializable.hpp
+        src/Entities/Blueprint.cpp
+        src/Entities/Blueprint.hpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})

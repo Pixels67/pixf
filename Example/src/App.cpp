@@ -48,6 +48,8 @@ struct CameraController final : System {
 
 class App final : public Application {
 public:
+    Blueprint blueprint;
+
     explicit App() :
         Application({.windowConfig = {.title = "Title", .size = uvec2(1080, 720)},
                      .rendererConfig = {.viewportOrigin = ivec2(0, 0), .viewportAspect = ivec2(1080, 720)}}) {}
@@ -55,25 +57,21 @@ public:
     void OnAwake() override {
         PIXF_LOG_INFO("Using OpenGL ", glGetString(GL_VERSION));
 
-        World world(*this);
-        EntityManager &entityManager = world.GetEntityManager();
+        blueprint.Set([](EntityManager &entityManager, SystemsManager &systemsManager) {
+            entityManager.RegisterComponent<Transform>();
+            entityManager.RegisterComponent<ModelRenderer>();
+            entityManager.RegisterComponent<PointLight>();
 
-        world.GetEntityManager().RegisterComponent<Transform>();
-        world.GetEntityManager().RegisterComponent<ModelRenderer>();
-        world.GetEntityManager().RegisterComponent<PointLight>();
+            Camera camera{};
+            camera.aspect = 1080.0F / 720.0F;
+            camera.fov = 60.0F;
+            camera.type = CameraType::Perspective;
 
-        Camera camera{};
-        camera.aspect = 1080.0F / 720.0F;
-        camera.fov = 60.0F;
-        camera.type = CameraType::Perspective;
+            entityManager.CreateSingleton<Camera>(camera);
+            entityManager.CreateSingleton<AmbientLight>();
 
-        entityManager.CreateSingleton<Camera>(camera);
-        entityManager.CreateSingleton<AmbientLight>();
-
-        world.GetSystemsManager().AddSystem<CameraController>();
-
-        GetWorldManager().CreateWorld("1", world);
-        GetWorldManager().SetActiveWorld("1");
+            systemsManager.AddSystem<CameraController>();
+        });
 
         GetEventManager().Subscribe<Input::KeyEvent>([&](auto event) {
             if (event.action != Input::KeyAction::Press)
@@ -84,19 +82,12 @@ public:
             }
 
             if (event.key == Input::Key::T) {
-                auto &em = GetWorldManager().GetActiveWorld().Unwrap()->GetEntityManager();
-
-                const Json::object json = em.Serialize();
-                File::WriteFile("entities.json", Json::ToPrettyJson(json));
+                GetWorldManager().SaveWorld("world.json", "world");
             }
 
             if (event.key == Input::Key::R) {
-                auto &em = GetWorldManager().GetActiveWorld().Unwrap()->GetEntityManager();
-
-                const std::string str = File::ReadFile("entities.json").Unwrap();
-                const Json::object json = Json::parse(str).as_object();
-
-                em.Deserialize(json, GetAssetManager());
+                GetWorldManager().LoadWorld("world.json", "world", blueprint);
+                GetWorldManager().SetActiveWorld("world");
             }
         });
     }

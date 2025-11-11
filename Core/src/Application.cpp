@@ -147,7 +147,7 @@ namespace Pixf::Core {
 
     Application::Application(const ApplicationConfig &config) :
         m_Window(CreateWindow(config.windowConfig, m_EventManager)), m_Renderer(config.rendererConfig),
-        m_InputManager(m_EventManager, m_Window), m_AppConfig(config) {
+        m_InputManager(m_EventManager, m_Window), m_WorldManager(*this), m_AppConfig(config) {
         m_AudioManager.InitAudioManager(config.audioManagerConfig);
         Gui::Init(m_EventManager);
     }

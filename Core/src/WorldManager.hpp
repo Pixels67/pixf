@@ -16,7 +16,7 @@ namespace Pixf::Core {
 
     class WorldManager {
     public:
-        WorldManager() = default;
+        explicit WorldManager(Application &application) : m_Application(application) {}
 
         WorldManager(const WorldManager &) = delete;
         WorldManager(WorldManager &&) = delete;
@@ -34,9 +34,13 @@ namespace Pixf::Core {
 
         void Clear();
 
+        void SaveWorld(const std::string &path, const std::string &name) const;
+        void LoadWorld(const std::string &path, const std::string &name, const Entities::Blueprint &blueprint);
+
     private:
         std::unordered_map<std::string, std::shared_ptr<Entities::World>> m_Worlds;
         std::string m_ActiveWorld;
+        Application &m_Application;
     };
 
 } // namespace Pixf::Core

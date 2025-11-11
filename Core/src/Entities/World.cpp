@@ -3,7 +3,9 @@
 #include "Application.hpp"
 
 namespace Pixf::Core::Entities {
-    World::World(Application &application) : m_Application(application) {}
+    World::World(Application &application, const Blueprint &blueprint) : m_Application(application) {
+        blueprint.Get()(m_EntityManager, m_SystemsManager);
+    }
 
     EntityManager &World::GetEntityManager() { return m_EntityManager; }
 
