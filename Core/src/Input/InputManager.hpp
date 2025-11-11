@@ -515,7 +515,7 @@ namespace Pixf::Core::Input {
         return os;
     }
 
-    class KeyEvent final : public Event::Event {
+    class PIXF_API KeyEvent final : public Event::Event {
     public:
         Key key;
         KeyAction action;
@@ -565,7 +565,7 @@ namespace Pixf::Core::Input {
         return os;
     }
 
-    class MouseKeyEvent final : public Event::Event {
+    class PIXF_API MouseKeyEvent final : public Event::Event {
     public:
         MouseKey key;
         KeyAction action;
@@ -573,21 +573,21 @@ namespace Pixf::Core::Input {
         explicit MouseKeyEvent(const MouseKey key, const KeyAction action) : key(key), action(action) {}
     };
 
-    class MouseMovedEvent final : public Event::Event {
+    class PIXF_API MouseMovedEvent final : public Event::Event {
     public:
         vec2 position;
 
         explicit MouseMovedEvent(const vec2 position) : position(position) {}
     };
 
-    class CharacterEvent final : public Event::Event {
+    class PIXF_API CharacterEvent final : public Event::Event {
     public:
         unsigned int codepoint;
 
         explicit CharacterEvent(const unsigned int codepoint) : codepoint(codepoint) {}
     };
 
-    struct InputManager {
+    struct PIXF_API InputManager {
         explicit InputManager(Event::EventManager &eventManager, Window &window);
 
         InputManager(const InputManager &) = delete;

@@ -8,7 +8,7 @@
 #include "Common.hpp"
 
 namespace Pixf::Core::Entities {
-    class Blueprint {
+    class PIXF_API Blueprint {
     public:
         Blueprint() = default;
 

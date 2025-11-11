@@ -8,7 +8,7 @@
 #include <unordered_map>
 
 namespace Pixf::Core::Event {
-    class Event {
+    class PIXF_API Event {
     public:
         virtual ~Event() = default;
         bool handled = false;
@@ -18,7 +18,7 @@ namespace Pixf::Core::Event {
     using EventCallback = std::function<void(T &)>;
     using GenericCallback = std::function<void(Event &)>;
 
-    class EventManager {
+    class PIXF_API EventManager {
     public:
         template<typename T>
         void Subscribe(EventCallback<T> callback) {

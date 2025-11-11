@@ -7,7 +7,7 @@
 #include "Serialization/Serialization.hpp"
 
 namespace Pixf::Core::Entities::Components {
-    struct Transform final : Component, Serialization::Serializable {
+    struct PIXF_API Transform final : Component, Serialization::Serializable {
         PIXF_SERIALIZABLE(Transform)
 
         vec3 position = vec3(0.0F, 0.0F, 0.0F);

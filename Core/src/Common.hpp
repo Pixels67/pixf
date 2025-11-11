@@ -4,8 +4,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Debug/Logger.hpp"
-
 namespace boost {}
 
 #define PIXF_ASSERT(expr, ...)                                                                                         \
@@ -19,14 +17,14 @@ namespace boost {}
     } while (0)
 
 #if defined(_WIN32) || defined(_WIN64)
-#if defined(PIXF_EXPORTS)
+#if defined(PIXF_DLL_BUILD)
 #define __declspec(dllexport)
 #else
 #define __declspec(dllimport)
 #endif
 #else
-#if defined(PIXF_EXPORTS)
-#define PIXF_API
+#if defined(PIXF_DLL_BUILD)
+#define PIXF_API __attribute__((visibility("default")))
 #else
 #define PIXF_API
 #endif

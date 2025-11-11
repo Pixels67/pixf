@@ -7,7 +7,7 @@
 #include "Serialization/Serialization.hpp"
 
 namespace Pixf::Core::Entities::Components::Graphics {
-    struct AmbientLight final : Component, Serialization::Serializable {
+    struct PIXF_API AmbientLight final : Component, Serialization::Serializable {
         PIXF_SERIALIZABLE(AmbientLight)
 
         vec3 color = vec3(1.0F);

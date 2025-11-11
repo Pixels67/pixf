@@ -3,8 +3,10 @@
 
 #include <string>
 
+#include "Common.hpp"
+
 namespace Pixf::Core::Time {
-    struct LocalTime {
+    struct PIXF_API LocalTime {
         unsigned int year;
         unsigned int month;
         unsigned int day;
@@ -15,7 +17,7 @@ namespace Pixf::Core::Time {
         std::string ToString() const;
     };
 
-    LocalTime GetLocalTime();
+    PIXF_API LocalTime GetLocalTime();
 } // namespace Pixf::Core::Time
 
 #endif // LOCALTIME_HPP

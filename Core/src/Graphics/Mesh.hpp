@@ -9,7 +9,7 @@
 #include "Vertex.hpp"
 
 namespace Pixf::Core::Graphics {
-    class Mesh {
+    class PIXF_API Mesh {
     public:
         Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices);
 

@@ -17,7 +17,7 @@ namespace Pixf::Core::Graphics::Gl {
         Linear,
     };
 
-    struct TextureConfig {
+    struct PIXF_API TextureConfig {
         FilterMode filterMode = FilterMode::Linear;
         FilterMode mipmapFilterMode = FilterMode::Linear;
         WrapMode wrapMode = WrapMode::Repeat;
@@ -37,7 +37,7 @@ namespace Pixf::Core::Graphics::Gl {
     };
 
     // 2D/3D/4D are an exception to class names being pure PascalCase
-    class Texture2D {
+    class PIXF_API Texture2D {
     public:
         static Error::Result<Texture2D, TextureError> Load(const std::string &path, TextureConfig config);
 

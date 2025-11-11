@@ -3,7 +3,8 @@
 
 #include <vector>
 
-#include "../../Common.hpp"
+#include "Common.hpp"
+#include "Debug/Logger.hpp"
 #include "Gl.hpp"
 
 namespace Pixf::Core::Graphics::Gl {

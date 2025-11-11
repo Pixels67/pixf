@@ -8,7 +8,7 @@
 #include "Entities/ComponentManager.hpp"
 
 namespace Pixf::Core::Entities::Components::Audio {
-    struct AudioSource final : Component, Serialization::Serializable {
+    struct PIXF_API AudioSource final : Component, Serialization::Serializable {
         PIXF_SERIALIZABLE(AudioSource)
 
         Assets::AssetHandle clip;

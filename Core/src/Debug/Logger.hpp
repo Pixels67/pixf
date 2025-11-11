@@ -4,16 +4,17 @@
 #include <cstdint>
 #include <iostream>
 
+#include "Common.hpp"
 #include "Time/LocalTime.hpp"
 
 namespace Pixf::Core::Debug {
     enum class Severity : uint8_t { Trace = 0, Debug = 1, Info = 2, Warning = 3, Error = 4, Fatal = 5 };
 
-    struct LoggerConfig {
+    struct PIXF_API LoggerConfig {
         Severity logLevel = Severity::Trace;
     };
 
-    class Logger {
+    class PIXF_API Logger {
     public:
         static void Init(LoggerConfig config = {});
         static Logger &GetInstance();

@@ -6,6 +6,7 @@
 #include "Error/Result.hpp"
 #include "Event/Event.hpp"
 #include "Graphics/Gl/Gl.hpp"
+#include "Debug/Logger.hpp"
 
 constexpr unsigned int GL_VERSION_MAJOR = 3;
 constexpr unsigned int GL_VERSION_MINOR = 3;

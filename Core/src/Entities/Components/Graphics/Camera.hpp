@@ -1,10 +1,10 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
-#include "Window.hpp"
 #include "Common.hpp"
 #include "Entities/ComponentManager.hpp"
 #include "Entities/Components/RigidTransform.hpp"
+#include "Window.hpp"
 
 namespace Pixf::Core::Entities::Components::Graphics {
     enum class CameraType : uint8_t { Orthographic, Perspective };
@@ -32,7 +32,7 @@ namespace Pixf::Core::Entities::Components::Graphics {
         throw new std::invalid_argument("Invalid Camera type");
     }
 
-    struct Camera final : Component, Serialization::Serializable {
+    struct PIXF_API Camera final : Component, Serialization::Serializable {
         PIXF_SERIALIZABLE(Camera)
 
         RigidTransform transform;
@@ -46,8 +46,8 @@ namespace Pixf::Core::Entities::Components::Graphics {
         float size = 5.0F;
         float fov = 60.0F;
 
-        mat4 GetViewMatrix() const;
-        mat4 GetProjectionMatrix() const;
+        PIXF_API mat4 GetViewMatrix() const;
+        PIXF_API mat4 GetProjectionMatrix() const;
 
         Camera() = default;
 

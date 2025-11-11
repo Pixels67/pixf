@@ -9,17 +9,16 @@
 namespace Pixf::Core::Entities {
     class World;
 
-    struct System {
-        virtual ~System() = default;
+    struct PIXF_API System {
+        virtual ~System();
 
-        virtual void OnAwake(World &entityManager) {}
-
-        virtual void OnUpdate(World &entityManager, double deltaTime) {}
-        virtual void OnLateUpdate(World &entityManager, double deltaTime) {}
-        virtual void OnRender(World &entityManager, double deltaTime) {}
+        virtual void OnAwake(World &entityManager);
+        virtual void OnUpdate(World &entityManager, double deltaTime);
+        virtual void OnLateUpdate(World &entityManager, double deltaTime);
+        virtual void OnRender(World &entityManager, double deltaTime);
     };
 
-    class SystemsManager {
+    class PIXF_API SystemsManager {
     public:
         SystemsManager() = default;
 

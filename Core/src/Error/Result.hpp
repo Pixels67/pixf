@@ -5,10 +5,11 @@
 #include <variant>
 
 #include "Common.hpp"
+#include "Debug/Logger.hpp"
 
 namespace Pixf::Core::Error {
     template<typename T, typename E = std::string>
-    class Result {
+    class PIXF_API Result {
     public:
         Result(const T &value) : m_Data(value) {}
         Result(const E &error) : m_Data(error) {}

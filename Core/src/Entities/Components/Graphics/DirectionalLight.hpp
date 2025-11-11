@@ -7,7 +7,7 @@
 #include "Serialization/Serialization.hpp"
 
 namespace Pixf::Core::Entities::Components::Graphics {
-    struct DirectionalLight final : Component, Serialization::Serializable {
+    struct PIXF_API DirectionalLight final : Component, Serialization::Serializable {
         PIXF_SERIALIZABLE(DirectionalLight)
 
         vec3 direction = vec3(0.0F, 0.0F, -1.0F);

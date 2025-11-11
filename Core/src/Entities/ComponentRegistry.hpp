@@ -11,8 +11,8 @@
 #include "Serialization/Serialization.hpp"
 
 namespace Pixf::Core::Entities {
-    struct Component {
-        virtual ~Component() = default;
+    struct PIXF_API Component {
+        virtual ~Component();
     };
 
     enum class ComponentRegistryError : uint8_t {

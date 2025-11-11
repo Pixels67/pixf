@@ -12,7 +12,7 @@
 #include "Common.hpp"
 
 namespace Pixf::Core::Entities {
-    struct Entity final : Serialization::Serializable {
+    struct PIXF_API Entity final : Serialization::Serializable {
         friend class EntityManager;
         explicit Entity() = default;
         explicit Entity(const unsigned int id) : id(id), active(true) {}
@@ -49,7 +49,7 @@ namespace Pixf::Core::Entities {
         NotFound,
     };
 
-    class EntityManager final : Serialization::Serializable {
+    class PIXF_API EntityManager final : Serialization::Serializable {
     public:
         EntityManager() = default;
 

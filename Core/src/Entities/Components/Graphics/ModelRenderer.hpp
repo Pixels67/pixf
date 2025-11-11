@@ -9,7 +9,7 @@
 #include "Entities/ComponentManager.hpp"
 
 namespace Pixf::Core::Entities::Components::Graphics {
-    struct ModelRenderer final : Component, Serialization::Serializable {
+    struct PIXF_API ModelRenderer final : Component, Serialization::Serializable {
         PIXF_SERIALIZABLE(ModelRenderer)
 
         Assets::AssetHandle model;

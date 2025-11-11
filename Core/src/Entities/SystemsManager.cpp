@@ -3,6 +3,13 @@
 #include <unordered_map>
 
 namespace Pixf::Core::Entities {
+    System::~System() = default;
+
+    void System::OnAwake(World &entityManager) {}
+    void System::OnUpdate(World &entityManager, double deltaTime) {}
+    void System::OnLateUpdate(World &entityManager, double deltaTime) {}
+    void System::OnRender(World &entityManager, double deltaTime) {}
+
     void SystemsManager::RemoveSystem(const unsigned int systemId) { m_Systems.erase(systemId); }
     void SystemsManager::OnAwake(World &world) {
         for (auto &[_, system]: m_Systems) {

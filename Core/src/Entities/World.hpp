@@ -31,7 +31,7 @@ namespace Pixf::Core {
 } // namespace Pixf::Core
 
 namespace Pixf::Core::Entities {
-    class World final : Serialization::Serializable {
+    class PIXF_API World final : Serialization::Serializable {
     public:
         explicit World(Application &application, const Blueprint &blueprint);
 

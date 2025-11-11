@@ -14,12 +14,12 @@ namespace Pixf::Core::File {
 
     using FileResult = Error::Result<std::string, FileError>;
 
-    FileResult ReadFile(const std::string &path);
-    FileError WriteFile(const std::string &path, const std::string &data);
-    void DeleteFile(const std::string &path);
+    PIXF_API FileResult ReadFile(const std::string &path);
+    PIXF_API FileError WriteFile(const std::string &path, const std::string &data);
+    PIXF_API void DeleteFile(const std::string &path);
 
-    std::vector<std::string> GetFilesInDirectory(const std::string &directory, bool recursive = false);
-    std::vector<std::string> GetFilesInDirectory(const std::string &directory, const std::string &extension,
+    PIXF_API std::vector<std::string> GetFilesInDirectory(const std::string &directory, bool recursive = false);
+    PIXF_API std::vector<std::string> GetFilesInDirectory(const std::string &directory, const std::string &extension,
                                                           bool recursive = false);
 } // namespace Pixf::Core::File
 

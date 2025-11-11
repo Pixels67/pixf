@@ -186,7 +186,7 @@ namespace Pixf::Core::Assets {
 
     class AssetManager;
 
-    struct AssetHandle {
+    struct PIXF_API AssetHandle {
         friend class AssetManager;
         AssetHandle() = default;
 
@@ -212,7 +212,7 @@ namespace Pixf::Core::Assets {
         NotRegistered,
     };
 
-    class AssetManager {
+    class PIXF_API AssetManager {
     public:
         AssetManager();
 

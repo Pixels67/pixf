@@ -14,7 +14,7 @@ namespace Pixf::Core::Graphics {
         FailedToLoad,
     };
 
-    class Model {
+    class PIXF_API Model {
     public:
         static Error::Result<Model, ModelError> LoadModel(const std::string &path, Assets::AssetManager &assetManager);
         Model() = default;

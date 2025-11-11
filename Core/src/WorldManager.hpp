@@ -14,7 +14,7 @@ namespace Pixf::Core {
         NoActiveWorld,
     };
 
-    class WorldManager {
+    class PIXF_API WorldManager {
     public:
         explicit WorldManager(Application &application) : m_Application(application) {}
 

@@ -5,7 +5,7 @@
 #include "Json/Json.hpp"
 
 namespace Pixf::Core::Serialization {
-    struct Serializable {
+    struct PIXF_API Serializable {
         virtual ~Serializable() = default;
 
         virtual Json::object Serialize() = 0;

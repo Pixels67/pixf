@@ -14,7 +14,7 @@ namespace Pixf::Core::Graphics {
         InvalidShader,
     };
 
-    class Material {
+    class PIXF_API Material {
     public:
         explicit Material(Assets::AssetManager &resourceManager);
         Material(Assets::AssetManager &resourceManager, const Assets::AssetHandle &shader);

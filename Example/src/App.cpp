@@ -63,9 +63,7 @@ public:
                      .rendererConfig = {.viewportOrigin = ivec2(0, 0), .viewportAspect = ivec2(1080, 720)}}) {}
 
     void OnAwake() override {
-        Debug::Logger::Init({.logLevel = Debug::Severity::Info});
-
-        PIXF_LOG_INFO("Using OpenGL ", glGetString(GL_VERSION));
+        Debug::Logger::Init({.logLevel = Debug::Severity::Trace});
 
         blueprint.Configure([](EntityManager &entityManager, SystemsManager &systemsManager) {
             entityManager.RegisterComponent<Transform>();

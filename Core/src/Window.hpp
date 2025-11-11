@@ -36,30 +36,30 @@ namespace Pixf::Core {
 
     class Window {
     public:
-        static Error::Result<Window, WindowError> Create(const WindowConfig &config);
+        PIXF_API static Error::Result<Window, WindowError> Create(const WindowConfig &config);
 
         Window(const Window &) = delete;
-        Window(Window &&other) noexcept;
+        PIXF_API Window(Window &&other) noexcept;
 
         Window &operator=(const Window &) = delete;
-        Window &operator=(Window &&other) noexcept;
+        PIXF_API Window &operator=(Window &&other) noexcept;
 
-        ~Window();
+        PIXF_API ~Window();
 
-        void SetRenderTarget(Event::EventManager &eventManager) const;
-        static void ResetRenderTarget();
+        PIXF_API void SetRenderTarget(Event::EventManager &eventManager) const;
+        PIXF_API static void ResetRenderTarget();
 
-        static void SwapBuffers();
-        static void PollEvents();
+        PIXF_API static void SwapBuffers();
+        PIXF_API static void PollEvents();
 
-        bool ShouldClose() const;
-        GLFWwindow *GetGlfwWindowPtr() const;
+        PIXF_API bool ShouldClose() const;
+        PIXF_API GLFWwindow *GetGlfwWindowPtr() const;
 
-        void SetTitle(const std::string &title) const;
-        void Resize(uvec2 size) const;
+        PIXF_API void SetTitle(const std::string &title) const;
+        PIXF_API void Resize(uvec2 size) const;
 
-        std::string GetTitle() const;
-        uvec2 GetSize() const;
+        PIXF_API std::string GetTitle() const;
+        PIXF_API uvec2 GetSize() const;
 
     private:
         static inline GLFWwindow *s_CurrentRenderTarget = nullptr;

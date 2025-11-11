@@ -16,7 +16,7 @@ namespace Pixf::Core::Graphics::Gl {
         ShaderCompileFailed,
     };
 
-    class Shader {
+    class PIXF_API Shader {
     public:
         Shader(const std::string &vertSrc, const std::string &fragSrc);
 

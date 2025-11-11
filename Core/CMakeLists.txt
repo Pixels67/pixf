@@ -7,6 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/lib/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/lib/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/bin/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
 
 set(VENDOR_DIR ${PROJECT_SOURCE_DIR}/vendor)
@@ -204,9 +205,12 @@ set(
         src/Serialization/Serializable.hpp
         src/Entities/Blueprint.cpp
         src/Entities/Blueprint.hpp
+        src/Entities/ComponentRegistry.cpp
 )
 
-add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
+set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries" FORCE)
+
+add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
 target_include_directories(${PROJECT_NAME}
         PUBLIC
         include
@@ -217,6 +221,7 @@ target_include_directories(${PROJECT_NAME}
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         GLM_FORCE_LEFT_HANDED
+        PIXF_DLL_BUILD
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
@@ -278,7 +283,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     else ()
         target_compile_options(${PROJECT_NAME} PRIVATE
                 -Wall -Wextra -Wpedantic
-                -g3
+                -g3 -fvisibility=hidden
         )
     endif ()
 endif ()
@@ -298,6 +303,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
                 -O3
                 -march=native
                 -DNDEBUG
+                -fvisibility=hidden
         )
     endif ()
 endif ()

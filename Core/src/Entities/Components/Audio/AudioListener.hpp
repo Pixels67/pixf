@@ -5,7 +5,7 @@
 #include "Entities/ComponentManager.hpp"
 
 namespace Pixf::Core::Entities::Components::Audio {
-    struct AudioListener final : Component, Serialization::Serializable {
+    struct PIXF_API AudioListener final : Component, Serialization::Serializable {
         PIXF_SERIALIZABLE(AudioListener);
 
         vec3 position;

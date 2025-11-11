@@ -57,12 +57,12 @@ namespace Pixf::Core::Audio {
         }
     };
 
-    struct ListenerConfig {
+    struct PIXF_API ListenerConfig {
         vec3 position = vec3(0.0F);
         vec3 direction = vec3(0.0F);
     };
 
-    struct AudioClip {
+    struct PIXF_API AudioClip {
         AudioClip() = default;
 
         AudioClipError Load(const std::string &path);
@@ -79,7 +79,7 @@ namespace Pixf::Core::Audio {
 
     using AudioImportResult = Error::Result<AudioClip, AudioClipError>;
 
-    class AudioEngine {
+    class PIXF_API AudioEngine {
     public:
         static AudioEngineError Init(AudioManagerConfig config);
         static void Terminate();

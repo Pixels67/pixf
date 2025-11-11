@@ -16,17 +16,17 @@ namespace Pixf::Core {
         Audio::AudioManagerConfig audioManagerConfig;
     };
 
-    class Application {
+    class PIXF_API Application {
     public:
         explicit Application(const ApplicationConfig &config);
-        virtual ~Application() = default;
+        virtual ~Application();
 
-        virtual void OnAwake() {}
-        virtual void OnUpdate(double deltaTime) {}
-        virtual void OnLateUpdate(double deltaTime) {}
-        virtual void OnRender(double deltaTime) {}
-        virtual void OnRenderGui(double deltaTime) {}
-        virtual void OnShutdown() {}
+        virtual void OnAwake();
+        virtual void OnUpdate(double deltaTime);
+        virtual void OnLateUpdate(double deltaTime);
+        virtual void OnRender(double deltaTime);
+        virtual void OnRenderGui(double deltaTime);
+        virtual void OnShutdown();
 
         void Run();
         void Exit();
@@ -49,8 +49,7 @@ namespace Pixf::Core {
         ApplicationConfig m_AppConfig;
         bool m_IsRunning = true;
 
-        static Window CreateWindow(const WindowConfig &config,
-                                                 Event::EventManager &eventManager);
+        static Window CreateWindow(const WindowConfig &config, Event::EventManager &eventManager);
 
         void Render();
     };

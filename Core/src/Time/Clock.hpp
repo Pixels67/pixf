@@ -1,8 +1,9 @@
 #ifndef CLOCK_HPP
 #define CLOCK_HPP
+#include "Common.hpp"
 
 namespace Pixf::Core::Time {
-    class Clock {
+    class PIXF_API Clock {
     public:
         Clock() = default;
 
@@ -16,6 +17,7 @@ namespace Pixf::Core::Time {
         double GetTime() const;
         double GetDeltaTime() const;
         void Tick();
+
     private:
         double m_Time = 0.0;
         double m_DeltaTime = 0.0;

@@ -19,6 +19,7 @@ namespace Pixf::Core {
     using namespace Entities::Components::Graphics;
 
     void Application::Run() {
+        PIXF_LOG_INFO("Using OpenGL ", glGetString(GL_VERSION));
         this->OnAwake();
 
         while (!m_Window.ShouldClose() && m_IsRunning) {
@@ -148,4 +149,18 @@ namespace Pixf::Core {
                     "Failed to initialize audio engine!");
         Gui::Init(m_EventManager);
     }
+
+    Application::~Application() = default;
+
+    void Application::OnAwake() {}
+
+    void Application::OnUpdate(double deltaTime) {}
+
+    void Application::OnLateUpdate(double deltaTime) {}
+
+    void Application::OnRender(double deltaTime) {}
+
+    void Application::OnRenderGui(double deltaTime) {}
+
+    void Application::OnShutdown() {}
 } // namespace Pixf::Core

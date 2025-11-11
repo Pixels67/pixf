@@ -7,7 +7,7 @@
 #include "Serialization/Serialization.hpp"
 
 namespace Pixf::Core::Entities::Components::Graphics {
-    struct PointLight final : Component, Serialization::Serializable {
+    struct PIXF_API PointLight final : Component, Serialization::Serializable {
         PIXF_SERIALIZABLE(PointLight)
 
         vec3 position = vec3(0.0F);
