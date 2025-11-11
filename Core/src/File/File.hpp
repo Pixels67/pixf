@@ -16,6 +16,7 @@ namespace Pixf::Core::File {
 
     FileResult ReadFile(const std::string &path);
     FileError WriteFile(const std::string &path, const std::string &data);
+    void DeleteFile(const std::string &path);
 
     std::vector<std::string> GetFilesInDirectory(const std::string &directory, bool recursive = false);
     std::vector<std::string> GetFilesInDirectory(const std::string &directory, const std::string &extension, bool recursive = false);

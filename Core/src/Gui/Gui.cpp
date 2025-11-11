@@ -3,7 +3,7 @@
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
 
-#include "Graphics/Gl/Window.hpp"
+#include "Window.hpp"
 #include "Input/InputManager.hpp"
 
 namespace Pixf::Core::Gui {
@@ -263,14 +263,14 @@ namespace Pixf::Core::Gui {
 
     void Init(Event::EventManager &eventManager) {
         IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGui::StyleColorsDark();
+        CreateContext();
+        StyleColorsDark();
 
-        ImGuiIO &io = ImGui::GetIO();
+        ImGuiIO &io = GetIO();
         io.IniFilename = nullptr;
 
-        eventManager.Subscribe<Graphics::Gl::WindowSizeChangedEvent>(
-                [&](const Graphics::Gl::WindowSizeChangedEvent &event) {
+        eventManager.Subscribe<WindowSizeChangedEvent>(
+                [&](const WindowSizeChangedEvent &event) {
                     io.DisplaySize.x = event.newWidth;
                     io.DisplaySize.y = event.newHeight;
                 });
@@ -294,19 +294,19 @@ namespace Pixf::Core::Gui {
 
     void Terminate() {
         ImGui_ImplOpenGL3_Shutdown();
-        ImGui::DestroyContext();
+        DestroyContext();
     }
 
     void BeginRenderGui(const double deltaTime) {
-        ImGuiIO &io = ImGui::GetIO();
+        ImGuiIO &io = GetIO();
         io.DeltaTime = deltaTime;
 
         ImGui_ImplOpenGL3_NewFrame();
-        ImGui::NewFrame();
+        NewFrame();
     }
 
     void EndRenderGui() {
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        Render();
+        ImGui_ImplOpenGL3_RenderDrawData(GetDrawData());
     }
 } // namespace Pixf::Core::Gui

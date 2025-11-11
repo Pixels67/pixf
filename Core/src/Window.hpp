@@ -6,9 +6,9 @@
 #include "Common.hpp"
 #include "Error/Result.hpp"
 #include "Event/Event.hpp"
-#include "Gl.hpp"
+#include "Graphics/Gl/Gl.hpp"
 
-namespace Pixf::Core::Graphics::Gl {
+namespace Pixf::Core {
     constexpr auto g_DefaultWindowSize = uvec2(800, 600);
 
     struct WindowConfig {
@@ -76,6 +76,6 @@ namespace Pixf::Core::Graphics::Gl {
 
         void Cleanup() const;
     };
-} // namespace Pixf::Core::Assets::Gl
+} // namespace Pixf::Core
 
 #endif // WINDOW_HPP

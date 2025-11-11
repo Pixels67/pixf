@@ -35,6 +35,7 @@ namespace Pixf::Core {
         }
 
         m_ActiveWorld = name;
+        GetActiveWorld().Unwrap()->Awake();
         return WorldError::None;
     }
 

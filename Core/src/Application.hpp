@@ -1,17 +1,17 @@
 #ifndef APPLICATION_HPP
 #define APPLICATION_HPP
 
-#include "Audio/AudioManager.hpp"
+#include "Audio/AudioEngine.hpp"
 #include "Event/Event.hpp"
-#include "Graphics/Gl/Window.hpp"
 #include "Graphics/Renderer.hpp"
 #include "Input/InputManager.hpp"
 #include "Time/Clock.hpp"
+#include "Window.hpp"
 #include "WorldManager.hpp"
 
 namespace Pixf::Core {
     struct ApplicationConfig {
-        Graphics::Gl::WindowConfig windowConfig;
+        WindowConfig windowConfig;
         Graphics::RendererConfig rendererConfig;
         Audio::AudioManagerConfig audioManagerConfig;
     };
@@ -31,27 +31,25 @@ namespace Pixf::Core {
         void Run();
         void Exit();
 
-        Graphics::Gl::Window &GetWindow();
+        Window &GetWindow();
         Input::InputManager &GetInputManager();
         Assets::AssetManager &GetAssetManager();
         Graphics::Renderer &GetRenderer();
-        Audio::AudioManager &GetAudioManager();
         Event::EventManager &GetEventManager();
         WorldManager &GetWorldManager();
 
     private:
         Event::EventManager m_EventManager = {};
-        Graphics::Gl::Window m_Window;
+        Window m_Window;
         Assets::AssetManager m_AssetManager;
         Graphics::Renderer m_Renderer;
-        Audio::AudioManager m_AudioManager;
         Input::InputManager m_InputManager;
         WorldManager m_WorldManager;
         Time::Clock m_Clock;
         ApplicationConfig m_AppConfig;
         bool m_IsRunning = true;
 
-        static Graphics::Gl::Window CreateWindow(const Graphics::Gl::WindowConfig &config,
+        static Window CreateWindow(const WindowConfig &config,
                                                  Event::EventManager &eventManager);
 
         void Render();

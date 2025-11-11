@@ -5,12 +5,12 @@
 #include "Common.hpp"
 #include "Error/Result.hpp"
 #include "Event/Event.hpp"
-#include "Gl.hpp"
+#include "Graphics/Gl/Gl.hpp"
 
 constexpr unsigned int GL_VERSION_MAJOR = 3;
 constexpr unsigned int GL_VERSION_MINOR = 3;
 
-namespace Pixf::Core::Graphics::Gl {
+namespace Pixf::Core {
     Error::Result<Window, WindowError> Window::Create(const WindowConfig &config) {
         if (s_WindowCount == 0) {
             if (const auto err = InitGlfw(config.samplesPerPixel); err != WindowError::None) {
@@ -154,4 +154,4 @@ namespace Pixf::Core::Graphics::Gl {
         glfwSetWindowUserPointer(m_GlfwWindowPtr, nullptr);
         glfwDestroyWindow(m_GlfwWindowPtr);
     }
-} // namespace Pixf::Core::Graphics::Gl
+} // namespace Pixf::Core

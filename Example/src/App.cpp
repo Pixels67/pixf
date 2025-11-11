@@ -1,25 +1,26 @@
-#include "File/File.hpp"
-#include "Json/Json.hpp"
 #include "Pixf.hpp"
 
 using namespace Pixf::Core;
 using namespace Pixf::Core::Graphics;
+using namespace Pixf::Core::Audio;
 using namespace Pixf::Core::Entities;
 using namespace Pixf::Core::Entities::Components;
 using namespace Pixf::Core::Entities::Components::Graphics;
+using namespace Pixf::Core::Entities::Components::Audio;
 
-struct MusicPlayer final : System {
+struct AudioPlayer final : System {
     void OnAwake(World &world) override {
         for (auto query = world.GetEntityManager().Query<Components::Audio::AudioSource>().Unwrap();
              auto &[id, comp]: query) {
-            world.GetAudioManager().PlayAudioClip(comp->clip, comp->config);
+            world.GetAssetManager().GetAudioClip(comp->clip).Unwrap()->Play(comp->config);
         }
     }
 };
 
 struct CameraController final : System {
     void OnAwake(World &world) override {
-        world.GetEventManager().Subscribe<Gl::WindowSizeChangedEvent>([&](const Gl::WindowSizeChangedEvent &event) {
+        world.GetEventManager().Subscribe<WindowSizeChangedEvent>([&](const WindowSizeChangedEvent &event) {
+            PIXF_LOG_TRACE("Changing aspect to: ", event.newWidth / event.newHeight);
             world.GetEntityManager().GetSingleton<Camera>().Unwrap()->aspect =
                     static_cast<float>(event.newWidth) / static_cast<float>(event.newHeight);
         });
@@ -46,21 +47,34 @@ struct CameraController final : System {
     }
 };
 
+struct Backpack final : Component, Serialization::Serializable {
+    SERIALIZABLE(Backpack)
+
+    Json::object Serialize() override { return Json::object{}; }
+    void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {}
+};
+
 class App final : public Application {
 public:
-    Blueprint blueprint;
+    Blueprint blueprint{};
+    Transform transform{};
+    vec3 rotation{};
 
     explicit App() :
         Application({.windowConfig = {.title = "Title", .size = uvec2(1080, 720)},
                      .rendererConfig = {.viewportOrigin = ivec2(0, 0), .viewportAspect = ivec2(1080, 720)}}) {}
 
     void OnAwake() override {
+        Debug::Logger::Init({.logLevel = Debug::Severity::Info});
+
         PIXF_LOG_INFO("Using OpenGL ", glGetString(GL_VERSION));
 
-        blueprint.Set([](EntityManager &entityManager, SystemsManager &systemsManager) {
+        blueprint.Configure([](EntityManager &entityManager, SystemsManager &systemsManager) {
             entityManager.RegisterComponent<Transform>();
             entityManager.RegisterComponent<ModelRenderer>();
             entityManager.RegisterComponent<PointLight>();
+            entityManager.RegisterComponent<AudioSource>();
+            entityManager.RegisterComponent<Backpack>();
 
             Camera camera{};
             camera.aspect = 1080.0F / 720.0F;
@@ -71,6 +85,7 @@ public:
             entityManager.CreateSingleton<AmbientLight>();
 
             systemsManager.AddSystem<CameraController>();
+            systemsManager.AddSystem<AudioPlayer>();
         });
 
         GetEventManager().Subscribe<Input::KeyEvent>([&](auto event) {
@@ -92,15 +107,33 @@ public:
         });
     }
 
+    void OnUpdate(double deltaTime) override {
+        if (const auto activeWorld = GetWorldManager().GetActiveWorld(); activeWorld.IsSuccess()) {
+            for (auto query = activeWorld.Unwrap()->GetEntityManager().Query<Backpack>().Unwrap();
+                 auto &[id, comp]: query) {
+                *activeWorld.Unwrap()
+                         ->GetEntityManager()
+                         .GetComponent<Transform>(activeWorld.Unwrap()->GetEntityManager().GetEntity(id).value())
+                         .Unwrap() = transform;
+            }
+        }
+    }
+
     void OnRenderGui(const double deltaTime) override {
-        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_Always);
+        Gui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+        Gui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_Always);
 
-        ImGui::Begin("Debug", nullptr,
-                     ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
-        ImGui::Text("FPS: %d", static_cast<int>(1.0 / deltaTime));
+        Gui::Begin("Debug", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+        Gui::Text("FPS: %d", static_cast<int>(1.0 / deltaTime));
 
-        ImGui::End();
+        Gui::DragFloat3("Position", &transform.position.x, 0.05F);
+
+        Gui::DragFloat3("Rotation", &rotation.x, 1.0F);
+        transform.rotation = quat(radians(rotation));
+
+        Gui::DragFloat3("Scale", &transform.scale.x, 0.05F);
+
+        Gui::End();
     }
 };
 

@@ -1,7 +1,7 @@
 #include "Blueprint.hpp"
 
 namespace Pixf::Core::Entities {
-    void Blueprint::Set(const std::function<void(EntityManager &, SystemsManager &)> &function) {
+    void Blueprint::Configure(const std::function<void(EntityManager &, SystemsManager &)> &function) {
         m_Init = function;
     }
 

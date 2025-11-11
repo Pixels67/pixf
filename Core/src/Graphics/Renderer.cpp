@@ -2,7 +2,7 @@
 
 #include "Assets/AssetManager.hpp"
 #include "Gl/Gl.hpp"
-#include "Gl/Window.hpp"
+#include "Window.hpp"
 #include "Material.hpp"
 #include "RenderCommand.hpp"
 #include "RenderQueue.hpp"

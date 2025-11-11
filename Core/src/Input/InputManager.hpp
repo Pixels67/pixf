@@ -1,10 +1,10 @@
 #ifndef INPUTMANAGER_HPP
 #define INPUTMANAGER_HPP
 
+#include "Window.hpp"
 #include "Common.hpp"
 #include "Event/Event.hpp"
 #include "Graphics/Gl/Gl.hpp"
-#include "Graphics/Gl/Window.hpp"
 
 namespace Pixf::Core::Input {
     enum class Key : uint16_t {
@@ -588,7 +588,7 @@ namespace Pixf::Core::Input {
     };
 
     struct InputManager {
-        explicit InputManager(Event::EventManager &eventManager, Graphics::Gl::Window &window);
+        explicit InputManager(Event::EventManager &eventManager, Window &window);
 
         InputManager(const InputManager &) = delete;
         InputManager(InputManager &&) = delete;
@@ -612,9 +612,9 @@ namespace Pixf::Core::Input {
         dvec2 m_MousePos = {};
         dvec2 m_MouseDelta = {};
         Event::EventManager *m_EventManager;
-        Graphics::Gl::Window *m_Window;
+        Window *m_Window;
 
-        void SetupCallbacks(const Graphics::Gl::Window &window) const;
+        void SetupCallbacks(const Window &window) const;
     };
 
 } // namespace Pixf::Core::Input

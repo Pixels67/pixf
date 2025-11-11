@@ -18,7 +18,7 @@ namespace Pixf::Core::Entities {
 
         ~Blueprint() = default;
 
-        void Set(const std::function<void(EntityManager &, SystemsManager &)> &function);
+        void Configure(const std::function<void(EntityManager &, SystemsManager &)> &function);
         std::function<void(EntityManager &, SystemsManager &)> Get() const;
 
     private:

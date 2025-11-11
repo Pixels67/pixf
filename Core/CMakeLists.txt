@@ -130,8 +130,8 @@ set(
         src/Common.hpp
         src/Error/Result.hpp
         src/Graphics/Gl/Gl.hpp
-        src/Graphics/Gl/Window.hpp
-        src/Graphics/Gl/Window.cpp
+        src/Window.hpp
+        src/Window.cpp
         src/Graphics/Gl/Shader.cpp
         src/Graphics/Gl/Shader.hpp
         src/Graphics/Mesh.cpp
@@ -187,8 +187,8 @@ set(
         src/WorldManager.cpp
         src/WorldManager.hpp
         src/Entities/Components/Graphics/ModelRenderer.hpp
-        src/Audio/AudioManager.cpp
-        src/Audio/AudioManager.hpp
+        src/Audio/AudioEngine.cpp
+        src/Audio/AudioEngine.hpp
         src/Entities/Components/Audio/AudioListener.hpp
         src/Entities/Components/Audio/AudioSource.hpp
         src/Debug/Logger.cpp

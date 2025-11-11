@@ -39,6 +39,10 @@ namespace Pixf::Core::File {
         return FileError::None;
     }
 
+    void DeleteFile(const std::string &path) {
+        std::filesystem::remove(path);
+    }
+
     std::vector<std::string> GetFilesInDirectory(const std::string &directory, const bool recursive) {
         std::vector<std::string> files;
 

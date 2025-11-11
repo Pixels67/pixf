@@ -1,9 +1,10 @@
 #ifndef PIXF_HPP
 #define PIXF_HPP
 
-#include "Assets/AssetManager.hpp"
+#include "../src/Window.hpp"
 #include "Application.hpp"
-#include "Audio/AudioManager.hpp"
+#include "Assets/AssetManager.hpp"
+#include "Audio/AudioEngine.hpp"
 #include "Common.hpp"
 #include "Debug/Logger.hpp"
 #include "Entities/ComponentManager.hpp"
@@ -22,9 +23,9 @@
 #include "Entities/World.hpp"
 #include "Error/Result.hpp"
 #include "Event/Event.hpp"
+#include "File/File.hpp"
 #include "Graphics/Gl/Shader.hpp"
 #include "Graphics/Gl/Texture2D.hpp"
-#include "Graphics/Gl/Window.hpp"
 #include "Graphics/Material.hpp"
 #include "Graphics/Mesh.hpp"
 #include "Graphics/Model.hpp"
@@ -34,6 +35,7 @@
 #include "Graphics/Vertex.hpp"
 #include "Gui/Gui.hpp"
 #include "Input/InputManager.hpp"
+#include "Json/Json.hpp"
 #include "Time/Clock.hpp"
 #include "Time/LocalTime.hpp"
 #include "WorldManager.hpp"

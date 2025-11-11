@@ -3,9 +3,11 @@
 
 #include <imgui.h>
 
-#include "Graphics/Gl/Window.hpp"
+#include "Window.hpp"
 
 namespace Pixf::Core::Gui {
+    using namespace ImGui;
+
     void Init(Event::EventManager &eventManager);
     void Terminate();
 

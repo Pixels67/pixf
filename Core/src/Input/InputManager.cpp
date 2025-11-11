@@ -1,11 +1,11 @@
 #include "InputManager.hpp"
 
 #include "../Common.hpp"
+#include "Window.hpp"
 #include "Graphics/Gl/Gl.hpp"
-#include "Graphics/Gl/Window.hpp"
 
 namespace Pixf::Core::Input {
-    InputManager::InputManager(Event::EventManager &eventManager, Graphics::Gl::Window &window) :
+    InputManager::InputManager(Event::EventManager &eventManager, Window &window) :
         m_EventManager(&eventManager), m_Window(&window) {
         SetupCallbacks(window);
     }
@@ -32,7 +32,7 @@ namespace Pixf::Core::Input {
         m_MouseDelta = m_MousePos - oldMousePos;
     }
 
-    void InputManager::SetupCallbacks(const Graphics::Gl::Window &window) const {
+    void InputManager::SetupCallbacks(const Window &window) const {
         glfwSetWindowUserPointer(window.GetGlfwWindowPtr(), m_EventManager);
 
         // Key input

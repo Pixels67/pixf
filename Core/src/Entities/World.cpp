@@ -11,13 +11,13 @@ namespace Pixf::Core::Entities {
 
     SystemsManager &World::GetSystemsManager() { return m_SystemsManager; }
 
-    Graphics::Gl::Window &World::GetWindow() const { return m_Application.GetWindow(); }
+    Window &World::GetWindow() const { return m_Application.GetWindow(); }
 
     Input::InputManager &World::GetInputManager() const { return m_Application.GetInputManager(); }
 
     Graphics::Renderer &World::GetRenderer() const { return m_Application.GetRenderer(); }
 
-    Audio::AudioManager &World::GetAudioManager() const { return m_Application.GetAudioManager(); }
+    Assets::AssetManager &World::GetAssetManager() const { return m_Application.GetAssetManager(); }
 
     Event::EventManager &World::GetEventManager() const { return m_Application.GetEventManager(); }
 

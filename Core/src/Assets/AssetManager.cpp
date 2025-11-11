@@ -9,6 +9,7 @@
 #include <boost/json/parse.hpp>
 #include <boost/uuid.hpp>
 
+#include "Audio/AudioEngine.hpp"
 #include "Debug/Logger.hpp"
 #include "File/File.hpp"
 #include "Graphics/Gl/Gl.hpp"
@@ -26,16 +27,17 @@ namespace Pixf::Core::Assets {
     using namespace Graphics;
 
     AssetManager::AssetManager() {
-        for (auto path : File::GetFilesInDirectory(assetPath, ".meta", true)) {
+        for (auto path: File::GetFilesInDirectory(assetPath, ".meta", true)) {
             try {
                 json::object json = json::parse(File::ReadFile(path).Unwrap()).as_object();
                 uuids::uuid uuid = uuids::string_generator()(json["uuid"].as_string().c_str());
                 path.erase(path.find_last_of('.'));
                 m_AssetPaths[uuid] = path;
-            } catch ([[maybe_unused]] const system::system_error &e) {}
+            } catch ([[maybe_unused]] const system::system_error &e) {
+            }
         }
     }
-    
+
     AssetManager::~AssetManager() {
         PIXF_LOG_INFO("Cleaning resources");
 
@@ -63,6 +65,10 @@ namespace Pixf::Core::Assets {
         }
 
         Material::Unbind();
+
+        for (auto &[id, clip]: m_AudioClips) {
+            clip->Cleanup();
+        }
     }
 
     Error::Result<AssetHandle, AssetError> AssetManager::ImportTexture2D(const std::string &path,
@@ -86,7 +92,7 @@ namespace Pixf::Core::Assets {
 
     Error::Result<AssetHandle, AssetError> AssetManager::ImportModel(const std::string &path) {
         if (m_ModelPaths.contains(path)) {
-            return AssetHandle(*this, m_ModelPaths[path], AssetType::Texture2D);
+            return AssetHandle(*this, m_ModelPaths[path], AssetType::Model);
         }
 
         const auto result = Model::LoadModel(path, *this);
@@ -100,6 +106,23 @@ namespace Pixf::Core::Assets {
         m_Models[uuid] = std::make_shared<Model>(model);
         m_ModelPaths[path] = uuid;
         return AssetHandle(*this, uuid, AssetType::Model);
+    }
+
+    Error::Result<AssetHandle, AssetError> AssetManager::ImportAudioClip(const std::string &path) {
+        if (m_AudioClipPaths.contains(path)) {
+            return AssetHandle(*this, m_AudioClipPaths[path], AssetType::AudioClip);
+        }
+
+        const uuids::uuid uuid = GetUuid(path, AssetType::AudioClip).Unwrap();
+        m_AudioClips[uuid] = std::make_shared<Audio::AudioClip>();
+
+        if (const auto result = m_AudioClips[uuid]->Load(path); result != Audio::AudioClipError::None) {
+            File::DeleteFile(path + ".meta");
+            return AssetError::FailedToLoad;
+        }
+
+        m_AudioClipPaths[path] = uuid;
+        return AssetHandle(*this, uuid, AssetType::AudioClip);
     }
 
     AssetHandle AssetManager::CreateShader(const std::string &vertSrc, const std::string &fragSrc) {
@@ -156,6 +179,14 @@ namespace Pixf::Core::Assets {
         return m_Models.at(handle.uuid);
     }
 
+    Error::Result<std::shared_ptr<Audio::AudioClip>, AssetError> AssetManager::GetAudioClip(const AssetHandle &handle) {
+        if (!m_AudioClips.contains(handle.uuid)) {
+            return AssetError::NotFound;
+        }
+
+        return m_AudioClips.at(handle.uuid);
+    }
+
     void AssetManager::DeleteShader(const AssetHandle &handle) { m_Shaders.erase(handle.uuid); }
 
     void AssetManager::DeleteTexture2D(const AssetHandle &handle) { m_Textures2D.erase(handle.uuid); }
@@ -163,6 +194,8 @@ namespace Pixf::Core::Assets {
     void AssetManager::DeleteMaterial(const AssetHandle &handle) { m_Materials.erase(handle.uuid); }
 
     void AssetManager::DeleteModel(const AssetHandle &handle) { m_Models.erase(handle.uuid); }
+
+    void AssetManager::DeleteAudioClip(const AssetHandle &handle) { m_AudioClips.erase(handle.uuid); }
 
     AssetHandle AssetManager::CreateMesh(const std::vector<Vertex> &vertices, std::vector<unsigned int> indices) {
         if (indices.empty()) {
@@ -199,8 +232,7 @@ namespace Pixf::Core::Assets {
         return std::nullopt;
     }
 
-    Error::Result<uuids::uuid, AssetError> AssetManager::GetUuid(const std::string &path,
-                                                                        const AssetType type) const {
+    Error::Result<uuids::uuid, AssetError> AssetManager::GetUuid(const std::string &path, const AssetType type) const {
         uuids::uuid uuid = {};
         if (const auto metaFile = File::ReadFile(path + ".meta"); metaFile.IsSuccess()) {
             json::object json;
@@ -228,4 +260,4 @@ namespace Pixf::Core::Assets {
 
         return uuid;
     }
-} // namespace Pixf::Core::Graphics
+} // namespace Pixf::Core::Assets

@@ -148,6 +148,10 @@ namespace Pixf::Core::Graphics {
     class Material;
 } // namespace Pixf::Core::Graphics
 
+namespace Pixf::Core::Audio {
+    struct AudioClip;
+}
+
 namespace Pixf::Core::Assets {
     enum class AssetType : uint8_t {
         None = 0,
@@ -156,6 +160,7 @@ namespace Pixf::Core::Assets {
         Texture2D,
         Material,
         Model,
+        AudioClip,
     };
 
     inline std::string ToString(const AssetType assetType) {
@@ -172,6 +177,8 @@ namespace Pixf::Core::Assets {
                 return "Material";
             case AssetType::Model:
                 return "Model";
+            case AssetType::AudioClip:
+                return "AudioClip";
             default:
                 return "Unknown";
         }
@@ -218,6 +225,7 @@ namespace Pixf::Core::Assets {
         Error::Result<AssetHandle, AssetError> ImportTexture2D(const std::string &path,
                                                                Graphics::Gl::TextureConfig config = {});
         Error::Result<AssetHandle, AssetError> ImportModel(const std::string &path);
+        Error::Result<AssetHandle, AssetError> ImportAudioClip(const std::string &path);
 
         AssetHandle CreateShader(const std::string &vertSrc = g_DefaultVertShader,
                                  const std::string &fragSrc = g_DefaultFragShader);
@@ -228,11 +236,13 @@ namespace Pixf::Core::Assets {
         Error::Result<std::shared_ptr<Graphics::Gl::Texture2D>, AssetError> GetTexture2D(const AssetHandle &handle);
         Error::Result<std::shared_ptr<Graphics::Material>, AssetError> GetMaterial(const AssetHandle &handle);
         Error::Result<std::shared_ptr<Graphics::Model>, AssetError> GetModel(const AssetHandle &handle);
+        Error::Result<std::shared_ptr<Audio::AudioClip>, AssetError> GetAudioClip(const AssetHandle &handle);
 
         void DeleteShader(const AssetHandle &handle);
         void DeleteTexture2D(const AssetHandle &handle);
         void DeleteMaterial(const AssetHandle &handle);
         void DeleteModel(const AssetHandle &handle);
+        void DeleteAudioClip(const AssetHandle &handle);
 
         AssetHandle CreateMesh(const std::vector<Graphics::Vertex> &vertices, std::vector<unsigned int> indices = {});
 
@@ -252,9 +262,11 @@ namespace Pixf::Core::Assets {
         std::unordered_map<uuids::uuid, std::shared_ptr<Graphics::Gl::Texture2D>> m_Textures2D;
         std::unordered_map<uuids::uuid, std::shared_ptr<Graphics::Material>> m_Materials;
         std::unordered_map<uuids::uuid, std::shared_ptr<Graphics::Model>> m_Models;
+        std::unordered_map<uuids::uuid, std::shared_ptr<Audio::AudioClip>> m_AudioClips;
 
         std::unordered_map<std::string, uuids::uuid> m_Texture2DPaths;
         std::unordered_map<std::string, uuids::uuid> m_ModelPaths;
+        std::unordered_map<std::string, uuids::uuid> m_AudioClipPaths;
 
         std::unordered_map<uuids::uuid, std::string> m_AssetPaths;
 

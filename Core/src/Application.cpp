@@ -6,23 +6,19 @@
 #include "Entities/Components/Graphics/PointLight.hpp"
 #include "Entities/Components/Transform.hpp"
 #include "Event/Event.hpp"
-#include "Graphics/Gl/Window.hpp"
 #include "Graphics/Model.hpp"
 #include "Graphics/Renderer.hpp"
 #include "Gui/Gui.hpp"
 #include "Input/InputManager.hpp"
 #include "Time/Clock.hpp"
+#include "Window.hpp"
 
 namespace Pixf::Core {
     void Application::Run() {
         this->OnAwake();
 
-        if (const auto activeWorld = m_WorldManager.GetActiveWorld(); activeWorld.IsSuccess()) {
-            activeWorld.Unwrap()->Awake();
-        }
-
         while (!m_Window.ShouldClose() && m_IsRunning) {
-            Graphics::Gl::Window::PollEvents();
+            Window::PollEvents();
             m_EventManager.ProcessEvents();
 
             this->OnUpdate(m_Clock.GetDeltaTime());
@@ -51,18 +47,19 @@ namespace Pixf::Core {
 
             Gui::EndRenderGui();
 
-            Graphics::Gl::Window::SwapBuffers();
+            Window::SwapBuffers();
 
             m_Clock.Tick();
         }
 
         this->OnShutdown();
         Gui::Terminate();
+        Audio::AudioEngine::Terminate();
     }
 
     void Application::Exit() { m_IsRunning = false; }
 
-    Graphics::Gl::Window &Application::GetWindow() { return m_Window; }
+    Window &Application::GetWindow() { return m_Window; }
 
     Input::InputManager &Application::GetInputManager() { return m_InputManager; }
 
@@ -70,15 +67,12 @@ namespace Pixf::Core {
 
     Graphics::Renderer &Application::GetRenderer() { return m_Renderer; }
 
-    Audio::AudioManager &Application::GetAudioManager() { return m_AudioManager; }
-
     Event::EventManager &Application::GetEventManager() { return m_EventManager; }
 
     WorldManager &Application::GetWorldManager() { return m_WorldManager; }
 
-    Graphics::Gl::Window Application::CreateWindow(const Graphics::Gl::WindowConfig &config,
-                                                   Event::EventManager &eventManager) {
-        Graphics::Gl::Window window = Graphics::Gl::Window::Create(config).Unwrap();
+    Window Application::CreateWindow(const WindowConfig &config, Event::EventManager &eventManager) {
+        Window window = Window::Create(config).Unwrap();
         window.SetRenderTarget(eventManager);
         return window;
     }
@@ -148,7 +142,8 @@ namespace Pixf::Core {
     Application::Application(const ApplicationConfig &config) :
         m_Window(CreateWindow(config.windowConfig, m_EventManager)), m_Renderer(config.rendererConfig),
         m_InputManager(m_EventManager, m_Window), m_WorldManager(*this), m_AppConfig(config) {
-        m_AudioManager.InitAudioManager(config.audioManagerConfig);
+        PIXF_ASSERT(Audio::AudioEngine::Init(config.audioManagerConfig) == Audio::AudioEngineError::None,
+                    "Failed to initialize audio engine!");
         Gui::Init(m_EventManager);
     }
 } // namespace Pixf::Core

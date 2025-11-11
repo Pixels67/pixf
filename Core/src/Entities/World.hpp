@@ -12,7 +12,7 @@ namespace Pixf::Core {
     }
 
     namespace Audio {
-        class AudioManager;
+        class AudioEngine;
     }
 
     namespace Graphics {
@@ -44,10 +44,10 @@ namespace Pixf::Core::Entities {
 
         EntityManager &GetEntityManager();
         SystemsManager &GetSystemsManager();
-        Graphics::Gl::Window &GetWindow() const;
+        Window &GetWindow() const;
         Input::InputManager &GetInputManager() const;
         Graphics::Renderer &GetRenderer() const;
-        Audio::AudioManager &GetAudioManager() const;
+        Assets::AssetManager &GetAssetManager() const;
         Event::EventManager &GetEventManager() const;
         WorldManager &GetWorldManager() const;
 
