@@ -43,14 +43,14 @@ namespace Pixf::Core::Graphics::Gl {
 
         std::unordered_map<std::string, uint8_t> GetTextureMap() const;
 
+        void Cleanup() const;
+
     private:
         unsigned int m_Id;
         std::unordered_map<std::string, uint8_t> m_TextureMap;
 
         static unsigned int CreateGlShader(unsigned int type, const std::string &src);
         static unsigned int LinkGlShaders(unsigned int vertShader, unsigned int fragShader);
-
-        void Cleanup() const;
 
         void InitTextureMap();
     };

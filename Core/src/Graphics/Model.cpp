@@ -25,6 +25,7 @@ namespace Pixf::Core::Graphics {
         const aiScene *scene = importer.ReadFile(path, flags);
 
         if (scene == nullptr) {
+            PIXF_LOG_ERROR("Failed to load model, Error: ", importer.GetErrorString());
             return ModelError::FailedToLoad;
         }
 
@@ -35,7 +36,7 @@ namespace Pixf::Core::Graphics {
         model.ProcessNode(directory, scene->mRootNode, scene, assetManager);
 
         PIXF_LOG_INFO("Imported model: ", path);
-        return Error::Result<Model, ModelError>(model);
+        return model;
     }
 
     Model::Model(const std::vector<Assets::AssetHandle> &meshes, const std::vector<Assets::AssetHandle> &materials) :
