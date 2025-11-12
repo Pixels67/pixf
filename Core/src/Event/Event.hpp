@@ -20,6 +20,15 @@ namespace Pixf::Core::Event {
 
     class PIXF_API EventManager {
     public:
+        EventManager() = default;
+
+        EventManager(const EventManager &) = delete;
+        EventManager(EventManager &&) = delete;
+        EventManager &operator=(const EventManager &) = delete;
+        EventManager &operator=(EventManager &&) = delete;
+
+        ~EventManager() = default;
+
         template<typename T>
         void Subscribe(EventCallback<T> callback) {
             const auto typeIndex = std::type_index(typeid(T));
@@ -70,7 +79,11 @@ namespace Pixf::Core::Event {
             }
         }
 
-        void Clear() { m_EventQueue = {}; }
+        void Clear() {
+            while (!m_EventQueue.empty()) {
+                m_EventQueue.pop();
+            }
+        }
 
     private:
         std::unordered_map<std::type_index, std::vector<GenericCallback>> m_Callbacks;
