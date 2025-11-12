@@ -99,6 +99,10 @@ FetchContent_Declare(
 
 set(BOOST_INCLUDE_LIBRARIES uuid json)
 set(BOOST_ENABLE_CMAKE ON)
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 FetchContent_MakeAvailable(boost)
 
