@@ -31,8 +31,10 @@ namespace Pixf::Core::Entities {
             std::shared_ptr<ComponentRegistry<T>> ptr = std::make_shared<ComponentRegistry<T>>();
 
             m_Registries[GetTypeIndex<T>()] = std::static_pointer_cast<IComponentRegistry>(ptr);
-            const std::string name = ptr->GetTypeName();
-            m_Types.insert({name, GetTypeIndex<T>()});
+            if (ptr->GetTypeName()) {
+                const std::string name = ptr->GetTypeName();
+                m_Types.insert({name, GetTypeIndex<T>()});
+            }
         }
 
         template<typename T>

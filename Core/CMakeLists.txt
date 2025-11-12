@@ -18,8 +18,6 @@ set(VENDOR_DIR ${PROJECT_SOURCE_DIR}/vendor)
 #    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -g")
 #endif()
 
-enable_testing()
-
 find_package(OpenGL REQUIRED)
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -213,6 +211,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 )
 
 # Tests
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 add_executable(${PROJECT_NAME}Tests
         tests/EntityManagerTests.cpp
 )
