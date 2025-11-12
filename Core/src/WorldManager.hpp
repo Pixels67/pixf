@@ -16,7 +16,7 @@ namespace Pixf::Core {
 
     class PIXF_API WorldManager {
     public:
-        explicit WorldManager(Application &application) : m_Application(application) {}
+        explicit WorldManager(Entities::Context &context) : m_Context(context) {}
 
         WorldManager(const WorldManager &) = delete;
         WorldManager(WorldManager &&) = delete;
@@ -40,7 +40,7 @@ namespace Pixf::Core {
     private:
         std::unordered_map<std::string, std::shared_ptr<Entities::World>> m_Worlds;
         std::string m_ActiveWorld;
-        Application &m_Application;
+        Entities::Context &m_Context;
     };
 
 } // namespace Pixf::Core

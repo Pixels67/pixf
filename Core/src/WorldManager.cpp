@@ -3,7 +3,6 @@
 #include <string>
 #include <unordered_map>
 
-#include "Application.hpp"
 #include "Entities/World.hpp"
 #include "Error/Result.hpp"
 #include "File/File.hpp"
@@ -64,8 +63,8 @@ namespace Pixf::Core {
         const std::string str = File::ReadFile(path).Unwrap("Failed to load world: Unable to read file " + path);
         const Json::object json = Json::parse(str).as_object();
 
-        Entities::World world(m_Application, blueprint);
-        world.Deserialize(json, m_Application.GetAssetManager());
+        Entities::World world(m_Context, blueprint);
+        world.Deserialize(json, m_Context.GetAssetManager());
         CreateWorld(name, world);
     }
 } // namespace Pixf::Core

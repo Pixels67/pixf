@@ -16,10 +16,16 @@ namespace Pixf::Core {
         Audio::AudioManagerConfig audioManagerConfig;
     };
 
-    class PIXF_API Application {
+    class PIXF_API Application : public Entities::Context {
     public:
         explicit Application(const ApplicationConfig &config);
-        virtual ~Application();
+
+        Application(const Application &other) = delete;
+        Application(Application &&other) = delete;
+        Application &operator=(const Application &) = delete;
+        Application &operator=(Application &&) = delete;
+
+        ~Application() override;
 
         virtual void OnAwake();
         virtual void OnUpdate(double deltaTime);
@@ -31,15 +37,15 @@ namespace Pixf::Core {
         void Run();
         void Exit();
 
-        Window &GetWindow();
-        Input::InputManager &GetInputManager();
-        Assets::AssetManager &GetAssetManager();
-        Graphics::Renderer &GetRenderer();
-        Event::EventManager &GetEventManager();
-        WorldManager &GetWorldManager();
+        Window &GetWindow() override;
+        Input::InputManager &GetInputManager() override;
+        Assets::AssetManager &GetAssetManager() override;
+        Graphics::Renderer &GetRenderer() override;
+        Event::EventManager &GetEventManager() override;
+        WorldManager &GetWorldManager() override;
 
     private:
-        Event::EventManager m_EventManager = {};
+        Event::EventManager m_EventManager;
         Window m_Window;
         Assets::AssetManager m_AssetManager;
         Graphics::Renderer m_Renderer;

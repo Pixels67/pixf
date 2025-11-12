@@ -8,9 +8,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(VENDOR_DIR ${PROJECT_SOURCE_DIR}/vendor)
 
-#include(FetchContent)
-#set(FETCHCONTENT_QUIET FALSE)
-
 # Uncomment when debugging memory issues
 #
 #if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT MSVC)

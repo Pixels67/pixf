@@ -3,7 +3,7 @@
 #include "Application.hpp"
 
 namespace Pixf::Core::Entities {
-    World::World(Application &application, const Blueprint &blueprint) : m_Application(application) {
+    World::World(Context &context, const Blueprint &blueprint) : m_Context(context) {
         blueprint.Get()(m_EntityManager, m_SystemsManager);
     }
 
@@ -11,17 +11,7 @@ namespace Pixf::Core::Entities {
 
     SystemsManager &World::GetSystemsManager() { return m_SystemsManager; }
 
-    Window &World::GetWindow() const { return m_Application.GetWindow(); }
-
-    Input::InputManager &World::GetInputManager() const { return m_Application.GetInputManager(); }
-
-    Graphics::Renderer &World::GetRenderer() const { return m_Application.GetRenderer(); }
-
-    Assets::AssetManager &World::GetAssetManager() const { return m_Application.GetAssetManager(); }
-
-    Event::EventManager &World::GetEventManager() const { return m_Application.GetEventManager(); }
-
-    WorldManager &World::GetWorldManager() const { return m_Application.GetWorldManager(); }
+    Context &World::GetContext() const { return m_Context; }
 
     void World::Awake() { m_SystemsManager.OnAwake(*this); }
 

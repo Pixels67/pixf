@@ -45,6 +45,8 @@ namespace Pixf::Core::Entities {
         void OnLateUpdate(World &world, double deltaTime);
         void OnRender(World &world, double deltaTime);
 
+        void Clear();
+
     private:
         std::unordered_map<unsigned int, std::shared_ptr<System>> m_Systems;
         unsigned int m_SystemCounter = 0;

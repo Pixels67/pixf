@@ -34,4 +34,9 @@ namespace Pixf::Core::Entities {
             system->OnRender(world, deltaTime);
         }
     }
+
+    void SystemsManager::Clear() {
+        m_Systems.clear();
+        m_SystemCounter = 0;
+    }
 } // namespace Pixf::Core::Entities

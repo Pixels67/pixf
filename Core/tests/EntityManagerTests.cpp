@@ -11,6 +11,10 @@ struct TransformComponent final : Component {
 
     TransformComponent() = default;
     TransformComponent(const float x, const float y, const float z) : x(x), y(y), z(z) {}
+
+    bool operator==(const TransformComponent &other) const {
+        return this->x == other.x && this->y == other.y && this->z == other.z;
+    }
 };
 
 struct HealthComponent final : Component {
@@ -140,4 +144,41 @@ TEST_F(EntityManagerTest, GetComponent_NonRegisteredComponent_ReturnsError) {
 
     EXPECT_TRUE(result.IsError());
     EXPECT_EQ(result.UnwrapError(), ComponentError::NotRegistered);
+}
+
+TEST_F(EntityManagerTest, ForEach_CorrectIteration) {
+    const Entity entity1 = entityManager.CreateEntity();
+    const Entity entity2 = entityManager.CreateEntity();
+    const Entity entity3 = entityManager.CreateEntity();
+
+    entityManager.AddComponent(entity1, TransformComponent(1.0F, -1.0F, 0.0F));
+    entityManager.AddComponent(entity2, TransformComponent(1.0F, 2.0F, 3.0F));
+    entityManager.AddComponent(entity3, HealthComponent(5));
+
+    std::vector<TransformComponent> transforms;
+    entityManager.ForEach<TransformComponent>(
+            [&](const TransformComponent &transform) { transforms.push_back(transform); });
+
+    EXPECT_EQ(transforms.at(0), TransformComponent(1.0F, -1.0F, 0.0F));
+    EXPECT_EQ(transforms.at(1), TransformComponent(1.0F, 2.0F, 3.0F));
+    EXPECT_EQ(transforms.size(), 2);
+
+    std::vector<HealthComponent> healths;
+    entityManager.ForEach<HealthComponent>([&](const HealthComponent &health) { healths.push_back(health); });
+
+    EXPECT_EQ(healths.at(0), HealthComponent(5));
+    EXPECT_EQ(healths.size(), 1);
+
+    entityManager.AddComponent(entity1, HealthComponent(60));
+
+    int count = 0;
+    entityManager.ForEachEntity<TransformComponent, HealthComponent>(
+            [&](const Entity &entity, const TransformComponent &transform, const HealthComponent &health) {
+                EXPECT_EQ(entity, entity1);
+                EXPECT_EQ(transform, TransformComponent(1.0F, -1.0F, 0.0F));
+                EXPECT_EQ(health, HealthComponent(60));
+                count++;
+            });
+
+    EXPECT_EQ(count, 1);
 }

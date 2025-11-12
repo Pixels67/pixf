@@ -26,14 +26,24 @@ namespace Pixf::Core {
     namespace Graphics::Gl {
         class Window;
     }
-
-    class Application;
 } // namespace Pixf::Core
 
 namespace Pixf::Core::Entities {
+    class PIXF_API Context {
+    public:
+        virtual ~Context() = default;
+
+        virtual Window &GetWindow() = 0;
+        virtual Input::InputManager &GetInputManager() = 0;
+        virtual Graphics::Renderer &GetRenderer() = 0;
+        virtual Assets::AssetManager &GetAssetManager() = 0;
+        virtual Event::EventManager &GetEventManager() = 0;
+        virtual WorldManager &GetWorldManager() = 0;
+    };
+
     class PIXF_API World final : Serialization::Serializable {
     public:
-        explicit World(Application &application, const Blueprint &blueprint);
+        explicit World(Context &context, const Blueprint &blueprint);
 
         World(const World &other) = default;
         World(World &&other) = delete;
@@ -44,21 +54,15 @@ namespace Pixf::Core::Entities {
 
         EntityManager &GetEntityManager();
         SystemsManager &GetSystemsManager();
-        Window &GetWindow() const;
-        Input::InputManager &GetInputManager() const;
-        Graphics::Renderer &GetRenderer() const;
-        Assets::AssetManager &GetAssetManager() const;
-        Event::EventManager &GetEventManager() const;
-        WorldManager &GetWorldManager() const;
+
+        Context &GetContext() const;
 
         void Awake();
         void Update(double deltaTime);
         void LateUpdate(double deltaTime);
         void Render(double deltaTime);
 
-        Json::object Serialize() override {
-            return m_EntityManager.Serialize();
-        }
+        Json::object Serialize() override { return m_EntityManager.Serialize(); }
 
         void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
             m_EntityManager.Deserialize(json, assetManager);
@@ -67,7 +71,7 @@ namespace Pixf::Core::Entities {
     private:
         EntityManager m_EntityManager;
         SystemsManager m_SystemsManager;
-        Application &m_Application;
+        Context &m_Context;
     };
 } // namespace Pixf::Core::Entities
 

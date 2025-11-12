@@ -11,14 +11,14 @@ using namespace Pixf::Core::Entities::Components::Audio;
 struct AudioPlayer final : System {
     void OnAwake(World &world) override {
         world.GetEntityManager().ForEach<AudioSource>([&](const AudioSource &comp) {
-            world.GetAssetManager().GetAudioClip(comp.clip).Unwrap()->Play(comp.config);
+            world.GetContext().GetAssetManager().GetAudioClip(comp.clip).Unwrap()->Play(comp.config);
         });
     }
 };
 
 struct CameraController final : System {
     void OnAwake(World &world) override {
-        world.GetEventManager().Subscribe<WindowSizeChangedEvent>([&](const WindowSizeChangedEvent &event) {
+        world.GetContext().GetEventManager().Subscribe<WindowSizeChangedEvent>([&](const WindowSizeChangedEvent &event) {
             world.GetEntityManager().GetSingleton<Camera>().UnwrapOr({})->aspect =
                     static_cast<float>(event.newWidth) / static_cast<float>(event.newHeight);
         });
@@ -27,19 +27,19 @@ struct CameraController final : System {
     void OnUpdate(World &world, const double deltaTime) override {
         EntityManager &entityManager = world.GetEntityManager();
 
-        if (world.GetInputManager().IsKeyDown(Input::Key::W)) {
+        if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::W)) {
             entityManager.GetSingleton<Camera>().Unwrap()->transform.Translate(vec3(0.0F, 0.0F, 20.0F * deltaTime));
         }
 
-        if (world.GetInputManager().IsKeyDown(Input::Key::S)) {
+        if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::S)) {
             entityManager.GetSingleton<Camera>().Unwrap()->transform.Translate(vec3(0.0F, 0.0F, -20.0F * deltaTime));
         }
 
-        if (world.GetInputManager().IsKeyDown(Input::Key::D)) {
+        if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::D)) {
             entityManager.GetSingleton<Camera>().Unwrap()->transform.Translate(vec3(20.0F * deltaTime, 0.0F, 0.0F));
         }
 
-        if (world.GetInputManager().IsKeyDown(Input::Key::A)) {
+        if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::A)) {
             entityManager.GetSingleton<Camera>().Unwrap()->transform.Translate(vec3(-20.0F * deltaTime, 0.0F, 0.0F));
         }
     }
@@ -54,8 +54,8 @@ struct Backpack final : Component, Serialization::Serializable {
 
 class App final : public Application {
 public:
-    Blueprint blueprint{};
-    Transform transform{};
+    Blueprint blueprint;
+    Transform transform;
     vec3 rotation{};
 
     explicit App() :

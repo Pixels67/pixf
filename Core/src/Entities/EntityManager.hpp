@@ -37,6 +37,9 @@ namespace Pixf::Core::Entities {
             active = json.at("active").as_bool();
         }
 
+        bool operator==(const Entity &other) const { return id == other.id && version == other.version; }
+        bool operator!=(const Entity &other) const { return !(*this == other); }
+
     private:
         unsigned int id = 0;
         uint8_t version = 0;
