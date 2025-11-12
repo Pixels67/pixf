@@ -195,7 +195,7 @@ namespace Pixf::Core::Assets {
         AssetManager *GetAssetManager() const { return assetManager; }
 
     private:
-        uuids::uuid uuid = {};
+        uuids::uuid uuid;
         AssetType type = AssetType::None;
         AssetManager *assetManager = nullptr;
 

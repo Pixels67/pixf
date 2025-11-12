@@ -8,8 +8,10 @@
 # CMake scheiße
 cmake-build-debug/
 cmake-build-release/'
+Testing/
+**/Testing/
 
 # Output directory
-out/
+**/out/
 
 .cache
