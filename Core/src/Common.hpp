@@ -11,7 +11,7 @@ namespace boost {}
         if (!(expr)) {                                                                                                 \
             const char *msg = __VA_ARGS__;                                                                             \
             PIXF_LOG_FATAL("Assertion failed: (" #expr ")", (msg[0] ? ", Message: \"" : ""), msg,                      \
-                           "\", File: ", __FILE__, ", ", "Line: ", __LINE__, '\n');                                    \
+                           "\", On: ", __FILE__, ':', __LINE__, '\n');                                                 \
             std::abort();                                                                                              \
         }                                                                                                              \
     } while (0)
