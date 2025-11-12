@@ -18,9 +18,9 @@ namespace boost {}
 
 #if defined(_WIN32) || defined(_WIN64)
 #if defined(PIXF_DLL_BUILD)
-#define __declspec(dllexport)
+#define PIXF_API __declspec(dllexport)
 #else
-#define __declspec(dllimport)
+#define PIXF_API __declspec(dllimport)
 #endif
 #else
 #if defined(PIXF_DLL_BUILD)
