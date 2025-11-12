@@ -61,10 +61,14 @@ namespace Pixf::Core {
     };
 } // namespace Pixf::Core
 
-#define PIXF_RUN_APPLICATION(x)                                                                                        \
-    int main() {                                                                                                       \
-        x app;                                                                                                         \
-        app.Run();                                                                                                     \
+#define PIXF_CREATE_APPLICATION(app)                                                                                   \
+    extern "C" {                                                                                                       \
+    Pixf::Core::Application *CreateApplication() { return new app(); }                                                 \
+    void DestroyApplication(Pixf::Core::Application *application) {                                                    \
+        if (application != nullptr) {                                                                                  \
+            delete application;                                                                                        \
+        }                                                                                                              \
+    }                                                                                                                  \
     }
 
 #endif // APPLICATION_HPP

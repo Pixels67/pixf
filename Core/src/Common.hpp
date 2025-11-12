@@ -17,13 +17,13 @@ namespace boost {}
     } while (0)
 
 #ifdef _WIN32
-#if defined(PIXF_DLL_BUILD)
+#if defined(PIXF_DYLIB_BUILD)
 #define PIXF_API __declspec(dllexport)
 #else
 #define PIXF_API __declspec(dllimport)
 #endif
 #else
-#if defined(PIXF_DLL_BUILD)
+#if defined(PIXF_DYLIB_BUILD)
 #define PIXF_API __attribute__((visibility("default")))
 #else
 #define PIXF_API

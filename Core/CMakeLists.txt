@@ -193,7 +193,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${VENDOR_DIR}/stbi)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         GLM_FORCE_LEFT_HANDED
-        PIXF_DLL_BUILD
+        PIXF_DYLIB_BUILD
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
