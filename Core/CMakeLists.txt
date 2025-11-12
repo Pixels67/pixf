@@ -182,7 +182,6 @@ set(PROJECT_SOURCES
         src/Serialization/Serializable.hpp
         src/Entities/Blueprint.cpp
         src/Entities/Blueprint.hpp
-        src/Entities/ComponentRegistry.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

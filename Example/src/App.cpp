@@ -18,10 +18,11 @@ struct AudioPlayer final : System {
 
 struct CameraController final : System {
     void OnAwake(World &world) override {
-        world.GetContext().GetEventManager().Subscribe<WindowSizeChangedEvent>([&](const WindowSizeChangedEvent &event) {
-            world.GetEntityManager().GetSingleton<Camera>().UnwrapOr({})->aspect =
-                    static_cast<float>(event.newWidth) / static_cast<float>(event.newHeight);
-        });
+        world.GetContext().GetEventManager().Subscribe<WindowSizeChangedEvent>(
+                [&](const WindowSizeChangedEvent &event) {
+                    world.GetEntityManager().GetSingleton<Camera>().UnwrapOr({})->aspect =
+                            static_cast<float>(event.newWidth) / static_cast<float>(event.newHeight);
+                });
     }
 
     void OnUpdate(World &world, const double deltaTime) override {
@@ -85,8 +86,9 @@ public:
         });
 
         GetEventManager().Subscribe<Input::KeyEvent>([&](auto event) {
-            if (event.action != Input::KeyAction::Press)
+            if (event.action != Input::KeyAction::Press) {
                 return;
+            }
 
             if (event.key == Input::Key::Escape) {
                 Exit();

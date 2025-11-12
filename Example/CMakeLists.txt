@@ -11,3 +11,10 @@ add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 target_link_libraries(${PROJECT_NAME} PRIVATE PixfCore)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:${PROJECT_NAME}>
+        $<TARGET_FILE_DIR:PixfRuntime>
+        COMMENT "Copying PixfExample DLL to Runtime directory"
+)

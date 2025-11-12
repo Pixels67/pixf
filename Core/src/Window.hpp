@@ -24,7 +24,7 @@ namespace Pixf::Core {
         GlfwWindowCreationFailed,
     };
 
-    class WindowSizeChangedEvent final : public Event::Event {
+    class PIXF_API WindowSizeChangedEvent final : public Event::Event {
     public:
         unsigned int newWidth = 0;
         unsigned int newHeight = 0;

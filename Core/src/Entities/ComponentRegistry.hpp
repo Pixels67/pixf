@@ -12,7 +12,7 @@
 
 namespace Pixf::Core::Entities {
     struct PIXF_API Component {
-        virtual ~Component();
+        virtual ~Component() = default;
     };
 
     enum class ComponentRegistryError : uint8_t {
@@ -20,7 +20,7 @@ namespace Pixf::Core::Entities {
         NotFound,
     };
 
-    class IComponentRegistry : public Serialization::Serializable {
+    class PIXF_API IComponentRegistry : public Serialization::Serializable {
     public:
         ~IComponentRegistry() override = default;
 
@@ -34,7 +34,7 @@ namespace Pixf::Core::Entities {
     };
 
     template<typename T>
-    class ComponentRegistry final : public IComponentRegistry {
+    class PIXF_API ComponentRegistry final : public IComponentRegistry {
     public:
         ComponentRegistry() = default;
 
