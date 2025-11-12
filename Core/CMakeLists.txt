@@ -1,25 +1,15 @@
-cmake_minimum_required(VERSION 3.5)
-project(pixf_core)
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+project(PixfCore)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/lib/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/lib/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/bin/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
 
-set(VENDOR_DIR ${PROJECT_SOURCE_DIR}/vendor)
-
-include(FetchContent)
-set(FETCHCONTENT_QUIET FALSE)
-
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(VENDOR_DIR ${PROJECT_SOURCE_DIR}/vendor)
+
+#include(FetchContent)
+#set(FETCHCONTENT_QUIET FALSE)
 
 # Uncomment when debugging memory issues
 #
@@ -30,91 +20,75 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 enable_testing()
 
-FetchContent_Declare(
-        glfw
-        GIT_REPOSITORY "https://github.com/glfw/glfw.git"
-        GIT_TAG "3.4"
-        GIT_PROGRESS TRUE
-)
+find_package(OpenGL REQUIRED)
 
-FetchContent_MakeAvailable(glfw)
-
-FetchContent_Declare(
-        glm
-        GIT_REPOSITORY "https://github.com/g-truc/glm.git"
-        GIT_TAG "1.0.1"
-        GIT_PROGRESS TRUE
-)
-
-FetchContent_MakeAvailable(glm)
-
-FetchContent_Declare(
-        googletest
-        URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+CPMAddPackage(
+        NAME googletest
+        URL "https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip"
 )
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-FetchContent_Declare(
-        assimp
-        GIT_REPOSITORY "https://github.com/assimp/assimp.git"
-        GIT_TAG "v6.0.2"
-        GIT_PROGRESS TRUE
+CPMAddPackage(
+        URI "gh:glfw/glfw#3.4"
+        OPTIONS
+        "GLFW_BUILD_DOCS OFF"
+        "GLFW_BUILD_TESTS OFF"
+        "GLFW_BUILD_EXAMPLES OFF"
 )
 
-set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+CPMAddPackage("gh:g-truc/glm#1.0.1")
 
-set(ASSIMP_BUILD_FBX_IMPORTER ON CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_GLTF_IMPORTER ON CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_OBJ_IMPORTER ON CACHE BOOL "" FORCE)
-
-set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-
-if(WIN32)
+if (WIN32)
     set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)
-else()
+else ()
     set(ASSIMP_BUILD_ZLIB OFF CACHE BOOL "" FORCE)
     set(ASSIMP_INSTALL OFF)
     set(ASSIMP_INSTALL_PDB OFF)
     find_package(ZLIB REQUIRED)
-endif()
+endif ()
 
-FetchContent_MakeAvailable(assimp)
-
-FetchContent_Declare(
-        miniaudio
-        GIT_REPOSITORY "https://github.com/mackron/miniaudio.git"
-        GIT_TAG "0.11.23"
-        GIT_PROGRESS TRUE
+CPMAddPackage(
+        URI "gh:assimp/assimp@6.0.2"
+        OPTIONS
+        "ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF"
+        "ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF"
+        "ASSIMP_BUILD_FBX_IMPORTER ON"
+        "ASSIMP_BUILD_GLTF_IMPORTER ON"
+        "ASSIMP_BUILD_OBJ_IMPORTER ON"
+        "ASSIMP_BUILD_TESTS OFF"
 )
 
-FetchContent_MakeAvailable(miniaudio)
+CPMAddPackage("gh:mackron/miniaudio#0.11.23")
 
-FetchContent_Declare(
-        imgui
-        GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
+# Boost libs (Boost::uuid and Boost::json + their deps)
+CPMAddPackage("gh:boostorg/static_assert#boost-1.89.0")
+CPMAddPackage("gh:boostorg/core#boost-1.89.0")
+CPMAddPackage("gh:boostorg/assert#boost-1.89.0")
+CPMAddPackage("gh:boostorg/config#boost-1.89.0")
+CPMAddPackage("gh:boostorg/throw_exception#boost-1.89.0")
+CPMAddPackage("gh:boostorg/mp11#boost-1.89.0")
+CPMAddPackage("gh:boostorg/describe#boost-1.89.0")
+CPMAddPackage("gh:boostorg/container_hash#boost-1.89.0")
+CPMAddPackage("gh:boostorg/type_traits#boost-1.89.0")
+CPMAddPackage("gh:boostorg/uuid#boost-1.89.0")
+CPMAddPackage("gh:boostorg/align#boost-1.89.0")
+CPMAddPackage("gh:boostorg/variant2#boost-1.89.0")
+CPMAddPackage("gh:boostorg/predef#boost-1.89.0")
+CPMAddPackage("gh:boostorg/winapi#boost-1.89.0")
+CPMAddPackage("gh:boostorg/system#boost-1.89.0")
+CPMAddPackage("gh:boostorg/move#boost-1.89.0")
+CPMAddPackage("gh:boostorg/intrusive#boost-1.89.0")
+CPMAddPackage("gh:boostorg/container#boost-1.89.0")
+CPMAddPackage("gh:boostorg/endian#boost-1.89.0")
+CPMAddPackage("gh:boostorg/json#boost-1.89.0")
+
+CPMAddPackage(
+        NAME imgui
+        GITHUB_REPOSITORY "ocornut/imgui"
         GIT_TAG "v1.92.4"
-        GIT_PROGRESS TRUE
 )
-
-FetchContent_MakeAvailable(imgui)
-
-FetchContent_Declare(
-        boost
-        GIT_REPOSITORY "https://github.com/boostorg/boost.git"
-        GIT_TAG "boost-1.89.0"
-        GIT_PROGRESS TRUE
-)
-
-set(BOOST_INCLUDE_LIBRARIES uuid json)
-set(BOOST_ENABLE_CMAKE ON)
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-
-FetchContent_MakeAvailable(boost)
 
 add_library(imgui STATIC
         ${imgui_SOURCE_DIR}/imgui.cpp
@@ -133,10 +107,7 @@ target_include_directories(imgui PUBLIC
 
 target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
 
-find_package(OpenGL REQUIRED)
-
-set(
-        PROJECT_SOURCES
+set(PROJECT_SOURCES
         include/Pixf.hpp
         vendor/glad/include/glad/glad.h
         vendor/glad/src/glad.c
@@ -222,16 +193,10 @@ set(
         src/Entities/ComponentRegistry.cpp
 )
 
-set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries" FORCE)
-
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
-target_include_directories(${PROJECT_NAME}
-        PUBLIC
-        include
-        src
-        ${VENDOR_DIR}/glad/include
-        PRIVATE
-        ${VENDOR_DIR}/stbi)
+
+target_include_directories(${PROJECT_NAME} PUBLIC include src ${VENDOR_DIR}/glad/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${VENDOR_DIR}/stbi)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         GLM_FORCE_LEFT_HANDED
@@ -241,8 +206,8 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PUBLIC
         OpenGL::GL
         glfw
-        glm
-        assimp
+        glm::glm
+        assimp::assimp
         miniaudio
         imgui
         Boost::uuid
@@ -250,16 +215,16 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 )
 
 # Tests
-add_executable(${PROJECT_NAME}_tests
+add_executable(${PROJECT_NAME}Tests
         tests/EntityManagerTests.cpp
 )
 
-target_link_libraries(${PROJECT_NAME}_tests
+target_link_libraries(${PROJECT_NAME}Tests
         ${PROJECT_NAME}
         GTest::gtest_main
 )
 
-target_include_directories(${PROJECT_NAME}_tests
+target_include_directories(${PROJECT_NAME}Tests
         PUBLIC include
         PRIVATE
         src
@@ -267,9 +232,9 @@ target_include_directories(${PROJECT_NAME}_tests
         ${VENDOR_DIR}/stbi)
 
 include(GoogleTest)
-gtest_discover_tests(${PROJECT_NAME}_tests DISCOVERY_MODE PRE_TEST)
+gtest_discover_tests(${PROJECT_NAME}Tests DISCOVERY_MODE PRE_TEST)
 
-# macOS libs
+# OS libs
 if (APPLE)
     find_library(COCOA_LIBRARY Cocoa REQUIRED)
     find_library(IOKIT_LIBRARY IOKit REQUIRED)
@@ -279,14 +244,13 @@ if (APPLE)
             ${IOKIT_LIBRARY}
             ${COREVIDEO_LIBRARY}
     )
-    # Linux libs
 elseif (UNIX AND NOT APPLE)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(X11 REQUIRED x11)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${X11_LIBRARIES})
 endif ()
 
-
+# Compiler options
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     if (MSVC)
         target_compile_options(${PROJECT_NAME} PRIVATE
@@ -296,8 +260,11 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
         )
     else ()
         target_compile_options(${PROJECT_NAME} PRIVATE
-                -Wall -Wextra -Wpedantic
-                -g3 -fvisibility=hidden
+                -Wall
+                -Wextra
+                -Wpedantic
+                -g3
+                -fvisibility=hidden
         )
     endif ()
 endif ()
