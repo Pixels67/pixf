@@ -85,7 +85,7 @@ namespace Pixf::Core {
     void Application::Render() {
         const auto worldResult = m_WorldManager.GetActiveWorld();
         if (worldResult.IsError()) {
-            PIXF_LOG_WARN("No active world!");
+            //PIXF_LOG_WARN("No active world!");
             return;
         }
 

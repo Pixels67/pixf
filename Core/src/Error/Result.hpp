@@ -9,7 +9,7 @@
 
 namespace Pixf::Core::Error {
     template<typename T, typename E = std::string>
-    class PIXF_API Result {
+    class Result {
     public:
         Result(const T &value) : m_Data(value) {}
         Result(const E &error) : m_Data(error) {}
