@@ -46,8 +46,8 @@ namespace Pixf::Core::Entities::Components::Graphics {
         float size = 5.0F;
         float fov = 60.0F;
 
-        PIXF_API mat4 GetViewMatrix() const;
-        PIXF_API mat4 GetProjectionMatrix() const;
+        mat4 GetViewMatrix() const;
+        mat4 GetProjectionMatrix() const;
 
         Camera() = default;
 
