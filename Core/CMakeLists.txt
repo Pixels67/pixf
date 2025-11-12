@@ -227,7 +227,17 @@ target_include_directories(${PROJECT_NAME}Tests
         PRIVATE
         src
         ${VENDOR_DIR}/glad/include
-        ${VENDOR_DIR}/stbi)
+        ${VENDOR_DIR}/stbi
+)
+
+if(WIN32)
+    add_custom_command(TARGET ${PROJECT_NAME}Tests POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:${PROJECT_NAME}>
+            $<TARGET_FILE_DIR:${PROJECT_NAME}Tests>
+            COMMENT "Copying PixfCore DLL to test directory"
+    )
+endif()
 
 include(GoogleTest)
 gtest_discover_tests(${PROJECT_NAME}Tests DISCOVERY_MODE PRE_TEST)
