@@ -52,7 +52,7 @@ struct Backpack final : Component, Serialization::Serializable {
     void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {}
 };
 
-class PIXF_API App final : public Application {
+class App final : public Application {
 public:
     Blueprint blueprint;
     Transform transform;
