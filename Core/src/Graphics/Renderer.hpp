@@ -8,13 +8,13 @@ namespace Pixf::Core::Graphics {
     constexpr unsigned int g_MaxDirectionalLights = 8;
     constexpr unsigned int g_MaxPointLights = 16;
 
-    struct RendererConfig {
+    struct PIXF_API RendererConfig {
         ivec2 viewportOrigin = ivec2(0, 0);
         ivec2 viewportAspect = ivec2(1080, 720);
         vec3 backgroundColor = vec3(0.12f, 0.12f, 0.12f);
     };
 
-    class Renderer {
+    class PIXF_API Renderer {
     public:
         explicit Renderer(const RendererConfig &config);
 
@@ -28,6 +28,7 @@ namespace Pixf::Core::Graphics {
         RenderQueue &GetRenderQueue();
 
         void Render(Assets::AssetManager &assetManager);
+        void ClearViewport() const;
 
     private:
         RenderQueue m_RenderQueue;

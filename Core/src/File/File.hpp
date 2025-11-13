@@ -18,6 +18,8 @@ namespace Pixf::Core::File {
     PIXF_API FileError WriteFile(const std::string &path, const std::string &data);
     PIXF_API void DeleteFile(const std::string &path);
 
+    PIXF_API void MakeDirectory(const std::string &path);
+
     PIXF_API std::vector<std::string> GetFilesInDirectory(const std::string &directory, bool recursive = false);
     PIXF_API std::vector<std::string> GetFilesInDirectory(const std::string &directory, const std::string &extension,
                                                           bool recursive = false);

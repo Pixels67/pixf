@@ -15,8 +15,9 @@ namespace Pixf::Core::Entities {
     struct PIXF_API Entity final : Serialization::Serializable {
         friend class EntityManager;
         explicit Entity() = default;
-        explicit Entity(const unsigned int id) : id(id), active(true) {}
+        explicit Entity(const unsigned int id, const std::string &name) : name(name), id(id), active(true) {}
 
+        std::string GetName() const { return name; }
         unsigned int GetId() const { return id; }
         uint8_t GetVersion() const { return version; }
         bool IsActive() const { return active; }
@@ -24,6 +25,7 @@ namespace Pixf::Core::Entities {
         Json::object Serialize() override {
             Json::object json;
 
+            json["name"] = name;
             json["id"] = id;
             json["version"] = version;
             json["active"] = active;
@@ -32,6 +34,7 @@ namespace Pixf::Core::Entities {
         }
 
         void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
+            name = json.at("name").as_string().c_str();
             id = json.at("id").to_number<unsigned int>();
             version = json.at("version").to_number<uint8_t>();
             active = json.at("active").as_bool();
@@ -41,6 +44,7 @@ namespace Pixf::Core::Entities {
         bool operator!=(const Entity &other) const { return !(*this == other); }
 
     private:
+        std::string name = "";
         unsigned int id = 0;
         uint8_t version = 0;
         bool active = false;
@@ -63,8 +67,11 @@ namespace Pixf::Core::Entities {
 
         ~EntityManager() override = default;
 
-        Entity CreateEntity();
+        Entity CreateEntity(const std::string &name = "Unnamed");
+
         std::optional<Entity> GetEntity(unsigned int id) const;
+        std::vector<Entity> GetAllEntities() const;
+
         void DestroyEntity(Entity entity);
         void Clear();
 

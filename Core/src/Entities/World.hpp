@@ -23,9 +23,7 @@ namespace Pixf::Core {
         struct InputManager;
     }
 
-    namespace Graphics::Gl {
-        class Window;
-    }
+    class Window;
 } // namespace Pixf::Core
 
 namespace Pixf::Core::Entities {

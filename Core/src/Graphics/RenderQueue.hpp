@@ -11,7 +11,7 @@ namespace Pixf::Core::Graphics {
         Transparent,
     };
 
-    class RenderQueue {
+    class PIXF_API RenderQueue {
     public:
         RenderQueue() = default;
 

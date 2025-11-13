@@ -214,7 +214,7 @@ namespace Pixf::Core::Assets {
 
     class PIXF_API AssetManager {
     public:
-        AssetManager();
+        explicit AssetManager(const std::string &assetsPath = "Assets/");
 
         AssetManager(const AssetManager &) = delete;
         AssetManager(AssetManager &&) = default;

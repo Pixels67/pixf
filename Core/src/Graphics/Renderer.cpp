@@ -23,12 +23,6 @@ namespace Pixf::Core::Graphics {
     RenderQueue &Renderer::GetRenderQueue() { return m_RenderQueue; }
 
     void Renderer::Render(Assets::AssetManager &assetManager) {
-        const auto bgColor = vec3(m_RenderConfig.backgroundColor.r, m_RenderConfig.backgroundColor.g,
-                                  m_RenderConfig.backgroundColor.b);
-
-        PIXF_GL_CALL(glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0F));
-        PIXF_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
         while (!m_RenderQueue.IsEmpty(RenderType::Opaque)) {
             const auto [ambientLight, directionalLights, pointLights, mesh, material, model, view, projection] =
                     m_RenderQueue.Pop(RenderType::Opaque);
@@ -77,6 +71,14 @@ namespace Pixf::Core::Graphics {
             Material::Unbind();
             Mesh::Unbind();
         }
+    }
+
+    void Renderer::ClearViewport() const {
+        const auto bgColor = vec3(m_RenderConfig.backgroundColor.r, m_RenderConfig.backgroundColor.g,
+                                  m_RenderConfig.backgroundColor.b);
+
+        PIXF_GL_CALL(glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0F));
+        PIXF_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     }
 
     std::vector<Entities::Components::Graphics::PointLight>

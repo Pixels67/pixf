@@ -85,9 +85,11 @@ namespace Pixf::Core {
     }
 
     void Application::Render() {
+        m_Renderer.ClearViewport();
+
         const auto worldResult = m_WorldManager.GetActiveWorld();
         if (worldResult.IsError()) {
-            //PIXF_LOG_WARN("No active world!");
+            // PIXF_LOG_WARN("No active world!");
             return;
         }
 
@@ -103,14 +105,11 @@ namespace Pixf::Core {
         const auto cam = camResult.Unwrap();
 
         std::vector<DirectionalLight> dirLights;
-        entityManager.ForEach<DirectionalLight>([&dirLights](const DirectionalLight &light) {
-            dirLights.push_back(light);
-        });
+        entityManager.ForEach<DirectionalLight>(
+                [&dirLights](const DirectionalLight &light) { dirLights.push_back(light); });
 
         std::vector<PointLight> pointLights;
-        entityManager.ForEach<PointLight>([&pointLights](const PointLight &light) {
-            pointLights.push_back(light);
-        });
+        entityManager.ForEach<PointLight>([&pointLights](const PointLight &light) { pointLights.push_back(light); });
 
         const auto ambientLight = entityManager.GetSingleton<AmbientLight>().UnwrapOr({});
 

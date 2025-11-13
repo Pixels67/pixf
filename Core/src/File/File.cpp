@@ -39,8 +39,22 @@ namespace Pixf::Core::File {
         return FileError::None;
     }
 
-    void DeleteFile(const std::string &path) {
-        std::filesystem::remove(path);
+    void DeleteFile(const std::string &path) { std::filesystem::remove(path); }
+
+    void MakeDirectory(const std::string &path) {
+        const std::filesystem::path dir = path;
+
+        try {
+            if (std::filesystem::exists(dir)) {
+                return;
+            }
+
+            if (!std::filesystem::create_directory(dir)) {
+                PIXF_LOG_ERROR("Failed to create directory.");
+            }
+        } catch (const std::filesystem::filesystem_error &e) {
+            PIXF_LOG_ERROR("Failed to create directory: ", e.what());
+        }
     }
 
     std::vector<std::string> GetFilesInDirectory(const std::string &directory, const bool recursive) {

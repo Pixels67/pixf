@@ -6,7 +6,7 @@
 #include "ComponentManager.hpp"
 
 namespace Pixf::Core::Entities {
-    Entity EntityManager::CreateEntity() {
+    Entity EntityManager::CreateEntity(const std::string &name ) {
         // Steal an existing inactive entity's ID
         if (const auto inactiveEntity = GetFirstInactiveEntity(); inactiveEntity.has_value()) {
             Entity &entity = *inactiveEntity.value();
@@ -16,17 +16,18 @@ namespace Pixf::Core::Entities {
         }
 
         // Create a new entity if no inactive entities
-        size_t id = GenEntityId();
-        const Entity entity(id);
+        const size_t id = GenEntityId();
+        const Entity entity(id, name);
         if (id > m_Entities.size()) {
             m_Entities.resize(id);
         }
 
         m_Entities[id - 1] = entity;
+        PIXF_LOG_DEBUG("Created entity: ", entity.id);
         return entity;
     }
 
-    std::optional<Entity> EntityManager::GetEntity(unsigned int id) const {
+    std::optional<Entity> EntityManager::GetEntity(const unsigned int id) const {
         if (id > m_Entities.size()) {
             return std::nullopt;
         }
@@ -34,11 +35,16 @@ namespace Pixf::Core::Entities {
         return m_Entities[id - 1];
     }
 
+    std::vector<Entity> EntityManager::GetAllEntities() const {
+        return m_Entities;
+    }
+
     void EntityManager::DestroyEntity(const Entity entity) {
         for (auto &e: m_Entities) {
             if (e.id == entity.id) {
                 ClearComponents(e);
                 e.active = false;
+                PIXF_LOG_DEBUG("Destroyed entity: ", entity.id);
             }
         }
     }

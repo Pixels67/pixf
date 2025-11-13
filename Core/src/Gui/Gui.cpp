@@ -3,8 +3,8 @@
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
 
-#include "Window.hpp"
 #include "Input/InputManager.hpp"
+#include "Window.hpp"
 
 namespace Pixf::Core::Gui {
     ImGuiKey ToImGuiKey(const Input::Key key) {
@@ -269,11 +269,10 @@ namespace Pixf::Core::Gui {
         ImGuiIO &io = GetIO();
         io.IniFilename = nullptr;
 
-        eventManager.Subscribe<WindowSizeChangedEvent>(
-                [&](const WindowSizeChangedEvent &event) {
-                    io.DisplaySize.x = event.newWidth;
-                    io.DisplaySize.y = event.newHeight;
-                });
+        eventManager.Subscribe<WindowSizeChangedEvent>([&](const WindowSizeChangedEvent &event) {
+            io.DisplaySize.x = event.newWidth;
+            io.DisplaySize.y = event.newHeight;
+        });
 
         eventManager.Subscribe<Input::KeyEvent>([&](const Input::KeyEvent &event) {
             io.AddKeyEvent(ToImGuiKey(event.key), event.action == Input::KeyAction::Press);
@@ -308,5 +307,110 @@ namespace Pixf::Core::Gui {
     void EndRenderGui() {
         Render();
         ImGui_ImplOpenGL3_RenderDrawData(GetDrawData());
+    }
+
+    Json::value DrawJsonValue(Json::value value, const std::string &name) {
+        using namespace Json;
+
+        if (value.is_object()) {
+            if (TreeNode(name.c_str())) {
+                for (object obj = value.as_object(); auto &[key, val]: obj) {
+                    value.at(key) = DrawJsonValue(val, key);
+                }
+
+                TreePop();
+            }
+        } else if (value.is_array()) {
+            array arr = value.as_array();
+            if (TreeNode((name + " []").c_str())) {
+                for (size_t i = 0; i < arr.size(); ++i) {
+                    value.at(std::to_string(i)) = DrawJsonValue(arr[i], std::to_string(i)).as_array();
+                }
+
+                TreePop();
+            }
+        } else if (value.is_string()) {
+            std::string s = value.as_string().c_str();
+            char buf[256];
+            std::snprintf(buf, sizeof(buf), "%s", s.c_str());
+            if (InputText(name.c_str(), buf, sizeof(buf))) {
+                value = std::string(buf);
+            }
+        } else if (value.is_double()) {
+            float val = static_cast<float>(value.as_double());
+            if (DragFloat(name.c_str(), &val)) {
+                value = val;
+            }
+        } else if (value.is_int64()) {
+            int val = static_cast<int>(value.as_int64());
+            if (DragInt(name.c_str(), &val)) {
+                value = val;
+            }
+        } else if (value.is_uint64()) {
+            unsigned val = static_cast<unsigned>(value.as_uint64());
+            if (DragScalar(name.c_str(), ImGuiDataType_U32, &val)) {
+                value = static_cast<uint64_t>(val);
+            }
+        } else if (value.is_bool()) {
+            bool val = value.as_bool();
+            if (Checkbox(name.c_str(), &val)) {
+                value = val;
+            }
+        }
+
+        return value;
+    }
+
+    std::optional<std::filesystem::path> DrawDirectoryRecursive(const std::filesystem::path &path,
+                                                                const std::filesystem::path &selected) {
+        static std::optional<std::filesystem::path> result = std::nullopt;
+
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth;
+        if (path == selected)
+            flags |= ImGuiTreeNodeFlags_Selected;
+
+        bool hasChildren = false;
+        for (auto &entry: std::filesystem::directory_iterator(path)) {
+            if (entry.is_directory()) {
+                hasChildren = true;
+                break;
+            }
+        }
+
+        if (!hasChildren)
+            flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+        const bool nodeOpen = TreeNodeEx(path.filename().string().c_str(), flags);
+
+        if (IsItemClicked()) {
+            result = path;
+        }
+
+        if (nodeOpen && hasChildren) {
+            for (auto &entry: std::filesystem::directory_iterator(path)) {
+                if (entry.is_directory())
+                    DrawDirectoryRecursive(entry.path(), selected);
+            }
+
+            for (auto &entry: std::filesystem::directory_iterator(path)) {
+                if (!entry.is_directory()) {
+                    ImGuiTreeNodeFlags leafFlags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen |
+                                                   ImGuiTreeNodeFlags_SpanFullWidth;
+                    std::string label = entry.path().filename().string();
+
+                    if (entry.path() == selected)
+                        leafFlags |= ImGuiTreeNodeFlags_Selected;
+
+                    TreeNodeEx(label.c_str(), leafFlags);
+                    if (IsItemClicked()) {
+                        result = entry.path();
+                    }
+                }
+            }
+
+            TreePop();
+        }
+
+        return result;
     }
 } // namespace Pixf::Core::Gui

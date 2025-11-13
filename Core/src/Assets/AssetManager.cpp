@@ -21,13 +21,11 @@
 
 using namespace boost;
 
-const std::string assetPath = "Assets/";
-
 namespace Pixf::Core::Assets {
     using namespace Graphics;
 
-    AssetManager::AssetManager() {
-        for (auto path: File::GetFilesInDirectory(assetPath, ".meta", true)) {
+    AssetManager::AssetManager(const std::string &assetsPath) {
+        for (auto path: File::GetFilesInDirectory(assetsPath, ".meta", true)) {
             try {
                 json::object json = json::parse(File::ReadFile(path).Unwrap(
                                                         "Failed to build Asset Database: Unable to read file " + path))
