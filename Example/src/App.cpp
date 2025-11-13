@@ -47,7 +47,7 @@ struct CameraController final : System {
 };
 
 struct Backpack final : Component, Serialization::Serializable {
-    PIXF_SERIALIZABLE(Backpack)
+    PIXF_TYPE_INFO(Backpack)
 
     Json::object Serialize() override { return Json::object{}; }
     void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {}

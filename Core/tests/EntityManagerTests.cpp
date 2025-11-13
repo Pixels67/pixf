@@ -5,6 +5,8 @@
 using namespace Pixf::Core::Entities;
 
 struct TransformComponent final : Component {
+    PIXF_TYPE_INFO(TransformComponent)
+
     float x = 0.0F;
     float y = 0.0F;
     float z = 0.0F;
@@ -18,6 +20,8 @@ struct TransformComponent final : Component {
 };
 
 struct HealthComponent final : Component {
+    PIXF_TYPE_INFO(HealthComponent)
+
     int health = 100;
 
     HealthComponent() = default;

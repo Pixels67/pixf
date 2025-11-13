@@ -6,6 +6,7 @@ namespace Pixf::Core::Audio {
     AudioClipError AudioClip::Load(const std::string &path) {
         PIXF_LOG_INFO("Importing audio clip: ", path);
 
+        PIXF_LOG_TRACE("Allocating audio clip on: ", &m_Clip);
         if (ma_sound_init_from_file(AudioEngine::GetEngine(), path.c_str(), 0, nullptr, nullptr, &m_Clip) !=
             MA_SUCCESS) {
             return AudioClipError::FailedToLoad;
@@ -21,6 +22,7 @@ namespace Pixf::Core::Audio {
         if (!m_IsInitialized)
             return;
 
+        PIXF_LOG_TRACE("Deallocating audio clip on: ", &m_Clip);
         ma_sound_uninit(&m_Clip);
         m_IsInitialized = false;
     }

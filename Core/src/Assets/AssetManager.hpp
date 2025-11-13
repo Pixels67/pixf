@@ -254,6 +254,8 @@ namespace Pixf::Core::Assets {
         Error::Result<std::string, AssetError> GetAssetPath(const AssetHandle &handle);
         Error::Result<std::string, AssetError> GetAssetPath(const uuids::uuid &uuid);
 
+        void DeleteAllAudioClips();
+
     private:
         uuids::name_generator m_UuidGenerator = uuids::name_generator(uuids::ns::url());
         uuids::random_generator m_RandomUuidGenerator = {};

@@ -8,7 +8,7 @@
 
 namespace Pixf::Core::Entities::Components {
     struct PIXF_API Transform final : Component, Serialization::Serializable {
-        PIXF_SERIALIZABLE(Transform)
+        PIXF_TYPE_INFO(Transform)
 
         vec3 position = vec3(0.0F, 0.0F, 0.0F);
         quat rotation = quat(1.0F, 0.0F, 0.0F, 0.0F);

@@ -6,7 +6,7 @@
 
 namespace Pixf::Core::Entities::Components::Audio {
     struct PIXF_API AudioListener final : Component, Serialization::Serializable {
-        PIXF_SERIALIZABLE(AudioListener);
+        PIXF_TYPE_INFO(AudioListener);
 
         vec3 position;
         vec3 direction;

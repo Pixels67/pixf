@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <concepts>
 
 namespace boost {}
 
@@ -34,5 +35,15 @@ namespace Pixf::Core {
     using namespace glm;
     using namespace boost;
 } // namespace Pixf::Core
+
+template<typename T>
+concept TypeInformed = requires {
+    { T::GetTypeName() } -> std::same_as<const char *>;
+    { T::GetTypeId() } -> std::same_as<uint64_t>;
+};
+
+#define PIXF_TYPE_INFO(Name)                                                                                           \
+    static constexpr const char *GetTypeName() { return #Name; }                                                       \
+    static constexpr uint64_t GetTypeId() { return Pixf::Core::Serialization::HashString(GetTypeName()); }
 
 #endif // COMMON_HPP

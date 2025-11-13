@@ -10,7 +10,7 @@
 
 namespace Pixf::Core::Entities::Components::Graphics {
     struct PIXF_API ModelRenderer final : Component, Serialization::Serializable {
-        PIXF_SERIALIZABLE(ModelRenderer)
+        PIXF_TYPE_INFO(ModelRenderer)
 
         Assets::AssetHandle model;
 

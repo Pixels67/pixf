@@ -68,41 +68,41 @@ namespace Pixf::Core::Entities {
         void DestroyEntity(Entity entity);
         void Clear();
 
-        template<typename T>
+        template<TypeInformed T>
         void RegisterComponent() {
             m_ComponentManager.RegisterComponent<T>();
         }
 
-        template<typename T>
+        template<TypeInformed T>
         void AddComponent(const Entity entity, const T component = T()) {
             m_ComponentManager.AddComponent<T>(entity.id, component);
         }
 
-        template<typename T>
+        template<TypeInformed T>
         Entity CreateEntityWithComponent(const T component = T()) {
             const Entity entity = CreateEntity();
             AddComponent<T>(entity, component);
             return entity;
         }
 
-        template<typename T>
+        template<TypeInformed T>
         bool HasComponent(const Entity entity) {
             return m_ComponentManager.HasComponent<T>(entity.id);
         }
 
-        template<typename T>
+        template<TypeInformed T>
         Error::Result<std::shared_ptr<T>, ComponentError> GetComponent(const Entity entity) {
             return m_ComponentManager.GetComponent<T>(entity.id);
         }
 
-        template<typename T>
+        template<TypeInformed T>
         void RemoveComponent(const Entity entity) {
             m_ComponentManager.RemoveComponent<T>(entity.id);
         }
 
         void ClearComponents(const Entity &entity) const { m_ComponentManager.ClearComponents(entity.id); }
 
-        template<typename... T>
+        template<TypeInformed... T>
         std::vector<Entity> GetEntitiesWith() {
             std::vector<Entity> result;
 
@@ -115,7 +115,7 @@ namespace Pixf::Core::Entities {
             return result;
         }
 
-        template<typename... T, typename Func>
+        template<TypeInformed... T, typename Func>
         void ForEach(Func &&func) {
             for (auto entity: m_Entities) {
                 if ((HasComponent<T>(entity) && ...)) {
@@ -131,7 +131,7 @@ namespace Pixf::Core::Entities {
             }
         }
 
-        template<typename... T, typename Func>
+        template<TypeInformed... T, typename Func>
         void ForEachEntity(Func &&func) {
             for (auto entity: m_Entities) {
                 if ((HasComponent<T>(entity) && ...)) {
@@ -140,31 +140,31 @@ namespace Pixf::Core::Entities {
             }
         }
 
-        template<typename T>
+        template<TypeInformed T>
         Error::Result<std::shared_ptr<ComponentRegistry<T>>, ComponentError> GetRegistry() {
             return m_ComponentManager.QueryComponents<T>();
         }
 
-        template<typename T>
+        template<TypeInformed T>
         SingletonError CreateSingleton(T singleton = T()) {
             static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
 
-            if (m_Singletons.contains(std::type_index(typeid(T)))) {
+            if (m_Singletons.contains(T::GetTypeId())) {
                 return SingletonError::AlreadyExists;
             }
 
             auto ptr = std::make_shared<T>(singleton);
-            m_Singletons[std::type_index(typeid(T))] = ptr;
+            m_Singletons[T::GetTypeId()] = ptr;
 
             return SingletonError::None;
         }
 
-        template<typename T>
+        template<TypeInformed T>
         bool HasSingleton() const {
-            return m_Singletons.contains(std::type_index(typeid(T)));
+            return m_Singletons.contains(T::GetTypeId());
         }
 
-        template<typename T>
+        template<TypeInformed T>
         Error::Result<std::shared_ptr<T>, SingletonError> GetSingleton() {
             static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
 
@@ -172,10 +172,10 @@ namespace Pixf::Core::Entities {
                 return SingletonError::NotFound;
             }
 
-            return std::static_pointer_cast<T>(m_Singletons[std::type_index(typeid(T))]);
+            return std::static_pointer_cast<T>(m_Singletons[T::GetTypeId()]);
         }
 
-        template<typename T>
+        template<TypeInformed T>
         void DestroySingleton() {
             static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
 
@@ -183,7 +183,7 @@ namespace Pixf::Core::Entities {
                 return;
             }
 
-            m_Singletons.erase(std::type_index(typeid(T)));
+            m_Singletons.erase(T::GetTypeId());
         }
 
         ComponentManager &GetComponentManager() { return m_ComponentManager; }
@@ -216,7 +216,7 @@ namespace Pixf::Core::Entities {
 
     private:
         std::vector<Entity> m_Entities;
-        std::unordered_map<std::type_index, std::shared_ptr<Component>> m_Singletons;
+        std::unordered_map<uint64_t, std::shared_ptr<Component>> m_Singletons;
         ComponentManager m_ComponentManager;
         unsigned int m_EntityIdCounter = 0;
 

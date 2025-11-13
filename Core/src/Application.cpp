@@ -59,6 +59,8 @@ namespace Pixf::Core {
 
         this->OnShutdown();
         Gui::Terminate();
+
+        m_AssetManager.DeleteAllAudioClips();
         Audio::AudioEngine::Terminate();
     }
 

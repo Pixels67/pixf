@@ -68,10 +68,6 @@ namespace Pixf::Core::Assets {
         }
 
         Material::Unbind();
-
-        for (auto &[id, clip]: m_AudioClips) {
-            clip->Cleanup();
-        }
     }
 
     Error::Result<AssetHandle, AssetError> AssetManager::ImportTexture2D(const std::string &path,
@@ -236,6 +232,12 @@ namespace Pixf::Core::Assets {
         }
 
         return AssetError::NotRegistered;
+    }
+
+    void AssetManager::DeleteAllAudioClips() {
+        for (auto &[id, clip]: m_AudioClips) {
+            clip->Cleanup();
+        }
     }
 
     Error::Result<uuids::uuid, AssetError> AssetManager::GetUuid(const std::string &path, const AssetType type) const {

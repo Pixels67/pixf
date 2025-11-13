@@ -29,11 +29,11 @@ namespace Pixf::Core::Entities {
         virtual void Remove(size_t index) = 0;
         virtual void Clear() = 0;
 
-        virtual constexpr const char *GetTypeName() = 0;
-        virtual constexpr uint64_t GetTypeId() = 0;
+        virtual const char *GetTypeName() = 0;
+        virtual uint64_t GetTypeId() = 0;
     };
 
-    template<typename T>
+    template<TypeInformed T>
     class ComponentRegistry final : public IComponentRegistry {
     public:
         ComponentRegistry() = default;
@@ -152,7 +152,7 @@ namespace Pixf::Core::Entities {
             }
         }
 
-        constexpr const char *GetTypeName() override {
+        const char *GetTypeName() override {
             if constexpr (Serialization::SerializableType<T>) {
                 return T::GetTypeName();
             }
@@ -160,7 +160,7 @@ namespace Pixf::Core::Entities {
             return nullptr;
         }
 
-        constexpr uint64_t GetTypeId() override { return Serialization::HashString(GetTypeName()); }
+        uint64_t GetTypeId() override { return Serialization::HashString(GetTypeName()); }
 
     private:
         std::vector<std::optional<size_t>> m_SparseArray;

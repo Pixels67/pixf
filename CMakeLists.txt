@@ -6,13 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Uncomment when debugging memory issues
-#
-#if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT MSVC)
-#    add_compile_options(-fsanitize=address -g)
-#    add_link_options(-fsanitize=address)
-#endif()
-
 # Compiler / Linker options
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     if (MSVC)
@@ -24,7 +17,11 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
                 -Wall
                 -Wextra
                 -Wpedantic
+                -fsanitize=address
+                -g
         )
+
+        add_link_options(-fsanitize=address)
     endif ()
 endif ()
 

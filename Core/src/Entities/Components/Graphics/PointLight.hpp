@@ -8,7 +8,7 @@
 
 namespace Pixf::Core::Entities::Components::Graphics {
     struct PIXF_API PointLight final : Component, Serialization::Serializable {
-        PIXF_SERIALIZABLE(PointLight)
+        PIXF_TYPE_INFO(PointLight)
 
         vec3 position = vec3(0.0F);
         vec3 color = vec3(1.0F);

@@ -26,42 +26,43 @@ namespace Pixf::Core::Entities {
 
         ~ComponentManager() override = default;
 
-        template<typename T>
+        template<TypeInformed T>
         void RegisterComponent() {
             std::shared_ptr<ComponentRegistry<T>> ptr = std::make_shared<ComponentRegistry<T>>();
 
-            m_Registries[GetTypeIndex<T>()] = std::static_pointer_cast<IComponentRegistry>(ptr);
+            m_Registries[GetTypeId<T>()] = std::static_pointer_cast<IComponentRegistry>(ptr);
             if (ptr->GetTypeName()) {
                 const std::string name = ptr->GetTypeName();
-                m_Types.insert({name, GetTypeIndex<T>()});
+                m_Types.insert({name, GetTypeId<T>()});
+                PIXF_LOG_DEBUG("Registered component ", ptr->GetTypeName(), " as ", GetTypeId<T>());
             }
         }
 
-        template<typename T>
+        template<TypeInformed T>
         void AddComponent(size_t index) {
-            if (!m_Registries.contains(GetTypeIndex<T>())) {
+            if (!m_Registries.contains(GetTypeId<T>())) {
                 RegisterComponent<T>();
             }
 
-            m_Registries[GetTypeIndex<T>()]->Add(index);
+            m_Registries[GetTypeId<T>()]->Add(index);
         }
 
-        template<typename T>
+        template<TypeInformed T>
         void AddComponent(size_t index, T component) {
-            if (!m_Registries.contains(GetTypeIndex<T>())) {
+            if (!m_Registries.contains(GetTypeId<T>())) {
                 RegisterComponent<T>();
             }
 
-            std::static_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeIndex<T>()])->Add(index, component);
+            std::static_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeId<T>()])->Add(index, component);
         }
 
-        template<typename T>
+        template<TypeInformed T>
         Error::Result<std::shared_ptr<T>, ComponentError> GetComponent(size_t index) {
-            if (!m_Registries.contains(GetTypeIndex<T>())) {
+            if (!m_Registries.contains(GetTypeId<T>())) {
                 return ComponentError::NotRegistered;
             }
 
-            auto result = std::static_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeIndex<T>()])->Get(index);
+            auto result = std::static_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeId<T>()])->Get(index);
 
             if (result.IsError()) {
                 if (result.UnwrapError() == ComponentRegistryError::NotFound) {
@@ -74,34 +75,34 @@ namespace Pixf::Core::Entities {
             return result.Unwrap();
         }
 
-        template<typename T>
+        template<TypeInformed T>
         bool HasComponent(size_t index) {
-            if (!m_Registries.contains(GetTypeIndex<T>())) {
+            if (!m_Registries.contains(GetTypeId<T>())) {
                 return false;
             }
 
-            return m_Registries[GetTypeIndex<T>()]->Has(index);
+            return m_Registries[GetTypeId<T>()]->Has(index);
         }
 
-        template<typename T>
+        template<TypeInformed T>
         void RemoveComponent(size_t index) {
-            if (!m_Registries.contains(GetTypeIndex<T>())) {
+            if (!m_Registries.contains(GetTypeId<T>())) {
                 return;
             }
 
-            m_Registries[GetTypeIndex<T>()]->Remove(index);
+            m_Registries[GetTypeId<T>()]->Remove(index);
         }
 
         void ClearComponents(size_t index) const;
         void Clear() const;
 
-        template<typename T>
+        template<TypeInformed T>
         Error::Result<std::shared_ptr<ComponentRegistry<T>>, ComponentError> QueryComponents() {
-            if (!m_Registries.contains(GetTypeIndex<T>())) {
+            if (!m_Registries.contains(GetTypeId<T>())) {
                 return ComponentError::NotRegistered;
             }
 
-            return std::static_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeIndex<T>()]);
+            return std::static_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeId<T>()]);
         }
 
         Json::object Serialize() override {
@@ -127,12 +128,12 @@ namespace Pixf::Core::Entities {
         }
 
     private:
-        std::unordered_map<std::type_index, std::shared_ptr<IComponentRegistry>> m_Registries;
-        std::unordered_map<std::string, std::type_index> m_Types;
+        std::unordered_map<uint64_t, std::shared_ptr<IComponentRegistry>> m_Registries;
+        std::unordered_map<std::string, uint64_t> m_Types;
 
-        template<typename T>
-        static std::type_index GetTypeIndex() {
-            return std::type_index(typeid(T));
+        template<TypeInformed T>
+        static uint64_t GetTypeId() {
+            return T::GetTypeId();
         }
     };
 } // namespace Pixf::Core::Entities

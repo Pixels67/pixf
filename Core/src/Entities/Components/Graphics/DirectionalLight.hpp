@@ -8,7 +8,7 @@
 
 namespace Pixf::Core::Entities::Components::Graphics {
     struct PIXF_API DirectionalLight final : Component, Serialization::Serializable {
-        PIXF_SERIALIZABLE(DirectionalLight)
+        PIXF_TYPE_INFO(DirectionalLight)
 
         vec3 direction = vec3(0.0F, 0.0F, -1.0F);
         vec3 color = vec3(1.0F);

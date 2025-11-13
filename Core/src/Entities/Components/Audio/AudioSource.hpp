@@ -9,7 +9,7 @@
 
 namespace Pixf::Core::Entities::Components::Audio {
     struct AudioSource final : Component, Serialization::Serializable {
-        PIXF_SERIALIZABLE(AudioSource)
+        PIXF_TYPE_INFO(AudioSource)
 
         Assets::AssetHandle clip;
         Core::Audio::AudioPlayConfig config;

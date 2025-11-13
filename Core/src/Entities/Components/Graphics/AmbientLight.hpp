@@ -8,7 +8,7 @@
 
 namespace Pixf::Core::Entities::Components::Graphics {
     struct PIXF_API AmbientLight final : Component, Serialization::Serializable {
-        PIXF_SERIALIZABLE(AmbientLight)
+        PIXF_TYPE_INFO(AmbientLight)
 
         vec3 color = vec3(1.0F);
         float intensity = 0.2F;

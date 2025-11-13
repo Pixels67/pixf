@@ -33,7 +33,7 @@ namespace Pixf::Core::Entities::Components::Graphics {
     }
 
     struct PIXF_API Camera final : Component, Serialization::Serializable {
-        PIXF_SERIALIZABLE(Camera)
+        PIXF_TYPE_INFO(Camera)
 
         RigidTransform transform;
 
