@@ -172,7 +172,7 @@ namespace Pixf::Core::Entities {
                 return SingletonError::NotFound;
             }
 
-            return std::dynamic_pointer_cast<T>(m_Singletons[std::type_index(typeid(T))]);
+            return std::static_pointer_cast<T>(m_Singletons[std::type_index(typeid(T))]);
         }
 
         template<typename T>

@@ -34,7 +34,7 @@ namespace Pixf::Core::Entities {
     };
 
     template<typename T>
-    class PIXF_API ComponentRegistry final : public IComponentRegistry {
+    class ComponentRegistry final : public IComponentRegistry {
     public:
         ComponentRegistry() = default;
 
@@ -82,7 +82,7 @@ namespace Pixf::Core::Entities {
                 return ComponentRegistryError::NotFound;
             }
 
-            return std::dynamic_pointer_cast<T>(m_Components[m_SparseArray[index].value()]);
+            return std::static_pointer_cast<T>(m_Components[m_SparseArray[index].value()]);
         }
 
         void Remove(const size_t index) override {
@@ -118,7 +118,7 @@ namespace Pixf::Core::Entities {
         std::map<size_t, std::shared_ptr<T>> GetAll() const {
             std::map<size_t, std::shared_ptr<T>> result;
             for (size_t i = 0; i < m_DenseArray.size(); i++) {
-                result[m_DenseArray[i]] = std::dynamic_pointer_cast<T>(m_Components.at(i));
+                result[m_DenseArray[i]] = std::static_pointer_cast<T>(m_Components.at(i));
             }
 
             return result;

@@ -7,13 +7,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(VENDOR_DIR ${PROJECT_SOURCE_DIR}/vendor)
 
-# Uncomment when debugging memory issues
-#
-#if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT MSVC)
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -g")
-#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -g")
-#endif()
-
 find_package(OpenGL REQUIRED)
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -253,41 +246,6 @@ elseif (UNIX AND NOT APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${X11_LIBRARIES})
 endif ()
 
-# Compiler options
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    if (MSVC)
-        target_compile_options(${PROJECT_NAME} PRIVATE
-                /W4
-                /Zi
-                /RTC1
-        )
-    else ()
-        target_compile_options(${PROJECT_NAME} PRIVATE
-                -Wall
-                -Wextra
-                -Wpedantic
-                -g3
-                -fvisibility=hidden
-        )
-    endif ()
-endif ()
-
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    if (MSVC)
-        target_compile_options(${PROJECT_NAME} PRIVATE
-                /O2
-                /GL
-                /fp:fast
-        )
-        target_link_options(${PROJECT_NAME} PRIVATE
-                /LTCG
-        )
-    else ()
-        target_compile_options(${PROJECT_NAME} PRIVATE
-                -O3
-                -march=native
-                -DNDEBUG
-                -fvisibility=hidden
-        )
-    endif ()
+if (NOT MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE -fvisibility=hidden)
 endif ()

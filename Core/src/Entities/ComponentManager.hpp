@@ -52,7 +52,7 @@ namespace Pixf::Core::Entities {
                 RegisterComponent<T>();
             }
 
-            std::dynamic_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeIndex<T>()])->Add(index, component);
+            std::static_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeIndex<T>()])->Add(index, component);
         }
 
         template<typename T>
@@ -61,7 +61,7 @@ namespace Pixf::Core::Entities {
                 return ComponentError::NotRegistered;
             }
 
-            auto result = std::dynamic_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeIndex<T>()])->Get(index);
+            auto result = std::static_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeIndex<T>()])->Get(index);
 
             if (result.IsError()) {
                 if (result.UnwrapError() == ComponentRegistryError::NotFound) {
@@ -101,7 +101,7 @@ namespace Pixf::Core::Entities {
                 return ComponentError::NotRegistered;
             }
 
-            return std::dynamic_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeIndex<T>()]);
+            return std::static_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeIndex<T>()]);
         }
 
         Json::object Serialize() override {
@@ -109,7 +109,7 @@ namespace Pixf::Core::Entities {
 
             for (auto &[id, registry]: m_Registries) {
                 json[std::string(registry->GetTypeName())] =
-                        std::dynamic_pointer_cast<Serializable>(registry)->Serialize();
+                        std::static_pointer_cast<Serializable>(registry)->Serialize();
             }
 
             return json;
