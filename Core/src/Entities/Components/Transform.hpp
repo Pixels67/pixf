@@ -12,6 +12,7 @@ namespace Pixf::Core::Entities::Components {
 
         vec3 position = vec3(0.0F, 0.0F, 0.0F);
         quat rotation = quat(1.0F, 0.0F, 0.0F, 0.0F);
+        vec3 eulerRotation = vec3(0.0F, 0.0F, 0.0F);
         vec3 scale = vec3(1.0F, 1.0F, 1.0F);
 
         void Translate(const vec3 &translation);
@@ -24,20 +25,33 @@ namespace Pixf::Core::Entities::Components {
 
         Transform() = default;
 
-        Json::object Serialize() override {
+        Json::object Serialize(const bool editorMode = false) override {
             Json::object json;
 
-            json["position"] = Serialization::SerializeVec3(position);
-            json["rotation"] = Serialization::SerializeQuat(rotation);
-            json["scale"] = Serialization::SerializeVec3(scale);
+            if (editorMode) {
+                json["position"] = Serialization::SerializeVec3(position);
+                json["rotation"] = Serialization::SerializeEuler(eulerRotation);
+                json["scale"] = Serialization::SerializeVec3(scale);
+            } else {
+                json["position"] = Serialization::SerializeVec3(position);
+                json["rotation"] = Serialization::SerializeQuat(rotation);
+                json["scale"] = Serialization::SerializeVec3(scale);
+            }
 
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
-            position = Serialization::DeserializeVec3(json.at("position").as_object());
-            rotation = Serialization::DeserializeQuat(json.at("rotation").as_object());
-            scale = Serialization::DeserializeVec3(json.at("scale").as_object());
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager,
+                         const bool editorMode = false) override {
+            if (editorMode) {
+                position = Serialization::DeserializeVec3(json.at("position").as_object());
+                eulerRotation = Serialization::DeserializeEuler(json.at("rotation").as_object());
+                scale = Serialization::DeserializeVec3(json.at("scale").as_object());
+            } else {
+                position = Serialization::DeserializeVec3(json.at("position").as_object());
+                rotation = Serialization::DeserializeQuat(json.at("rotation").as_object());
+                scale = Serialization::DeserializeVec3(json.at("scale").as_object());
+            }
         }
     };
 } // namespace Pixf::Core::Entities::Components

@@ -21,6 +21,10 @@ namespace Pixf::Core::Entities::Components {
     void Transform::Scale(const vec3 &scale) { this->scale *= scale; }
 
     mat4 Transform::GetMatrix() const {
-        return translate(mat4(1.0F), position) * mat4_cast(normalize(rotation)) * glm::scale(mat4(1.0F), scale);
+        const quat rot = angleAxis(radians(eulerRotation.z), vec3(0.0F, 0.0F, 1.0F)) *
+                         angleAxis(radians(eulerRotation.x), vec3(1.0F, 0.0F, 0.0F)) *
+                         angleAxis(radians(eulerRotation.y), vec3(0.0F, 1.0F, 0.0F)) * this->rotation;
+
+        return translate(mat4(1.0F), position) * mat4_cast(normalize(rot)) * glm::scale(mat4(1.0F), scale);
     }
 } // namespace Pixf::Core::Entities::Components

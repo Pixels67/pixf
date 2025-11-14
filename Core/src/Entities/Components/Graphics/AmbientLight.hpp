@@ -16,7 +16,7 @@ namespace Pixf::Core::Entities::Components::Graphics {
         AmbientLight() = default;
         AmbientLight(const vec3 color, const float intensity) : color(color), intensity(intensity) {}
 
-        Json::object Serialize() override {
+        Json::object Serialize(bool editorMode = false) override {
             Json::object json;
 
             json["color"] = Serialization::SerializeColorRgb(color);
@@ -25,7 +25,7 @@ namespace Pixf::Core::Entities::Components::Graphics {
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {
             color = Serialization::DeserializeColorRgb(json.at("color").as_object());
             intensity = json.at("intensity").to_number<float>();
         }

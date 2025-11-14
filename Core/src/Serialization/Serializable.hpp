@@ -8,8 +8,8 @@ namespace Pixf::Core::Serialization {
     struct PIXF_API Serializable {
         virtual ~Serializable() = default;
 
-        virtual Json::object Serialize() = 0;
-        virtual void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) = 0;
+        virtual Json::object Serialize(bool editorMode = false) = 0;
+        virtual void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) = 0;
     };
 
     template<typename T>

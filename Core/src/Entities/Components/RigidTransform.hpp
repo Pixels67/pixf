@@ -20,7 +20,7 @@ namespace Pixf::Core::Entities::Components {
 
         mat4 GetMatrix() const;
 
-        Json::object Serialize() override {
+        Json::object Serialize(bool editorMode = false) override {
             Json::object json;
 
             json["position"] = Serialization::SerializeVec3(position);
@@ -29,7 +29,7 @@ namespace Pixf::Core::Entities::Components {
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {
             position = Serialization::DeserializeVec3(json.at("position").as_object());
             rotation = Serialization::DeserializeQuat(json.at("rotation").as_object());
         }

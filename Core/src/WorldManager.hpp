@@ -35,8 +35,9 @@ namespace Pixf::Core {
 
         void Clear();
 
-        void SaveWorld(const std::string &path, const std::string &name) const;
-        void LoadWorld(const std::string &path, const std::string &name, const Entities::Blueprint &blueprint);
+        void SaveWorld(const std::string &path, const std::string &name, bool editorMode = false) const;
+        void LoadWorld(const std::string &path, const std::string &name, const Entities::Blueprint &blueprint,
+                       bool editorMode = false);
 
     private:
         std::unordered_map<std::string, std::shared_ptr<Entities::World>> m_Worlds;

@@ -81,7 +81,7 @@ namespace Pixf::Editor {
         Debug::Logger::Init({.logLevel = Debug::Severity::Debug});
 
         Blueprint blueprint;
-        blueprint.Configure([&](EntityManager &entityManager, Entities::SystemsManager &systemsManager) {
+        blueprint.Configure([&](EntityManager &entityManager, SystemsManager &systemsManager) {
             entityManager.RegisterComponent<Transform>();
             entityManager.RegisterComponent<ModelRenderer>();
             entityManager.RegisterComponent<PointLight>();
@@ -98,7 +98,7 @@ namespace Pixf::Editor {
             systemsManager.AddSystem<WorldNavigation>();
         });
 
-        GetWorldManager().LoadWorld("world.json", "world", blueprint);
+        GetWorldManager().LoadWorld("world.json", "world", blueprint, true);
         GetWorldManager().SetActiveWorld("world");
 
         GetConsole().Log("Test info");
@@ -149,7 +149,7 @@ namespace Pixf::Editor {
         if (Gui::Button("Save", {200, 33})) {
             if (const auto result = GetWorldManager().GetActiveWorldName(); result.IsSuccess()) {
                 const std::string &name = result.Unwrap();
-                GetWorldManager().SaveWorld(name + ".json", name);
+                GetWorldManager().SaveWorld(name + ".json", name, true);
                 GetConsole().Log("Saving world " + name + " To: " + name + ".json");
             } else {
                 GetConsole().LogError("Failed to save world: No active world!");
@@ -214,9 +214,10 @@ namespace Pixf::Editor {
         Gui::Text("%s", m_SelectedEntity.value().GetName().c_str());
 
         entityManager.DeserializeEntityComponents(
-                Gui::DrawJsonValue(Json::value_from(entityManager.SerializeEntityComponents(m_SelectedEntity.value())))
+                Gui::DrawJsonValue(
+                        Json::value_from(entityManager.SerializeEntityComponents(m_SelectedEntity.value(), true)))
                         .as_object(),
-                GetAssetManager(), m_SelectedEntity.value());
+                GetAssetManager(), m_SelectedEntity.value(), true);
 
         Gui::End();
     }
@@ -336,7 +337,7 @@ namespace Pixf::Editor {
 
         const auto ambientLight = entityManager.GetSingleton<AmbientLight>().UnwrapOr({});
 
-        world.GetEntityManager().ForEachEntity<ModelRenderer>([&](Entities::Entity entity, ModelRenderer &comp) {
+        world.GetEntityManager().ForEachEntity<ModelRenderer>([&](Entity entity, ModelRenderer &comp) {
             auto meshes = m_AssetManager.GetModel(comp.model).Unwrap("Invalid ModelRenderer.model")->GetMeshes();
             auto materials = m_AssetManager.GetModel(comp.model).Unwrap("Invalid ModelRenderer.model")->GetMaterials();
 

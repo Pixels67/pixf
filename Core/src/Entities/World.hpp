@@ -60,10 +60,11 @@ namespace Pixf::Core::Entities {
         void LateUpdate(double deltaTime);
         void Render(double deltaTime);
 
-        Json::object Serialize() override { return m_EntityManager.Serialize(); }
+        Json::object Serialize(bool editorMode = false) override { return m_EntityManager.Serialize(editorMode); }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
-            m_EntityManager.Deserialize(json, assetManager);
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager,
+                         bool editorMode = false) override {
+            m_EntityManager.Deserialize(json, assetManager, editorMode);
         }
 
     private:

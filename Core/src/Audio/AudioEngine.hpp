@@ -34,7 +34,7 @@ namespace Pixf::Core::Audio {
         bool loop = false;
         bool spatialize = false;
 
-        Json::object Serialize() override {
+        Json::object Serialize(bool editorMode = false) override {
             Json::object json;
 
             json["position"] = Serialization::SerializeVec3(position);
@@ -47,7 +47,7 @@ namespace Pixf::Core::Audio {
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {
             position = Serialization::DeserializeVec3(json.at("position").as_object());
             volume = json.at("volume").to_number<float>();
             pitch = json.at("pitch").to_number<float>();

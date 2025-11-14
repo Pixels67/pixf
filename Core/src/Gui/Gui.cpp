@@ -4,6 +4,7 @@
 #include <imgui_impl_opengl3.h>
 
 #include "Input/InputManager.hpp"
+#include "Serialization/Serialization.hpp"
 #include "Window.hpp"
 
 namespace Pixf::Core::Gui {
@@ -313,49 +314,31 @@ namespace Pixf::Core::Gui {
         using namespace Json;
 
         if (value.is_object()) {
-            if (TreeNode(name.c_str())) {
-                for (object obj = value.as_object(); auto &[key, val]: obj) {
-                    value.at(key) = DrawJsonValue(val, key);
-                }
+            return DrawJsonObject(value, name);
+        }
 
-                TreePop();
-            }
-        } else if (value.is_array()) {
-            array arr = value.as_array();
-            if (TreeNode((name + " []").c_str())) {
-                for (size_t i = 0; i < arr.size(); ++i) {
-                    value.at(std::to_string(i)) = DrawJsonValue(arr[i], std::to_string(i)).as_array();
-                }
+        if (value.is_array()) {
+            return DrawJsonArray(value, name);
+        }
 
-                TreePop();
-            }
-        } else if (value.is_string()) {
-            std::string s = value.as_string().c_str();
-            char buf[256];
-            std::snprintf(buf, sizeof(buf), "%s", s.c_str());
-            if (InputText(name.c_str(), buf, sizeof(buf))) {
-                value = std::string(buf);
-            }
-        } else if (value.is_double()) {
-            float val = static_cast<float>(value.as_double());
-            if (DragFloat(name.c_str(), &val)) {
-                value = val;
-            }
-        } else if (value.is_int64()) {
-            int val = static_cast<int>(value.as_int64());
-            if (DragInt(name.c_str(), &val)) {
-                value = val;
-            }
-        } else if (value.is_uint64()) {
-            unsigned val = static_cast<unsigned>(value.as_uint64());
-            if (DragScalar(name.c_str(), ImGuiDataType_U32, &val)) {
-                value = static_cast<uint64_t>(val);
-            }
-        } else if (value.is_bool()) {
-            bool val = value.as_bool();
-            if (Checkbox(name.c_str(), &val)) {
-                value = val;
-            }
+        if (value.is_string()) {
+            return DrawJsonString(value, name);
+        }
+
+        if (value.is_double()) {
+            return DrawJsonFloat(value, name);
+        }
+
+        if (value.is_int64()) {
+            return DrawJsonInt(value, name);
+        }
+
+        if (value.is_uint64()) {
+            return DrawJsonUint(value, name);
+        }
+
+        if (value.is_bool()) {
+            return DrawJsonBool(value, name);
         }
 
         return value;
@@ -371,6 +354,203 @@ namespace Pixf::Core::Gui {
             for (const auto val: value.as_array()) {
                 value.as_array()[i] = DrawJsonValue(val, std::to_string(i));
                 i++;
+            }
+        }
+
+        return value;
+    }
+
+    Json::value DrawJsonObject(Json::value value, const std::string &name) {
+        if (!value.is_object()) {
+            return value;
+        }
+
+        Json::object obj = value.as_object();
+
+        if (obj.contains("vec3")) {
+            return DrawVec3(obj, name);
+        }
+
+        if (obj.contains("vec4")) {
+            return DrawVec4(obj, name);
+        }
+
+        if (obj.contains("quat")) {
+            return DrawQuat(obj, name);
+        }
+
+        if (obj.contains("rgb")) {
+            return DrawRgbColor(obj, name);
+        }
+
+        if (obj.contains("rgba")) {
+            return DrawRgbaColor(obj, name);
+        }
+
+        if (TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+            for (auto &[key, val]: obj) {
+                obj[key] = DrawJsonValue(val, key);
+            }
+
+            TreePop();
+        }
+
+        return value_from(obj);
+    }
+
+    Json::value DrawJsonArray(Json::value value, const std::string &name) {
+        if (!value.is_array()) {
+            return value;
+        }
+
+        Json::array arr = value.as_array();
+        if (TreeNode((name + " []").c_str())) {
+            for (size_t i = 0; i < arr.size(); ++i) {
+                arr[i] = DrawJsonValue(arr[i], std::to_string(i));
+            }
+
+            TreePop();
+        }
+
+        return value_from(arr);
+    }
+
+    Json::value DrawJsonString(Json::value value, const std::string &name) {
+        if (!value.is_string()) {
+            return value;
+        }
+
+        const std::string str = value.as_string().c_str();
+        char buf[256];
+        std::snprintf(buf, sizeof(buf), "%s", str.c_str());
+        if (InputText(name.c_str(), buf, sizeof(buf))) {
+            return std::string(buf).data();
+        }
+
+        return value;
+    }
+
+    Json::value DrawJsonFloat(Json::value value, const std::string &name) {
+        if (!value.is_number()) {
+            return value;
+        }
+
+        float val = value.to_number<float>();
+        if (DragFloat(name.c_str(), &val)) {
+            return val;
+        }
+
+        return value;
+    }
+
+    Json::value DrawJsonInt(Json::value value, const std::string &name) {
+        if (!value.is_number()) {
+            return value;
+        }
+
+        int val = value.to_number<int>();
+        if (DragInt(name.c_str(), &val)) {
+            return val;
+        }
+
+        return value;
+    }
+
+    Json::value DrawJsonUint(Json::value value, const std::string &name) {
+        if (!value.is_number()) {
+            return value;
+        }
+
+        unsigned int val = value.to_number<unsigned int>();
+        if (DragScalar(name.c_str(), ImGuiDataType_U32, &val)) {
+            return val;
+        }
+
+        return value;
+    }
+
+    Json::value DrawJsonBool(Json::value value, const std::string &name) {
+        if (!value.is_bool()) {
+            return value;
+        }
+
+        bool val = value.as_bool();
+        if (Checkbox(name.c_str(), &val)) {
+            return val;
+        }
+
+        return value;
+    }
+
+    Json::value DrawVec3(Json::value value, const std::string &name) {
+        if (!value.is_object()) {
+            return value;
+        }
+
+        if (const auto &obj = value.as_object(); obj.contains("vec3")) {
+            vec3 vec = Serialization::DeserializeVec3(obj);
+            if (DragFloat3(name.c_str(), &vec.x)) {
+                return value_from(Serialization::SerializeVec3(vec));
+            }
+        }
+
+        return value;
+    }
+
+    Json::value DrawVec4(Json::value value, const std::string &name) {
+        if (!value.is_object()) {
+            return value;
+        }
+
+        if (const auto &obj = value.as_object(); obj.contains("vec4")) {
+            vec4 vec = Serialization::DeserializeVec4(obj);
+            if (DragFloat4(name.c_str(), &vec.x)) {
+                return value_from(Serialization::SerializeVec4(vec));
+            }
+        }
+
+        return value;
+    }
+
+    Json::value DrawQuat(Json::value value, const std::string &name) {
+        if (!value.is_object()) {
+            return value;
+        }
+
+        if (const auto &obj = value.as_object(); obj.contains("quat")) {
+            vec3 vec = Serialization::DeserializeEuler(obj);
+            if (DragFloat3(name.c_str(), &vec.x), 0.1F, 0, 0, "%.1f") {
+                return value_from(Serialization::SerializeEuler(vec));
+            }
+        }
+
+        return value;
+    }
+
+    Json::value DrawRgbColor(Json::value value, const std::string &name) {
+        if (!value.is_object()) {
+            return value;
+        }
+
+        if (const auto &obj = value.as_object(); obj.contains("rgb")) {
+            vec3 col = Serialization::DeserializeColorRgb(obj);
+            if (ColorEdit3(name.c_str(), &col.x)) {
+                return value_from(Serialization::SerializeColorRgb(col));
+            }
+        }
+
+        return value;
+    }
+
+    Json::value DrawRgbaColor(Json::value value, const std::string &name) {
+        if (!value.is_object()) {
+            return value;
+        }
+
+        if (const auto &obj = value.as_object(); obj.contains("rgba")) {
+            vec4 col = Serialization::DeserializeColorRgba(obj);
+            if (ColorEdit4(name.c_str(), &col.x)) {
+                return value_from(Serialization::SerializeColorRgba(col));
             }
         }
 

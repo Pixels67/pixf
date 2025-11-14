@@ -51,7 +51,7 @@ namespace Pixf::Core::Entities::Components::Graphics {
 
         Camera() = default;
 
-        Json::object Serialize() override {
+        Json::object Serialize(bool editorMode = false) override {
             Json::object json;
 
             json["transform"] = transform.Serialize();
@@ -66,7 +66,7 @@ namespace Pixf::Core::Entities::Components::Graphics {
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {
             transform.Deserialize(json.at("transform").as_object(), assetManager);
 
             near = json.at("near").to_number<float>();

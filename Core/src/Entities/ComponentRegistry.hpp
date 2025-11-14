@@ -32,8 +32,8 @@ namespace Pixf::Core::Entities {
         virtual const char *GetTypeName() = 0;
         virtual uint64_t GetTypeId() = 0;
 
-        virtual Json::object SerializeElement(size_t index) = 0;
-        virtual void DeserializeElement(Json::object json, Assets::AssetManager &assetManager, size_t index) = 0;
+        virtual Json::object SerializeElement(size_t index, bool editorMode = false) = 0;
+        virtual void DeserializeElement(Json::object json, Assets::AssetManager &assetManager, size_t index, bool editorMode = false) = 0;
     };
 
     template<TypeInformed T>
@@ -134,21 +134,21 @@ namespace Pixf::Core::Entities {
             return result;
         }
 
-        Json::object Serialize() override {
+        Json::object Serialize(bool editorMode = false) override {
             Json::object json = {};
 
             if constexpr (Serialization::SerializableType<T>) {
                 for (auto &[id, component]: GetAll()) {
                     if (!component)
                         continue;
-                    json[std::to_string(id)] = component->Serialize();
+                    json[std::to_string(id)] = component->Serialize(editorMode);
                 }
             }
 
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {
             Clear();
 
             if constexpr (Serialization::SerializableType<T>) {
@@ -156,26 +156,26 @@ namespace Pixf::Core::Entities {
                     size_t id = std::stoull(key);
 
                     T component{};
-                    component.Deserialize(value.as_object(), assetManager);
+                    component.Deserialize(value.as_object(), assetManager, editorMode);
                     Add(id, component);
                 }
             }
         }
 
-        Json::object SerializeElement(const size_t index) override {
+        Json::object SerializeElement(const size_t index, bool editorMode = false) override {
             Json::object json = {};
 
             if constexpr (Serialization::SerializableType<T>) {
-                json = Get(index).Unwrap()->Serialize();
+                json = Get(index).Unwrap()->Serialize(editorMode);
             }
 
             return json;
         }
 
-        void DeserializeElement(Json::object json, Assets::AssetManager &assetManager, const size_t index) override {
+        void DeserializeElement(Json::object json, Assets::AssetManager &assetManager, const size_t index, bool editorMode = false) override {
             if constexpr (Serialization::SerializableType<T>) {
                 T component{};
-                component.Deserialize(json, assetManager);
+                component.Deserialize(json, assetManager, editorMode);
                 Add(index, component);
             }
         }

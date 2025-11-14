@@ -17,7 +17,7 @@ namespace Pixf::Core::Entities::Components::Graphics {
         ModelRenderer() = default;
         explicit ModelRenderer(const Assets::AssetHandle &model) : model(model) {}
 
-        Json::object Serialize() override {
+        Json::object Serialize(bool editorMode = false) override {
             Json::object json;
 
             json["uuid"] = uuids::to_string(model.GetUuid());
@@ -25,7 +25,7 @@ namespace Pixf::Core::Entities::Components::Graphics {
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {
             const uuids::uuid uuid = uuids::string_generator()(json.at("uuid").as_string().c_str());
             const std::string path = assetManager.GetAssetPath(uuid).Unwrap(
                     std::string("Failed to deserialize ModelRenderer: Asset UUID ") +

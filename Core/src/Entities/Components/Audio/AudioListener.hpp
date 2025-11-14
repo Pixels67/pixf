@@ -11,7 +11,7 @@ namespace Pixf::Core::Entities::Components::Audio {
         vec3 position;
         vec3 direction;
 
-        Json::object Serialize() override {
+        Json::object Serialize(bool editorMode = false) override {
             Json::object json;
 
             json["position"] = Serialization::SerializeVec3(position);
@@ -20,7 +20,7 @@ namespace Pixf::Core::Entities::Components::Audio {
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {
             position = Serialization::DeserializeVec3(json.at("position").as_object());
             direction = Serialization::DeserializeVec3(json.at("direction").as_object());
         }

@@ -23,7 +23,7 @@ namespace Pixf::Core::Entities::Components::Graphics {
             position(position), color(color), intensity(intensity), linearFalloff(linearFalloff),
             quadraticFalloff(quadraticFalloff) {}
 
-        Json::object Serialize() override {
+        Json::object Serialize(bool editorMode = false) override {
             Json::object json;
 
             json["position"] = Serialization::SerializeVec3(position);
@@ -35,7 +35,7 @@ namespace Pixf::Core::Entities::Components::Graphics {
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {
             position = Serialization::DeserializeVec3(json.at("position").as_object());
             color = Serialization::DeserializeColorRgb(json.at("color").as_object());
             intensity = json.at("intensity").to_number<float>();

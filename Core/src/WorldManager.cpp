@@ -59,20 +59,20 @@ namespace Pixf::Core {
         m_ActiveWorld.clear();
     }
 
-    void WorldManager::SaveWorld(const std::string &path, const std::string &name) const {
+    void WorldManager::SaveWorld(const std::string &path, const std::string &name, const bool editorMode) const {
         if (m_Worlds.contains(name)) {
-            const Json::object json = m_Worlds.at(name)->Serialize();
+            const Json::object json = m_Worlds.at(name)->Serialize(editorMode);
             File::WriteFile(path, Json::ToPrettyJson(json));
         }
     }
 
-    void WorldManager::LoadWorld(const std::string &path, const std::string &name,
-                                 const Entities::Blueprint &blueprint) {
+    void WorldManager::LoadWorld(const std::string &path, const std::string &name, const Entities::Blueprint &blueprint,
+                                 const bool editorMode) {
         const std::string str = File::ReadFile(path).Unwrap("Failed to load world: Unable to read file " + path);
         const Json::object json = Json::parse(str).as_object();
 
         Entities::World world(m_Context, blueprint);
-        world.Deserialize(json, m_Context.GetAssetManager());
+        world.Deserialize(json, m_Context.GetAssetManager(), editorMode);
         CreateWorld(name, world);
     }
 } // namespace Pixf::Core

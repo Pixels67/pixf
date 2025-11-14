@@ -22,7 +22,7 @@ namespace Pixf::Core::Entities {
         uint8_t GetVersion() const { return version; }
         bool IsActive() const { return active; }
 
-        Json::object Serialize() override {
+        Json::object Serialize(bool editorMode = false) override {
             Json::object json;
 
             json["name"] = name;
@@ -33,7 +33,8 @@ namespace Pixf::Core::Entities {
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager,
+                         bool editorMode = false) override {
             name = json.at("name").as_string().c_str();
             id = json.at("id").to_number<unsigned int>();
             version = json.at("version").to_number<uint8_t>();
@@ -204,7 +205,7 @@ namespace Pixf::Core::Entities {
 
         ComponentManager &GetComponentManager() { return m_ComponentManager; }
 
-        Json::object Serialize() override {
+        Json::object Serialize(const bool editorMode = false) override {
             Json::object json;
 
             json["entities"] = Json::array();
@@ -213,12 +214,13 @@ namespace Pixf::Core::Entities {
                 json["entities"].as_array().push_back(entity.Serialize());
             }
 
-            json["components"] = m_ComponentManager.Serialize();
+            json["components"] = m_ComponentManager.Serialize(editorMode);
 
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager,
+                         const bool editorMode = false) override {
             Clear();
 
             m_EntityIdCounter = json.at("entities").as_array().size();
@@ -228,17 +230,17 @@ namespace Pixf::Core::Entities {
                 m_Entities.emplace_back(std::move(e));
             }
 
-            m_ComponentManager.Deserialize(json.at("components").as_object(), assetManager);
+            m_ComponentManager.Deserialize(json.at("components").as_object(), assetManager, editorMode);
         }
 
-        Json::object SerializeEntityComponents(const Entity &entity) {
-            Json::object json = m_ComponentManager.SerializeElement(entity.GetId());
+        Json::object SerializeEntityComponents(const Entity &entity, const bool editorMode = false) {
+            Json::object json = m_ComponentManager.SerializeElement(entity.GetId(), editorMode);
             return json;
         }
 
         void DeserializeEntityComponents(const Json::object &json, Assets::AssetManager &assetManager,
-                                         const Entity &entity) {
-            m_ComponentManager.DeserializeElement(json, assetManager, entity.GetId());
+                                         const Entity &entity, const bool editorMode = false) {
+            m_ComponentManager.DeserializeElement(json, assetManager, entity.GetId(), editorMode);
         }
 
     private:

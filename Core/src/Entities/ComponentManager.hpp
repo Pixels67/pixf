@@ -113,18 +113,30 @@ namespace Pixf::Core::Entities {
             return std::static_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeId<T>()]);
         }
 
-        Json::object Serialize() override {
+        Json::object Serialize(bool editorMode = false) override {
             Json::object json;
 
             for (auto &[id, registry]: m_Registries) {
                 json[std::string(registry->GetTypeName())] =
-                        std::static_pointer_cast<Serializable>(registry)->Serialize();
+                        std::static_pointer_cast<Serializable>(registry)->Serialize(editorMode);
             }
 
             return json;
         }
 
-        Json::object SerializeElement(const size_t index) {
+        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager,
+                         bool editorMode = false) override {
+            for (auto &[key, value]: json) {
+                if (!m_Types.contains(key)) {
+                    PIXF_LOG_ERROR("Component ", key, " not registered!");
+                    continue;
+                }
+
+                m_Registries[m_Types.at(key)]->Deserialize(value.as_object(), assetManager, editorMode);
+            }
+        }
+
+        Json::object SerializeElement(const size_t index, bool editorMode = false) {
             Json::object json;
 
             for (auto &[id, registry]: m_Registries) {
@@ -132,31 +144,20 @@ namespace Pixf::Core::Entities {
                     continue;
                 }
 
-                json[std::string(registry->GetTypeName())] = registry->SerializeElement(index);
+                json[std::string(registry->GetTypeName())] = registry->SerializeElement(index, editorMode);
             }
 
             return json;
         }
 
-        void DeserializeElement(const Json::object &json, Assets::AssetManager &assetManager, const size_t index) {
+        void DeserializeElement(const Json::object &json, Assets::AssetManager &assetManager, const size_t index, bool editorMode = false) {
             for (auto &[key, value]: json) {
                 if (!m_Types.contains(key)) {
                     PIXF_LOG_ERROR("Component ", key, " not registered!");
                     continue;
                 }
 
-                m_Registries[m_Types.at(key)]->DeserializeElement(value.as_object(), assetManager, index);
-            }
-        }
-
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
-            for (auto &[key, value]: json) {
-                if (!m_Types.contains(key)) {
-                    PIXF_LOG_ERROR("Component ", key, " not registered!");
-                    continue;
-                }
-
-                m_Registries[m_Types.at(key)]->Deserialize(value.as_object(), assetManager);
+                m_Registries[m_Types.at(key)]->DeserializeElement(value.as_object(), assetManager, index, editorMode);
             }
         }
 
