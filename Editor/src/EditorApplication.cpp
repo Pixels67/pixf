@@ -11,9 +11,61 @@ namespace Pixf::Editor {
     using namespace Core;
     using namespace Core::Graphics;
     using namespace Core::Audio;
+    using namespace Core::Entities;
     using namespace Core::Entities::Components;
     using namespace Core::Entities::Components::Graphics;
     using namespace Core::Entities::Components::Audio;
+
+    constexpr float moveSpeed = 20.0F;
+    constexpr float rotateSpeed = 60.0F;
+
+    struct WorldNavigation final : System {
+        void OnAwake(World &world) override {
+            world.GetContext().GetEventManager().Subscribe<WindowSizeChangedEvent>(
+                    [&](const WindowSizeChangedEvent &event) {
+                        world.GetEntityManager().GetSingleton<Camera>().UnwrapOr({})->aspect =
+                                static_cast<float>(event.newWidth) / static_cast<float>(event.newHeight);
+                    });
+        }
+
+        void OnUpdate(World &world, const double deltaTime) override {
+            EntityManager &entityManager = world.GetEntityManager();
+
+            auto &cam = *entityManager.GetSingleton<Camera>().Unwrap();
+
+            if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::W)) {
+                cam.transform.Translate(cam.transform.rotation * vec3(0.0F, 0.0F, moveSpeed * deltaTime));
+            }
+
+            if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::S)) {
+                cam.transform.Translate(cam.transform.rotation * vec3(0.0F, 0.0F, -moveSpeed * deltaTime));
+            }
+
+            if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::D)) {
+                cam.transform.Translate(cam.transform.rotation * vec3(moveSpeed * deltaTime, 0.0F, 0.0F));
+            }
+
+            if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::A)) {
+                cam.transform.Translate(cam.transform.rotation * vec3(-moveSpeed * deltaTime, 0.0F, 0.0F));
+            }
+
+            if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::E)) {
+                cam.transform.Translate(cam.transform.rotation * vec3(0.0F, moveSpeed * deltaTime, 0.0F));
+            }
+
+            if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::Q)) {
+                cam.transform.Translate(cam.transform.rotation * vec3(0.0F, -moveSpeed * deltaTime, 0.0F));
+            }
+
+            if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::Right)) {
+                cam.transform.RotateAround(vec3(0.0F, 1.0F, 0.0F), rotateSpeed * deltaTime);
+            }
+
+            if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::Left)) {
+                cam.transform.RotateAround(vec3(0.0F, 1.0F, 0.0F), -rotateSpeed * deltaTime);
+            }
+        }
+    };
 
     EditorApplication::EditorApplication(const EditorConfig &config) :
         m_Window(CreateWindow(config.windowConfig, m_EventManager)), m_Renderer(config.rendererConfig),
@@ -28,8 +80,8 @@ namespace Pixf::Editor {
     void EditorApplication::OnAwake() {
         Debug::Logger::Init({.logLevel = Debug::Severity::Debug});
 
-        Entities::Blueprint blueprint;
-        blueprint.Configure([&](Entities::EntityManager &entityManager, Entities::SystemsManager &systemsManager) {
+        Blueprint blueprint;
+        blueprint.Configure([&](EntityManager &entityManager, Entities::SystemsManager &systemsManager) {
             entityManager.RegisterComponent<Transform>();
             entityManager.RegisterComponent<ModelRenderer>();
             entityManager.RegisterComponent<PointLight>();
@@ -42,12 +94,31 @@ namespace Pixf::Editor {
 
             entityManager.CreateSingleton<Camera>(camera);
             entityManager.CreateSingleton<AmbientLight>();
+
+            systemsManager.AddSystem<WorldNavigation>();
         });
 
-        //const Entities::World world(*this, blueprint);
+        GetWorldManager().LoadWorld("world.json", "world", blueprint);
+        GetWorldManager().SetActiveWorld("world");
 
-        GetWorldManager().LoadWorld("world.json", "Unsaved", blueprint);
-        GetWorldManager().SetActiveWorld("Unsaved");
+        GetConsole().Log("Test info");
+        GetConsole().LogWarning("Test warning");
+        GetConsole().LogError("Test error");
+
+        m_EventManager.Subscribe<Input::KeyEvent>([&](const Input::KeyEvent &event) {
+            if (event.action != Input::KeyAction::Press)
+                return;
+            if (event.key != Input::Key::Delete)
+                return;
+
+            const auto result = GetWorldManager().GetActiveWorld();
+            if (result.IsError())
+                return;
+            if (!m_SelectedEntity.has_value())
+                return;
+
+            result.Unwrap()->GetEntityManager().DestroyEntity(m_SelectedEntity.value());
+        });
     }
 
     void EditorApplication::OnUpdate(double deltaTime) {}
@@ -57,12 +128,41 @@ namespace Pixf::Editor {
     void EditorApplication::OnRenderGui(double deltaTime) {
         const ivec2 windowSize = GetWindow().GetSize();
 
-        RenderHierarchy(ivec2(0, 0), ivec2(300, 500));
-        RenderInspector(ivec2(windowSize.x - 300, 0), ivec2(300, windowSize.y));
+        RenderTopBar(ivec2(0, 0), ivec2(windowSize.x, 50));
+        RenderHierarchy(ivec2(0, 50), ivec2(300, 450));
+        RenderInspector(ivec2(windowSize.x - 400, 50), ivec2(400, windowSize.y - 50));
         RenderFileBrowser(ivec2(0, 500), ivec2(300, windowSize.y - 500));
+        RenderConsole(ivec2(300, windowSize.y - 300), ivec2(windowSize.x - 700, 300));
     }
 
     void EditorApplication::OnShutdown() {}
+
+    void EditorApplication::RenderTopBar(const ivec2 origin, const ivec2 aspect) {
+        Gui::SetNextWindowPos({static_cast<float>(origin.x), static_cast<float>(origin.y)});
+        Gui::SetNextWindowSize({static_cast<float>(aspect.x), static_cast<float>(aspect.y)});
+
+        Gui::Begin("##", nullptr,
+                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+                           ImGuiWindowFlags_NoTitleBar);
+
+        Gui::SameLine(755);
+        if (Gui::Button("Save", {200, 33})) {
+            if (const auto result = GetWorldManager().GetActiveWorldName(); result.IsSuccess()) {
+                const std::string &name = result.Unwrap();
+                GetWorldManager().SaveWorld(name + ".json", name);
+                GetConsole().Log("Saving world " + name + " To: " + name + ".json");
+            } else {
+                GetConsole().LogError("Failed to save world: No active world!");
+            }
+        }
+
+        Gui::SameLine(965);
+        if (Gui::Button("Run", {200, 33})) {
+            // TODO: Running the runtime with the game
+        }
+
+        Gui::End();
+    }
 
     void EditorApplication::RenderHierarchy(const ivec2 origin, const ivec2 aspect) {
         Gui::SetNextWindowPos({static_cast<float>(origin.x), static_cast<float>(origin.y)});
@@ -70,8 +170,7 @@ namespace Pixf::Editor {
 
         Gui::Begin("Hierarchy", nullptr,
                    ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-                           ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_MenuBar |
-                           ImGuiWindowFlags_AlwaysVerticalScrollbar);
+                           ImGuiWindowFlags_MenuBar);
 
         auto &entityManager = GetWorldManager().GetActiveWorld().Unwrap("No active world!")->GetEntityManager();
 
@@ -79,7 +178,7 @@ namespace Pixf::Editor {
             if (Gui::BeginMenu("Entities")) {
 
                 if (Gui::MenuItem("New")) {
-                    const Entities::Entity e = entityManager.CreateEntity();
+                    const Entity e = entityManager.CreateEntity();
                     entityManager.AddComponent(e, Transform{});
                 }
 
@@ -103,9 +202,7 @@ namespace Pixf::Editor {
         Gui::SetNextWindowSize({static_cast<float>(aspect.x), static_cast<float>(aspect.y)});
 
         Gui::Begin("Inspector", nullptr,
-                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-                           ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_MenuBar |
-                           ImGuiWindowFlags_AlwaysVerticalScrollbar);
+                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
         auto &entityManager = GetWorldManager().GetActiveWorld().Unwrap("No active world!")->GetEntityManager();
 
@@ -114,14 +211,12 @@ namespace Pixf::Editor {
             return;
         }
 
-        Gui::Text(m_SelectedEntity.value().GetName().c_str());
+        Gui::Text("%s", m_SelectedEntity.value().GetName().c_str());
 
-        if (const auto transform = entityManager.GetComponent<Transform>(m_SelectedEntity.value());
-            transform.IsSuccess()) {
-            transform.Unwrap()->Deserialize(
-                    Gui::DrawJsonValue(Json::value_from(transform.Unwrap()->Serialize()), "Transform").as_object(),
-                    GetAssetManager());
-        }
+        entityManager.DeserializeEntityComponents(
+                Gui::DrawJsonValue(Json::value_from(entityManager.SerializeEntityComponents(m_SelectedEntity.value())))
+                        .as_object(),
+                GetAssetManager(), m_SelectedEntity.value());
 
         Gui::End();
     }
@@ -130,12 +225,21 @@ namespace Pixf::Editor {
         Gui::SetNextWindowPos({static_cast<float>(origin.x), static_cast<float>(origin.y)});
         Gui::SetNextWindowSize({static_cast<float>(aspect.x), static_cast<float>(aspect.y)});
 
-        Gui::Begin("Files", nullptr,
-                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-                           ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_MenuBar |
-                           ImGuiWindowFlags_AlwaysVerticalScrollbar);
+        Gui::Begin("Files", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
-        Gui::DrawDirectoryRecursive(".", std::filesystem::path());
+        Gui::DrawDirectoryRecursive("./Assets");
+
+        Gui::End();
+    }
+
+    void EditorApplication::RenderConsole(const ivec2 origin, const ivec2 aspect) const {
+        Gui::SetNextWindowPos({static_cast<float>(origin.x), static_cast<float>(origin.y)});
+        Gui::SetNextWindowSize({static_cast<float>(aspect.x), static_cast<float>(aspect.y)});
+
+        Gui::Begin("Console", nullptr,
+                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+
+        m_Console.RenderAsGui();
 
         Gui::End();
     }
@@ -197,6 +301,8 @@ namespace Pixf::Editor {
 
     WorldManager &EditorApplication::GetWorldManager() { return m_WorldManager; }
 
+    Console &EditorApplication::GetConsole() { return m_Console; }
+
     Window EditorApplication::CreateWindow(const WindowConfig &config, Event::EventManager &eventManager) {
         Window window = Window::Create(config).Unwrap("Failed to create window!");
         window.SetRenderTarget(eventManager);
@@ -211,8 +317,8 @@ namespace Pixf::Editor {
             return;
         }
 
-        Entities::World &world = *worldResult.Unwrap();
-        Entities::EntityManager &entityManager = world.GetEntityManager();
+        World &world = *worldResult.Unwrap();
+        EntityManager &entityManager = world.GetEntityManager();
 
         const auto camResult = entityManager.GetSingleton<Camera>();
         if (camResult.IsError()) {

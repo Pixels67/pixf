@@ -6,16 +6,6 @@
 #include "Json/Json.hpp"
 
 namespace Pixf::Core::Serialization {
-    constexpr uint64_t HashString(const char *str) {
-        uint64_t hash = 0xcbf29ce484222325;
-        while (*str) {
-            hash ^= static_cast<uint64_t>(*str++);
-            hash *= 0x100000001b3;
-        }
-
-        return hash;
-    }
-
     inline Json::object SerializeVec3(const vec3 vector) {
         Json::object json = {{"x", static_cast<double>(vector.x)},
                                     {"y", static_cast<double>(vector.y)},

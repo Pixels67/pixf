@@ -36,7 +36,14 @@ namespace Pixf::Core::Entities {
     }
 
     std::vector<Entity> EntityManager::GetAllEntities() const {
-        return m_Entities;
+        std::vector<Entity> entities;
+        for (const auto& entity : m_Entities) {
+            if (entity.IsActive()) {
+                entities.push_back(entity);
+            }
+        }
+
+        return entities;
     }
 
     void EntityManager::DestroyEntity(const Entity entity) {

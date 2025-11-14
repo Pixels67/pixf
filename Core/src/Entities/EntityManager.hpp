@@ -6,10 +6,10 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Common.hpp"
 #include "ComponentManager.hpp"
 #include "Json/Json.hpp"
 #include "Serialization/Serializable.hpp"
-#include "Common.hpp"
 
 namespace Pixf::Core::Entities {
     struct PIXF_API Entity final : Serialization::Serializable {
@@ -147,6 +147,15 @@ namespace Pixf::Core::Entities {
             }
         }
 
+        template<TypeInformed... T, typename Func>
+        void ForEachEntityWith(Func &&func) {
+            for (auto entity: m_Entities) {
+                if ((HasComponent<T>(entity) && ...)) {
+                    func(entity);
+                }
+            }
+        }
+
         template<TypeInformed T>
         Error::Result<std::shared_ptr<ComponentRegistry<T>>, ComponentError> GetRegistry() {
             return m_ComponentManager.QueryComponents<T>();
@@ -212,6 +221,7 @@ namespace Pixf::Core::Entities {
         void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {
             Clear();
 
+            m_EntityIdCounter = json.at("entities").as_array().size();
             for (Json::array entities = json.at("entities").as_array(); auto &entity: entities) {
                 Entity e{};
                 e.Deserialize(entity.as_object(), assetManager);
@@ -219,6 +229,16 @@ namespace Pixf::Core::Entities {
             }
 
             m_ComponentManager.Deserialize(json.at("components").as_object(), assetManager);
+        }
+
+        Json::object SerializeEntityComponents(const Entity &entity) {
+            Json::object json = m_ComponentManager.SerializeElement(entity.GetId());
+            return json;
+        }
+
+        void DeserializeEntityComponents(const Json::object &json, Assets::AssetManager &assetManager,
+                                         const Entity &entity) {
+            m_ComponentManager.DeserializeElement(json, assetManager, entity.GetId());
         }
 
     private:

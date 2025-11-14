@@ -46,6 +46,14 @@ namespace Pixf::Core {
         return m_Worlds.at(m_ActiveWorld);
     }
 
+    Error::Result<std::string, WorldError> WorldManager::GetActiveWorldName() {
+        if (!m_Worlds.contains(m_ActiveWorld)) {
+            return WorldError::NoActiveWorld;
+        }
+
+        return m_ActiveWorld;
+    }
+
     void WorldManager::Clear() {
         m_Worlds.clear();
         m_ActiveWorld.clear();

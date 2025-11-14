@@ -31,6 +31,7 @@ namespace Pixf::Core {
 
         WorldError SetActiveWorld(const std::string &name);
         Error::Result<std::shared_ptr<Entities::World>, WorldError> GetActiveWorld();
+        Error::Result<std::string, WorldError> GetActiveWorldName();
 
         void Clear();
 

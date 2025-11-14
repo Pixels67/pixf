@@ -1,5 +1,6 @@
 #include "Pixf.hpp"
 
+using namespace Pixf;
 using namespace Pixf::Core;
 using namespace Pixf::Core::Graphics;
 using namespace Pixf::Core::Audio;
@@ -108,7 +109,7 @@ public:
     void OnUpdate(double deltaTime) override {
         if (const auto activeWorld = GetWorldManager().GetActiveWorld(); activeWorld.IsSuccess()) {
             auto entityManager = activeWorld.Unwrap()->GetEntityManager();
-            entityManager.ForEachEntity<Backpack>([&](const Entity &entity, Backpack &backpack) {
+            entityManager.ForEachEntityWith<Backpack>([&](const Entity &entity) {
                 *entityManager.GetComponent<Transform>(entity).Unwrap() = transform;
             });
         }

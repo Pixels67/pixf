@@ -1,10 +1,10 @@
 #ifndef COMPONENTREGISTRY_HPP
 #define COMPONENTREGISTRY_HPP
 
+#include <map>
 #include <memory>
 #include <optional>
 #include <vector>
-#include <map>
 
 #include "Error/Result.hpp"
 #include "Serialization/Serializable.hpp"
@@ -31,6 +31,9 @@ namespace Pixf::Core::Entities {
 
         virtual const char *GetTypeName() = 0;
         virtual uint64_t GetTypeId() = 0;
+
+        virtual Json::object SerializeElement(size_t index) = 0;
+        virtual void DeserializeElement(Json::object json, Assets::AssetManager &assetManager, size_t index) = 0;
     };
 
     template<TypeInformed T>
@@ -61,7 +64,14 @@ namespace Pixf::Core::Entities {
         void Add(const size_t index, T component) {
             static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
 
-            m_Components.push_back(std::make_shared<T>(std::move(component)));
+            if (index < m_SparseArray.size() && m_SparseArray[index] != std::nullopt) {
+                if (const size_t dense = m_SparseArray[index].value(); dense < m_Components.size()) {
+                    m_Components[dense] = std::make_shared<T>(component);
+                    return;
+                }
+            }
+
+            m_Components.push_back(std::make_shared<T>(component));
             m_DenseArray.push_back(index);
 
             if (index >= m_SparseArray.size()) {
@@ -152,6 +162,24 @@ namespace Pixf::Core::Entities {
             }
         }
 
+        Json::object SerializeElement(const size_t index) override {
+            Json::object json = {};
+
+            if constexpr (Serialization::SerializableType<T>) {
+                json = Get(index).Unwrap()->Serialize();
+            }
+
+            return json;
+        }
+
+        void DeserializeElement(Json::object json, Assets::AssetManager &assetManager, const size_t index) override {
+            if constexpr (Serialization::SerializableType<T>) {
+                T component{};
+                component.Deserialize(json, assetManager);
+                Add(index, component);
+            }
+        }
+
         const char *GetTypeName() override {
             if constexpr (Serialization::SerializableType<T>) {
                 return T::GetTypeName();
@@ -160,7 +188,7 @@ namespace Pixf::Core::Entities {
             return nullptr;
         }
 
-        uint64_t GetTypeId() override { return Serialization::HashString(GetTypeName()); }
+        uint64_t GetTypeId() override { return HashString(GetTypeName()); }
 
     private:
         std::vector<std::optional<size_t>> m_SparseArray;

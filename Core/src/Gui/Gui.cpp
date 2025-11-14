@@ -361,54 +361,54 @@ namespace Pixf::Core::Gui {
         return value;
     }
 
-    std::optional<std::filesystem::path> DrawDirectoryRecursive(const std::filesystem::path &path,
-                                                                const std::filesystem::path &selected) {
+    Json::value DrawJsonValue(Json::value value) {
+        if (value.is_object()) {
+            for (auto &[key, val]: value.as_object()) {
+                value.as_object()[key] = DrawJsonValue(val, key);
+            }
+        } else if (value.is_array()) {
+            size_t i = 0;
+            for (const auto val: value.as_array()) {
+                value.as_array()[i] = DrawJsonValue(val, std::to_string(i));
+                i++;
+            }
+        }
+
+        return value;
+    }
+
+    std::optional<std::filesystem::path> DrawDirectoryRecursive(const std::filesystem::path &path) {
         static std::optional<std::filesystem::path> result = std::nullopt;
 
-        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth;
-        if (path == selected)
-            flags |= ImGuiTreeNodeFlags_Selected;
-
-        bool hasChildren = false;
         for (auto &entry: std::filesystem::directory_iterator(path)) {
+            ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth;
+
+            std::string label = entry.path().filename().string();
             if (entry.is_directory()) {
-                hasChildren = true;
-                break;
-            }
-        }
+                flags |= ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth;
 
-        if (!hasChildren)
-            flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-
-        const bool nodeOpen = TreeNodeEx(path.filename().string().c_str(), flags);
-
-        if (IsItemClicked()) {
-            result = path;
-        }
-
-        if (nodeOpen && hasChildren) {
-            for (auto &entry: std::filesystem::directory_iterator(path)) {
-                if (entry.is_directory())
-                    DrawDirectoryRecursive(entry.path(), selected);
-            }
-
-            for (auto &entry: std::filesystem::directory_iterator(path)) {
-                if (!entry.is_directory()) {
-                    ImGuiTreeNodeFlags leafFlags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen |
-                                                   ImGuiTreeNodeFlags_SpanFullWidth;
-                    std::string label = entry.path().filename().string();
-
-                    if (entry.path() == selected)
-                        leafFlags |= ImGuiTreeNodeFlags_Selected;
-
-                    TreeNodeEx(label.c_str(), leafFlags);
+                if (TreeNodeEx(label.c_str(), flags)) {
                     if (IsItemClicked()) {
                         result = entry.path();
                     }
+
+                    DrawDirectoryRecursive(entry.path());
+                    TreePop();
+                }
+            } else {
+                flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+                std::string extension = entry.path().extension().string();
+                std::remove(extension.begin(), extension.end(), extension.find_last_not_of('.') + 1);
+                if (extension == ".meta") {
+                    continue;
+                }
+
+                TreeNodeEx(label.c_str(), flags);
+                if (IsItemClicked()) {
+                    result = entry.path();
                 }
             }
-
-            TreePop();
         }
 
         return result;

@@ -84,6 +84,14 @@ namespace Pixf::Core::Entities {
             return m_Registries[GetTypeId<T>()]->Has(index);
         }
 
+        bool HasComponent(const size_t index, const uint64_t typeId) {
+            if (!m_Registries.contains(typeId)) {
+                return false;
+            }
+
+            return m_Registries[typeId]->Has(index);
+        }
+
         template<TypeInformed T>
         void RemoveComponent(size_t index) {
             if (!m_Registries.contains(GetTypeId<T>())) {
@@ -114,6 +122,31 @@ namespace Pixf::Core::Entities {
             }
 
             return json;
+        }
+
+        Json::object SerializeElement(const size_t index) {
+            Json::object json;
+
+            for (auto &[id, registry]: m_Registries) {
+                if (!HasComponent(index, registry->GetTypeId())) {
+                    continue;
+                }
+
+                json[std::string(registry->GetTypeName())] = registry->SerializeElement(index);
+            }
+
+            return json;
+        }
+
+        void DeserializeElement(const Json::object &json, Assets::AssetManager &assetManager, const size_t index) {
+            for (auto &[key, value]: json) {
+                if (!m_Types.contains(key)) {
+                    PIXF_LOG_ERROR("Component ", key, " not registered!");
+                    continue;
+                }
+
+                m_Registries[m_Types.at(key)]->DeserializeElement(value.as_object(), assetManager, index);
+            }
         }
 
         void Deserialize(const Json::object &json, Assets::AssetManager &assetManager) override {

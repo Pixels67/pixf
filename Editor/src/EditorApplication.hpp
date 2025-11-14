@@ -4,6 +4,7 @@
 #include <optional>
 
 #include "Audio/AudioEngine.hpp"
+#include "Console.hpp"
 #include "Entities/World.hpp"
 #include "Graphics/Renderer.hpp"
 #include "Time/Clock.hpp"
@@ -13,9 +14,9 @@
 namespace Pixf::Editor {
     struct EditorConfig {
         Core::WindowConfig windowConfig = {
-                .title = "Editor", .size = uvec2(1280, 720), .samplesPerPixel = 4, .vsync = true};
+                .title = "Editor", .size = uvec2(1920, 1080), .samplesPerPixel = 4, .vsync = true};
 
-        Core::Graphics::RendererConfig rendererConfig = {.viewportAspect = ivec2(1280, 720)};
+        Core::Graphics::RendererConfig rendererConfig = {.viewportAspect = ivec2(1920, 1080)};
 
         Core::Audio::AudioManagerConfig audioManagerConfig;
     };
@@ -37,9 +38,11 @@ namespace Pixf::Editor {
         void OnRenderGui(double deltaTime);
         void OnShutdown();
 
+        void RenderTopBar(ivec2 origin, ivec2 aspect);
         void RenderHierarchy(ivec2 origin, ivec2 aspect);
         void RenderInspector(ivec2 origin, ivec2 aspect);
         void RenderFileBrowser(ivec2 origin, ivec2 aspect);
+        void RenderConsole(ivec2 origin, ivec2 aspect) const;
 
         void Run();
         void Exit();
@@ -50,6 +53,8 @@ namespace Pixf::Editor {
         Core::Graphics::Renderer &GetRenderer() override;
         Core::Event::EventManager &GetEventManager() override;
         Core::WorldManager &GetWorldManager() override;
+
+        Console &GetConsole();
 
     private:
         Core::Event::EventManager m_EventManager;
@@ -62,6 +67,7 @@ namespace Pixf::Editor {
         EditorConfig m_AppConfig;
         bool m_IsRunning = true;
 
+        Console m_Console;
         std::optional<Core::Entities::Entity> m_SelectedEntity;
 
         static Core::Window CreateWindow(const Core::WindowConfig &config, Core::Event::EventManager &eventManager);

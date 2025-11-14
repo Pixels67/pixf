@@ -34,7 +34,8 @@ uniform mat4 uProj;
 void main() {
     gl_Position = uProj * uView * uModel * vec4(aVertPos, 1.0);
     vWorldPos = (uModel * vec4(aVertPos, 1.0)).xyz;
-    vViewPos = (uView * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+    mat4 invView = inverse(uView);
+    vViewPos = invView[3].xyz;
     vNormal = mat3(transpose(inverse(uModel))) * normalize(aNormal);
     vTexCoords = aTexCoords;
 }

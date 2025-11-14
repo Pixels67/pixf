@@ -1,9 +1,9 @@
 #ifndef COMMON_HPP
 #define COMMON_HPP
 
+#include <concepts>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <concepts>
 
 namespace boost {}
 
@@ -34,7 +34,17 @@ namespace boost {}
 namespace Pixf {
     using namespace glm;
     using namespace boost;
-} // namespace Pixf::Core
+} // namespace Pixf
+
+constexpr uint64_t HashString(const char *str) {
+    uint64_t hash = 0xcbf29ce484222325;
+    while (*str) {
+        hash ^= static_cast<uint64_t>(*str++);
+        hash *= 0x100000001b3;
+    }
+
+    return hash;
+}
 
 template<typename T>
 concept TypeInformed = requires {
@@ -44,6 +54,6 @@ concept TypeInformed = requires {
 
 #define PIXF_TYPE_INFO(Name)                                                                                           \
     static constexpr const char *GetTypeName() { return #Name; }                                                       \
-    static constexpr uint64_t GetTypeId() { return Pixf::Core::Serialization::HashString(GetTypeName()); }
+    static constexpr uint64_t GetTypeId() { return HashString(GetTypeName()); }
 
 #endif // COMMON_HPP
