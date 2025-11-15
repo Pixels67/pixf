@@ -7,7 +7,7 @@
 
 #include <boost/json.hpp>
 
-namespace Pixf::Core::Json {
+namespace Pixf::Core::Serialization::Json {
     using namespace boost::json;
 
     inline std::string ToPrettyJson(const value &json, std::optional<std::string> indent = std::nullopt) {

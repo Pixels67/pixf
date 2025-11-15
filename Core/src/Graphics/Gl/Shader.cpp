@@ -54,20 +54,32 @@ namespace Pixf::Core::Graphics::Gl {
         PIXF_GL_CALL(glUniform1f(glGetUniformLocation(m_Id, name.c_str()), value));
     }
 
-    void Shader::SetUniform(const std::string &name, const vec2 value) const {
+    void Shader::SetUniform(const std::string &name, const Math::Vector2f &value) const {
         PIXF_GL_CALL(glUniform2f(glGetUniformLocation(m_Id, name.c_str()), value.x, value.y));
     }
 
-    void Shader::SetUniform(const std::string &name, const vec3 value) const {
+    void Shader::SetUniform(const std::string &name, const Math::Vector3f &value) const {
         PIXF_GL_CALL(glUniform3f(glGetUniformLocation(m_Id, name.c_str()), value.x, value.y, value.z));
     }
 
-    void Shader::SetUniform(const std::string &name, const vec4 value) const {
+    void Shader::SetUniform(const std::string &name, const Math::Vector4f &value) const {
         PIXF_GL_CALL(glUniform4f(glGetUniformLocation(m_Id, name.c_str()), value.x, value.y, value.z, value.w));
     }
 
-    void Shader::SetUniform(const std::string &name, mat4 value) const {
-        PIXF_GL_CALL(glUniformMatrix4fv(glGetUniformLocation(m_Id, name.c_str()), 1, GL_FALSE, value_ptr(value)));
+    void Shader::SetUniform(const std::string &name, Math::Color3u8 value) const {
+        const Math::Vector3f vec(static_cast<float>(value.r) / 255.0F, static_cast<float>(value.g) / 255.0F,
+                                 static_cast<float>(value.b) / 255.0F);
+        SetUniform(name, vec);
+    }
+
+    void Shader::SetUniform(const std::string &name, Math::Color4u8 value) const {
+        const Math::Vector4f vec(static_cast<float>(value.r) / 255.0F, static_cast<float>(value.g) / 255.0F,
+                                 static_cast<float>(value.b) / 255.0F, static_cast<float>(value.a) / 255.0F);
+        SetUniform(name, vec);
+    }
+
+    void Shader::SetUniform(const std::string &name, Math::Matrix4f value) const {
+        PIXF_GL_CALL(glUniformMatrix4fv(glGetUniformLocation(m_Id, name.c_str()), 1, GL_FALSE, value.Data()));
     }
 
     std::unordered_map<std::string, uint8_t> Shader::GetTextureMap() const { return m_TextureMap; }

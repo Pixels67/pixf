@@ -2,6 +2,7 @@
 
 using namespace Pixf;
 using namespace Pixf::Core;
+using namespace Pixf::Core::Math;
 using namespace Pixf::Core::Graphics;
 using namespace Pixf::Core::Audio;
 using namespace Pixf::Core::Entities;
@@ -30,19 +31,19 @@ struct CameraController final : System {
         EntityManager &entityManager = world.GetEntityManager();
 
         if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::W)) {
-            entityManager.GetSingleton<Camera>().Unwrap()->transform.Translate(vec3(0.0F, 0.0F, 20.0F * deltaTime));
+            entityManager.GetSingleton<Camera>().Unwrap()->transform.position += Vector3f(0.0F, 0.0F, 20.0F * deltaTime);
         }
 
         if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::S)) {
-            entityManager.GetSingleton<Camera>().Unwrap()->transform.Translate(vec3(0.0F, 0.0F, -20.0F * deltaTime));
+            entityManager.GetSingleton<Camera>().Unwrap()->transform.position += Vector3f(0.0F, 0.0F, -20.0F * deltaTime);
         }
 
         if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::D)) {
-            entityManager.GetSingleton<Camera>().Unwrap()->transform.Translate(vec3(20.0F * deltaTime, 0.0F, 0.0F));
+            entityManager.GetSingleton<Camera>().Unwrap()->transform.position += Vector3f(20.0F * deltaTime, 0.0F, 0.0F);
         }
 
         if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::A)) {
-            entityManager.GetSingleton<Camera>().Unwrap()->transform.Translate(vec3(-20.0F * deltaTime, 0.0F, 0.0F));
+            entityManager.GetSingleton<Camera>().Unwrap()->transform.position += Vector3f(-20.0F * deltaTime, 0.0F, 0.0F);
         }
     }
 };
@@ -50,19 +51,20 @@ struct CameraController final : System {
 struct Backpack final : Component, Serialization::Serializable {
     PIXF_TYPE_INFO(Backpack)
 
-    Json::object Serialize(bool editorMode = false) override { return Json::object{}; }
-    void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {}
+    Serialization::Json::object Serialize(bool editorMode = false) override { return Serialization::Json::object{}; }
+    void Deserialize(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
+                     bool editorMode = false) override {}
 };
 
 class App final : public Application {
 public:
     Blueprint blueprint;
     Transform transform;
-    vec3 rotation{};
+    Vector3f rotation{};
 
     explicit App() :
-        Application({.windowConfig = {.title = "Title", .size = uvec2(1080, 720)},
-                     .rendererConfig = {.viewportOrigin = ivec2(0, 0), .viewportAspect = ivec2(1080, 720)}}) {}
+        Application({.windowConfig = {.title = "Title", .size = Vector2u(1080, 720)},
+                     .rendererConfig = {.viewportOrigin = Vector2i(0, 0), .viewportAspect = Vector2i(1080, 720)}}) {}
 
     void OnAwake() override {
         Debug::Logger::Init({.logLevel = Debug::Severity::Trace});
@@ -109,9 +111,8 @@ public:
     void OnUpdate(double deltaTime) override {
         if (const auto activeWorld = GetWorldManager().GetActiveWorld(); activeWorld.IsSuccess()) {
             auto entityManager = activeWorld.Unwrap()->GetEntityManager();
-            entityManager.ForEachEntityWith<Backpack>([&](const Entity &entity) {
-                *entityManager.GetComponent<Transform>(entity).Unwrap() = transform;
-            });
+            entityManager.ForEachEntityWith<Backpack>(
+                    [&](const Entity &entity) { *entityManager.GetComponent<Transform>(entity).Unwrap() = transform; });
         }
     }
 
@@ -125,7 +126,7 @@ public:
         Gui::DragFloat3("Position", &transform.position.x, 0.05F);
 
         Gui::DragFloat3("Rotation", &rotation.x, 1.0F);
-        transform.rotation = quat(radians(rotation));
+        transform.rotation = Quaternion::Euler(rotation);
 
         Gui::DragFloat3("Scale", &transform.scale.x, 0.05F);
 

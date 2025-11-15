@@ -1,15 +1,19 @@
 #ifndef PIXF_SERIALIZABLE_HPP
 #define PIXF_SERIALIZABLE_HPP
 
-#include "Assets/AssetManager.hpp"
-#include "Json/Json.hpp"
+#include "Common.hpp"
+#include "Serialization/Json/Json.hpp"
+
+namespace Pixf::Core::Assets {
+    class AssetManager;
+}
 
 namespace Pixf::Core::Serialization {
     struct PIXF_API Serializable {
         virtual ~Serializable() = default;
 
-        virtual Json::object Serialize(bool editorMode = false) = 0;
-        virtual void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) = 0;
+        virtual Json::object Serialize(bool editorMode) = 0;
+        virtual void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode) = 0;
     };
 
     template<typename T>

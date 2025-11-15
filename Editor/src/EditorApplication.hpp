@@ -10,13 +10,14 @@
 #include "Time/Clock.hpp"
 #include "Window.hpp"
 #include "WorldManager.hpp"
+#include "Math/Math.hpp"
 
 namespace Pixf::Editor {
     struct EditorConfig {
         Core::WindowConfig windowConfig = {
-                .title = "Editor", .size = uvec2(1920, 1080), .samplesPerPixel = 4, .vsync = true};
+                .title = "Editor", .size = Core::Math::Vector2u(1920, 1080), .samplesPerPixel = 4, .vsync = true};
 
-        Core::Graphics::RendererConfig rendererConfig = {.viewportAspect = ivec2(1920, 1080)};
+        Core::Graphics::RendererConfig rendererConfig = {.viewportAspect = Core::Math::Vector2i(1920, 1080)};
 
         Core::Audio::AudioManagerConfig audioManagerConfig;
     };
@@ -38,11 +39,11 @@ namespace Pixf::Editor {
         void OnRenderGui(double deltaTime);
         void OnShutdown();
 
-        void RenderTopBar(ivec2 origin, ivec2 aspect);
-        void RenderHierarchy(ivec2 origin, ivec2 aspect);
-        void RenderInspector(ivec2 origin, ivec2 aspect);
-        void RenderFileBrowser(ivec2 origin, ivec2 aspect);
-        void RenderConsole(ivec2 origin, ivec2 aspect) const;
+        void RenderTopBar(Core::Math::Vector2i origin, Core::Math::Vector2i aspect);
+        void RenderHierarchy(Core::Math::Vector2i origin, Core::Math::Vector2i aspect);
+        void RenderInspector(Core::Math::Vector2i origin, Core::Math::Vector2i aspect);
+        void RenderFileBrowser(Core::Math::Vector2i origin, Core::Math::Vector2i aspect);
+        void RenderConsole(Core::Math::Vector2i origin, Core::Math::Vector2i aspect) const;
 
         void Run();
         void Exit();

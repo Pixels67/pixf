@@ -8,7 +8,6 @@
 
 #include "Error/Result.hpp"
 #include "Serialization/Serializable.hpp"
-#include "Serialization/Serialization.hpp"
 
 namespace Pixf::Core::Entities {
     struct PIXF_API Component {
@@ -32,8 +31,9 @@ namespace Pixf::Core::Entities {
         virtual const char *GetTypeName() = 0;
         virtual uint64_t GetTypeId() = 0;
 
-        virtual Json::object SerializeElement(size_t index, bool editorMode = false) = 0;
-        virtual void DeserializeElement(Json::object json, Assets::AssetManager &assetManager, size_t index, bool editorMode = false) = 0;
+        virtual Serialization::Json::object SerializeElement(size_t index, bool editorMode = false) = 0;
+        virtual void DeserializeElement(Serialization::Json::object json, Assets::AssetManager &assetManager,
+                                        size_t index, bool editorMode = false) = 0;
     };
 
     template<TypeInformed T>
@@ -134,8 +134,8 @@ namespace Pixf::Core::Entities {
             return result;
         }
 
-        Json::object Serialize(bool editorMode = false) override {
-            Json::object json = {};
+        Serialization::Json::object Serialize(bool editorMode = false) override {
+            Serialization::Json::object json = {};
 
             if constexpr (Serialization::SerializableType<T>) {
                 for (auto &[id, component]: GetAll()) {
@@ -148,7 +148,8 @@ namespace Pixf::Core::Entities {
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {
+        void Deserialize(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
+                         bool editorMode = false) override {
             Clear();
 
             if constexpr (Serialization::SerializableType<T>) {
@@ -162,8 +163,8 @@ namespace Pixf::Core::Entities {
             }
         }
 
-        Json::object SerializeElement(const size_t index, bool editorMode = false) override {
-            Json::object json = {};
+        Serialization::Json::object SerializeElement(const size_t index, bool editorMode = false) override {
+            Serialization::Json::object json = {};
 
             if constexpr (Serialization::SerializableType<T>) {
                 json = Get(index).Unwrap()->Serialize(editorMode);
@@ -172,7 +173,8 @@ namespace Pixf::Core::Entities {
             return json;
         }
 
-        void DeserializeElement(Json::object json, Assets::AssetManager &assetManager, const size_t index, bool editorMode = false) override {
+        void DeserializeElement(Serialization::Json::object json, Assets::AssetManager &assetManager,
+                                const size_t index, bool editorMode = false) override {
             if constexpr (Serialization::SerializableType<T>) {
                 T component{};
                 component.Deserialize(json, assetManager, editorMode);

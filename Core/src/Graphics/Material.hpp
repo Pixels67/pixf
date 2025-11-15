@@ -29,34 +29,38 @@ namespace Pixf::Core::Graphics {
         MaterialPropertyError SetShader(const Assets::AssetHandle &handle);
         Assets::AssetHandle GetShader() const;
 
-        void SetDiffuse(vec4 color);
+        void SetDiffuse(const Math::Color4u8 &color);
         void SetDiffuseTexture2D(const std::optional<Assets::AssetHandle> &texture);
-        void SetSpecular(vec4 color);
+        void SetSpecular(const Math::Color4u8 &color);
         void SetSpecularTexture2D(const std::optional<Assets::AssetHandle> &texture);
         void SetSpecularStrength(float value);
         void SetShininess(float value);
 
-        vec4 GetDiffuse() const;
+        Math::Vector4f GetDiffuse() const;
         std::optional<Assets::AssetHandle> GetDiffuseTexture2D() const;
         float GetSpecularStrength() const;
         float GetShininess() const;
 
-        MaterialPropertyError SetFloat(const std::string &name, float value);
-        MaterialPropertyError SetInt(const std::string &name, int value);
-        MaterialPropertyError SetVec2(const std::string &name, vec2 value);
-        MaterialPropertyError SetVec3(const std::string &name, vec3 value);
-        MaterialPropertyError SetVec4(const std::string &name, vec4 value);
-        MaterialPropertyError SetMat4(const std::string &name, const mat4 &value);
+        void SetFloat(const std::string &name, float value);
+        void SetInt(const std::string &name, int value);
+        void SetVector2f(const std::string &name, const Math::Vector2f &value);
+        void SetVector3f(const std::string &name, const Math::Vector3f& value);
+        void SetVector4f(const std::string &name, const Math::Vector4f& value);
+        void SetColor3u8(const std::string &name, const Math::Color3u8 &value);
+        void SetColor4u8(const std::string &name, const Math::Color4u8 &value);
+        void SetMatrix4f(const std::string &name, const Math::Matrix4f &value);
 
-        MaterialPropertyError SetTexture2D(const std::string &name, const Assets::AssetHandle &handle);
+        void SetTexture2D(const std::string &name, const Assets::AssetHandle &handle);
 
         Error::Result<float, MaterialPropertyError> GetFloat(const std::string &name) const;
         Error::Result<int,  MaterialPropertyError> GetInt(const std::string &name) const;
         Error::Result<char, MaterialPropertyError> GetChar(const std::string &name) const;
-        Error::Result<vec2, MaterialPropertyError> GetVec2(const std::string &name) const;
-        Error::Result<vec3, MaterialPropertyError> GetVec3(const std::string &name) const;
-        Error::Result<vec4, MaterialPropertyError> GetVec4(const std::string &name) const;
-        Error::Result<mat4, MaterialPropertyError> GetMat4(const std::string &name) const;
+        Error::Result<Math::Vector2f, MaterialPropertyError> GetVector2f(const std::string &name) const;
+        Error::Result<Math::Vector3f, MaterialPropertyError> GetVector3f(const std::string &name) const;
+        Error::Result<Math::Vector4f, MaterialPropertyError> GetVector4f(const std::string &name) const;
+        Error::Result<Math::Color3u8, MaterialPropertyError> GetColor3u8(const std::string &name) const;
+        Error::Result<Math::Color4u8, MaterialPropertyError> GetColor4u8(const std::string &name) const;
+        Error::Result<Math::Matrix4f, MaterialPropertyError> GetMatrix4f(const std::string &name) const;
 
         Error::Result<Assets::AssetHandle, MaterialPropertyError> GetTexture2D(const std::string &name) const;
 
@@ -68,11 +72,13 @@ namespace Pixf::Core::Graphics {
         std::unordered_map<std::string, int> m_Ints;
         std::unordered_map<std::string, char> m_Chars;
 
-        std::unordered_map<std::string, vec2> m_Vecs2D;
-        std::unordered_map<std::string, vec3> m_Vecs3D;
-        std::unordered_map<std::string, vec4> m_Vecs4D;
+        std::unordered_map<std::string, Math::Vector2f> m_Vecs2;
+        std::unordered_map<std::string, Math::Vector3f> m_Vecs3;
+        std::unordered_map<std::string, Math::Vector4f> m_Vecs4;
+        std::unordered_map<std::string, Math::Color3u8> m_Colors3;
+        std::unordered_map<std::string, Math::Color4u8> m_Colors4;
 
-        std::unordered_map<std::string, mat4> m_Mats;
+        std::unordered_map<std::string, Math::Matrix4f> m_Mats;
         std::unordered_map<std::string, Assets::AssetHandle> m_Textures2D;
 
         Assets::AssetHandle m_Shader;

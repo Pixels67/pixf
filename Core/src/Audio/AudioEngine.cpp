@@ -51,7 +51,7 @@ namespace Pixf::Core::Audio {
 
     void AudioEngine::Terminate() { ma_engine_uninit(&s_Engine); }
 
-    void AudioEngine::SetListener(const ListenerConfig &config) {
+    void AudioEngine::SetListener(const AudioListenerConfig &config) {
         ma_engine_listener_set_position(&s_Engine, 0, config.position.x, config.position.y, config.position.z);
         ma_engine_listener_set_direction(&s_Engine, 0, config.direction.x, config.direction.y, config.direction.z);
     }

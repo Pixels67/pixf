@@ -5,7 +5,6 @@
 #include <unordered_map>
 
 #include "Assets/AssetManager.hpp"
-#include "Common.hpp"
 
 namespace Pixf::Core::Graphics {
     Material::Material(Assets::AssetManager &resourceManager) : m_AssetManager(resourceManager) {
@@ -29,7 +28,7 @@ namespace Pixf::Core::Graphics {
 
     Assets::AssetHandle Material::GetShader() const { return m_Shader; }
 
-    void Material::SetDiffuse(const vec4 color) { SetVec4("uDiffuse", color); }
+    void Material::SetDiffuse(const Math::Color4u8 &color) { SetColor4u8("uDiffuse", color); }
 
     void Material::SetDiffuseTexture2D(const std::optional<Assets::AssetHandle> &texture) {
         SetInt("uHasDiffuseTex", texture.has_value());
@@ -38,7 +37,7 @@ namespace Pixf::Core::Graphics {
         }
     }
 
-    void Material::SetSpecular(const vec4 color) { SetVec4("uSpecular", color); }
+    void Material::SetSpecular(const Math::Color4u8 &color) { SetColor4u8("uSpecular", color); }
 
     void Material::SetSpecularTexture2D(const std::optional<Assets::AssetHandle> &texture) {
         SetInt("uHasSpecularTex", texture.has_value());
@@ -51,7 +50,7 @@ namespace Pixf::Core::Graphics {
 
     void Material::SetShininess(const float value) { SetFloat("uShininess", value); }
 
-    vec4 Material::GetDiffuse() const { return GetVec4("uDiffuse").UnwrapOr(vec4(0.0F)); }
+    Math::Vector4f Material::GetDiffuse() const { return GetVector4f("uDiffuse").UnwrapOr(Math::Vector4f(0.0F)); }
 
     std::optional<Assets::AssetHandle> Material::GetDiffuseTexture2D() const {
         if (GetInt("uHasDiffuseTex").UnwrapOr(false)) {
@@ -65,40 +64,40 @@ namespace Pixf::Core::Graphics {
 
     float Material::GetShininess() const { return GetFloat("uShininess").UnwrapOr(0.0F); }
 
-    MaterialPropertyError Material::SetFloat(const std::string &name, const float value) {
+    void Material::SetFloat(const std::string &name, const float value) {
         m_Floats[name] = value;
-        return MaterialPropertyError::None;
     }
 
-    MaterialPropertyError Material::SetInt(const std::string &name, const int value) {
+    void Material::SetInt(const std::string &name, const int value) {
         m_Ints[name] = value;
-        return MaterialPropertyError::None;
     }
 
-    MaterialPropertyError Material::SetVec2(const std::string &name, const vec2 value) {
-        m_Vecs2D[name] = value;
-        return MaterialPropertyError::None;
+    void Material::SetVector2f(const std::string &name, const Math::Vector2f &value) {
+        m_Vecs2[name] = value;
     }
 
-    MaterialPropertyError Material::SetVec3(const std::string &name, const vec3 value) {
-        m_Vecs3D[name] = value;
-        return MaterialPropertyError::None;
+    void Material::SetVector3f(const std::string &name, const Math::Vector3f& value) {
+        m_Vecs3[name] = value;
     }
 
-    MaterialPropertyError Material::SetVec4(const std::string &name, const vec4 value) {
-        m_Vecs4D[name] = value;
-        return MaterialPropertyError::None;
+    void Material::SetVector4f(const std::string &name, const Math::Vector4f& value) {
+        m_Vecs4[name] = value;
     }
 
-    MaterialPropertyError Material::SetMat4(const std::string &name, const mat4 &value) {
+    void Material::SetColor3u8(const std::string &name, const Math::Color3u8 &value) {
+        m_Colors3[name] = value;
+    }
+
+    void Material::SetColor4u8(const std::string &name, const Math::Color4u8 &value) {
+        m_Colors4[name] = value;
+    }
+
+    void Material::SetMatrix4f(const std::string &name, const Math::Matrix4f &value) {
         m_Mats[name] = value;
-        return MaterialPropertyError::None;
     }
 
-    MaterialPropertyError Material::SetTexture2D(const std::string &name, const Assets::AssetHandle &handle) {
+    void Material::SetTexture2D(const std::string &name, const Assets::AssetHandle &handle) {
         m_Textures2D[name] = handle;
-
-        return MaterialPropertyError::None;
     }
 
     Error::Result<float, MaterialPropertyError> Material::GetFloat(const std::string &name) const {
@@ -125,31 +124,47 @@ namespace Pixf::Core::Graphics {
         return m_Chars.at(name);
     }
 
-    Error::Result<vec2, MaterialPropertyError> Material::GetVec2(const std::string &name) const {
-        if (!m_Vecs2D.contains(name)) {
+    Error::Result<Math::Vector2f, MaterialPropertyError> Material::GetVector2f(const std::string &name) const {
+        if (!m_Vecs2.contains(name)) {
             return MaterialPropertyError::NotFound;
         }
 
-        return m_Vecs2D.at(name);
+        return m_Vecs2.at(name);
     }
 
-    Error::Result<vec3, MaterialPropertyError> Material::GetVec3(const std::string &name) const {
-        if (!m_Vecs3D.contains(name)) {
+    Error::Result<Math::Vector3f, MaterialPropertyError> Material::GetVector3f(const std::string &name) const {
+        if (!m_Vecs3.contains(name)) {
             return MaterialPropertyError::NotFound;
         }
 
-        return m_Vecs3D.at(name);
+        return m_Vecs3.at(name);
     }
 
-    Error::Result<vec4, MaterialPropertyError> Material::GetVec4(const std::string &name) const {
-        if (!m_Vecs4D.contains(name)) {
+    Error::Result<Math::Vector4f, MaterialPropertyError> Material::GetVector4f(const std::string &name) const {
+        if (!m_Vecs4.contains(name)) {
             return MaterialPropertyError::NotFound;
         }
 
-        return m_Vecs4D.at(name);
+        return m_Vecs4.at(name);
     }
 
-    Error::Result<mat4, MaterialPropertyError> Material::GetMat4(const std::string &name) const {
+    Error::Result<Math::Color3u8, MaterialPropertyError> Material::GetColor3u8(const std::string &name) const {
+        if (!m_Colors3.contains(name)) {
+            return MaterialPropertyError::NotFound;
+        }
+
+        return m_Colors3.at(name);
+    }
+
+    Error::Result<Math::Color4u8, MaterialPropertyError> Material::GetColor4u8(const std::string &name) const {
+        if (!m_Colors4.contains(name)) {
+            return MaterialPropertyError::NotFound;
+        }
+
+        return m_Colors4.at(name);
+    }
+
+    Error::Result<Math::Matrix4f, MaterialPropertyError> Material::GetMatrix4f(const std::string &name) const {
         if (!m_Mats.contains(name)) {
             return MaterialPropertyError::NotFound;
         }
@@ -182,15 +197,23 @@ namespace Pixf::Core::Graphics {
             shader->SetUniform(name, value);
         }
 
-        for (const auto &[name, value]: m_Vecs2D) {
+        for (const auto &[name, value]: m_Vecs2) {
             shader->SetUniform(name, value);
         }
 
-        for (const auto &[name, value]: m_Vecs3D) {
+        for (const auto &[name, value]: m_Vecs3) {
             shader->SetUniform(name, value);
         }
 
-        for (const auto &[name, value]: m_Vecs4D) {
+        for (const auto &[name, value]: m_Vecs4) {
+            shader->SetUniform(name, value);
+        }
+
+        for (const auto &[name, value]: m_Colors3) {
+            shader->SetUniform(name, value);
+        }
+
+        for (const auto &[name, value]: m_Colors4) {
             shader->SetUniform(name, value);
         }
 
@@ -215,10 +238,10 @@ namespace Pixf::Core::Graphics {
     }
 
     void Material::SetupDefaults() {
-        SetDiffuse(vec4(1.0F));
+        SetDiffuse(Math::Color4u8(255));
         SetDiffuseTexture2D(std::nullopt);
 
-        SetSpecular(vec4(1.0F));
+        SetSpecular(Math::Color4u8(255));
         SetSpecularTexture2D(std::nullopt);
 
         SetSpecularStrength(1.0F);

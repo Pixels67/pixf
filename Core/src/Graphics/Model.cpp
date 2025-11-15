@@ -106,7 +106,7 @@ namespace Pixf::Core::Graphics {
             } else {
                 aiColor3D diffuseColor(1.0F, 1.0F, 1.0F);
                 mat->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
-                material.SetDiffuse(vec4(diffuseColor.r, diffuseColor.g, diffuseColor.b, 1.0F));
+                material.SetDiffuse(Math::Color4u8(diffuseColor.r * 255, diffuseColor.g * 255, diffuseColor.b * 255, 255));
             }
 
             if (mat->GetTexture(aiTextureType_SPECULAR, 0, &specPath) == AI_SUCCESS) {
@@ -117,7 +117,8 @@ namespace Pixf::Core::Graphics {
             } else {
                 aiColor3D specularColor(1.0F, 1.0F, 1.0F);
                 mat->Get(AI_MATKEY_COLOR_SPECULAR, specularColor);
-                material.SetSpecular(vec4(specularColor.r, specularColor.g, specularColor.b, 1.0F));
+                material.SetSpecular(
+                        Math::Color4u8(specularColor.r * 255, specularColor.g * 255, specularColor.b * 255, 255));
             }
 
             m_Meshes.push_back(assetManager.CreateMesh(vertices, indices));

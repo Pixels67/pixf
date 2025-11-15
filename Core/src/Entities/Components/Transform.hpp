@@ -3,54 +3,46 @@
 
 #include "Common.hpp"
 #include "Entities/ComponentManager.hpp"
+#include "Math/Math.hpp"
 #include "Serialization/Serializable.hpp"
-#include "Serialization/Serialization.hpp"
 
 namespace Pixf::Core::Entities::Components {
     struct PIXF_API Transform final : Component, Serialization::Serializable {
         PIXF_TYPE_INFO(Transform)
 
-        vec3 position = vec3(0.0F, 0.0F, 0.0F);
-        quat rotation = quat(1.0F, 0.0F, 0.0F, 0.0F);
-        vec3 eulerRotation = vec3(0.0F, 0.0F, 0.0F);
-        vec3 scale = vec3(1.0F, 1.0F, 1.0F);
+        Math::Vector3f position;
+        Math::Quaternion rotation;
+        Math::Vector3f eulerRotation;
+        Math::Vector3f scale{1.0F};
 
-        void Translate(const vec3 &translation);
-        void Rotate(const quat &rotation);
-        void RotateAround(const vec3 &axis, float degrees);
-        void LookAt(const vec3 &target, const vec3 &up);
-        void Scale(const vec3 &scale);
+        Math::Matrix4f GetMatrix() const;
 
-        mat4 GetMatrix() const;
-
-        Transform() = default;
-
-        Json::object Serialize(const bool editorMode = false) override {
-            Json::object json;
+        Serialization::Json::object Serialize(const bool editorMode = false) override {
+            Serialization::Json::object json;
 
             if (editorMode) {
-                json["position"] = Serialization::SerializeVec3(position);
-                json["rotation"] = Serialization::SerializeEuler(eulerRotation);
-                json["scale"] = Serialization::SerializeVec3(scale);
+                json["position"] = position.Serialize(true);
+                json["rotation"] = eulerRotation.Serialize(true);
+                json["scale"] = scale.Serialize(true);
             } else {
-                json["position"] = Serialization::SerializeVec3(position);
-                json["rotation"] = Serialization::SerializeQuat(rotation);
-                json["scale"] = Serialization::SerializeVec3(scale);
+                json["position"] = position.Serialize(false);
+                json["rotation"] = rotation.Serialize(false);
+                json["scale"] = scale.Serialize(false);
             }
 
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager,
+        void Deserialize(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
                          const bool editorMode = false) override {
             if (editorMode) {
-                position = Serialization::DeserializeVec3(json.at("position").as_object());
-                eulerRotation = Serialization::DeserializeEuler(json.at("rotation").as_object());
-                scale = Serialization::DeserializeVec3(json.at("scale").as_object());
+                position.Deserialize(json.at("position").as_object(), assetManager, true);
+                eulerRotation.Deserialize(json.at("rotation").as_object(), assetManager, true);
+                scale.Deserialize(json.at("scale").as_object(), assetManager, true);
             } else {
-                position = Serialization::DeserializeVec3(json.at("position").as_object());
-                rotation = Serialization::DeserializeQuat(json.at("rotation").as_object());
-                scale = Serialization::DeserializeVec3(json.at("scale").as_object());
+                position.Deserialize(json.at("position").as_object(), assetManager, false);
+                rotation.Deserialize(json.at("rotation").as_object(), assetManager, false);
+                scale.Deserialize(json.at("scale").as_object(), assetManager, false);
             }
         }
     };

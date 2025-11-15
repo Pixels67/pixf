@@ -1,6 +1,7 @@
 #ifndef AUDIOLISTENER_HPP
 #define AUDIOLISTENER_HPP
 
+#include "Audio/AudioEngine.hpp"
 #include "Common.hpp"
 #include "Entities/ComponentManager.hpp"
 
@@ -8,21 +9,15 @@ namespace Pixf::Core::Entities::Components::Audio {
     struct PIXF_API AudioListener final : Component, Serialization::Serializable {
         PIXF_TYPE_INFO(AudioListener);
 
-        vec3 position;
-        vec3 direction;
+        Core::Audio::AudioListenerConfig config;
 
-        Json::object Serialize(bool editorMode = false) override {
-            Json::object json;
-
-            json["position"] = Serialization::SerializeVec3(position);
-            json["direction"] = Serialization::SerializeVec3(direction);
-
-            return json;
+        Serialization::Json::object Serialize(const bool editorMode = false) override {
+            return config.Serialize(editorMode);
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {
-            position = Serialization::DeserializeVec3(json.at("position").as_object());
-            direction = Serialization::DeserializeVec3(json.at("direction").as_object());
+        void Deserialize(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
+                         const bool editorMode = false) override {
+            config.Deserialize(json, assetManager, editorMode);
         }
     };
 } // namespace Pixf::Core::Entities::Components::Audio

@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "Common.hpp"
+#include "Math/Math.hpp"
 
 constexpr unsigned int g_MaxTextureCount = 16;
 constexpr unsigned int maxTextureNameLength = 256;
@@ -35,11 +35,13 @@ namespace Pixf::Core::Graphics::Gl {
         void SetUniform(const std::string &name, int value) const;
         void SetUniform(const std::string &name, float value) const;
 
-        void SetUniform(const std::string &name, vec2 value) const;
-        void SetUniform(const std::string &name, vec3 value) const;
-        void SetUniform(const std::string &name, vec4 value) const;
+        void SetUniform(const std::string &name, const Math::Vector2f& value) const;
+        void SetUniform(const std::string &name, const Math::Vector3f &value) const;
+        void SetUniform(const std::string &name, const Math::Vector4f &value) const;
+        void SetUniform(const std::string &name, Math::Color3u8 value) const;
+        void SetUniform(const std::string &name, Math::Color4u8 value) const;
 
-        void SetUniform(const std::string &name, mat4 value) const;
+        void SetUniform(const std::string &name, Math::Matrix4f value) const;
 
         std::unordered_map<std::string, uint8_t> GetTextureMap() const;
 

@@ -8,7 +8,7 @@
 
 #include "Common.hpp"
 #include "ComponentManager.hpp"
-#include "Json/Json.hpp"
+#include "Serialization/Json/Json.hpp"
 #include "Serialization/Serializable.hpp"
 
 namespace Pixf::Core::Entities {
@@ -22,8 +22,8 @@ namespace Pixf::Core::Entities {
         uint8_t GetVersion() const { return version; }
         bool IsActive() const { return active; }
 
-        Json::object Serialize(bool editorMode = false) override {
-            Json::object json;
+        Serialization::Json::object Serialize(bool editorMode = false) override {
+            Serialization::Json::object json;
 
             json["name"] = name;
             json["id"] = id;
@@ -33,7 +33,7 @@ namespace Pixf::Core::Entities {
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager,
+        void Deserialize(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
                          bool editorMode = false) override {
             name = json.at("name").as_string().c_str();
             id = json.at("id").to_number<unsigned int>();
@@ -205,10 +205,10 @@ namespace Pixf::Core::Entities {
 
         ComponentManager &GetComponentManager() { return m_ComponentManager; }
 
-        Json::object Serialize(const bool editorMode = false) override {
-            Json::object json;
+        Serialization::Json::object Serialize(const bool editorMode = false) override {
+            Serialization::Json::object json;
 
-            json["entities"] = Json::array();
+            json["entities"] = Serialization::Json::array();
 
             for (auto &entity: m_Entities) {
                 json["entities"].as_array().push_back(entity.Serialize());
@@ -219,12 +219,12 @@ namespace Pixf::Core::Entities {
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager,
+        void Deserialize(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
                          const bool editorMode = false) override {
             Clear();
 
             m_EntityIdCounter = json.at("entities").as_array().size();
-            for (Json::array entities = json.at("entities").as_array(); auto &entity: entities) {
+            for (Serialization::Json::array entities = json.at("entities").as_array(); auto &entity: entities) {
                 Entity e{};
                 e.Deserialize(entity.as_object(), assetManager);
                 m_Entities.emplace_back(std::move(e));
@@ -233,12 +233,12 @@ namespace Pixf::Core::Entities {
             m_ComponentManager.Deserialize(json.at("components").as_object(), assetManager, editorMode);
         }
 
-        Json::object SerializeEntityComponents(const Entity &entity, const bool editorMode = false) {
-            Json::object json = m_ComponentManager.SerializeElement(entity.GetId(), editorMode);
+        Serialization::Json::object SerializeEntityComponents(const Entity &entity, const bool editorMode = false) {
+            Serialization::Json::object json = m_ComponentManager.SerializeElement(entity.GetId(), editorMode);
             return json;
         }
 
-        void DeserializeEntityComponents(const Json::object &json, Assets::AssetManager &assetManager,
+        void DeserializeEntityComponents(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
                                          const Entity &entity, const bool editorMode = false) {
             m_ComponentManager.DeserializeElement(json, assetManager, entity.GetId(), editorMode);
         }

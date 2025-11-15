@@ -4,10 +4,10 @@
 #include <vector>
 
 #include "Assets/AssetManager.hpp"
-#include "Common.hpp"
 #include "Entities/Components/Graphics/AmbientLight.hpp"
 #include "Entities/Components/Graphics/DirectionalLight.hpp"
 #include "Entities/Components/Graphics/PointLight.hpp"
+#include "Math/Math.hpp"
 
 namespace Pixf::Core::Graphics {
     struct RenderCommand {
@@ -16,9 +16,9 @@ namespace Pixf::Core::Graphics {
         std::vector<Entities::Components::Graphics::PointLight> pointLights;
         Assets::AssetHandle mesh;
         Assets::AssetHandle material;
-        mat4 model = mat4(1.0F);
-        mat4 view = mat4(1.0F);
-        mat4 projection = mat4(1.0F);
+        Math::Matrix4f model;
+        Math::Matrix4f view;
+        Math::Matrix4f projection;
     };
 } // namespace Pixf::Core::Graphics
 #endif // RENDERCOMMAND_HPP

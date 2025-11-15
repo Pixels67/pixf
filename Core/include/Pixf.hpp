@@ -1,7 +1,7 @@
 #ifndef PIXF_HPP
 #define PIXF_HPP
 
-#include "../src/Window.hpp"
+#include "Window.hpp"
 #include "Application.hpp"
 #include "Assets/AssetManager.hpp"
 #include "Audio/AudioEngine.hpp"
@@ -35,7 +35,7 @@
 #include "Graphics/Vertex.hpp"
 #include "Gui/Gui.hpp"
 #include "Input/InputManager.hpp"
-#include "Json/Json.hpp"
+#include "Serialization/Json/Json.hpp"
 #include "Time/Clock.hpp"
 #include "Time/LocalTime.hpp"
 #include "WorldManager.hpp"

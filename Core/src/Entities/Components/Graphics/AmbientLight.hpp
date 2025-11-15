@@ -3,30 +3,31 @@
 
 #include "Common.hpp"
 #include "Entities/ComponentManager.hpp"
+#include "Math/Math.hpp"
 #include "Serialization/Serializable.hpp"
-#include "Serialization/Serialization.hpp"
 
 namespace Pixf::Core::Entities::Components::Graphics {
     struct PIXF_API AmbientLight final : Component, Serialization::Serializable {
         PIXF_TYPE_INFO(AmbientLight)
 
-        vec3 color = vec3(1.0F);
+        Math::Color3u8 color = Math::Color3u8(255);
         float intensity = 0.2F;
 
         AmbientLight() = default;
-        AmbientLight(const vec3 color, const float intensity) : color(color), intensity(intensity) {}
+        AmbientLight(const Math::Color3u8 &color, const float intensity) : color(color), intensity(intensity) {}
 
-        Json::object Serialize(bool editorMode = false) override {
-            Json::object json;
+        Serialization::Json::object Serialize(const bool editorMode = false) override {
+            Serialization::Json::object json;
 
-            json["color"] = Serialization::SerializeColorRgb(color);
+            json["color"] = color.Serialize(editorMode);
             json["intensity"] = intensity;
 
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {
-            color = Serialization::DeserializeColorRgb(json.at("color").as_object());
+        void Deserialize(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
+                         const bool editorMode = false) override {
+            color.Deserialize(json.at("color").as_object(), assetManager, editorMode);
             intensity = json.at("intensity").to_number<float>();
         }
     };

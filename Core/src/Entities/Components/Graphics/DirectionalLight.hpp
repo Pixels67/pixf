@@ -3,34 +3,35 @@
 
 #include "Common.hpp"
 #include "Entities/ComponentManager.hpp"
+#include "Math/Math.hpp"
 #include "Serialization/Serializable.hpp"
-#include "Serialization/Serialization.hpp"
 
 namespace Pixf::Core::Entities::Components::Graphics {
     struct PIXF_API DirectionalLight final : Component, Serialization::Serializable {
         PIXF_TYPE_INFO(DirectionalLight)
 
-        vec3 direction = vec3(0.0F, 0.0F, -1.0F);
-        vec3 color = vec3(1.0F);
+        Math::Vector3f direction;
+        Math::Color3u8 color;
         float intensity = 1.0F;
 
         DirectionalLight() = default;
-        DirectionalLight(const vec3 direction, const vec3 color, const float intensity) :
+        DirectionalLight(const Math::Vector3f &direction, const Math::Color3u8 &color, const float intensity) :
             direction(direction), color(color), intensity(intensity) {}
 
-        Json::object Serialize(bool editorMode = false) override {
-            Json::object json;
+        Serialization::Json::object Serialize(const bool editorMode = false) override {
+            Serialization::Json::object json;
 
-            json["direction"] = Serialization::SerializeVec3(direction);
-            json["color"] = Serialization::SerializeColorRgb(color);
+            json["direction"] = direction.Serialize(editorMode);
+            json["color"] = color.Serialize(editorMode);
             json["intensity"] = intensity;
 
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {
-            direction = Serialization::DeserializeVec3(json.at("direction").as_object());
-            color = Serialization::DeserializeColorRgb(json.at("color").as_object());
+        void Deserialize(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
+                         const bool editorMode = false) override {
+            direction.Deserialize(json.at("direction").as_object(), assetManager, editorMode);
+            color.Deserialize(json.at("color").as_object(), assetManager, editorMode);
             intensity = json.at("intensity").to_number<float>();
         }
     };

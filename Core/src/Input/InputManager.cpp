@@ -22,12 +22,12 @@ namespace Pixf::Core::Input {
 
     bool InputManager::IsMouseKeyUp(const MouseKey key) const { return !IsMouseKeyDown(key); }
 
-    dvec2 InputManager::GetMousePosition() const { return m_MousePos; }
+    Math::Vector2d InputManager::GetMousePosition() const { return m_MousePos; }
 
-    dvec2 InputManager::GetMouseDelta() const { return m_MouseDelta; }
+    Math::Vector2d InputManager::GetMouseDelta() const { return m_MouseDelta; }
 
     void InputManager::Update() {
-        const dvec2 oldMousePos = m_MousePos;
+        const Math::Vector2d oldMousePos = m_MousePos;
         glfwGetCursorPos(m_Window->GetGlfwWindowPtr(), &m_MousePos.x, &m_MousePos.y);
         m_MouseDelta = m_MousePos - oldMousePos;
     }
@@ -46,7 +46,7 @@ namespace Pixf::Core::Input {
         // Mouse moved
         glfwSetCursorPosCallback(window.GetGlfwWindowPtr(), [](GLFWwindow *window, const double xPos, const double yPos) {
             const auto eventManager = static_cast<Event::EventManager *>(glfwGetWindowUserPointer(window));
-            const auto event = MouseMovedEvent(vec2(xPos, yPos));
+            const auto event = MouseMovedEvent(Math::Vector2f(xPos, yPos));
             PIXF_LOG_TRACE("Mouse position changed: ", xPos, ", ", yPos);
             eventManager->QueueEvent(event);
         });

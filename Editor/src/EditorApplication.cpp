@@ -34,35 +34,35 @@ namespace Pixf::Editor {
             auto &cam = *entityManager.GetSingleton<Camera>().Unwrap();
 
             if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::W)) {
-                cam.transform.Translate(cam.transform.rotation * vec3(0.0F, 0.0F, moveSpeed * deltaTime));
+                cam.transform.position += cam.transform.rotation * Math::Vector3f(0.0F, 0.0F, moveSpeed * deltaTime);
             }
 
             if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::S)) {
-                cam.transform.Translate(cam.transform.rotation * vec3(0.0F, 0.0F, -moveSpeed * deltaTime));
+                cam.transform.position += cam.transform.rotation * Math::Vector3f(0.0F, 0.0F, -moveSpeed * deltaTime);
             }
 
             if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::D)) {
-                cam.transform.Translate(cam.transform.rotation * vec3(moveSpeed * deltaTime, 0.0F, 0.0F));
+                cam.transform.position += cam.transform.rotation * Math::Vector3f(moveSpeed * deltaTime, 0.0F, 0.0F);
             }
 
             if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::A)) {
-                cam.transform.Translate(cam.transform.rotation * vec3(-moveSpeed * deltaTime, 0.0F, 0.0F));
+                cam.transform.position += cam.transform.rotation * Math::Vector3f(-moveSpeed * deltaTime, 0.0F, 0.0F);
             }
 
             if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::E)) {
-                cam.transform.Translate(cam.transform.rotation * vec3(0.0F, moveSpeed * deltaTime, 0.0F));
+                cam.transform.position += cam.transform.rotation * Math::Vector3f(0.0F, moveSpeed * deltaTime, 0.0F);
             }
 
             if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::Q)) {
-                cam.transform.Translate(cam.transform.rotation * vec3(0.0F, -moveSpeed * deltaTime, 0.0F));
+                cam.transform.position += cam.transform.rotation * Math::Vector3f(0.0F, -moveSpeed * deltaTime, 0.0F);
             }
 
             if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::Right)) {
-                cam.transform.RotateAround(vec3(0.0F, 1.0F, 0.0F), rotateSpeed * deltaTime);
+                cam.transform.rotation.RotateAround(rotateSpeed * deltaTime, Math::Vector3f(0.0F, 1.0F, 0.0F));
             }
 
             if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::Left)) {
-                cam.transform.RotateAround(vec3(0.0F, 1.0F, 0.0F), -rotateSpeed * deltaTime);
+                cam.transform.rotation.RotateAround(-rotateSpeed * deltaTime, Math::Vector3f(0.0F, 1.0F, 0.0F));
             }
         }
     };
@@ -126,18 +126,19 @@ namespace Pixf::Editor {
     void EditorApplication::OnRender(double deltaTime) {}
 
     void EditorApplication::OnRenderGui(double deltaTime) {
-        const ivec2 windowSize = GetWindow().GetSize();
+        auto vec = GetWindow().GetSize();
+        const Math::Vector2i windowSize(vec.x, vec.y);
 
-        RenderTopBar(ivec2(0, 0), ivec2(windowSize.x, 50));
-        RenderHierarchy(ivec2(0, 50), ivec2(300, 450));
-        RenderInspector(ivec2(windowSize.x - 400, 50), ivec2(400, windowSize.y - 50));
-        RenderFileBrowser(ivec2(0, 500), ivec2(300, windowSize.y - 500));
-        RenderConsole(ivec2(300, windowSize.y - 300), ivec2(windowSize.x - 700, 300));
+        RenderTopBar(Math::Vector2i(0, 0), Math::Vector2i(windowSize.x, 50));
+        RenderHierarchy(Math::Vector2i(0, 50), Math::Vector2i(300, 450));
+        RenderInspector(Math::Vector2i(windowSize.x - 400, 50), Math::Vector2i(400, windowSize.y - 50));
+        RenderFileBrowser(Math::Vector2i(0, 500), Math::Vector2i(300, windowSize.y - 500));
+        RenderConsole(Math::Vector2i(300, windowSize.y - 300), Math::Vector2i(windowSize.x - 700, 300));
     }
 
     void EditorApplication::OnShutdown() {}
 
-    void EditorApplication::RenderTopBar(const ivec2 origin, const ivec2 aspect) {
+    void EditorApplication::RenderTopBar(const Math::Vector2i origin, const Math::Vector2i aspect) {
         Gui::SetNextWindowPos({static_cast<float>(origin.x), static_cast<float>(origin.y)});
         Gui::SetNextWindowSize({static_cast<float>(aspect.x), static_cast<float>(aspect.y)});
 
@@ -164,7 +165,7 @@ namespace Pixf::Editor {
         Gui::End();
     }
 
-    void EditorApplication::RenderHierarchy(const ivec2 origin, const ivec2 aspect) {
+    void EditorApplication::RenderHierarchy(const Core::Math::Vector2i origin, const Core::Math::Vector2i aspect) {
         Gui::SetNextWindowPos({static_cast<float>(origin.x), static_cast<float>(origin.y)});
         Gui::SetNextWindowSize({static_cast<float>(aspect.x), static_cast<float>(aspect.y)});
 
@@ -197,7 +198,7 @@ namespace Pixf::Editor {
         Gui::End();
     }
 
-    void EditorApplication::RenderInspector(const ivec2 origin, const ivec2 aspect) {
+    void EditorApplication::RenderInspector(const Core::Math::Vector2i origin, const Core::Math::Vector2i aspect) {
         Gui::SetNextWindowPos({static_cast<float>(origin.x), static_cast<float>(origin.y)});
         Gui::SetNextWindowSize({static_cast<float>(aspect.x), static_cast<float>(aspect.y)});
 
@@ -214,15 +215,15 @@ namespace Pixf::Editor {
         Gui::Text("%s", m_SelectedEntity.value().GetName().c_str());
 
         entityManager.DeserializeEntityComponents(
-                Gui::DrawJsonValue(
-                        Json::value_from(entityManager.SerializeEntityComponents(m_SelectedEntity.value(), true)))
+                Gui::DrawJsonValue(Serialization::Json::value_from(
+                                           entityManager.SerializeEntityComponents(m_SelectedEntity.value(), true)))
                         .as_object(),
                 GetAssetManager(), m_SelectedEntity.value(), true);
 
         Gui::End();
     }
 
-    void EditorApplication::RenderFileBrowser(const ivec2 origin, const ivec2 aspect) {
+    void EditorApplication::RenderFileBrowser(const Core::Math::Vector2i origin, const Core::Math::Vector2i aspect) {
         Gui::SetNextWindowPos({static_cast<float>(origin.x), static_cast<float>(origin.y)});
         Gui::SetNextWindowSize({static_cast<float>(aspect.x), static_cast<float>(aspect.y)});
 
@@ -233,7 +234,7 @@ namespace Pixf::Editor {
         Gui::End();
     }
 
-    void EditorApplication::RenderConsole(const ivec2 origin, const ivec2 aspect) const {
+    void EditorApplication::RenderConsole(const Core::Math::Vector2i origin, const Core::Math::Vector2i aspect) const {
         Gui::SetNextWindowPos({static_cast<float>(origin.x), static_cast<float>(origin.y)});
         Gui::SetNextWindowSize({static_cast<float>(aspect.x), static_cast<float>(aspect.y)});
 

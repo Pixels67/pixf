@@ -3,35 +3,42 @@
 
 #include "Common.hpp"
 #include "Entities/ComponentManager.hpp"
+#include "Math/Math.hpp"
 #include "Serialization/Serializable.hpp"
-#include "Serialization/Serialization.hpp"
 
 namespace Pixf::Core::Entities::Components {
     struct PIXF_API RigidTransform final : Component, Serialization::Serializable {
         PIXF_TYPE_INFO(RigidTransform)
 
-        vec3 position = vec3(0.0F, 0.0F, 0.0F);
-        quat rotation = quat(1.0F, 0.0F, 0.0F, 0.0F);
+        Math::Vector3f position;
+        Math::Quaternion rotation;
+        Math::Vector3f eulerRotation;
 
-        void Translate(const vec3 &translation);
-        void Rotate(const quat &rotation);
-        void RotateAround(const vec3 &axis, float degrees);
-        void LookAt(const vec3 &target, const vec3 &up);
+        Math::Matrix4f GetMatrix() const;
 
-        mat4 GetMatrix() const;
+        Serialization::Json::object Serialize(const bool editorMode = false) override {
+            Serialization::Json::object json;
 
-        Json::object Serialize(bool editorMode = false) override {
-            Json::object json;
-
-            json["position"] = Serialization::SerializeVec3(position);
-            json["rotation"] = Serialization::SerializeQuat(rotation);
+            if (editorMode) {
+                json["position"] = position.Serialize(true);
+                json["rotation"] = eulerRotation.Serialize(true);
+            } else {
+                json["position"] = position.Serialize(false);
+                json["rotation"] = rotation.Serialize(false);
+            }
 
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {
-            position = Serialization::DeserializeVec3(json.at("position").as_object());
-            rotation = Serialization::DeserializeQuat(json.at("rotation").as_object());
+        void Deserialize(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
+                         const bool editorMode = false) override {
+            if (editorMode) {
+                position.Deserialize(json.at("position").as_object(), assetManager, true);
+                eulerRotation.Deserialize(json.at("rotation").as_object(), assetManager, true);
+            } else {
+                position.Deserialize(json.at("position").as_object(), assetManager, false);
+                rotation.Deserialize(json.at("rotation").as_object(), assetManager, false);
+            }
         }
     };
 

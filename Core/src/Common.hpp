@@ -32,7 +32,6 @@ namespace boost {}
 #endif
 
 namespace Pixf {
-    using namespace glm;
     using namespace boost;
 } // namespace Pixf
 

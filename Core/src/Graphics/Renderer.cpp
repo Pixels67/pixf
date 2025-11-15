@@ -26,7 +26,8 @@ namespace Pixf::Core::Graphics {
         while (!m_RenderQueue.IsEmpty(RenderType::Opaque)) {
             const auto [ambientLight, directionalLights, pointLights, mesh, material, model, view, projection] =
                     m_RenderQueue.Pop(RenderType::Opaque);
-            auto worldPos = vec3(model * vec4(0.0F));
+            Math::Vector4f vec4 = model * Math::Vector4f();
+            auto worldPos = Math::Vector3f(vec4.x, vec4.y, vec4.z);
 
             const auto mat =
                     assetManager.GetMaterial(material).Unwrap("Failed to render: Invalid RenderCommand.material!");
@@ -74,15 +75,16 @@ namespace Pixf::Core::Graphics {
     }
 
     void Renderer::ClearViewport() const {
-        const auto bgColor = vec3(m_RenderConfig.backgroundColor.r, m_RenderConfig.backgroundColor.g,
-                                  m_RenderConfig.backgroundColor.b);
+        const Math::Color3u8 bgColor = m_RenderConfig.backgroundColor;
 
-        PIXF_GL_CALL(glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0F));
+        PIXF_GL_CALL(glClearColor(static_cast<float>(bgColor.r) / 255.0F, static_cast<float>(bgColor.g) / 255.0F,
+                                  static_cast<float>(bgColor.b) / 255.0F, 1.0F));
         PIXF_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     }
 
     std::vector<Entities::Components::Graphics::PointLight>
-    Renderer::FilterPointLights(const std::vector<Entities::Components::Graphics::PointLight> &lights, vec3 position) {
+    Renderer::FilterPointLights(const std::vector<Entities::Components::Graphics::PointLight> &lights,
+                                Math::Vector3f position) {
         if (lights.size() <= g_MaxPointLights) {
             return lights;
         }
@@ -90,8 +92,8 @@ namespace Pixf::Core::Graphics {
         auto filtered = lights;
 
         auto compare = [position](const auto &lhs, const auto &rhs) {
-            const float dist1 = distance(lhs.position, position);
-            const float dist2 = distance(rhs.position, position);
+            const float dist1 = Math::Vector3f::Distance(lhs.position, position);
+            const float dist2 = Math::Vector3f::Distance(rhs.position, position);
             return dist1 < dist2;
         };
 

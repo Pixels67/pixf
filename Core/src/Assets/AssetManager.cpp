@@ -17,7 +17,7 @@
 #include "Graphics/Material.hpp"
 #include "Graphics/Mesh.hpp"
 #include "Graphics/Model.hpp"
-#include "Json/Json.hpp"
+#include "Serialization/Json/Json.hpp"
 
 using namespace boost;
 
@@ -262,7 +262,7 @@ namespace Pixf::Core::Assets {
             json["uuid"] = to_string(uuid);
             json["type"] = ToString(type);
 
-            File::WriteFile(path + ".meta", Json::ToPrettyJson(json));
+            File::WriteFile(path + ".meta", Serialization::Json::ToPrettyJson(json));
         }
 
         return uuid;

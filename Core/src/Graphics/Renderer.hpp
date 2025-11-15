@@ -9,9 +9,9 @@ namespace Pixf::Core::Graphics {
     constexpr unsigned int g_MaxPointLights = 16;
 
     struct PIXF_API RendererConfig {
-        ivec2 viewportOrigin = ivec2(0, 0);
-        ivec2 viewportAspect = ivec2(1080, 720);
-        vec3 backgroundColor = vec3(0.12f, 0.12f, 0.12f);
+        Math::Vector2i viewportOrigin = Math::Vector2i(0, 0);
+        Math::Vector2i viewportAspect = Math::Vector2i(1080, 720);
+        Math::Color3u8 backgroundColor = Math::Color3u8(30);
     };
 
     class PIXF_API Renderer {
@@ -34,8 +34,9 @@ namespace Pixf::Core::Graphics {
         RenderQueue m_RenderQueue;
         RendererConfig m_RenderConfig;
 
-        std::vector<Entities::Components::Graphics::PointLight>
-        static FilterPointLights(const std::vector<Entities::Components::Graphics::PointLight> &lights, vec3 position);
+        static std::vector<Entities::Components::Graphics::PointLight>
+        FilterPointLights(const std::vector<Entities::Components::Graphics::PointLight> &lights,
+                          Math::Vector3f position);
     };
 } // namespace Pixf::Core::Graphics
 

@@ -113,8 +113,8 @@ namespace Pixf::Core::Entities {
             return std::static_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeId<T>()]);
         }
 
-        Json::object Serialize(bool editorMode = false) override {
-            Json::object json;
+        Serialization::Json::object Serialize(const bool editorMode = false) override {
+            Serialization::Json::object json;
 
             for (auto &[id, registry]: m_Registries) {
                 json[std::string(registry->GetTypeName())] =
@@ -124,8 +124,8 @@ namespace Pixf::Core::Entities {
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager,
-                         bool editorMode = false) override {
+        void Deserialize(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
+                         const bool editorMode = false) override {
             for (auto &[key, value]: json) {
                 if (!m_Types.contains(key)) {
                     PIXF_LOG_ERROR("Component ", key, " not registered!");
@@ -136,8 +136,8 @@ namespace Pixf::Core::Entities {
             }
         }
 
-        Json::object SerializeElement(const size_t index, bool editorMode = false) {
-            Json::object json;
+        Serialization::Json::object SerializeElement(const size_t index, const bool editorMode = false) {
+            Serialization::Json::object json;
 
             for (auto &[id, registry]: m_Registries) {
                 if (!HasComponent(index, registry->GetTypeId())) {
@@ -150,7 +150,8 @@ namespace Pixf::Core::Entities {
             return json;
         }
 
-        void DeserializeElement(const Json::object &json, Assets::AssetManager &assetManager, const size_t index, bool editorMode = false) {
+        void DeserializeElement(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
+                                const size_t index, const bool editorMode = false) {
             for (auto &[key, value]: json) {
                 if (!m_Types.contains(key)) {
                     PIXF_LOG_ERROR("Component ", key, " not registered!");

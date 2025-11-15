@@ -4,7 +4,7 @@
 #include <imgui_impl_opengl3.h>
 
 #include "Input/InputManager.hpp"
-#include "Serialization/Serialization.hpp"
+
 #include "Window.hpp"
 
 namespace Pixf::Core::Gui {
@@ -310,8 +310,8 @@ namespace Pixf::Core::Gui {
         ImGui_ImplOpenGL3_RenderDrawData(GetDrawData());
     }
 
-    Json::value DrawJsonValue(Json::value value, const std::string &name) {
-        using namespace Json;
+    Serialization::Json::value DrawJsonValue(Serialization::Json::value value, const std::string &name) {
+        using namespace Serialization::Json;
 
         if (value.is_object()) {
             return DrawJsonObject(value, name);
@@ -344,7 +344,7 @@ namespace Pixf::Core::Gui {
         return value;
     }
 
-    Json::value DrawJsonValue(Json::value value) {
+    Serialization::Json::value DrawJsonValue(Serialization::Json::value value) {
         if (value.is_object()) {
             for (auto &[key, val]: value.as_object()) {
                 value.as_object()[key] = DrawJsonValue(val, key);
@@ -360,31 +360,29 @@ namespace Pixf::Core::Gui {
         return value;
     }
 
-    Json::value DrawJsonObject(Json::value value, const std::string &name) {
+    Serialization::Json::value DrawJsonObject(Serialization::Json::value value, const std::string &name) {
         if (!value.is_object()) {
             return value;
         }
 
-        Json::object obj = value.as_object();
+        Serialization::Json::object obj = value.as_object();
 
-        if (obj.contains("vec3")) {
+        if (obj.contains("Vector3f") || obj.contains("Vector3d") || obj.contains("Vector3i") ||
+            obj.contains("Vector3u")) {
             return DrawVec3(obj, name);
         }
 
-        if (obj.contains("vec4")) {
+        if (obj.contains("Vector4f") || obj.contains("Vector4d") || obj.contains("Vector4i") ||
+            obj.contains("Vector4u")) {
             return DrawVec4(obj, name);
         }
 
-        if (obj.contains("quat")) {
-            return DrawQuat(obj, name);
+        if (obj.contains("Color3u8") || obj.contains("Color3u16")) {
+            return DrawColor3(obj, name);
         }
 
-        if (obj.contains("rgb")) {
-            return DrawRgbColor(obj, name);
-        }
-
-        if (obj.contains("rgba")) {
-            return DrawRgbaColor(obj, name);
+        if (obj.contains("Color4u8") || obj.contains("Color4u16")) {
+            return DrawColor4(obj, name);
         }
 
         if (TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -395,15 +393,15 @@ namespace Pixf::Core::Gui {
             TreePop();
         }
 
-        return value_from(obj);
+        return Serialization::Json::value_from(obj);
     }
 
-    Json::value DrawJsonArray(Json::value value, const std::string &name) {
+    Serialization::Json::value DrawJsonArray(Serialization::Json::value value, const std::string &name) {
         if (!value.is_array()) {
             return value;
         }
 
-        Json::array arr = value.as_array();
+        Serialization::Json::array arr = value.as_array();
         if (TreeNode((name + " []").c_str())) {
             for (size_t i = 0; i < arr.size(); ++i) {
                 arr[i] = DrawJsonValue(arr[i], std::to_string(i));
@@ -415,7 +413,7 @@ namespace Pixf::Core::Gui {
         return value_from(arr);
     }
 
-    Json::value DrawJsonString(Json::value value, const std::string &name) {
+    Serialization::Json::value DrawJsonString(Serialization::Json::value value, const std::string &name) {
         if (!value.is_string()) {
             return value;
         }
@@ -430,7 +428,7 @@ namespace Pixf::Core::Gui {
         return value;
     }
 
-    Json::value DrawJsonFloat(Json::value value, const std::string &name) {
+    Serialization::Json::value DrawJsonFloat(Serialization::Json::value value, const std::string &name) {
         if (!value.is_number()) {
             return value;
         }
@@ -443,7 +441,7 @@ namespace Pixf::Core::Gui {
         return value;
     }
 
-    Json::value DrawJsonInt(Json::value value, const std::string &name) {
+    Serialization::Json::value DrawJsonInt(Serialization::Json::value value, const std::string &name) {
         if (!value.is_number()) {
             return value;
         }
@@ -456,7 +454,7 @@ namespace Pixf::Core::Gui {
         return value;
     }
 
-    Json::value DrawJsonUint(Json::value value, const std::string &name) {
+    Serialization::Json::value DrawJsonUint(Serialization::Json::value value, const std::string &name) {
         if (!value.is_number()) {
             return value;
         }
@@ -469,7 +467,7 @@ namespace Pixf::Core::Gui {
         return value;
     }
 
-    Json::value DrawJsonBool(Json::value value, const std::string &name) {
+    Serialization::Json::value DrawJsonBool(Serialization::Json::value value, const std::string &name) {
         if (!value.is_bool()) {
             return value;
         }
@@ -482,75 +480,168 @@ namespace Pixf::Core::Gui {
         return value;
     }
 
-    Json::value DrawVec3(Json::value value, const std::string &name) {
+    Serialization::Json::value DrawVec3(Serialization::Json::value value, const std::string &name) {
         if (!value.is_object()) {
             return value;
         }
 
-        if (const auto &obj = value.as_object(); obj.contains("vec3")) {
-            vec3 vec = Serialization::DeserializeVec3(obj);
+        if (const auto &obj = value.as_object(); obj.contains("Vector3f")) {
+            Math::Vector3f vec;
+            vec.Deserialize(obj);
             if (DragFloat3(name.c_str(), &vec.x)) {
-                return value_from(Serialization::SerializeVec3(vec));
+                return value_from(vec.Serialize());
+            }
+        }
+
+        if (const auto &obj = value.as_object(); obj.contains("Vector3d")) {
+            Math::Vector3d dvec;
+            dvec.Deserialize(obj);
+            Math::Vector3f vec(dvec.x, dvec.y, dvec.z);
+
+            if (DragFloat3(name.c_str(), &vec.x)) {
+                dvec = vec;
+                return value_from(dvec.Serialize());
+            }
+        }
+
+        if (const auto &obj = value.as_object(); obj.contains("Vector3i")) {
+            Math::Vector3i vec;
+            vec.Deserialize(obj);
+            if (DragInt3(name.c_str(), &vec.x)) {
+                return value_from(vec.Serialize());
+            }
+        }
+
+        if (const auto &obj = value.as_object(); obj.contains("Vector3u")) {
+            Math::Vector3u uvec;
+            uvec.Deserialize(obj);
+            Math::Vector3i vec(uvec.x, uvec.y, uvec.z);
+
+            if (DragInt3(name.c_str(), &vec.x)) {
+                if (vec.x >= 0) {
+                    uvec.x = vec.x;
+                } else {
+                    uvec.x = 0;
+                }
+
+                if (vec.y >= 0) {
+                    uvec.y = vec.y;
+                } else {
+                    uvec.y = 0;
+                }
+
+                if (vec.z >= 0) {
+                    uvec.z = vec.z;
+                } else {
+                    uvec.z = 0;
+                }
+
+                return value_from(uvec.Serialize());
             }
         }
 
         return value;
     }
 
-    Json::value DrawVec4(Json::value value, const std::string &name) {
+    Serialization::Json::value DrawVec4(Serialization::Json::value value, const std::string &name) {
         if (!value.is_object()) {
             return value;
         }
 
-        if (const auto &obj = value.as_object(); obj.contains("vec4")) {
-            vec4 vec = Serialization::DeserializeVec4(obj);
+        if (const auto &obj = value.as_object(); obj.contains("Vector4f")) {
+            Math::Vector4f vec;
+            vec.Deserialize(obj);
             if (DragFloat4(name.c_str(), &vec.x)) {
-                return value_from(Serialization::SerializeVec4(vec));
+                return value_from(vec.Serialize());
+            }
+        }
+
+        if (const auto &obj = value.as_object(); obj.contains("Vector4d")) {
+            Math::Vector4d dvec;
+            dvec.Deserialize(obj);
+            Math::Vector4f vec(dvec.x, dvec.y, dvec.z, dvec.w);
+
+            if (DragFloat3(name.c_str(), &vec.x)) {
+                dvec = vec;
+                return value_from(dvec.Serialize());
+            }
+        }
+
+        if (const auto &obj = value.as_object(); obj.contains("Vector4i")) {
+            Math::Vector4i vec;
+            vec.Deserialize(obj);
+            if (DragInt4(name.c_str(), &vec.x)) {
+                return value_from(vec.Serialize());
+            }
+        }
+
+        if (const auto &obj = value.as_object(); obj.contains("Vector4u")) {
+            Math::Vector4u uvec;
+            uvec.Deserialize(obj);
+            Math::Vector4i vec(uvec.x, uvec.y, uvec.z, uvec.w);
+
+            if (DragInt4(name.c_str(), &vec.x)) {
+                if (vec.x >= 0) {
+                    uvec.x = vec.x;
+                } else {
+                    uvec.x = 0;
+                }
+
+                if (vec.y >= 0) {
+                    uvec.y = vec.y;
+                } else {
+                    uvec.y = 0;
+                }
+
+                if (vec.z >= 0) {
+                    uvec.z = vec.z;
+                } else {
+                    uvec.z = 0;
+                }
+
+                if (vec.w >= 0) {
+                    uvec.w = vec.w;
+                } else {
+                    uvec.w = 0;
+                }
+
+                return value_from(uvec.Serialize());
             }
         }
 
         return value;
     }
 
-    Json::value DrawQuat(Json::value value, const std::string &name) {
+    Serialization::Json::value DrawColor3(Serialization::Json::value value, const std::string &name) {
         if (!value.is_object()) {
             return value;
         }
 
-        if (const auto &obj = value.as_object(); obj.contains("quat")) {
-            vec3 vec = Serialization::DeserializeEuler(obj);
-            if (DragFloat3(name.c_str(), &vec.x), 0.1F, 0, 0, "%.1f") {
-                return value_from(Serialization::SerializeEuler(vec));
+        if (const auto &obj = value.as_object(); obj.contains("Color3u8")) {
+            Math::Color3u8 col;
+            col.Deserialize(obj);
+            Math::Vector3f vec(col.r / 255.0F, col.g / 255.0F, col.b / 255.0F);
+            if (ColorEdit3(name.c_str(), &vec.x)) {
+                col = vec * 255.0F;
+                return value_from(col.Serialize());
             }
         }
 
         return value;
     }
 
-    Json::value DrawRgbColor(Json::value value, const std::string &name) {
+    Serialization::Json::value DrawColor4(Serialization::Json::value value, const std::string &name) {
         if (!value.is_object()) {
             return value;
         }
 
-        if (const auto &obj = value.as_object(); obj.contains("rgb")) {
-            vec3 col = Serialization::DeserializeColorRgb(obj);
-            if (ColorEdit3(name.c_str(), &col.x)) {
-                return value_from(Serialization::SerializeColorRgb(col));
-            }
-        }
-
-        return value;
-    }
-
-    Json::value DrawRgbaColor(Json::value value, const std::string &name) {
-        if (!value.is_object()) {
-            return value;
-        }
-
-        if (const auto &obj = value.as_object(); obj.contains("rgba")) {
-            vec4 col = Serialization::DeserializeColorRgba(obj);
-            if (ColorEdit4(name.c_str(), &col.x)) {
-                return value_from(Serialization::SerializeColorRgba(col));
+        if (const auto &obj = value.as_object(); obj.contains("Color4u8")) {
+            Math::Color4u8 col;
+            col.Deserialize(obj);
+            Math::Vector4f vec(col.r / 255.0F, col.g / 255.0F, col.b / 255.0F, col.a / 255.0F);
+            if (ColorEdit4(name.c_str(), &vec.x)) {
+                col = vec * 255.0F;
+                return value_from(col.Serialize());
             }
         }
 

@@ -1,13 +1,13 @@
 #ifndef VERTEX_HPP
 #define VERTEX_HPP
 
-#include "Common.hpp"
+#include "Math/Math.hpp"
 
 namespace Pixf::Core::Graphics {
     struct Vertex {
-        vec3 position;
-        vec3 normal;
-        vec2 texCoords;
+        Math::Vector3f position;
+        Math::Vector3f normal;
+        Math::Vector2f texCoords;
     };
 } // namespace Pixf::Core::Graphics::Gl
 

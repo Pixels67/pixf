@@ -5,6 +5,7 @@
 #include "Entities/ComponentManager.hpp"
 #include "Entities/Components/RigidTransform.hpp"
 #include "Window.hpp"
+#include "Math/Math.hpp"
 
 namespace Pixf::Core::Entities::Components::Graphics {
     enum class CameraType : uint8_t { Orthographic, Perspective };
@@ -46,15 +47,15 @@ namespace Pixf::Core::Entities::Components::Graphics {
         float size = 5.0F;
         float fov = 60.0F;
 
-        mat4 GetViewMatrix() const;
-        mat4 GetProjectionMatrix() const;
+        Math::Matrix4f GetViewMatrix() const;
+        Math::Matrix4f GetProjectionMatrix() const;
 
         Camera() = default;
 
-        Json::object Serialize(bool editorMode = false) override {
-            Json::object json;
+        Serialization::Json::object Serialize(const bool editorMode = false) override {
+            Serialization::Json::object json;
 
-            json["transform"] = transform.Serialize();
+            json["transform"] = transform.Serialize(editorMode);
 
             json["near"] = near;
             json["far"] = far;
@@ -66,8 +67,9 @@ namespace Pixf::Core::Entities::Components::Graphics {
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {
-            transform.Deserialize(json.at("transform").as_object(), assetManager);
+        void Deserialize(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
+                         const bool editorMode = false) override {
+            transform.Deserialize(json.at("transform").as_object(), assetManager, editorMode);
 
             near = json.at("near").to_number<float>();
             far = json.at("far").to_number<float>();

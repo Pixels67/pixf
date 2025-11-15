@@ -3,17 +3,17 @@
 #include "Common.hpp"
 
 namespace Pixf::Core::Entities::Components::Graphics {
-    mat4 Camera::GetViewMatrix() const { return inverse(transform.GetMatrix()); }
+    Math::Matrix4f Camera::GetViewMatrix() const { return transform.GetMatrix().Inverse(); }
 
-    mat4 Camera::GetProjectionMatrix() const {
+    Math::Matrix4f Camera::GetProjectionMatrix() const {
         if (type == CameraType::Perspective) {
-            return perspective(radians(fov), aspect, near, far);
+            return Math::Matrix4f::Perspective(near, far, fov, aspect);
         }
 
         if (type == CameraType::Orthographic) {
-            return ortho(-aspect * size, aspect * size, -size, size, near, far);
+            return Math::Matrix4f::Orthographic(near, far, -size, size, -aspect * size, aspect * size);
         }
 
-        return mat4(1.0F);
+        return Math::Matrix4f();
     }
 } // namespace Pixf::Core::Entities::Components

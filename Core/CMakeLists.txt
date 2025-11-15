@@ -113,7 +113,6 @@ set(PROJECT_SOURCES
         src/Graphics/Gl/VertexArray.hpp
         src/Graphics/Gl/VertexBuffer.cpp
         src/Graphics/Gl/VertexBuffer.hpp
-        src/Graphics/Vertex.cpp
         src/Graphics/Vertex.hpp
         src/Graphics/Gl/IndexBuffer.cpp
         src/Graphics/Gl/IndexBuffer.hpp
@@ -170,11 +169,11 @@ set(PROJECT_SOURCES
         src/Gui/Gui.hpp
         src/File/File.hpp
         src/File/File.cpp
-        src/Json/Json.hpp
-        src/Serialization/Serialization.hpp
+        src/Serialization/Json/Json.hpp
         src/Serialization/Serializable.hpp
         src/Entities/Blueprint.cpp
         src/Entities/Blueprint.hpp
+        src/Math/Math.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

@@ -91,16 +91,16 @@ namespace Pixf::Core {
 
     void Window::SetTitle(const std::string &title) const { glfwSetWindowTitle(m_GlfwWindowPtr, title.c_str()); }
 
-    void Window::Resize(const uvec2 size) const {
+    void Window::Resize(const Math::Vector2u size) const {
         glfwSetWindowSize(m_GlfwWindowPtr, static_cast<int>(size.x), static_cast<int>(size.y));
     }
 
     std::string Window::GetTitle() const { return glfwGetWindowTitle(m_GlfwWindowPtr); }
-    uvec2 Window::GetSize() const {
+    Math::Vector2u Window::GetSize() const {
         int x = 0;
         int y = 0;
         glfwGetWindowSize(m_GlfwWindowPtr, &x, &y);
-        return uvec2(x, y);
+        return Math::Vector2u(x, y);
     }
 
     void Window::ResetRenderTarget() { s_CurrentRenderTarget = nullptr; }

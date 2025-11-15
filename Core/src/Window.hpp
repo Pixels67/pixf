@@ -3,17 +3,17 @@
 
 #include <string>
 
-#include "Common.hpp"
+#include "Math/Math.hpp"
 #include "Error/Result.hpp"
 #include "Event/Event.hpp"
 #include "Graphics/Gl/Gl.hpp"
 
 namespace Pixf::Core {
-    constexpr auto g_DefaultWindowSize = uvec2(800, 600);
+    const auto g_DefaultWindowSize = Math::Vector2u(800, 600);
 
     struct WindowConfig {
         std::string title;
-        uvec2 size = g_DefaultWindowSize;
+        Math::Vector2u size = g_DefaultWindowSize;
         uint8_t samplesPerPixel = 4;
         bool vsync = true;
     };
@@ -56,10 +56,10 @@ namespace Pixf::Core {
         PIXF_API GLFWwindow *GetGlfwWindowPtr() const;
 
         PIXF_API void SetTitle(const std::string &title) const;
-        PIXF_API void Resize(uvec2 size) const;
+        PIXF_API void Resize(Math::Vector2u size) const;
 
         PIXF_API std::string GetTitle() const;
-        PIXF_API uvec2 GetSize() const;
+        PIXF_API Math::Vector2u GetSize() const;
 
     private:
         static inline GLFWwindow *s_CurrentRenderTarget = nullptr;

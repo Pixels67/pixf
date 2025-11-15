@@ -4,11 +4,11 @@
 #include <memory>
 #include <string>
 
-#include "Error/Result.hpp"
-#include "Serialization/Serializable.hpp"
-#include "Serialization/Serialization.hpp"
-#include "miniaudio.h"
 #include "Assets/AssetManager.hpp"
+#include "Error/Result.hpp"
+#include "Math/Math.hpp"
+#include "Serialization/Serializable.hpp"
+#include "miniaudio.h"
 
 namespace Pixf::Core::Audio {
     class AudioEngine;
@@ -27,17 +27,17 @@ namespace Pixf::Core::Audio {
     };
 
     struct AudioPlayConfig final : Serialization::Serializable {
-        vec3 position = vec3(0.0F);
+        Math::Vector3f position;
         float volume = 1.0F;
         float pitch = 1.0F;
         float pan = 0.0F;
         bool loop = false;
         bool spatialize = false;
 
-        Json::object Serialize(bool editorMode = false) override {
-            Json::object json;
+        Serialization::Json::object Serialize(const bool editorMode = false) override {
+            Serialization::Json::object json;
 
-            json["position"] = Serialization::SerializeVec3(position);
+            json["position"] = position.Serialize(editorMode);
             json["volume"] = volume;
             json["pitch"] = pitch;
             json["pan"] = pan;
@@ -47,8 +47,9 @@ namespace Pixf::Core::Audio {
             return json;
         }
 
-        void Deserialize(const Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {
-            position = Serialization::DeserializeVec3(json.at("position").as_object());
+        void Deserialize(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
+                         const bool editorMode = false) override {
+            position.Deserialize(json.at("position").as_object(), assetManager, editorMode);
             volume = json.at("volume").to_number<float>();
             pitch = json.at("pitch").to_number<float>();
             pan = json.at("pan").to_number<float>();
@@ -57,9 +58,24 @@ namespace Pixf::Core::Audio {
         }
     };
 
-    struct PIXF_API ListenerConfig {
-        vec3 position = vec3(0.0F);
-        vec3 direction = vec3(0.0F);
+    struct PIXF_API AudioListenerConfig final : Serialization::Serializable {
+        Math::Vector3f position;
+        Math::Vector3f direction;
+
+        Serialization::Json::object Serialize(const bool editorMode = false) override {
+            Serialization::Json::object json;
+
+            json["position"] = position.Serialize(editorMode);
+            json["direction"] = direction.Serialize(editorMode);
+
+            return json;
+        }
+
+        void Deserialize(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
+                         const bool editorMode) override {
+            position.Deserialize(json.at("position").as_object(), assetManager, editorMode);
+            direction.Deserialize(json.at("direction").as_object(), assetManager, editorMode);
+        }
     };
 
     struct PIXF_API AudioClip {
@@ -83,7 +99,7 @@ namespace Pixf::Core::Audio {
     public:
         static AudioEngineError Init(AudioManagerConfig config);
         static void Terminate();
-        static void SetListener(const ListenerConfig &config);
+        static void SetListener(const AudioListenerConfig &config);
 
         static ma_engine *GetEngine();
 

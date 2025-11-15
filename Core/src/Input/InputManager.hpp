@@ -4,7 +4,7 @@
 #include "Window.hpp"
 #include "Common.hpp"
 #include "Event/Event.hpp"
-#include "Graphics/Gl/Gl.hpp"
+#include "Math/Math.hpp"
 
 namespace Pixf::Core::Input {
     enum class Key : uint16_t {
@@ -575,9 +575,9 @@ namespace Pixf::Core::Input {
 
     class PIXF_API MouseMovedEvent final : public Event::Event {
     public:
-        vec2 position;
+        Math::Vector2f position;
 
-        explicit MouseMovedEvent(const vec2 position) : position(position) {}
+        explicit MouseMovedEvent(const Math::Vector2f position) : position(position) {}
     };
 
     class PIXF_API CharacterEvent final : public Event::Event {
@@ -603,14 +603,14 @@ namespace Pixf::Core::Input {
         bool IsMouseKeyDown(MouseKey key) const;
         bool IsMouseKeyUp(MouseKey key) const;
 
-        dvec2 GetMousePosition() const;
-        dvec2 GetMouseDelta() const;
+        Math::Vector2d GetMousePosition() const;
+        Math::Vector2d GetMouseDelta() const;
 
         void Update();
 
     private:
-        dvec2 m_MousePos = {};
-        dvec2 m_MouseDelta = {};
+        Math::Vector2d m_MousePos = {};
+        Math::Vector2d m_MouseDelta = {};
         Event::EventManager *m_EventManager;
         Window *m_Window;
 
