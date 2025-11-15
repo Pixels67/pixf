@@ -220,20 +220,31 @@ namespace Pixf::Editor {
 
         Gui::Separator();
 
-        entityManager.DeserializeEntityComponents(
-                Gui::DrawJsonValue(Serialization::Json::value_from(
-                                           entityManager.SerializeEntityComponents(m_SelectedEntity.value(), true)))
-                        .as_object(),
-                GetAssetManager(), m_SelectedEntity.value(), true);
+        int i = 0;
+        auto object = entityManager.SerializeEntityComponents(m_SelectedEntity.value(), true);
+        for (auto &[key, value]: object) {
+            Serialization::Json::value newValue = Gui::DrawJsonValue(value, key);
+            std::string label = "Remove Component##" + std::to_string(i);
+            if (Gui::Button(label.c_str(), {static_cast<float>(aspect.x - 16), 0})) {
+                object.erase(key);
+                continue;
+            }
 
-        Gui::Separator();
+            Gui::Separator();
+
+            object.at(key) = newValue;
+
+            i++;
+        }
+
+        entityManager.DeserializeEntityComponents(object, GetAssetManager(), m_SelectedEntity.value(), true);
 
         if (Gui::Button("Add Component", {static_cast<float>(aspect.x - 16), 0})) {
             Gui::OpenPopup("Component Popup");
         }
 
         if (Gui::BeginPopup("Component Popup")) {
-            for (auto& item : entityManager.GetComponentManager().GetComponentTypeNames()) {
+            for (auto &item: entityManager.GetComponentManager().GetComponentTypeNames()) {
                 if (ImGui::Selectable(item.c_str())) {
                     entityManager.AddComponent(m_SelectedEntity.value(), item);
                     ImGui::CloseCurrentPopup();

@@ -244,6 +244,7 @@ namespace Pixf::Core::Entities {
 
         void DeserializeEntityComponents(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
                                          const Entity &entity, const bool editorMode = false) {
+            ClearComponents(entity);
             m_ComponentManager.DeserializeElement(json, assetManager, entity.GetId(), editorMode);
         }
 
