@@ -6,12 +6,13 @@
 #include "ComponentManager.hpp"
 
 namespace Pixf::Core::Entities {
-    Entity EntityManager::CreateEntity(const std::string &name ) {
+    Entity EntityManager::CreateEntity(const std::string &name) {
         // Steal an existing inactive entity's ID
         if (const auto inactiveEntity = GetFirstInactiveEntity(); inactiveEntity.has_value()) {
             Entity &entity = *inactiveEntity.value();
             entity.version++;
             entity.active = true;
+            entity.name = name;
             return entity;
         }
 
@@ -37,13 +38,22 @@ namespace Pixf::Core::Entities {
 
     std::vector<Entity> EntityManager::GetAllEntities() const {
         std::vector<Entity> entities;
-        for (const auto& entity : m_Entities) {
+        for (const auto &entity: m_Entities) {
             if (entity.IsActive()) {
                 entities.push_back(entity);
             }
         }
 
         return entities;
+    }
+
+    void EntityManager::SetName(Entity &entity, const std::string &name) {
+        for (auto &e: m_Entities) {
+            if (e.id == entity.id) {
+                e.name = name;
+                entity.name = name;
+            }
+        }
     }
 
     void EntityManager::DestroyEntity(const Entity entity) {

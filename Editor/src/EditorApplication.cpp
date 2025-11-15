@@ -164,7 +164,7 @@ namespace Pixf::Editor {
         Gui::End();
     }
 
-    void EditorApplication::RenderHierarchy(const Core::Math::Vector2i origin, const Core::Math::Vector2i aspect) {
+    void EditorApplication::RenderHierarchy(const Math::Vector2i origin, const Math::Vector2i aspect) {
         Gui::SetNextWindowPos({static_cast<float>(origin.x), static_cast<float>(origin.y)});
         Gui::SetNextWindowSize({static_cast<float>(aspect.x), static_cast<float>(aspect.y)});
 
@@ -211,7 +211,12 @@ namespace Pixf::Editor {
             return;
         }
 
-        Gui::Text("%s", m_SelectedEntity.value().GetName().c_str());
+        const std::string str = m_SelectedEntity.value().GetName();
+        char buf[256];
+        std::snprintf(buf, sizeof(buf), "%s", str.c_str());
+        if (Gui::InputText("Name", buf, sizeof(buf))) {
+            entityManager.SetName(m_SelectedEntity.value(), std::string(buf).data());
+        }
 
         Gui::Separator();
 
@@ -251,7 +256,7 @@ namespace Pixf::Editor {
         Gui::End();
     }
 
-    void EditorApplication::RenderConsole(const Core::Math::Vector2i origin, const Core::Math::Vector2i aspect) const {
+    void EditorApplication::RenderConsole(const Math::Vector2i origin, const Math::Vector2i aspect) const {
         Gui::SetNextWindowPos({static_cast<float>(origin.x), static_cast<float>(origin.y)});
         Gui::SetNextWindowSize({static_cast<float>(aspect.x), static_cast<float>(aspect.y)});
 

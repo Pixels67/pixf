@@ -73,6 +73,8 @@ namespace Pixf::Core::Entities {
         std::optional<Entity> GetEntity(unsigned int id) const;
         std::vector<Entity> GetAllEntities() const;
 
+        void SetName(Entity &entity, const std::string &name);
+
         void DestroyEntity(Entity entity);
         void Clear();
 
