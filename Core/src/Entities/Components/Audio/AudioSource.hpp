@@ -23,17 +23,24 @@ namespace Pixf::Core::Entities::Components::Audio {
             return json;
         }
 
-        void Deserialize(const Serialization::Json::object &json, Assets::AssetManager &assetManager, bool editorMode = false) override {
-            const auto uuid = uuids::string_generator()(json.at("uuid").as_string().c_str());
-            const std::string path = assetManager.GetAssetPath(uuid).Unwrap(
-                    std::string("Failed to deserialize AudioSource: Asset UUID ") +
-                    json.at("uuid").as_string().c_str() + " not registered");
+        void Deserialize(const Serialization::Json::object &json, Assets::AssetManager &assetManager,
+                         bool editorMode = false) override {
+            try {
+                const auto uuid = uuids::string_generator()(json.at("uuid").as_string().c_str());
+                const auto result = assetManager.GetAssetPath(uuid);
+                if (result.IsError()) {
+                    PIXF_LOG_ERROR(std::string("Failed to deserialize AudioSource: Asset UUID ") +
+                                   json.at("uuid").as_string().c_str() + " not registered");
+                    return;
+                }
 
-            clip = assetManager.ImportAudioClip(path).Unwrap(
-                    std::string("Failed to deserialize AudioSource: Unable to import audio clip ") +
-                    json.at("uuid").as_string().c_str());
+                const std::string path = result.Unwrap();
 
-            config.Deserialize(json.at("config").as_object(), assetManager);
+                clip = assetManager.ImportAudioClip(path).Unwrap();
+                config.Deserialize(json.at("config").as_object(), assetManager);
+            } catch (const std::runtime_error &e) {
+                PIXF_LOG_ERROR("Failed to deserialize AudioSource: ", std::string("Deserialization error ") + e.what());
+            }
         }
     };
 } // namespace Pixf::Core::Entities::Components::Audio

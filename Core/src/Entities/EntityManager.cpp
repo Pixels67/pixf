@@ -61,6 +61,10 @@ namespace Pixf::Core::Entities {
         m_ComponentManager.Clear();
     }
 
+    void EntityManager::AddComponent(const Entity &entity, const std::string &typeName) {
+        m_ComponentManager.AddComponent(entity.id, typeName);
+    }
+
     size_t EntityManager::GenEntityId() {
         m_EntityIdCounter++;
         return m_EntityIdCounter;

@@ -58,11 +58,11 @@ namespace Pixf::Editor {
             }
 
             if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::Right)) {
-                cam.transform.rotation.RotateAround(rotateSpeed * deltaTime, Math::Vector3f(0.0F, 1.0F, 0.0F));
+                cam.transform.rotation.RotateAround(rotateSpeed * deltaTime, Math::Vector3f::Up());
             }
 
             if (world.GetContext().GetInputManager().IsKeyDown(Input::Key::Left)) {
-                cam.transform.rotation.RotateAround(-rotateSpeed * deltaTime, Math::Vector3f(0.0F, 1.0F, 0.0F));
+                cam.transform.rotation.RotateAround(-rotateSpeed * deltaTime, Math::Vector3f::Up());
             }
         }
     };
@@ -126,8 +126,7 @@ namespace Pixf::Editor {
     void EditorApplication::OnRender(double deltaTime) {}
 
     void EditorApplication::OnRenderGui(double deltaTime) {
-        auto vec = GetWindow().GetSize();
-        const Math::Vector2i windowSize(vec.x, vec.y);
+        const Math::Vector2i windowSize = GetWindow().GetSize();
 
         RenderTopBar(Math::Vector2i(0, 0), Math::Vector2i(windowSize.x, 50));
         RenderHierarchy(Math::Vector2i(0, 50), Math::Vector2i(300, 450));
@@ -198,7 +197,7 @@ namespace Pixf::Editor {
         Gui::End();
     }
 
-    void EditorApplication::RenderInspector(const Core::Math::Vector2i origin, const Core::Math::Vector2i aspect) {
+    void EditorApplication::RenderInspector(const Math::Vector2i origin, const Math::Vector2i aspect) {
         Gui::SetNextWindowPos({static_cast<float>(origin.x), static_cast<float>(origin.y)});
         Gui::SetNextWindowSize({static_cast<float>(aspect.x), static_cast<float>(aspect.y)});
 
@@ -214,16 +213,34 @@ namespace Pixf::Editor {
 
         Gui::Text("%s", m_SelectedEntity.value().GetName().c_str());
 
+        Gui::Separator();
+
         entityManager.DeserializeEntityComponents(
                 Gui::DrawJsonValue(Serialization::Json::value_from(
                                            entityManager.SerializeEntityComponents(m_SelectedEntity.value(), true)))
                         .as_object(),
                 GetAssetManager(), m_SelectedEntity.value(), true);
 
+        Gui::Separator();
+
+        if (Gui::Button("Add Component", {static_cast<float>(aspect.x - 16), 0})) {
+            Gui::OpenPopup("Component Popup");
+        }
+
+        if (Gui::BeginPopup("Component Popup")) {
+            for (auto& item : entityManager.GetComponentManager().GetComponentTypeNames()) {
+                if (ImGui::Selectable(item.c_str())) {
+                    entityManager.AddComponent(m_SelectedEntity.value(), item);
+                    ImGui::CloseCurrentPopup();
+                }
+            }
+            Gui::EndPopup();
+        }
+
         Gui::End();
     }
 
-    void EditorApplication::RenderFileBrowser(const Core::Math::Vector2i origin, const Core::Math::Vector2i aspect) {
+    void EditorApplication::RenderFileBrowser(const Math::Vector2i origin, const Math::Vector2i aspect) {
         Gui::SetNextWindowPos({static_cast<float>(origin.x), static_cast<float>(origin.y)});
         Gui::SetNextWindowSize({static_cast<float>(aspect.x), static_cast<float>(aspect.y)});
 
@@ -339,8 +356,14 @@ namespace Pixf::Editor {
         const auto ambientLight = entityManager.GetSingleton<AmbientLight>().UnwrapOr({});
 
         world.GetEntityManager().ForEachEntity<ModelRenderer>([&](Entity entity, ModelRenderer &comp) {
-            auto meshes = m_AssetManager.GetModel(comp.model).Unwrap("Invalid ModelRenderer.model")->GetMeshes();
-            auto materials = m_AssetManager.GetModel(comp.model).Unwrap("Invalid ModelRenderer.model")->GetMaterials();
+            auto result = m_AssetManager.GetModel(comp.model);
+
+            if (result.IsError()) {
+                return;
+            }
+
+            auto meshes = result.Unwrap()->GetMeshes();
+            auto materials = result.Unwrap()->GetMaterials();
 
             Transform transform;
             if (auto result = entityManager.GetComponent<Transform>(entity); result.IsError()) {

@@ -15,7 +15,7 @@ namespace Pixf::Core::Entities {
         NotRegistered,
     };
 
-    class ComponentManager final : Serialization::Serializable {
+    class PIXF_API ComponentManager final : Serialization::Serializable {
     public:
         ComponentManager() = default;
 
@@ -55,6 +55,8 @@ namespace Pixf::Core::Entities {
 
             std::static_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeId<T>()])->Add(index, component);
         }
+
+        void AddComponent(size_t index, const std::string &typeName);
 
         template<TypeInformed T>
         Error::Result<std::shared_ptr<T>, ComponentError> GetComponent(size_t index) {
@@ -112,6 +114,8 @@ namespace Pixf::Core::Entities {
 
             return std::static_pointer_cast<ComponentRegistry<T>>(m_Registries[GetTypeId<T>()]);
         }
+
+        std::vector<std::string> GetComponentTypeNames() const;
 
         Serialization::Json::object Serialize(const bool editorMode = false) override {
             Serialization::Json::object json;

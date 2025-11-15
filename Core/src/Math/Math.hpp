@@ -494,7 +494,7 @@ namespace Pixf::Core::Math {
         }
 
         Quat &RotateAround(T angle, Vector3<T> axis) {
-            glm::qua<T> quat = glm::normalize(ToGlm() * glm::angleAxis(angle, axis.Normalize().ToGlm()));
+            glm::qua<T> quat = glm::normalize(ToGlm() * glm::angleAxis(glm::radians(angle), axis.Normalize().ToGlm()));
             FromGlm(quat);
             return *this;
         }

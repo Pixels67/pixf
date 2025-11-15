@@ -86,6 +86,8 @@ namespace Pixf::Core::Entities {
             m_ComponentManager.AddComponent<T>(entity.id, component);
         }
 
+        void AddComponent(const Entity &entity, const std::string &typeName);
+
         template<TypeInformed T>
         Entity CreateEntityWithComponent(const T component = T()) {
             const Entity entity = CreateEntity();
