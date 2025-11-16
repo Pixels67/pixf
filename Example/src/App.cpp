@@ -1,7 +1,8 @@
-#include "Error/Error.hpp"
-#include "Graphics/Gl/Shader.hpp"
-#include "Graphics/Gl/Window.hpp"
-#include "Graphics/Mesh.hpp"
+#include "Files/Image.hpp"
+#include "Graphics/Handle.hpp"
+#include "Graphics/Material.hpp"
+#include "Graphics/MeshStore.hpp"
+#include "Graphics/TextureStore.hpp"
 #include "Pixf.hpp"
 
 static const auto s_VertShader = R"(
@@ -26,8 +27,10 @@ in vec2 vTexCoords;
 
 out vec4 fragColor;
 
+uniform sampler2D uTex;
+
 void main() {
-    fragColor = vec4(vTexCoords, 0.0, 1.0);
+    fragColor = texture(uTex, vTexCoords);
 }
 )";
 
@@ -39,18 +42,26 @@ int main() {
 
     std::set_terminate(Error::HandleTerminate);
 
-    Logger::Configure("Core", {.logFormat = "{m}"});
-
     const Gl::Window window = Gl::Window::Create({.title = "Pixf"});
     window.MakeCurrent();
 
     Event::EventManager eventManager;
-
     window.SetupEvents(eventManager);
 
     PIXF_GL_CALL(glViewport(0, 0, 800, 600));
 
-    const Gl::Shader shader = Gl::Shader::Create(s_VertShader, s_FragShader);
+    ShaderStore shaderStore;
+    const ShaderHandle shader = shaderStore.Load(s_VertShader, s_FragShader);
+
+    TextureStore textureStore;
+    Texture2DHandle texture;
+    {
+        const ImageData image = Files::LoadImage("img.png");
+        texture = textureStore.Load(image, {});
+    }
+
+    Material mat;
+    mat.SetTexture2D("uTex", texture);
 
     const std::vector<Vertex> vertices{
             {Vector3f(-1.0F, -1.0F, 0.0F), Vector3f(0.0F, 0.0F, 0.0F), Vector2f(0.0F, 0.0F)},
@@ -61,19 +72,22 @@ int main() {
 
     const std::vector<unsigned int> indices{0, 1, 2, 1, 2, 3};
 
-    const Mesh mesh({vertices, indices});
+    MeshStore meshStore;
+    const MeshHandle mesh = meshStore.Load({vertices, indices});
 
     while (!window.ShouldClose()) {
         Gl::Window::PollEvents();
 
-        shader.Bind();
-        mesh.Bind();
+        shaderStore.Get(shader).Bind();
+        meshStore.Get(mesh).Bind();
+        textureStore.Get(mat.GetTexture2D("uTex").value()).Bind(0);
 
         PIXF_GL_CALL(glClearColor(0.12F, 0.12F, 0.12F, 1.0F));
         PIXF_GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
 
         PIXF_GL_CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
+        Gl::Texture2D::Unbind(0);
         Gl::Shader::Unbind();
         Mesh::Unbind();
 

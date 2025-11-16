@@ -4,7 +4,7 @@
 
 namespace Pixf::Core::Graphics::Gl {
     static constexpr unsigned int g_MaxTextureCount = 16;
-    static constexpr unsigned int s_MaxTextureNameLength = 256;
+    static constexpr unsigned int s_MaxUniformNameLength = 256;
 
     Shader::Shader(const unsigned int id) : m_Id(id) {
         int currentShader = 0;
@@ -38,7 +38,7 @@ namespace Pixf::Core::Graphics::Gl {
             return *this;
         }
 
-        Cleanup();
+        Clear();
 
         m_Id = other.m_Id;
         m_TextureUniformMap = std::move(other.m_TextureUniformMap);
@@ -48,8 +48,7 @@ namespace Pixf::Core::Graphics::Gl {
     }
 
     Shader::~Shader() {
-        Cleanup();
-        PIXF_CORE_LOG_DEBUG("Cleared shader with ID: {}", m_Id);
+        Clear();
     }
 
     void Shader::Bind() const { PIXF_GL_CALL(glUseProgram(m_Id)); }
@@ -148,7 +147,14 @@ namespace Pixf::Core::Graphics::Gl {
         return program;
     }
 
-    void Shader::Cleanup() const {
+    unsigned int Shader::GetActiveShader() {
+        int activeShader = 0;
+        PIXF_GL_CALL(glGetIntegerv(GL_CURRENT_PROGRAM, &activeShader));
+
+        return activeShader;
+    }
+
+    void Shader::Clear() const {
         if (m_Id == 0) {
             return;
         }
@@ -161,35 +167,56 @@ namespace Pixf::Core::Graphics::Gl {
         }
 
         PIXF_GL_CALL(glDeleteProgram(m_Id));
+
+        PIXF_CORE_LOG_DEBUG("Cleared shader with ID: {}", m_Id);
     }
 
     void Shader::InitTextureUniformMap() {
-        GLint numUniforms = 0;
-        PIXF_GL_CALL(glGetProgramiv(m_Id, GL_ACTIVE_UNIFORMS, &numUniforms));
-
         uint8_t textureUnit = 0;
 
-        for (GLint i = 0; i < numUniforms; i++) {
-            GLsizei length = 0;
-            int size = 0;
-            GLenum type = 0;
-            char name[s_MaxTextureNameLength];
+        const unsigned int activeShader = GetActiveShader();
+        Bind();
 
-            PIXF_GL_CALL(glGetActiveUniform(m_Id, i, sizeof(name), &length, &size, &type, name));
+        for (unsigned int i = 0; i < GetUniformCount(); i++) {
+            if (textureUnit == g_MaxTextureCount) {
+                break;
+            }
 
-            int currentShader = 0;
-            PIXF_GL_CALL(glGetIntegerv(GL_CURRENT_PROGRAM, &currentShader));
+            std::string name = GetUniformName(i);
 
-            if (type == GL_SAMPLER_2D || type == GL_SAMPLER_CUBE || type == GL_SAMPLER_2D_ARRAY) {
+            if (const unsigned int type = GetUniformType(i);
+                type == GL_SAMPLER_2D || type == GL_SAMPLER_CUBE || type == GL_SAMPLER_2D_ARRAY) {
                 m_TextureUniformMap[name] = textureUnit;
                 SetUniform(name, textureUnit);
                 textureUnit++;
-                if (textureUnit == g_MaxTextureCount) {
-                    return;
-                }
             }
-
-            PIXF_GL_CALL(glUseProgram(currentShader));
         }
+
+        PIXF_GL_CALL(glUseProgram(activeShader));
+    }
+
+    unsigned int Shader::GetUniformCount() const {
+        int uniformCount = 0;
+        PIXF_GL_CALL(glGetProgramiv(m_Id, GL_ACTIVE_UNIFORMS, &uniformCount));
+
+        return uniformCount;
+    }
+
+    std::string Shader::GetUniformName(const unsigned int uniformId) const {
+        GLsizei length = 0;
+        int size = 0;
+        char name[s_MaxUniformNameLength];
+
+        PIXF_GL_CALL(glGetActiveUniform(m_Id, uniformId, sizeof(name), &length, &size, nullptr, name));
+
+        return std::string(name);
+    }
+
+    unsigned int Shader::GetUniformType(const unsigned int uniformId) const {
+        GLenum type = 0;
+
+        PIXF_GL_CALL(glGetActiveUniform(m_Id, uniformId, 0, nullptr, nullptr, &type, nullptr));
+
+        return type;
     }
 } // namespace Pixf::Core::Graphics::Gl

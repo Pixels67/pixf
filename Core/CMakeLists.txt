@@ -28,9 +28,11 @@ CPMAddPackage(
         FMT_HEADER_ONLY ON
 )
 
+add_library(stbi STATIC vendor/stbi/stbi.h vendor/stbi/stbi.c)
+
 set(PROJECT_SOURCES
-        include/Pixf.hpp
         Pch.hpp
+        include/Pixf.hpp
         src/Common.hpp
         src/TypeId.hpp
         src/TypeId.cpp
@@ -64,18 +66,34 @@ set(PROJECT_SOURCES
         src/Graphics/Gl/VertexArray.hpp
         src/Graphics/Mesh.cpp
         src/Graphics/Mesh.hpp
+        src/Graphics/Material.hpp
+        src/Graphics/Handle.hpp
+        src/Graphics/ShaderStore.cpp
+        src/Graphics/ShaderStore.hpp
+        src/Graphics/MeshStore.cpp
+        src/Graphics/MeshStore.hpp
+        src/Graphics/Gl/Texture2D.cpp
+        src/Graphics/Gl/Texture2D.hpp
+        src/Graphics/ImageData.cpp
+        src/Graphics/ImageData.hpp
+        src/Files/Image.cpp
+        src/Files/Image.hpp
+        src/Graphics/TextureStore.cpp
+        src/Graphics/TextureStore.hpp
+        src/Graphics/Material.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC Pch.hpp)
-target_include_directories(${PROJECT_NAME} PUBLIC include src)
+target_include_directories(${PROJECT_NAME} PUBLIC include src PRIVATE vendor)
 target_compile_definitions(${PROJECT_NAME} PRIVATE PIXF_DYLIB_BUILD)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
         glfw
         glad
         fmt
+        stbi
 )
 
 # OS libs

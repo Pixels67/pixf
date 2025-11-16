@@ -17,6 +17,8 @@ namespace Pixf::Core::Graphics::Gl {
     public:
         static Shader Create(const std::string &vertSrc, const std::string &fragSrc);
 
+        Shader() = default;
+
         Shader(const Shader &other) = delete;
         Shader(Shader &&other) noexcept;
 
@@ -42,18 +44,22 @@ namespace Pixf::Core::Graphics::Gl {
 
         std::unordered_map<std::string, uint8_t> GetTextureUniformMap() const;
 
-        void Cleanup() const;
+        void Clear() const;
 
     private:
-        unsigned int m_Id;
+        unsigned int m_Id = 0;
         std::unordered_map<std::string, uint8_t> m_TextureUniformMap;
 
         explicit Shader(unsigned int id);
 
         static unsigned int CreateGlShader(unsigned int type, const std::string &src);
         static unsigned int LinkGlShaders(unsigned int vertShader, unsigned int fragShader);
+        static unsigned int GetActiveShader();
 
         void InitTextureUniformMap();
+        unsigned int GetUniformCount() const;
+        std::string GetUniformName(unsigned int uniformId) const;
+        unsigned int GetUniformType(unsigned int uniformId) const;
     };
 } // namespace Pixf::Core::Graphics::Gl
 
