@@ -23,9 +23,6 @@
 
 #include <string>
 
-#include "Debug/Logger.hpp"
-#include "Error/Result.hpp"
-
 namespace Pixf::Runtime {
     class Dylib {
     public:
@@ -49,7 +46,6 @@ namespace Pixf::Runtime {
             DYLIB_HANDLE handle = LOAD_DYLIB(dylib.m_DylibPath.c_str());
 
             if (handle == nullptr) {
-                PIXF_LOG_ERROR("Failed to load library: ", path);
                 return dylib;
             }
 
@@ -60,14 +56,12 @@ namespace Pixf::Runtime {
         template<typename T>
         T GetFunction(const std::string &funcName) {
             if (!m_Handle) {
-                PIXF_LOG_ERROR("Failed to retrieve function: Library not loaded");
                 return nullptr;
             }
 
             T func = reinterpret_cast<T>(GET_FUNC(m_Handle, funcName.c_str()));
 
             if (!func) {
-                PIXF_LOG_ERROR("Failed to get function: ", funcName);
             }
 
             return func;

@@ -4,10 +4,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/bin/${CMAKE_SYSTEM_
 
 set(PROJECT_SOURCES
         src/Main.cpp
-        src/EditorApplication.cpp
-        src/EditorApplication.hpp
-        src/Console.cpp
-        src/Console.hpp
 )
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})

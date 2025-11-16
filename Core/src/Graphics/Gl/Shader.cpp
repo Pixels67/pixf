@@ -1,13 +1,14 @@
 #include "Shader.hpp"
 
-#include <string>
-
-#include "Common.hpp"
-#include "Debug/Logger.hpp"
 #include "Gl.hpp"
 
 namespace Pixf::Core::Graphics::Gl {
-    Shader::Shader(const std::string &vertSrc, const std::string &fragSrc) {
+    static constexpr unsigned int g_MaxTextureCount = 16;
+    static constexpr unsigned int s_MaxTextureNameLength = 256;
+
+    Shader::Shader(const unsigned int id) : m_Id(id) { InitTextureMap(); }
+
+    Shader Shader::Create(const std::string &vertSrc, const std::string &fragSrc) {
         const unsigned int vertShader = CreateGlShader(GL_VERTEX_SHADER, vertSrc);
         const unsigned int fragShader = CreateGlShader(GL_FRAGMENT_SHADER, fragSrc);
         const unsigned int program = LinkGlShaders(vertShader, fragShader);
@@ -15,12 +16,12 @@ namespace Pixf::Core::Graphics::Gl {
         PIXF_GL_CALL(glDeleteShader(vertShader));
         PIXF_GL_CALL(glDeleteShader(fragShader));
 
-        m_Id = program;
+        PIXF_CORE_LOG_DEBUG("Created shader with ID: {}", program);
 
-        InitTextureMap();
+        return Shader(program);
     }
 
-    Shader::Shader(Shader &&other) noexcept : m_Id(other.m_Id), m_TextureMap(other.m_TextureMap) { other.m_Id = 0; }
+    Shader::Shader(Shader &&other) noexcept : m_Id(other.m_Id), m_TextureUniformMap(other.m_TextureUniformMap) { other.m_Id = 0; }
 
     Shader &Shader::operator=(Shader &&other) noexcept {
         if (this == &other) {
@@ -30,13 +31,16 @@ namespace Pixf::Core::Graphics::Gl {
         Cleanup();
 
         m_Id = other.m_Id;
-        m_TextureMap = other.m_TextureMap;
+        m_TextureUniformMap = other.m_TextureUniformMap;
         other.m_Id = 0;
 
         return *this;
     }
 
-    Shader::~Shader() { Cleanup(); }
+    Shader::~Shader() {
+        Cleanup();
+        PIXF_CORE_LOG_DEBUG("Cleaned up shader with ID: {}", m_Id);
+    }
 
     void Shader::Bind() const { PIXF_GL_CALL(glUseProgram(m_Id)); }
 
@@ -66,23 +70,23 @@ namespace Pixf::Core::Graphics::Gl {
         PIXF_GL_CALL(glUniform4f(glGetUniformLocation(m_Id, name.c_str()), value.x, value.y, value.z, value.w));
     }
 
-    void Shader::SetUniform(const std::string &name, Math::Color3u8 value) const {
+    void Shader::SetUniform(const std::string &name, const Math::Color3u8 value) const {
         const Math::Vector3f vec(static_cast<float>(value.r) / 255.0F, static_cast<float>(value.g) / 255.0F,
                                  static_cast<float>(value.b) / 255.0F);
         SetUniform(name, vec);
     }
 
-    void Shader::SetUniform(const std::string &name, Math::Color4u8 value) const {
+    void Shader::SetUniform(const std::string &name, const Math::Color4u8 value) const {
         const Math::Vector4f vec(static_cast<float>(value.r) / 255.0F, static_cast<float>(value.g) / 255.0F,
                                  static_cast<float>(value.b) / 255.0F, static_cast<float>(value.a) / 255.0F);
         SetUniform(name, vec);
     }
 
-    void Shader::SetUniform(const std::string &name, Math::Matrix4f value) const {
+    void Shader::SetUniform(const std::string &name, const Math::Matrix4f &value) const {
         PIXF_GL_CALL(glUniformMatrix4fv(glGetUniformLocation(m_Id, name.c_str()), 1, GL_FALSE, value.Data()));
     }
 
-    std::unordered_map<std::string, uint8_t> Shader::GetTextureMap() const { return m_TextureMap; }
+    std::unordered_map<std::string, uint8_t> Shader::GetTextureUniformMap() const { return m_TextureUniformMap; }
 
     unsigned int Shader::CreateGlShader(const unsigned int type, const std::string &src) {
         const unsigned int shader = glCreateShader(type);
@@ -99,8 +103,11 @@ namespace Pixf::Core::Graphics::Gl {
             char message[msgLength];
             PIXF_GL_CALL(glGetShaderInfoLog(shader, msgLength, &log_length, message));
 
-            // TODO: Better error handling
-            PIXF_ASSERT(false, message);
+            if (type == GL_VERTEX_SHADER) {
+                throw ShaderCompilationError("Failed to compile vertex shader: " + std::string(message));
+            }
+
+            throw ShaderCompilationError("Failed to compile fragment shader: " + std::string(message));
         }
 
         return shader;
@@ -122,8 +129,7 @@ namespace Pixf::Core::Graphics::Gl {
             char message[msgLength];
             PIXF_GL_CALL(glGetProgramInfoLog(program, msgLength, &log_length, message));
 
-            // TODO: Better error handling
-            PIXF_ASSERT(false, message);
+            throw ShaderCompilationError("Failed to link shader: " + std::string(message));
         }
 
         return program;
@@ -137,7 +143,7 @@ namespace Pixf::Core::Graphics::Gl {
         int currentShader = 0;
         PIXF_GL_CALL(glGetIntegerv(GL_CURRENT_PROGRAM, &currentShader));
 
-        if (currentShader == m_Id) {
+        if (currentShader == static_cast<int>(m_Id)) {
             Unbind();
         }
 
@@ -154,7 +160,7 @@ namespace Pixf::Core::Graphics::Gl {
             GLsizei length = 0;
             int size = 0;
             GLenum type = 0;
-            char name[maxTextureNameLength];
+            char name[s_MaxTextureNameLength];
 
             PIXF_GL_CALL(glGetActiveUniform(m_Id, i, sizeof(name), &length, &size, &type, name));
 
@@ -164,7 +170,7 @@ namespace Pixf::Core::Graphics::Gl {
             Bind();
 
             if (type == GL_SAMPLER_2D || type == GL_SAMPLER_CUBE || type == GL_SAMPLER_2D_ARRAY) {
-                m_TextureMap[name] = textureUnit;
+                m_TextureUniformMap[name] = textureUnit;
                 SetUniform(name, textureUnit);
                 textureUnit++;
                 if (textureUnit == g_MaxTextureCount) {

@@ -1,100 +1,119 @@
-#ifndef LOGGER_HPP
-#define LOGGER_HPP
+#ifndef PIXF_LOGGER_HPP
+#define PIXF_LOGGER_HPP
 
-#include <cstdint>
-#include <iostream>
+#include <fmt/chrono.h>
+#include <fmt/format.h>
 
 #include "Common.hpp"
-#include "Time/LocalTime.hpp"
 
 namespace Pixf::Core::Debug {
-    enum class Severity : uint8_t { Trace = 0, Debug = 1, Info = 2, Warning = 3, Error = 4, Fatal = 5 };
+    enum LogLevel : uint16_t {
+        LogLevelNone = 0,
+        LogLevelTrace = 1 << 0,
+        LogLevelDebug = 1 << 1,
+        LogLevelInfo = 1 << 2,
+        LogLevelWarning = 1 << 3,
+        LogLevelError = 1 << 4,
+        LogLevelFatal = 1 << 5,
+        LogLevelAll = 0b111111,
+    };
+
+    PIXF_API uint16_t operator|(LogLevel rhs, LogLevel lhs);
+    PIXF_API uint16_t operator&(LogLevel rhs, LogLevel lhs);
+    PIXF_API uint16_t operator~(LogLevel level);
+
+    PIXF_API std::string ToString(LogLevel level);
+    PIXF_API std::string ToStringUpper(LogLevel level);
 
     struct PIXF_API LoggerConfig {
-        Severity logLevel = Severity::Trace;
+        uint16_t visibility = LogLevelAll;
+        std::string timeFormat = "%Y-%m-%d %H:%M:%S";
+        std::string logFormat = "[{t}] [{L}] [{n}] {m}";
     };
 
     class PIXF_API Logger {
     public:
-        static void Init(LoggerConfig config = {});
-        static Logger &GetInstance();
+        static Logger &Get(const std::string &name);
+        static void Configure(const std::string &name, const LoggerConfig &config = {});
 
         template<typename... Args>
-        static void Print(Args... args) {
-            ((std::cout << args), ...);
-            std::cout << '\n';
+        void Print(fmt::format_string<Args...> format, Args &&...args) {
+            std::cout << fmt::format(format, std::forward<Args>(args)...);
         }
 
         template<typename... Args>
-        static void PrintError(Args... args) {
-            ((std::cerr << args), ...);
-            std::cerr << '\n';
+        void PrintLn(fmt::format_string<Args...> format, Args &&...args) {
+            std::cout << fmt::format(format, std::forward<Args>(args)...) << '\n';
         }
 
         template<typename... Args>
-        void Trace(Args... args) {
-            if (static_cast<int>(config.logLevel) <= static_cast<int>(Severity::Trace)) {
-                Print("[", Time::GetLocalTime().ToString(), "] [TRACE] ", args...);
+        void PrintError(fmt::format_string<Args...> format, Args &&...args) {
+            std::cerr << fmt::format(format, std::forward<Args>(args)...);
+        }
+
+        template<typename... Args>
+        void PrintErrorLn(fmt::format_string<Args...> format, Args &&...args) {
+            std::cerr << fmt::format(format, std::forward<Args>(args)...) << '\n';
+        }
+
+        template<typename... Args>
+        void Log(const LogLevel level, const char *format, Args... args) {
+            if (!(m_Config.visibility & level)) {
+                return;
             }
-        }
 
-        template<typename... Args>
-        void Debug(Args... args) {
-            if (static_cast<int>(config.logLevel) <= static_cast<int>(Severity::Debug)) {
-                Print("[", Time::GetLocalTime().ToString(), "] [DEBUG] ", args...);
-            }
-        }
+            const std::string message = fmt::format(fmt::runtime(format), args...);
 
-        template<typename... Args>
-        void Info(Args... args) {
-            if (static_cast<int>(config.logLevel) <= static_cast<int>(Severity::Info)) {
-                Print("[", Time::GetLocalTime().ToString(), "] [INFO] ", args...);
-            }
-        }
+            auto now = std::chrono::system_clock::now();
+            const std::string timeFormat = "{:" + m_Config.timeFormat + "}";
 
-        template<typename... Args>
-        void Warn(Args... args) {
-            if (static_cast<int>(config.logLevel) <= static_cast<int>(Severity::Warning)) {
-                Print("[", Time::GetLocalTime().ToString(), "] [WARN] ", args...);
-            }
-        }
+            const std::string time = fmt::format(fmt::runtime(timeFormat), now);
 
-        template<typename... Args>
-        void Error(Args... args) {
-            if (static_cast<int>(config.logLevel) <= static_cast<int>(Severity::Error)) {
-                PrintError("[", Time::GetLocalTime().ToString(), "] [ERROR] ", args...);
+            if (level == LogLevelFatal || level == LogLevelError) {
+                PrintErrorLn(fmt::runtime(m_Config.logFormat), fmt::arg("t", time), fmt::arg("l", ToString(level)),
+                             fmt::arg("L", ToStringUpper(level)), fmt::arg("n", m_Name), fmt::arg("m", message));
+                return;
             }
-        }
 
-        template<typename... Args>
-        void Fatal(Args... args) {
-            if (static_cast<int>(config.logLevel) <= static_cast<int>(Severity::Fatal)) {
-                PrintError("[", Time::GetLocalTime().ToString(), "] [FATAL] ", args...);
-            }
+            PrintLn(fmt::runtime(m_Config.logFormat), fmt::arg("t", time), fmt::arg("l", ToString(level)),
+                    fmt::arg("L", ToStringUpper(level)), fmt::arg("n", m_Name), fmt::arg("m", message));
         }
 
     private:
-        static Logger s_Instance;
+        inline static std::unordered_map<std::string, Logger> s_Loggers;
 
-        LoggerConfig config = {};
+        std::string m_Name;
+        LoggerConfig m_Config;
+
+        explicit Logger(const std::string &name, const LoggerConfig &config = {});
     };
 
 #ifndef NDEBUG
-#define PIXF_LOG_TRACE(...) Pixf::Core::Debug::Logger::GetInstance().Trace(__VA_ARGS__)
-#define PIXF_LOG_DEBUG(...) Pixf::Core::Debug::Logger::GetInstance().Debug(__VA_ARGS__)
+
+#define PIXF_CORE_LOG_TRACE(...)                                                                                       \
+    Pixf::Core::Debug::Logger::Get("Core").Log(Pixf::Core::Debug::LogLevelTrace, __VA_ARGS__);
+
+#define PIXF_CORE_LOG_DEBUG(...)                                                                                       \
+    Pixf::Core::Debug::Logger::Get("Core").Log(Pixf::Core::Debug::LogLevelDebug, __VA_ARGS__);
+
 #else
-#define PIXF_LOG_TRACE(...)
-#define PIXF_LOG_DEBUG(...)
+
+#define PIXF_CORE_LOG_TRACE(...)
+#define PIXF_CORE_LOG_DEBUG(...)
+
 #endif
 
-#define PIXF_LOG_INFO(...) Pixf::Core::Debug::Logger::GetInstance().Info(__VA_ARGS__)
-#define PIXF_LOG_ERROR(...) Pixf::Core::Debug::Logger::GetInstance().Error(__VA_ARGS__)
-#define PIXF_LOG_WARN(...) Pixf::Core::Debug::Logger::GetInstance().Warn(__VA_ARGS__)
-#define PIXF_LOG_FATAL(...) Pixf::Core::Debug::Logger::GetInstance().Fatal(__VA_ARGS__)
+#define PIXF_CORE_LOG_INFO(...)                                                                                        \
+    Pixf::Core::Debug::Logger::Get("Core").Log(Pixf::Core::Debug::LogLevelInfo, __VA_ARGS__);
 
-#define PIXF_PRINT(...) Pixf::Core::Debug::Logger::Print(__VA_ARGS__)
-#define PIXF_PRINT_ERROR(...) Pixf::Core::Debug::Logger::PrintError(__VA_ARGS__)
+#define PIXF_CORE_LOG_WARN(...)                                                                                        \
+    Pixf::Core::Debug::Logger::Get("Core").Log(Pixf::Core::Debug::LogLevelWarning, __VA_ARGS__);
 
+#define PIXF_CORE_LOG_ERROR(...)                                                                                       \
+    Pixf::Core::Debug::Logger::Get("Core").Log(Pixf::Core::Debug::LogLevelError, __VA_ARGS__);
+
+#define PIXF_CORE_LOG_FATAL(...)                                                                                       \
+    Pixf::Core::Debug::Logger::Get("Core").Log(Pixf::Core::Debug::LogLevelFatal, __VA_ARGS__);
 } // namespace Pixf::Core::Debug
 
-#endif // LOGGER_HPP
+#endif // PIXF_LOGGER_HPP
