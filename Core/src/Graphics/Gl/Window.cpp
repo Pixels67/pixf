@@ -24,8 +24,11 @@ namespace Pixf::Core::Graphics::Gl {
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-        GLFWwindow *window = glfwCreateWindow(static_cast<int>(config.size.x), static_cast<int>(config.size.y),
-                                              config.title.c_str(), nullptr, nullptr);
+        GLFWwindow *window = glfwCreateWindow(static_cast<int>(config.size.x),
+                                              static_cast<int>(config.size.y),
+                                              config.title.c_str(),
+                                              nullptr,
+                                              nullptr);
 
         if (window == nullptr) {
             if (s_WindowCount == 0) {

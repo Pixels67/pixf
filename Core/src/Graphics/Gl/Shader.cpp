@@ -6,7 +6,14 @@ namespace Pixf::Core::Graphics::Gl {
     static constexpr unsigned int g_MaxTextureCount = 16;
     static constexpr unsigned int s_MaxTextureNameLength = 256;
 
-    Shader::Shader(const unsigned int id) : m_Id(id) { InitTextureMap(); }
+    Shader::Shader(const unsigned int id) : m_Id(id) {
+        int currentShader = 0;
+        PIXF_GL_CALL(glGetIntegerv(GL_CURRENT_PROGRAM, &currentShader));
+
+        Bind();
+        InitTextureUniformMap();
+        PIXF_GL_CALL(glUseProgram(currentShader));
+    }
 
     Shader Shader::Create(const std::string &vertSrc, const std::string &fragSrc) {
         const unsigned int vertShader = CreateGlShader(GL_VERTEX_SHADER, vertSrc);
@@ -21,7 +28,10 @@ namespace Pixf::Core::Graphics::Gl {
         return Shader(program);
     }
 
-    Shader::Shader(Shader &&other) noexcept : m_Id(other.m_Id), m_TextureUniformMap(other.m_TextureUniformMap) { other.m_Id = 0; }
+    Shader::Shader(Shader &&other) noexcept :
+        m_Id(other.m_Id), m_TextureUniformMap(std::move(other.m_TextureUniformMap)) {
+        other.m_Id = 0;
+    }
 
     Shader &Shader::operator=(Shader &&other) noexcept {
         if (this == &other) {
@@ -31,7 +41,7 @@ namespace Pixf::Core::Graphics::Gl {
         Cleanup();
 
         m_Id = other.m_Id;
-        m_TextureUniformMap = other.m_TextureUniformMap;
+        m_TextureUniformMap = std::move(other.m_TextureUniformMap);
         other.m_Id = 0;
 
         return *this;
@@ -39,7 +49,7 @@ namespace Pixf::Core::Graphics::Gl {
 
     Shader::~Shader() {
         Cleanup();
-        PIXF_CORE_LOG_DEBUG("Cleaned up shader with ID: {}", m_Id);
+        PIXF_CORE_LOG_DEBUG("Cleared shader with ID: {}", m_Id);
     }
 
     void Shader::Bind() const { PIXF_GL_CALL(glUseProgram(m_Id)); }
@@ -71,14 +81,17 @@ namespace Pixf::Core::Graphics::Gl {
     }
 
     void Shader::SetUniform(const std::string &name, const Math::Color3u8 value) const {
-        const Math::Vector3f vec(static_cast<float>(value.r) / 255.0F, static_cast<float>(value.g) / 255.0F,
+        const Math::Vector3f vec(static_cast<float>(value.r) / 255.0F,
+                                 static_cast<float>(value.g) / 255.0F,
                                  static_cast<float>(value.b) / 255.0F);
         SetUniform(name, vec);
     }
 
     void Shader::SetUniform(const std::string &name, const Math::Color4u8 value) const {
-        const Math::Vector4f vec(static_cast<float>(value.r) / 255.0F, static_cast<float>(value.g) / 255.0F,
-                                 static_cast<float>(value.b) / 255.0F, static_cast<float>(value.a) / 255.0F);
+        const Math::Vector4f vec(static_cast<float>(value.r) / 255.0F,
+                                 static_cast<float>(value.g) / 255.0F,
+                                 static_cast<float>(value.b) / 255.0F,
+                                 static_cast<float>(value.a) / 255.0F);
         SetUniform(name, vec);
     }
 
@@ -147,10 +160,10 @@ namespace Pixf::Core::Graphics::Gl {
             Unbind();
         }
 
-        PIXF_GL_CALL(glDeleteShader(m_Id));
+        PIXF_GL_CALL(glDeleteProgram(m_Id));
     }
 
-    void Shader::InitTextureMap() {
+    void Shader::InitTextureUniformMap() {
         GLint numUniforms = 0;
         PIXF_GL_CALL(glGetProgramiv(m_Id, GL_ACTIVE_UNIFORMS, &numUniforms));
 
@@ -166,8 +179,6 @@ namespace Pixf::Core::Graphics::Gl {
 
             int currentShader = 0;
             PIXF_GL_CALL(glGetIntegerv(GL_CURRENT_PROGRAM, &currentShader));
-
-            Bind();
 
             if (type == GL_SAMPLER_2D || type == GL_SAMPLER_CUBE || type == GL_SAMPLER_2D_ARRAY) {
                 m_TextureUniformMap[name] = textureUnit;

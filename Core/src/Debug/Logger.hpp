@@ -70,13 +70,21 @@ namespace Pixf::Core::Debug {
             const std::string time = fmt::format(fmt::runtime(timeFormat), now);
 
             if (level == LogLevelFatal || level == LogLevelError) {
-                PrintErrorLn(fmt::runtime(m_Config.logFormat), fmt::arg("t", time), fmt::arg("l", ToString(level)),
-                             fmt::arg("L", ToStringUpper(level)), fmt::arg("n", m_Name), fmt::arg("m", message));
+                PrintErrorLn(fmt::runtime(m_Config.logFormat),
+                             fmt::arg("t", time),
+                             fmt::arg("l", ToString(level)),
+                             fmt::arg("L", ToStringUpper(level)),
+                             fmt::arg("n", m_Name),
+                             fmt::arg("m", message));
                 return;
             }
 
-            PrintLn(fmt::runtime(m_Config.logFormat), fmt::arg("t", time), fmt::arg("l", ToString(level)),
-                    fmt::arg("L", ToStringUpper(level)), fmt::arg("n", m_Name), fmt::arg("m", message));
+            PrintLn(fmt::runtime(m_Config.logFormat),
+                    fmt::arg("t", time),
+                    fmt::arg("l", ToString(level)),
+                    fmt::arg("L", ToStringUpper(level)),
+                    fmt::arg("n", m_Name),
+                    fmt::arg("m", message));
         }
 
     private:

@@ -53,7 +53,7 @@ namespace Pixf::Core::Graphics::Gl {
         static unsigned int CreateGlShader(unsigned int type, const std::string &src);
         static unsigned int LinkGlShaders(unsigned int vertShader, unsigned int fragShader);
 
-        void InitTextureMap();
+        void InitTextureUniformMap();
     };
 } // namespace Pixf::Core::Graphics::Gl
 

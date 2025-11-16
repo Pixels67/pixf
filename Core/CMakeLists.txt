@@ -2,6 +2,7 @@ project(PixfCore)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/lib/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/lib/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 CPMAddPackage(
         URI "gh:glfw/glfw#3.4"
@@ -51,6 +52,18 @@ set(PROJECT_SOURCES
         src/Math/Matrix.hpp
         src/Math/Quaternion.hpp
         src/Math/Math.cpp
+        src/Graphics/Gl/VertexLayout.cpp
+        src/Graphics/Gl/VertexLayout.hpp
+        src/Graphics/Vertex.hpp
+        src/Graphics/Vertex.cpp
+        src/Graphics/Gl/Buffer.cpp
+        src/Graphics/Gl/Buffer.hpp
+        src/Memory/Buffer.cpp
+        src/Memory/Buffer.hpp
+        src/Graphics/Gl/VertexArray.cpp
+        src/Graphics/Gl/VertexArray.hpp
+        src/Graphics/Mesh.cpp
+        src/Graphics/Mesh.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

@@ -264,8 +264,6 @@ namespace Pixf::Core::Math {
     using Matrix4d = Matrix4<double>;
 } // namespace Pixf::Core::Math
 
-inline Pixf::Core::Math::Matrix4f Pixf::Core::Math::Quaternion::ToMatrix() const {
-    return Matrix4f::Rotate(*this);
-}
+inline Pixf::Core::Math::Matrix4f Pixf::Core::Math::Quaternion::ToMatrix() const { return Matrix4f::Rotate(*this); }
 
 #endif // PIXF_MATRIX_HPP

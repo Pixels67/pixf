@@ -10,6 +10,6 @@ namespace Pixf::Core::Error {
     };
 
     PIXF_API void HandleTerminate();
-} // namespace Pixf::Core
+} // namespace Pixf::Core::Error
 
 #endif // PIXF_ERROR_HPP

@@ -13,6 +13,6 @@ namespace Pixf::Core {
         static const TypeId s_Id = GetNextTypeId();
         return s_Id;
     }
-}
+} // namespace Pixf::Core
 
 #endif // PIXF_TYPEID_HPP

@@ -15,4 +15,12 @@
 #endif
 #endif
 
+#define PIXF_ASSERT(expr, msg)                                                                                         \
+    do { /* NOLINT(cppcoreguidelines-avoid-do-while) */                                                                \
+        if (!(expr)) {                                                                                                 \
+            PIXF_CORE_LOG_FATAL("Assertion failed: ({}), message: \"{}\", On: {}:{}", #expr, msg, __FILE__, __LINE__); \
+            std::abort;                                                                                                \
+        }                                                                                                              \
+    } while (0)
+
 #endif // PIXF_COMMON_HPP

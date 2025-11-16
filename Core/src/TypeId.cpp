@@ -5,4 +5,4 @@ namespace Pixf::Core {
         static TypeId counter = 0;
         return ++counter;
     }
-}
+} // namespace Pixf::Core

@@ -14,15 +14,18 @@ namespace Pixf::Core::Graphics::Gl {
 #ifndef NDEBUG
 
 #define PIXF_GL_CALL(x)                                                                                                \
-    do {                                                                                                               \
+    do { /* NOLINT(cppcoreguidelines-avoid-do-while) */                                                                \
         while (glGetError() != GL_NO_ERROR) {                                                                          \
         };                                                                                                             \
         x;                                                                                                             \
         GLenum err = glGetError();                                                                                     \
         if (err == GL_NO_ERROR)                                                                                        \
             break;                                                                                                     \
-        PIXF_CORE_LOG_ERROR("OpenGL error: {} in {} ({}:{})", Pixf::Core::Graphics::Gl::GetGlErrorString(err), #x,     \
-                            __FILE__, __LINE__);                                                                       \
+        PIXF_CORE_LOG_ERROR("OpenGL error: {} in {} ({}:{})",                                                          \
+                            Pixf::Core::Graphics::Gl::GetGlErrorString(err),                                           \
+                            #x,                                                                                        \
+                            __FILE__,                                                                                  \
+                            __LINE__);                                                                                 \
     } while (0)
 
 #else
