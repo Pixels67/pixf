@@ -1,6 +1,8 @@
 #ifndef PIXF_ERROR_HPP
 #define PIXF_ERROR_HPP
 
+#include <stdexcept>
+
 #include "Debug/Logger.hpp"
 
 namespace Pixf::Core::Error {

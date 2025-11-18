@@ -5,24 +5,37 @@
 
 #include "Gl/Shader.hpp"
 #include "Handle.hpp"
+#include "Error/Error.hpp"
 
 namespace Pixf::Core::Graphics {
     class PIXF_API ShaderStoreError final : public Error::Error {
+    public:
         using Error::Error;
     };
 
     class PIXF_API ShaderStore {
     public:
-        struct Slot {
+        struct PIXF_API Slot {
             Gl::Shader shader;
             uint8_t version;
             bool active;
         };
 
-        ShaderHandle Load(const std::string &vertexSource, const std::string &fragmentSource);
-        void Unload(ShaderHandle handle);
+        ShaderStore();
+
+        ShaderStore(const ShaderStore &) = delete;
+        ShaderStore(ShaderStore &&) noexcept = default;
+        ShaderStore &operator=(const ShaderStore &) = delete;
+        ShaderStore &operator=(ShaderStore &&) noexcept = default;
+
+        ~ShaderStore() = default;
+
+        ShaderHandle Create(const std::string &vertexSource, const std::string &fragmentSource);
+        void Destroy(ShaderHandle handle);
 
         Gl::Shader &Get(ShaderHandle handle);
+
+        static ShaderHandle GetStandardShader();
 
     private:
         std::vector<Slot> m_Shaders;

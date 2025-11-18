@@ -3,7 +3,7 @@
 #include "Debug/Logger.hpp"
 
 namespace Pixf::Core::Graphics {
-    Texture2DHandle TextureStore::Load(const ImageData &image, const Gl::Texture2D::Config config) {
+    Texture2DHandle TextureStore::Create(const ImageData &image, const Gl::Texture2D::Config config) {
         auto [idx, slot] = GetSlot();
 
         slot.texture2D = Gl::Texture2D::Create(image, config);
@@ -12,7 +12,7 @@ namespace Pixf::Core::Graphics {
         return {.id = idx, .version = slot.version};
     }
     
-    void TextureStore::Unload(const Texture2DHandle handle) {
+    void TextureStore::Destroy(const Texture2DHandle handle) {
         if (handle.id >= m_Textures2D.size()) {
             PIXF_CORE_LOG_ERROR("Failed to unload 2D texture: ID {} not found", handle.id);
             return;
@@ -30,7 +30,7 @@ namespace Pixf::Core::Graphics {
         version++;
     }
     
-    Gl::Texture2D &TextureStore::Get(Texture2DHandle handle) {
+    Gl::Texture2D &TextureStore::Get(const Texture2DHandle handle) {
         if (handle.id >= m_Textures2D.size()) {
             throw TextureStoreError("Failed to retrieve shader: ID " + std::to_string(handle.id) + " not found");
         }
@@ -53,7 +53,7 @@ namespace Pixf::Core::Graphics {
             return {i, m_Textures2D[i]};
         }
 
-        m_Textures2D.resize(m_Textures2D.size() + 1);
+        m_Textures2D.emplace_back();
         return {m_Textures2D.size() - 1, m_Textures2D.back()};
     }
 } // namespace Pixf::Core::Graphics

@@ -6,20 +6,30 @@
 #include "Handle.hpp"
 
 namespace Pixf::Core::Graphics {
-    class PIXF_API TextureStoreError final : public Error::Error::Error {
+    class PIXF_API TextureStoreError final : public Error::Error {
+    public:
         using Error::Error;
     };
 
     class PIXF_API TextureStore {
     public:
-        struct Slot {
+        struct PIXF_API Slot {
             Gl::Texture2D texture2D;
             uint8_t version;
             bool active;
         };
 
-        Texture2DHandle Load(const ImageData &image, Gl::Texture2D::Config config);
-        void Unload(Texture2DHandle handle);
+        TextureStore() = default;
+
+        TextureStore(const TextureStore &) = delete;
+        TextureStore(TextureStore &&) noexcept = default;
+        TextureStore &operator=(const TextureStore &) = delete;
+        TextureStore &operator=(TextureStore &&) noexcept = default;
+
+        ~TextureStore() = default;
+
+        Texture2DHandle Create(const ImageData &image, Gl::Texture2D::Config config);
+        void Destroy(Texture2DHandle handle);
 
         Gl::Texture2D &Get(Texture2DHandle handle);
 

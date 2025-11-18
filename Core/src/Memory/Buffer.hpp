@@ -1,8 +1,10 @@
 #ifndef PIXF_MEMORY_BUFFER_HPP
 #define PIXF_MEMORY_BUFFER_HPP
 
+#include "Common.hpp"
+
 namespace Pixf::Core::Memory {
-    class Buffer {
+    class PIXF_API Buffer {
     public:
         explicit Buffer(size_t size);
         Buffer(const void *src, size_t size);
@@ -16,10 +18,10 @@ namespace Pixf::Core::Memory {
             *this = Buffer(vector.data(), vector.size() * sizeof(vector[0]));
         }
 
-        Buffer(const Buffer &) = delete;
+        Buffer(const Buffer &other);
         Buffer(Buffer &&other) noexcept;
 
-        Buffer &operator=(const Buffer &) = delete;
+        Buffer &operator=(const Buffer &other);
         Buffer &operator=(Buffer &&other) noexcept;
 
         ~Buffer();

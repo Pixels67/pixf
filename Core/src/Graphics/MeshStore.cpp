@@ -1,7 +1,7 @@
 #include "MeshStore.hpp"
 
 namespace Pixf::Core::Graphics {
-    MeshHandle MeshStore::Load(const MeshData &meshData) {
+    MeshHandle MeshStore::Create(const MeshData &meshData) {
         auto [idx, slot] = GetSlot();
 
         slot.mesh = Mesh(meshData);
@@ -10,7 +10,7 @@ namespace Pixf::Core::Graphics {
         return {.id = idx, .version = slot.version};
     }
 
-    void MeshStore::Unload(const MeshHandle handle) {
+    void MeshStore::Destroy(const MeshHandle handle) {
         if (handle.id >= m_Meshes.size()) {
             PIXF_CORE_LOG_ERROR("Failed to unload mesh: ID {} not found", handle.id);
             return;
@@ -51,7 +51,7 @@ namespace Pixf::Core::Graphics {
             return {i, m_Meshes[i]};
         }
 
-        m_Meshes.resize(m_Meshes.size() + 1);
+        m_Meshes.emplace_back();
         return {m_Meshes.size() - 1, m_Meshes.back()};
     }
 }

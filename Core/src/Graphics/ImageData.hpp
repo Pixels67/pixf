@@ -2,26 +2,20 @@
 #define PIXF_IMAGEDATA_HPP
 
 #include "Common.hpp"
+#include "Memory/Buffer.hpp"
 
 namespace Pixf::Core::Graphics {
     class PIXF_API ImageData {
     public:
-        ImageData(int width, int height, int channels, uint8_t *pixels);
-
-        ImageData(const ImageData &) = delete;
-        ImageData(ImageData &&other) = delete;
-        ImageData &operator=(const ImageData &) = delete;
-        ImageData &operator=(ImageData &&other) = delete;
-
-        ~ImageData();
+        ImageData(int width, int height, int channels, const Memory::Buffer &pixels);
 
         int GetWidth() const;
         int GetHeight() const;
         int GetChannels() const;
-        uint8_t *GetPixels() const;
+        const Memory::Buffer &GetPixels() const;
 
     private:
-        uint8_t *m_Pixels; // Hey, that's me :D
+        Memory::Buffer m_Pixels;
         int m_Width;
         int m_Height;
         int m_Channels;

@@ -14,14 +14,23 @@ namespace Pixf::Core::Graphics {
 
     class PIXF_API MeshStore {
     public:
-        struct Slot {
+        struct PIXF_API Slot {
             Mesh mesh;
             uint8_t version;
             bool active;
         };
 
-        MeshHandle Load(const MeshData &meshData);
-        void Unload(MeshHandle handle);
+        MeshStore() = default;
+
+        MeshStore(const MeshStore &) = delete;
+        MeshStore(MeshStore &&) noexcept = default;
+        MeshStore &operator=(const MeshStore &) = delete;
+        MeshStore &operator=(MeshStore &&) noexcept = default;
+
+        ~MeshStore() = default;
+
+        MeshHandle Create(const MeshData &meshData);
+        void Destroy(MeshHandle handle);
 
         Mesh &Get(MeshHandle handle);
 

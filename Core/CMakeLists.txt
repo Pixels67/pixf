@@ -28,6 +28,26 @@ CPMAddPackage(
         FMT_HEADER_ONLY ON
 )
 
+if (WIN32)
+    set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)
+else ()
+    set(ASSIMP_BUILD_ZLIB OFF CACHE BOOL "" FORCE)
+    set(ASSIMP_INSTALL OFF)
+    set(ASSIMP_INSTALL_PDB OFF)
+    find_package(ZLIB REQUIRED)
+endif ()
+
+CPMAddPackage(
+        URI "gh:assimp/assimp@6.0.2"
+        OPTIONS
+        "ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF"
+        "ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF"
+        "ASSIMP_BUILD_FBX_IMPORTER ON"
+        "ASSIMP_BUILD_GLTF_IMPORTER ON"
+        "ASSIMP_BUILD_OBJ_IMPORTER ON"
+        "ASSIMP_BUILD_TESTS OFF"
+)
+
 add_library(stbi STATIC vendor/stbi/stbi.h vendor/stbi/stbi.c)
 
 set(PROJECT_SOURCES
@@ -81,6 +101,16 @@ set(PROJECT_SOURCES
         src/Graphics/TextureStore.cpp
         src/Graphics/TextureStore.hpp
         src/Graphics/Material.cpp
+        src/Graphics/MaterialStore.cpp
+        src/Graphics/MaterialStore.hpp
+        src/Graphics/Model.hpp
+        src/Files/Model.cpp
+        src/Files/Model.hpp
+        src/Graphics/Resources.hpp
+        src/Graphics/RenderCommand.hpp
+        src/Graphics/Renderer.cpp
+        src/Graphics/Renderer.hpp
+        src/Graphics/RenderPass.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
@@ -94,6 +124,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         glad
         fmt
         stbi
+        assimp::assimp
 )
 
 # OS libs

@@ -47,9 +47,7 @@ namespace Pixf::Core::Graphics::Gl {
         return *this;
     }
 
-    Shader::~Shader() {
-        Clear();
-    }
+    Shader::~Shader() { Clear(); }
 
     void Shader::Bind() const { PIXF_GL_CALL(glUseProgram(m_Id)); }
 
@@ -97,6 +95,8 @@ namespace Pixf::Core::Graphics::Gl {
     void Shader::SetUniform(const std::string &name, const Math::Matrix4f &value) const {
         PIXF_GL_CALL(glUniformMatrix4fv(glGetUniformLocation(m_Id, name.c_str()), 1, GL_FALSE, value.Data()));
     }
+
+    void Shader::SetUniform(const std::string &name, const Texture2D &value) { value.Bind(m_TextureUniformMap[name]); }
 
     std::unordered_map<std::string, uint8_t> Shader::GetTextureUniformMap() const { return m_TextureUniformMap; }
 

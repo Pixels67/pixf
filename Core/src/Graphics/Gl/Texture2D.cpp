@@ -89,7 +89,7 @@ namespace Pixf::Core::Graphics::Gl {
                                   0,
                                   format,
                                   GL_UNSIGNED_BYTE,
-                                  image.GetPixels()));
+                                  image.GetPixels().Get()));
 
         if (config.generateMipmaps) {
             PIXF_GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));

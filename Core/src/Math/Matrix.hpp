@@ -6,6 +6,7 @@
 
 #include "Quaternion.hpp"
 #include "Vector.hpp"
+#include "Math.hpp"
 
 namespace Pixf::Core::Math {
     template<typename T>
@@ -13,16 +14,16 @@ namespace Pixf::Core::Math {
     public:
         std::array<T, 4 * 4> m;
 
-        Matrix4() { *this = Identity(); }
+        Matrix4() { ToIdentity(); }
 
         static Matrix4 Identity() {
             Matrix4 mat;
-            mat.m = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+            mat.ToIdentity();
             return mat;
         }
 
-        T &At(const unsigned int row, const unsigned int col) { return m[col * 4 + row]; }
-        const T &At(const unsigned int row, const unsigned int col) const { return m[col * 4 + row]; }
+        T &At(const unsigned int row, const unsigned int col) { return m[(col * 4) + row]; }
+        const T &At(const unsigned int row, const unsigned int col) const { return m[(col * 4) + row]; }
 
         const T *Data() const { return m.data(); }
 
@@ -49,14 +50,14 @@ namespace Pixf::Core::Math {
 
         static Matrix4 Perspective(T fovY, T aspect, T near, T far) {
             Matrix4 mat;
-            T tanHalfFovY = std::tan(fovY / 2.0F);
+            T tanHalfFovY = DegreesToRadians(std::tan(fovY / 2.0F));
 
             mat.m.fill(0.0F);
             mat.At(0, 0) = 1.0F / (aspect * tanHalfFovY);
             mat.At(1, 1) = 1.0F / tanHalfFovY;
-            mat.At(2, 2) = -(far + near) / (far - near);
-            mat.At(2, 3) = -1.0F;
-            mat.At(3, 2) = -(2.0F * far * near) / (far - near);
+            mat.At(2, 2) = far / (far - near);
+            mat.At(2, 3) = 1.0F;
+            mat.At(3, 2) = -(far * near) / (far - near);
 
             return mat;
         }
@@ -66,10 +67,10 @@ namespace Pixf::Core::Math {
 
             mat.At(0, 0) = 2.0F / (right - left);
             mat.At(1, 1) = 2.0F / (top - bottom);
-            mat.At(2, 2) = -2.0F / (far - near);
+            mat.At(2, 2) = 1.0F / (far - near);
             mat.At(3, 0) = -(right + left) / (right - left);
             mat.At(3, 1) = -(top + bottom) / (top - bottom);
-            mat.At(3, 2) = -(far + near) / (far - near);
+            mat.At(3, 2) = -near / (far - near);
 
             return mat;
         }
@@ -154,7 +155,7 @@ namespace Pixf::Core::Math {
         }
 
         Matrix4 &ApplyRotation(T angle, Vector3<T> v) {
-            *this = *this * Rotate(angle, v.x, v.y, v.z);
+            *this = *this * Rotate(angle, v);
             return *this;
         }
 
@@ -257,6 +258,11 @@ namespace Pixf::Core::Math {
             mat.At(3, 3) = 1.0F;
 
             return mat * Translate(-eyeX, -eyeY, -eyeZ);
+        }
+
+    private:
+        void ToIdentity() {
+            m = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
         }
     };
 

@@ -10,6 +10,7 @@ namespace Pixf::Core::Graphics {
 
     using Texture2DHandle = Handle<struct Texture2DTag>;
     using ShaderHandle = Handle<struct ShaderTag>;
+    using MaterialHandle = Handle<struct MaterialTag>;
     using MeshHandle = Handle<struct MeshTag>;
 }
 

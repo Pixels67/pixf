@@ -13,9 +13,31 @@ namespace Pixf::Core::Memory {
 
     Buffer::~Buffer() { free(m_Data); }
 
+    Buffer::Buffer(const Buffer &other) :
+        m_Data(other.m_Size > 0 ? malloc(other.m_Size) : nullptr), m_Size(other.m_Size) {
+        if (m_Data != nullptr && other.m_Data != nullptr) {
+            memcpy(m_Data, other.m_Data, m_Size);
+        }
+    }
+
     Buffer::Buffer(Buffer &&other) noexcept : m_Data(other.m_Data), m_Size(other.m_Size) {
         other.m_Data = nullptr;
         other.m_Size = 0;
+    }
+
+    Buffer &Buffer::operator=(const Buffer &other) {
+        if (this != &other) {
+            free(m_Data);
+
+            m_Size = other.m_Size;
+            m_Data = m_Size > 0 ? malloc(m_Size) : nullptr;
+
+            if (m_Data != nullptr && other.m_Data != nullptr) {
+                memcpy(m_Data, other.m_Data, m_Size);
+            }
+        }
+
+        return *this;
     }
 
     Buffer &Buffer::operator=(Buffer &&other) noexcept {

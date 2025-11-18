@@ -6,6 +6,7 @@
 #include "Math/Color.hpp"
 #include "Math/Matrix.hpp"
 #include "Math/Vector.hpp"
+#include "Texture2D.hpp"
 
 namespace Pixf::Core::Graphics::Gl {
     class ShaderCompilationError final : public Error::Error {
@@ -33,14 +34,13 @@ namespace Pixf::Core::Graphics::Gl {
         void SetUniform(const std::string &name, char value) const;
         void SetUniform(const std::string &name, int value) const;
         void SetUniform(const std::string &name, float value) const;
-
         void SetUniform(const std::string &name, const Math::Vector2f &value) const;
         void SetUniform(const std::string &name, const Math::Vector3f &value) const;
         void SetUniform(const std::string &name, const Math::Vector4f &value) const;
         void SetUniform(const std::string &name, Math::Color3u8 value) const;
         void SetUniform(const std::string &name, Math::Color4u8 value) const;
-
         void SetUniform(const std::string &name, const Math::Matrix4f &value) const;
+        void SetUniform(const std::string & name, const Texture2D &value);
 
         std::unordered_map<std::string, uint8_t> GetTextureUniformMap() const;
 
