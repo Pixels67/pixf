@@ -18,8 +18,12 @@ namespace Pixf::Core::Graphics::Gl {
         using Error::Error;
     };
 
-    struct PIXF_API WindowSizeChangedEvent {
-        Math::Vector2u newSize;
+    class PIXF_API WindowSizeChangedEvent final : public Event::Event {
+    public:
+        Math::Vector2u newSize{};
+
+        WindowSizeChangedEvent() = default;
+        explicit WindowSizeChangedEvent(const Math::Vector2u newSize) : newSize(newSize) {}
     };
 
     class PIXF_API Window {

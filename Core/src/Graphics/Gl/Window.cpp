@@ -109,7 +109,7 @@ namespace Pixf::Core::Graphics::Gl {
         // Window size changed
         glfwSetWindowSizeCallback(m_GlfwWindowPtr, [](GLFWwindow *window, const int width, const int height) {
             auto *const em = static_cast<Event::EventManager *>(glfwGetWindowUserPointer(window));
-            const auto event = WindowSizeChangedEvent{{static_cast<unsigned>(width), static_cast<unsigned>(height)}};
+            const WindowSizeChangedEvent event({static_cast<unsigned>(width), static_cast<unsigned>(height)});
             PIXF_CORE_LOG_TRACE("Window size changed to: {}, {}", width, height);
             em->QueueEvent<WindowSizeChangedEvent>(event);
         });

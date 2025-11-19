@@ -18,10 +18,10 @@ namespace Pixf::Core::Graphics {
         struct PIXF_API Slot {
             Gl::Shader shader;
             uint8_t version;
-            bool active;
+            bool active = false;
         };
 
-        ShaderStore();
+        ShaderStore() = default;
 
         ShaderStore(const ShaderStore &) = delete;
         ShaderStore(ShaderStore &&) noexcept = default;
@@ -35,7 +35,7 @@ namespace Pixf::Core::Graphics {
 
         Gl::Shader &Get(ShaderHandle handle);
 
-        static ShaderHandle GetStandardShader();
+        ShaderHandle GetStandardShader();
 
     private:
         std::vector<Slot> m_Shaders;

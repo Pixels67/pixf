@@ -111,6 +111,17 @@ set(PROJECT_SOURCES
         src/Graphics/Renderer.cpp
         src/Graphics/Renderer.hpp
         src/Graphics/RenderPass.hpp
+        src/Application/Application.cpp
+        src/Application/Application.hpp
+        src/Time/Clock.cpp
+        src/Time/Clock.hpp
+        src/Graphics/Gl/Viewport.cpp
+        src/Graphics/Gl/Viewport.hpp
+        src/Application/Stage.hpp
+        src/Event/Event.hpp
+        src/Application/Pipeline.cpp
+        src/Application/Pipeline.hpp
+        src/Application/State.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

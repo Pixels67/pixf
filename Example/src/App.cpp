@@ -1,6 +1,7 @@
+#include "Application/Application.hpp"
 #include "Files/Model.hpp"
+#include "Graphics/Gl/Viewport.hpp"
 #include "Graphics/Renderer.hpp"
-#include "Graphics/Resources.hpp"
 #include "Pixf.hpp"
 
 using namespace Pixf::Core;
@@ -8,47 +9,42 @@ using namespace Pixf::Core::Math;
 using namespace Pixf::Core::Graphics;
 using namespace Pixf::Core::Debug;
 
-int main() {
-    std::set_terminate(Error::HandleTerminate);
+class RenderStage final : public Application::Stage {
+public:
+    void OnAttach(Application::State &state) override { backpack = Files::LoadModel("backpack.obj", state.resources); }
 
-    const Gl::Window window = Gl::Window::Create({.title = "Pixf"});
-    window.MakeCurrent();
-
-    Event::EventManager eventManager;
-    window.SetupEvents(eventManager);
-
-    PIXF_GL_CALL(glViewport(0, 0, 800, 600));
-    PIXF_GL_CALL(glEnable(GL_DEPTH_TEST));
-
-    Resources resources;
-    Renderer renderer;
-
-    Matrix4f transform;
-    auto [elements] = Files::LoadModel("backpack.obj", resources);
-
-    float dist;
-    float rot;
-
-    while (!window.ShouldClose()) {
-        Gl::Window::PollEvents();
-
-        dist += 0.05F;
-        rot += 0.1F;
+    void Update(Application::State &state, const double deltaTime) override {
+        dist += 5.0F * deltaTime;
+        rot += 5.0F * deltaTime;
 
         transform = Matrix4f::Identity();
         transform.ApplyRotation(rot, Vector3f::Up());
         transform.ApplyTranslation(Vector3f(0.0F, 0.0F, dist));
+    }
 
-        renderer.BeginPass({.projectionMatrix = Matrix4f::Perspective(60.0f, 4.0f / 3.0f, 0.1f, 100.0f)});
+    void Render(Application::State &state, double deltaTime) override {
+        const Gl::Viewport viewport{.aspect = state.window.GetSize()};
 
-        for (auto &[mesh, material]: elements) {
+        Renderer &renderer = state.renderer;
+        renderer.BeginPass({.projectionMatrix = Matrix4f::Perspective(60.0F, 4.0F / 3.0F, 0.1F, 100.0F)});
+
+        for (auto &[mesh, material]: backpack.elements) {
             renderer.Submit({.mesh = mesh, .material = material, .modelMatrix = transform});
         }
 
-        renderer.Render(resources);
-
-        window.SwapBuffers();
+        renderer.Render(viewport, state.resources);
     }
 
-    return 0;
-}
+private:
+    Matrix4f transform;
+    Model backpack;
+    float dist = 0.0F;
+    float rot = 0.0F;
+};
+
+class App final : public Application::Application {
+protected:
+    void Awake() override { AttachStage<RenderStage>(); }
+};
+
+PIXF_RUN_APPLICATION(App)

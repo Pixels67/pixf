@@ -33,10 +33,6 @@ void main() {
 )";
 
 namespace Pixf::Core::Graphics {
-    ShaderStore::ShaderStore() {
-        Create(s_StandardVertShader, s_StandardFragShader);
-    }
-
     ShaderHandle ShaderStore::Create(const std::string &vertexSource, const std::string &fragmentSource) {
         auto [idx, slot] = GetSlot();
 
@@ -78,10 +74,21 @@ namespace Pixf::Core::Graphics {
         return shader;
     }
 
-    ShaderHandle ShaderStore::GetStandardShader() { return {.id = 0, .version = 0}; }
+    ShaderHandle ShaderStore::GetStandardShader() {
+        if (m_Shaders.size() == 0) {
+            m_Shaders.emplace_back();
+        }
+
+        if (!m_Shaders[0].active) {
+            m_Shaders[0].shader = Gl::Shader::Create(s_StandardVertShader, s_StandardFragShader);
+            m_Shaders[0].active = true;
+        }
+
+        return {.id = 0, .version = 0};
+    }
 
     std::pair<uint32_t, ShaderStore::Slot &> ShaderStore::GetSlot() {
-        for (uint32_t i = 0; i < m_Shaders.size(); i++) {
+        for (uint32_t i = 1; i < m_Shaders.size(); i++) {
             if (m_Shaders[i].active) {
                 continue;
             }

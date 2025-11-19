@@ -50,10 +50,10 @@ namespace Pixf::Core::Files {
             const aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
             const aiMaterial *mat = scene->mMaterials[mesh->mMaterialIndex];
 
-            PIXF_CORE_LOG_DEBUG("Loaded mesh {}", node->mMeshes[i])
-
             Graphics::ModelElement element = {LoadMesh(mesh, resources), LoadMaterial(mat, textures, resources)};
             model.elements.push_back(element);
+
+            PIXF_CORE_LOG_TRACE("Loaded mesh {}", node->mMeshes[i])
         }
 
         for (unsigned int i = 0; i < node->mNumChildren; i++) {
@@ -145,7 +145,7 @@ namespace Pixf::Core::Files {
 
         const Graphics::MaterialHandle matHandle = resources.materialStore.Create({});
         Graphics::Material &outputMaterial = resources.materialStore.Get(matHandle);
-        outputMaterial.SetShader(Graphics::ShaderStore::GetStandardShader());
+        outputMaterial.SetShader(resources.shaderStore.GetStandardShader());
 
         if (diffuse.has_value()) {
             outputMaterial.SetDiffuseTexture(diffuse.value());

@@ -54,7 +54,7 @@ namespace Pixf::Core::Math {
 
             mat.m.fill(0.0F);
             mat.At(0, 0) = 1.0F / (aspect * tanHalfFovY);
-            mat.At(1, 1) = 1.0F / tanHalfFovY;
+            mat.At(1, 1) = -1.0F / tanHalfFovY;
             mat.At(2, 2) = far / (far - near);
             mat.At(2, 3) = 1.0F;
             mat.At(3, 2) = -(far * near) / (far - near);

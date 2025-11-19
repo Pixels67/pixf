@@ -2,6 +2,7 @@
 #define PIXF_RENDERER_HPP
 
 #include "Common.hpp"
+#include "Gl/Viewport.hpp"
 #include "RenderCommand.hpp"
 #include "RenderPass.hpp"
 #include "Resources.hpp"
@@ -11,7 +12,7 @@ namespace Pixf::Core::Graphics {
     public:
         void BeginPass(const RenderPass &pass);
         void Submit(const RenderCommand &cmd);
-        void Render(Resources &resources);
+        void Render(const Gl::Viewport &viewport, Resources &resources);
 
     private:
         std::optional<RenderPass> m_CurrentPass;

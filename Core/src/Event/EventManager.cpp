@@ -7,12 +7,20 @@ namespace Pixf::Core::Event {
 
             if (auto it = m_Callbacks.find(typeIndex); it != m_Callbacks.end()) {
                 for (auto &callback: it->second) {
-                    callback(event);
+                    callback(*event);
                 }
+            }
+
+            for (auto &callback : m_GenericCallbacks) {
+                callback(*event);
             }
 
             m_EventQueue.pop();
         }
+    }
+
+    void EventManager::Subscribe(const GenericCallback& callback) {
+        m_GenericCallbacks.push_back(callback);
     }
 
     void EventManager::Clear() {

@@ -5,10 +5,16 @@ namespace Pixf::Core::Graphics {
 
     void Renderer::Submit(const RenderCommand &cmd) { m_RenderQueue.push(cmd); }
 
-    void Renderer::Render(Resources &resources) {
+    void Renderer::Render(const Gl::Viewport &viewport, Resources &resources) {
         if (!m_CurrentPass.has_value()) {
             PIXF_CORE_LOG_ERROR("Failed to render: Called Render without calling BeginPass");
             return;
+        }
+
+        viewport.Apply();
+
+        if (m_CurrentPass->depthTest) {
+            PIXF_GL_CALL(glEnable(GL_DEPTH_TEST));
         }
 
         const Math::Color3u8 clearColor = m_CurrentPass.value().clearColor;

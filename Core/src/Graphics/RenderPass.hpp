@@ -18,7 +18,8 @@ namespace Pixf::Core::Graphics {
         Math::Matrix4f projectionMatrix;
         uint8_t clearFlags = ClearAll;
         Math::Color3u8 clearColor = Math::Color3u8(30, 30, 30);
+        bool depthTest = true;
     };
-}
+} // namespace Pixf::Core::Graphics
 
 #endif // PIXF_RENDERPASS_HPP
