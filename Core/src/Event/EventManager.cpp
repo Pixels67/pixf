@@ -2,30 +2,35 @@
 
 namespace Pixf::Core::Event {
     void EventManager::ProcessEvents() {
-        while (!m_EventQueue.empty()) {
-            auto &[typeIndex, event] = m_EventQueue.front();
+        while (!GetInstance().m_EventQueue.empty()) {
+            auto &[typeIndex, event] = GetInstance().m_EventQueue.front();
 
-            if (auto it = m_Callbacks.find(typeIndex); it != m_Callbacks.end()) {
+            if (auto it = GetInstance().m_Callbacks.find(typeIndex); it != GetInstance().m_Callbacks.end()) {
                 for (auto &callback: it->second) {
                     callback(*event);
                 }
             }
 
-            for (auto &callback : m_GenericCallbacks) {
+            for (auto &callback: GetInstance().m_GenericCallbacks) {
                 callback(*event);
             }
 
-            m_EventQueue.pop();
+            GetInstance().m_EventQueue.pop();
         }
     }
 
-    void EventManager::Subscribe(const GenericCallback& callback) {
-        m_GenericCallbacks.push_back(callback);
+    void EventManager::Subscribe(const GenericCallback &callback) {
+        GetInstance().m_GenericCallbacks.push_back(callback);
     }
 
     void EventManager::Clear() {
-        while (!m_EventQueue.empty()) {
-            m_EventQueue.pop();
+        while (!GetInstance().m_EventQueue.empty()) {
+            GetInstance().m_EventQueue.pop();
         }
+    }
+
+    EventManager &EventManager::GetInstance() {
+        static EventManager eventManager;
+        return eventManager;
     }
 } // namespace Pixf::Core::Event

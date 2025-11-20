@@ -122,6 +122,8 @@ set(PROJECT_SOURCES
         src/Application/Pipeline.cpp
         src/Application/Pipeline.hpp
         src/Application/State.hpp
+        src/Input/InputManager.hpp
+        src/Input/InputManager.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

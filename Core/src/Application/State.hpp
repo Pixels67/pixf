@@ -9,7 +9,6 @@
 
 namespace Pixf::Core::Application {
     struct PIXF_API State {
-        Event::EventManager eventManager{};
         Graphics::Gl::Window window;
         Graphics::Resources resources{};
         Graphics::Renderer renderer{};

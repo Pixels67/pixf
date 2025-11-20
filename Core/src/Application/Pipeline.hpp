@@ -10,10 +10,10 @@ namespace Pixf::Core::Application {
     public:
         Pipeline() = default;
 
-        Pipeline(const Pipeline&) = delete;
-        Pipeline(Pipeline&&) noexcept = default;
-        Pipeline& operator=(const Pipeline&) = delete;
-        Pipeline& operator=(Pipeline&&) noexcept = default;
+        Pipeline(const Pipeline &) = delete;
+        Pipeline(Pipeline &&) noexcept = default;
+        Pipeline &operator=(const Pipeline &) = delete;
+        Pipeline &operator=(Pipeline &&) noexcept = default;
 
         ~Pipeline() = default;
 

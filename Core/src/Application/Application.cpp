@@ -1,12 +1,15 @@
 #include "Application.hpp"
 
+#include "Input/InputManager.hpp"
+
 namespace Pixf::Core::Application {
     Application::Application(const ApplicationConfig &config) :
         m_State{.window = Graphics::Gl::Window::Create(config.windowConfig)} {
         m_State.window.MakeCurrent();
-        m_State.window.SetupEvents(m_State.eventManager);
 
-        m_State.eventManager.Subscribe([&](Event::Event &event) {
+        Input::InputManager::Initialize();
+
+        Event::EventManager::Subscribe([&](Event::Event &event) {
             m_Pipeline.OnEvent(m_State, event);
         });
     }
@@ -16,7 +19,9 @@ namespace Pixf::Core::Application {
 
         while (!m_State.window.ShouldClose()) {
             m_State.clock.StartFrameTimer(glfwGetTime());
+
             Graphics::Gl::Window::PollEvents();
+            Event::EventManager::ProcessEvents();
 
             const double deltaTime = m_State.clock.GetDeltaTime();
 
@@ -30,6 +35,7 @@ namespace Pixf::Core::Application {
             m_Pipeline.RenderGui(m_State, deltaTime);
 
             m_State.window.SwapBuffers();
+
             m_State.clock.EndFrameTimer(glfwGetTime());
         }
     }

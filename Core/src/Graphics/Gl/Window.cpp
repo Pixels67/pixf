@@ -60,6 +60,14 @@ namespace Pixf::Core::Graphics::Gl {
         return Window(window, config);
     }
 
+    std::optional<const Window *> Window::GetCurrent() {
+        if (s_CurrentWindow != nullptr) {
+            return s_CurrentWindow;
+        }
+
+        return std::nullopt;
+    }
+
     Window::~Window() {
         if (m_GlfwWindowPtr == nullptr) {
             return;
@@ -67,7 +75,6 @@ namespace Pixf::Core::Graphics::Gl {
 
         s_WindowCount--;
 
-        glfwSetWindowUserPointer(m_GlfwWindowPtr, nullptr);
         glfwDestroyWindow(m_GlfwWindowPtr);
 
         PIXF_CORE_LOG_DEBUG("Destroyed window: \"{}\"", m_Config.title);
@@ -99,25 +106,57 @@ namespace Pixf::Core::Graphics::Gl {
 
     void Window::Close() const { glfwSetWindowShouldClose(m_GlfwWindowPtr, 1); }
 
-    void Window::MakeCurrent() const { glfwMakeContextCurrent(m_GlfwWindowPtr); }
+    void Window::MakeCurrent() const {
+        s_CurrentWindow = this;
+        glfwMakeContextCurrent(m_GlfwWindowPtr);
+    }
 
     void Window::SwapBuffers() const { glfwSwapBuffers(m_GlfwWindowPtr); }
 
-    void Window::SetupEvents(Event::EventManager &eventManager) const {
-        glfwSetWindowUserPointer(m_GlfwWindowPtr, &eventManager);
+    unsigned int Window::GetKey(const unsigned int key) const { return glfwGetKey(m_GlfwWindowPtr, key); }
 
-        // Window size changed
-        glfwSetWindowSizeCallback(m_GlfwWindowPtr, [](GLFWwindow *window, const int width, const int height) {
-            auto *const em = static_cast<Event::EventManager *>(glfwGetWindowUserPointer(window));
-            const WindowSizeChangedEvent event({static_cast<unsigned>(width), static_cast<unsigned>(height)});
-            PIXF_CORE_LOG_TRACE("Window size changed to: {}, {}", width, height);
-            em->QueueEvent<WindowSizeChangedEvent>(event);
-        });
+    unsigned int Window::GetMouseKey(const unsigned int key) const { return glfwGetMouseButton(m_GlfwWindowPtr, key); }
 
-        const auto event = WindowSizeChangedEvent{GetSize()};
-        eventManager.QueueEvent<WindowSizeChangedEvent>(event);
+    Math::Vector2d Window::GetMousePosition() const {
+        double x = 0;
+        double y = 0;
+        glfwGetCursorPos(m_GlfwWindowPtr, &x, &y);
+
+        return Math::Vector2d(x, y);
     }
 
     Window::Window(GLFWwindow *glfwWindowPtr, const WindowConfig &config) :
-        m_GlfwWindowPtr(glfwWindowPtr), m_Config(config) {}
+        m_GlfwWindowPtr(glfwWindowPtr), m_Config(config) {
+        SetupEvents();
+    }
+
+    void Window::SetupEvents() const {
+        // Window size changed
+        glfwSetWindowSizeCallback(m_GlfwWindowPtr, [](GLFWwindow *window, int width, int height) {
+            const WindowSizeChangedEvent event({static_cast<unsigned>(width), static_cast<unsigned>(height)});
+            PIXF_CORE_LOG_TRACE("Window size changed to: {}, {}", width, height);
+            Event::EventManager::QueueEvent(event);
+        });
+
+        // Key event
+        glfwSetKeyCallback(m_GlfwWindowPtr, [](GLFWwindow *window, int keycode, int scancode, int action, int mods) {
+            const KeyEvent event(keycode, scancode, action, mods);
+            Event::EventManager::QueueEvent(event);
+        });
+
+        // Mouse key event
+        glfwSetMouseButtonCallback(m_GlfwWindowPtr, [](GLFWwindow *window, int keycode, int action, int mods) {
+            const MouseKeyEvent event(keycode, action, mods);
+            Event::EventManager::QueueEvent(event);
+        });
+
+        // Char event
+        glfwSetCharCallback(m_GlfwWindowPtr, [](GLFWwindow *window, unsigned int codepoint) {
+            const CharEvent event(codepoint);
+            Event::EventManager::QueueEvent(event);
+        });
+
+        const auto event = WindowSizeChangedEvent{GetSize()};
+        Event::EventManager::QueueEvent<WindowSizeChangedEvent>(event);
+    }
 } // namespace Pixf::Core::Graphics::Gl

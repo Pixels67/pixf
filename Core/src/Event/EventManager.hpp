@@ -12,6 +12,48 @@ namespace Pixf::Core::Event {
 
     class PIXF_API EventManager {
     public:
+        static void ProcessEvents();
+        static void Subscribe(const GenericCallback &callback);
+
+        static void Clear();
+
+        template<typename T>
+        static void Subscribe(EventCallback<T> callback) {
+            static_assert(std::is_base_of<Event, T>());
+
+            const auto typeIndex = GetTypeId<T>();
+
+            GetInstance().m_Callbacks[typeIndex].push_back([callback](Event &e) { callback(static_cast<T &>(e)); });
+        }
+
+        template<typename T>
+        static void QueueEvent(T event = {}) {
+            static_assert(std::is_base_of<Event, T>());
+
+            auto ptr = std::make_unique<T>(event);
+            QueueElement element = std::make_pair(GetTypeId<T>(), std::move(ptr));
+            GetInstance().m_EventQueue.push(std::move(element));
+        }
+
+        template<typename T>
+        static void DispatchEvent(T event = {}) {
+            static_assert(std::is_base_of<Event, T>());
+
+            const auto typeIndex = GetTypeId<T>();
+
+            if (const auto it = GetInstance().m_Callbacks.find(typeIndex); it != GetInstance().m_Callbacks.end()) {
+                for (auto &callback: it->second) {
+                    callback(event);
+                }
+            }
+        }
+
+    private:
+        using QueueElement = std::pair<TypeId, std::unique_ptr<Event>>;
+        std::vector<GenericCallback> m_GenericCallbacks;
+        std::unordered_map<TypeId, std::vector<GenericCallback>> m_Callbacks;
+        std::queue<QueueElement> m_EventQueue;
+
         EventManager() = default;
 
         EventManager(const EventManager &) = delete;
@@ -21,48 +63,7 @@ namespace Pixf::Core::Event {
 
         ~EventManager() = default;
 
-        void ProcessEvents();
-        void Subscribe(const GenericCallback& callback);
-
-        void Clear();
-
-        template<typename T>
-        void Subscribe(EventCallback<T> callback) {
-            static_assert(std::is_base_of<Event, T>());
-
-            const auto typeIndex = GetTypeId<T>();
-
-            m_Callbacks[typeIndex].push_back([callback](Event &e) { callback(static_cast<T &>(e)); });
-        }
-
-        template<typename T>
-        void QueueEvent(T event = {}) {
-            static_assert(std::is_base_of<Event, T>());
-
-            auto ptr = std::make_unique<T>(event);
-            QueueElement element = std::make_pair(GetTypeId<T>(), std::move(ptr));
-            m_EventQueue.push(std::move(element));
-        }
-
-        template<typename T>
-        void DispatchEvent(T event = {}) {
-            static_assert(std::is_base_of<Event, T>());
-
-            const auto typeIndex = GetTypeId<T>();
-
-            if (const auto it = m_Callbacks.find(typeIndex); it != m_Callbacks.end()) {
-                for (auto &callback: it->second) {
-                    callback(event);
-                }
-            }
-        }
-
-    private:
-        using QueueElement = std::pair<TypeId, std::unique_ptr<Event>>;
-
-        std::vector<GenericCallback> m_GenericCallbacks;
-        std::unordered_map<TypeId, std::vector<GenericCallback>> m_Callbacks;
-        std::queue<QueueElement> m_EventQueue;
+        static EventManager &GetInstance();
     };
 } // namespace Pixf::Core::Event
 
