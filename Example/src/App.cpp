@@ -1,4 +1,5 @@
 #include "Application/Application.hpp"
+#include "Entities/System.hpp"
 #include "Files/Model.hpp"
 #include "Graphics/Gl/Viewport.hpp"
 #include "Graphics/Renderer.hpp"
@@ -10,17 +11,38 @@ using namespace Pixf::Core::Math;
 using namespace Pixf::Core::Graphics;
 using namespace Pixf::Core::Debug;
 
+struct Backpack {
+    Matrix4f transform{};
+    Model backpack;
+    float dist = 0.0F;
+    float rot = 0.0F;
+};
+
+struct BackpackSystem final : Entities::System {
+    void Update(Entities::Registry &registry, const double deltaTime) override {
+        registry.ForEach<Backpack>([deltaTime](Backpack &backpack) {
+            backpack.dist += 5.0F * deltaTime;
+            backpack.rot += 5.0F * deltaTime;
+
+            backpack.transform = Matrix4f::Identity();
+            backpack.transform.ApplyRotation(backpack.rot, Vector3f::Up());
+            backpack.transform.ApplyTranslation(Vector3f(0.0F, 0.0F, backpack.dist));
+        });
+    }
+};
+
 class RenderStage final : public Application::Stage {
 public:
-    void OnAttach(Application::State &state) override { backpack = Files::LoadModel("backpack.obj", state.resources); }
+    void OnAttach(Application::State &state) override {
+        const auto entity = state.entityRegistry.CreateEntity();
+        const Backpack backpack{.backpack = Files::LoadModel("backpack.obj", state.resources)};
+
+        state.entityRegistry.AddComponent(entity, backpack);
+        state.systemRegistry.Register<BackpackSystem>();
+    }
 
     void Update(Application::State &state, const double deltaTime) override {
-        dist += 5.0F * deltaTime;
-        rot += 5.0F * deltaTime;
-
-        transform = Matrix4f::Identity();
-        transform.ApplyRotation(rot, Vector3f::Up());
-        transform.ApplyTranslation(Vector3f(0.0F, 0.0F, dist));
+        state.systemRegistry.Update(state.entityRegistry, deltaTime);
     }
 
     void Render(Application::State &state, double deltaTime) override {
@@ -29,18 +51,14 @@ public:
         Renderer &renderer = state.renderer;
         renderer.BeginPass({.projectionMatrix = Matrix4f::Perspective(60.0F, 4.0F / 3.0F, 0.1F, 100.0F)});
 
-        for (auto &[mesh, material]: backpack.elements) {
-            renderer.Submit({.mesh = mesh, .material = material, .modelMatrix = transform});
-        }
+        state.entityRegistry.ForEach<Backpack>([&renderer](Backpack &backpack) {
+            for (auto &[mesh, material]: backpack.backpack.elements) {
+                renderer.Submit({.mesh = mesh, .material = material, .modelMatrix = backpack.transform});
+            }
+        });
 
         renderer.Render(viewport, state.resources);
     }
-
-private:
-    Matrix4f transform;
-    Model backpack;
-    float dist = 0.0F;
-    float rot = 0.0F;
 };
 
 class App final : public Application::Application {

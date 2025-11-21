@@ -2,6 +2,8 @@
 #define PIXF_STATE_HPP
 
 #include "Common.hpp"
+#include "Entities/Registry.hpp"
+#include "Entities/SystemRegistry.hpp"
 #include "Graphics/Gl/Window.hpp"
 #include "Graphics/Renderer.hpp"
 #include "Graphics/Resources.hpp"
@@ -13,6 +15,8 @@ namespace Pixf::Core::Application {
         Graphics::Resources resources{};
         Graphics::Renderer renderer{};
         Time::Clock clock{};
+        Entities::Registry entityRegistry{};
+        Entities::SystemRegistry systemRegistry{};
     };
 } // namespace Pixf::Core::Application
 

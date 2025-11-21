@@ -9,9 +9,9 @@ find_package(OpenGL REQUIRED)
 CPMAddPackage(
         URI "gh:glfw/glfw#3.4"
         OPTIONS
-        GLFW_BUILD_DOCS OFF
-        GLFW_BUILD_TESTS OFF
-        GLFW_BUILD_EXAMPLES OFF
+        "GLFW_BUILD_DOCS OFF"
+        "GLFW_BUILD_TESTS OFF"
+        "GLFW_BUILD_EXAMPLES OFF"
 )
 
 CPMAddPackage(
@@ -24,10 +24,10 @@ CPMAddPackage(
         NAME fmt
         GITHUB_REPOSITORY "fmtlib/fmt"
         GIT_TAG 12.1.0
-        FMT_DOC OFF
-        FMT_TEST OFF
-        FMT_INSTALL OFF
-        FMT_HEADER_ONLY ON
+        "FMT_DOC OFF"
+        "FMT_TEST OFF"
+        "FMT_INSTALL OFF"
+        "FMT_HEADER_ONLY ON"
 )
 
 if (WIN32)
@@ -48,6 +48,14 @@ CPMAddPackage(
         "ASSIMP_BUILD_GLTF_IMPORTER ON"
         "ASSIMP_BUILD_OBJ_IMPORTER ON"
         "ASSIMP_BUILD_TESTS OFF"
+)
+
+CPMAddPackage(
+        URI "gh:skypjack/entt#v3.16.0"
+        OPTIONS
+        "ENTT_BUILD_TESTING OFF"
+        "ENTT_BUILD_TESTBED OFF"
+        "ENTT_BUILD_DOCS OFF"
 )
 
 add_library(stbi STATIC vendor/stbi/stbi.h vendor/stbi/stbi.c)
@@ -151,6 +159,12 @@ set(PROJECT_SOURCES
         src/Input/InputManager.cpp
         src/Gui/Gui.hpp
         src/Gui/Gui.cpp
+        src/Entities/Registry.hpp
+        src/Entities/Registry.cpp
+        src/Entities/SystemRegistry.cpp
+        src/Entities/SystemRegistry.hpp
+        src/Entities/System.hpp
+        src/Entities/System.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
@@ -167,6 +181,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         assimp::assimp
         stbi
         imgui
+        EnTT::EnTT
 )
 
 # OS libs
