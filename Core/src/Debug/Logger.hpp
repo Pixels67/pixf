@@ -28,7 +28,7 @@ namespace Pixf::Core::Debug {
     struct PIXF_API LoggerConfig {
         uint16_t visibility = LogLevelAll;
         std::string timeFormat = "%Y-%m-%d %H:%M:%S";
-        std::string logFormat = "[{t}] [{L}] [{n}] {m}";
+        std::string logFormat = "[{t}] [{n}] [{L}] {m}";
     };
 
     class PIXF_API Logger {

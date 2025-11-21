@@ -24,7 +24,7 @@ namespace Pixf::Core::Graphics::Gl {
 
     class PIXF_API WindowSizeChangedEvent final : public Event::Event {
     public:
-        Math::Vector2u newSize{};
+        Math::Vector2u newSize;
 
         WindowSizeChangedEvent() = default;
         explicit WindowSizeChangedEvent(const Math::Vector2u newSize) : newSize(newSize) {}
@@ -55,10 +55,10 @@ namespace Pixf::Core::Graphics::Gl {
 
     class PIXF_API MouseMovedEvent final : public Event::Event {
     public:
-        Math::Vector2u newPosition{};
+        Math::Vector2d newPosition{};
 
         MouseMovedEvent() = default;
-        explicit MouseMovedEvent(const Math::Vector2u newPosition) : newPosition(newPosition) {}
+        explicit MouseMovedEvent(const Math::Vector2d newPosition) : newPosition(newPosition) {}
     };
 
     class PIXF_API CharEvent final : public Event::Event {

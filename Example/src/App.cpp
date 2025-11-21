@@ -2,6 +2,7 @@
 #include "Files/Model.hpp"
 #include "Graphics/Gl/Viewport.hpp"
 #include "Graphics/Renderer.hpp"
+#include "Gui/Gui.hpp"
 #include "Pixf.hpp"
 
 using namespace Pixf::Core;
@@ -45,6 +46,21 @@ private:
 class App final : public Application::Application {
 protected:
     void Awake() override { AttachStage<RenderStage>(); }
+
+    void RenderGui(double deltaTime) override {
+        Gui::BeginWindow("Window");
+        Gui::BeginChild("Timmy", {300, 400});
+        Gui::ColoredText({255, 0, 255, 255}, "Test: {}, {}", 5.76, true);
+        if (Gui::Button("Button")) {
+            PIXF_CORE_LOG_DEBUG("Button pressed");
+        }
+
+        Vector3f vec;
+        Gui::DragVector3f("drag", vec);
+
+        Gui::EndChild();
+        Gui::EndWindow();
+    }
 };
 
 PIXF_RUN_APPLICATION(App)

@@ -158,7 +158,7 @@ namespace Pixf::Core::Math {
 
     using Vector2f = Vector2<float>;
     using Vector3f = Vector3<float>;
-    using Vector4f = Vector4<double>;
+    using Vector4f = Vector4<float>;
 
     using Vector2d = Vector2<double>;
     using Vector3d = Vector3<double>;

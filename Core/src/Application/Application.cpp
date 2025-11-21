@@ -1,5 +1,6 @@
 #include "Application.hpp"
 
+#include "Gui/Gui.hpp"
 #include "Input/InputManager.hpp"
 
 namespace Pixf::Core::Application {
@@ -8,6 +9,7 @@ namespace Pixf::Core::Application {
         m_State.window.MakeCurrent();
 
         Input::InputManager::Initialize();
+        Gui::Initialize();
 
         Event::EventManager::Subscribe([&](Event::Event &event) {
             m_Pipeline.OnEvent(m_State, event);
@@ -31,8 +33,10 @@ namespace Pixf::Core::Application {
             Render(deltaTime);
             m_Pipeline.Render(m_State, deltaTime);
 
+            Gui::BeginRenderGui(deltaTime);
             RenderGui(deltaTime);
             m_Pipeline.RenderGui(m_State, deltaTime);
+            Gui::EndRenderGui();
 
             m_State.window.SwapBuffers();
 

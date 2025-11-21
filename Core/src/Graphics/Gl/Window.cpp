@@ -131,7 +131,7 @@ namespace Pixf::Core::Graphics::Gl {
     }
 
     void Window::SetupEvents() const {
-        // Window size changed
+        // Window size changed event
         glfwSetWindowSizeCallback(m_GlfwWindowPtr, [](GLFWwindow *window, int width, int height) {
             const WindowSizeChangedEvent event({static_cast<unsigned>(width), static_cast<unsigned>(height)});
             PIXF_CORE_LOG_TRACE("Window size changed to: {}, {}", width, height);
@@ -147,6 +147,12 @@ namespace Pixf::Core::Graphics::Gl {
         // Mouse key event
         glfwSetMouseButtonCallback(m_GlfwWindowPtr, [](GLFWwindow *window, int keycode, int action, int mods) {
             const MouseKeyEvent event(keycode, action, mods);
+            Event::EventManager::QueueEvent(event);
+        });
+
+        // Mouse moved event
+        glfwSetCursorPosCallback(m_GlfwWindowPtr, [](GLFWwindow *window, double xPos, double yPos) {
+            const MouseMovedEvent event(Math::Vector2d(xPos, yPos));
             Event::EventManager::QueueEvent(event);
         });
 

@@ -2,6 +2,7 @@
 #define PIXF_COLOR_HPP
 
 #include "Math.hpp"
+#include "Vector.hpp"
 
 namespace Pixf::Core::Math {
     template<typename T>
@@ -26,6 +27,16 @@ namespace Pixf::Core::Math {
         static Color3 Yellow() { return Color3(255, 255, 0); }
         static Color3 Cyan() { return Color3(0, 255, 255); }
         static Color3 Magenta() { return Color3(255, 0, 255); }
+
+        Vector3f ToVector() {
+            return Vector3f(static_cast<float>(r) / 255, static_cast<float>(g) / 255, static_cast<float>(b) / 255);
+        }
+
+        void FromVector(const Vector3f &v) {
+            r = static_cast<T>(v.x * 255);
+            g = static_cast<T>(v.y * 255);
+            b = static_cast<T>(v.z * 255);
+        }
 
 #define EXPR(op) (r op o.r), (g op o.g), (b op o.b)
         PIXF_MATH_BINARY_OPS(Color3, Color3, EXPR)
@@ -69,6 +80,20 @@ namespace Pixf::Core::Math {
         static Color4 Magenta() { return Color4(255, 0, 255, 255); }
 
         static Color4 Transparent() { return Color4(0, 0, 0, 0); }
+
+        Vector4f ToVector() {
+            return Vector4f(static_cast<float>(r) / 255,
+                            static_cast<float>(g) / 255,
+                            static_cast<float>(b) / 255,
+                            static_cast<float>(a) / 255);
+        }
+
+        void FromVector(const Vector4f &v) {
+            r = static_cast<T>(v.x * 255);
+            g = static_cast<T>(v.y * 255);
+            b = static_cast<T>(v.z * 255);
+            a = static_cast<T>(v.w * 255);
+        }
 
 #define EXPR(op) (r op o.r), (g op o.g), (b op o.b), (a op o.a)
         PIXF_MATH_BINARY_OPS(Color4, Color4, EXPR)

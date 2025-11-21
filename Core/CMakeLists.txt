@@ -4,6 +4,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/lib/${CMAKE_SYSTEM_
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/lib/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+find_package(OpenGL REQUIRED)
+
 CPMAddPackage(
         URI "gh:glfw/glfw#3.4"
         OPTIONS
@@ -49,6 +51,29 @@ CPMAddPackage(
 )
 
 add_library(stbi STATIC vendor/stbi/stbi.h vendor/stbi/stbi.c)
+
+CPMAddPackage(
+        NAME imgui
+        GITHUB_REPOSITORY "ocornut/imgui"
+        GIT_TAG "v1.92.4"
+)
+
+add_library(imgui STATIC
+        ${imgui_SOURCE_DIR}/imgui.cpp
+        ${imgui_SOURCE_DIR}/imgui_demo.cpp
+        ${imgui_SOURCE_DIR}/imgui_draw.cpp
+        ${imgui_SOURCE_DIR}/imgui_tables.cpp
+        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+)
+
+target_include_directories(imgui PUBLIC
+        ${imgui_SOURCE_DIR}
+        ${imgui_SOURCE_DIR}/backends
+)
+
+target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
 
 set(PROJECT_SOURCES
         Pch.hpp
@@ -124,6 +149,8 @@ set(PROJECT_SOURCES
         src/Application/State.hpp
         src/Input/InputManager.hpp
         src/Input/InputManager.cpp
+        src/Gui/Gui.hpp
+        src/Gui/Gui.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
@@ -133,11 +160,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC include src PRIVATE vendor)
 target_compile_definitions(${PROJECT_NAME} PRIVATE PIXF_DYLIB_BUILD)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
+        OpenGL::GL
         glfw
         glad
         fmt
-        stbi
         assimp::assimp
+        stbi
+        imgui
 )
 
 # OS libs

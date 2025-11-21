@@ -454,9 +454,9 @@ namespace Pixf::Core::Input {
 
     class PIXF_API MouseMovedEvent final : public Event::Event {
     public:
-        Math::Vector2f position;
+        Math::Vector2d position;
 
-        explicit MouseMovedEvent(const Math::Vector2f position) : position(position) {}
+        explicit MouseMovedEvent(const Math::Vector2d position) : position(position) {}
     };
 
     class PIXF_API CharacterEvent final : public Event::Event {
