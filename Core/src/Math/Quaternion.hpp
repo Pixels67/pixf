@@ -20,7 +20,7 @@ namespace Pixf::Core::Math {
         Quaternion(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 
         static Quaternion AngleAxis(const float angleDegrees, const Vector3f axis) {
-            const float halfAngle = RadiansToDegrees(angleDegrees) * 0.5F;
+            const float halfAngle = DegreesToRadians(angleDegrees) * 0.5F;
             float s = std::sin(halfAngle);
             return Quaternion(axis.Normalized().x * s, axis.Normalized().y * s, axis.Normalized().z * s,
                               std::cos(halfAngle));

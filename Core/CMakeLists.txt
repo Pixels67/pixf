@@ -165,6 +165,8 @@ set(PROJECT_SOURCES
         src/Entities/SystemRegistry.hpp
         src/Entities/System.hpp
         src/Entities/System.cpp
+        src/Entities/Components/Transform.hpp
+        src/Entities/Components/RigidTransform.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

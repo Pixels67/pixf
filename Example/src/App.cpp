@@ -1,4 +1,5 @@
 #include "Application/Application.hpp"
+#include "Entities/Components/Transform.hpp"
 #include "Entities/System.hpp"
 #include "Files/Model.hpp"
 #include "Graphics/Gl/Viewport.hpp"
@@ -12,21 +13,15 @@ using namespace Pixf::Core::Graphics;
 using namespace Pixf::Core::Debug;
 
 struct Backpack {
-    Matrix4f transform{};
+    Entities::Components::Transform transform{};
     Model backpack;
-    float dist = 0.0F;
-    float rot = 0.0F;
 };
 
 struct BackpackSystem final : Entities::System {
     void Update(Entities::Registry &registry, const double deltaTime) override {
         registry.ForEach<Backpack>([deltaTime](Backpack &backpack) {
-            backpack.dist += 5.0F * deltaTime;
-            backpack.rot += 5.0F * deltaTime;
-
-            backpack.transform = Matrix4f::Identity();
-            backpack.transform.ApplyRotation(backpack.rot, Vector3f::Up());
-            backpack.transform.ApplyTranslation(Vector3f(0.0F, 0.0F, backpack.dist));
+            backpack.transform.Rotate(360.0F * deltaTime, Vector3f::Up());
+            backpack.transform.Translate(Vector3f(0.0F, 0.0F, 5.0F * deltaTime));
         });
     }
 };
@@ -53,7 +48,7 @@ public:
 
         state.entityRegistry.ForEach<Backpack>([&renderer](Backpack &backpack) {
             for (auto &[mesh, material]: backpack.backpack.elements) {
-                renderer.Submit({.mesh = mesh, .material = material, .modelMatrix = backpack.transform});
+                renderer.Submit({.mesh = mesh, .material = material, .modelMatrix = backpack.transform.GetMatrix()});
             }
         });
 
