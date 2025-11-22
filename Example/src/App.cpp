@@ -1,6 +1,7 @@
 #include "Application/Application.hpp"
 #include "Entities/Components/Transform.hpp"
 #include "Entities/System.hpp"
+#include "Files/Assets/AssetManager.hpp"
 #include "Files/Model.hpp"
 #include "Graphics/Gl/Viewport.hpp"
 #include "Graphics/Renderer.hpp"
@@ -11,14 +12,16 @@ using namespace Pixf::Core;
 using namespace Pixf::Core::Math;
 using namespace Pixf::Core::Graphics;
 using namespace Pixf::Core::Debug;
+using namespace Pixf::Core::Entities;
+using namespace Pixf::Core::Entities::Components;
 
 struct Backpack {
-    Entities::Components::Transform transform{};
-    Model backpack;
+    Transform transform{};
+    Model model;
 };
 
-struct BackpackSystem final : Entities::System {
-    void Update(Entities::Registry &registry, const double deltaTime) override {
+struct BackpackSystem final : System {
+    void Update(Registry &registry, const double deltaTime) override {
         registry.ForEach<Backpack>([deltaTime](Backpack &backpack) {
             backpack.transform.Rotate(360.0F * deltaTime, Vector3f::Up());
             backpack.transform.Translate(Vector3f(0.0F, 0.0F, 5.0F * deltaTime));
@@ -30,7 +33,9 @@ class RenderStage final : public Application::Stage {
 public:
     void OnAttach(Application::State &state) override {
         const auto entity = state.entityRegistry.CreateEntity();
-        const Backpack backpack{.backpack = Files::LoadModel("backpack.obj", state.resources)};
+        Backpack backpack{};
+        const Uuid::Uuid uuid = Uuid::Uuid::FromString("03afb080-1f81-5ed9-80da-0bbe2a5d1b22").value();
+        backpack.model = state.assetManager.ImportModel(uuid, state.resources);
 
         state.entityRegistry.AddComponent(entity, backpack);
         state.systemRegistry.Register<BackpackSystem>();
@@ -47,7 +52,7 @@ public:
         renderer.BeginPass({.projectionMatrix = Matrix4f::Perspective(60.0F, 4.0F / 3.0F, 0.1F, 100.0F)});
 
         state.entityRegistry.ForEach<Backpack>([&renderer](Backpack &backpack) {
-            for (auto &[mesh, material]: backpack.backpack.elements) {
+            for (auto &[mesh, material]: backpack.model.elements) {
                 renderer.Submit({.mesh = mesh, .material = material, .modelMatrix = backpack.transform.GetMatrix()});
             }
         });
@@ -58,7 +63,10 @@ public:
 
 class App final : public Application::Application {
 protected:
-    void Awake() override { AttachStage<RenderStage>(); }
+    void Awake() override {
+        Logger::Get("Core").GetConfig().visibility &= ~LogLevelTrace;
+        AttachStage<RenderStage>();
+    }
 
     void RenderGui(double deltaTime) override {
         Gui::BeginWindow("Window");

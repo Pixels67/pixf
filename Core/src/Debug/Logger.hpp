@@ -36,6 +36,9 @@ namespace Pixf::Core::Debug {
         static Logger &Get(const std::string &name);
         static void Configure(const std::string &name, const LoggerConfig &config = {});
 
+        void Configure(const LoggerConfig &config);
+        LoggerConfig &GetConfig();
+
         template<typename... Args>
         void Print(fmt::format_string<Args...> format, Args &&...args) {
             std::cout << fmt::format(format, std::forward<Args>(args)...);

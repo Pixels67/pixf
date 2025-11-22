@@ -4,6 +4,7 @@
 #include "Common.hpp"
 #include "Entities/Registry.hpp"
 #include "Entities/SystemRegistry.hpp"
+#include "Files/Assets/AssetManager.hpp"
 #include "Graphics/Gl/Window.hpp"
 #include "Graphics/Renderer.hpp"
 #include "Graphics/Resources.hpp"
@@ -14,9 +15,10 @@ namespace Pixf::Core::Application {
         Graphics::Gl::Window window;
         Graphics::Resources resources{};
         Graphics::Renderer renderer{};
+        Files::Assets::AssetManager assetManager{"./Assets/"};
         Time::Clock clock{};
         Entities::Registry entityRegistry{};
-        Entities::SystemRegistry systemRegistry{};
+        Entities::SystemRegistry systemRegistry;
     };
 } // namespace Pixf::Core::Application
 

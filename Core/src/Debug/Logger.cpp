@@ -51,5 +51,13 @@ namespace Pixf::Core::Debug {
         s_Loggers.insert({name, Logger(name, config)});
     }
 
+    void Logger::Configure(const LoggerConfig &config) {
+        m_Config = config;
+    }
+
+    LoggerConfig &Logger::GetConfig() {
+        return m_Config;
+    }
+
     Logger::Logger(const std::string &name, const LoggerConfig &config) : m_Name(name), m_Config(config) {}
 } // namespace Pixf::Core::Debug

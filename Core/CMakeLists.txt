@@ -58,6 +58,12 @@ CPMAddPackage(
         "ENTT_BUILD_DOCS OFF"
 )
 
+CPMAddPackage(
+        URI "gh:mariusbancila/stduuid#v1.2.3"
+        OPTIONS
+        "UUID_BUILD_TESTS OFF"
+)
+
 add_library(stbi STATIC vendor/stbi/stbi.h vendor/stbi/stbi.c)
 
 CPMAddPackage(
@@ -167,6 +173,12 @@ set(PROJECT_SOURCES
         src/Entities/System.cpp
         src/Entities/Components/Transform.hpp
         src/Entities/Components/RigidTransform.hpp
+        src/Files/Assets/AssetManager.cpp
+        src/Files/Assets/AssetManager.hpp
+        src/Uuid/Uuid.hpp
+        src/Uuid/Uuid.cpp
+        src/Files/File.hpp
+        src/Files/File.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
@@ -181,9 +193,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         glad
         fmt
         assimp::assimp
+        EnTT::EnTT
+        stduuid
         stbi
         imgui
-        EnTT::EnTT
 )
 
 # OS libs
