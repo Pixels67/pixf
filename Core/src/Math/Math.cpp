@@ -5,4 +5,7 @@ namespace Pixf::Core::Math {
 
     double RadiansToDegrees(const double angleRadians) { return angleRadians * 180.0 / s_Pi; }
     double DegreesToRadians(const double angleDegrees) { return angleDegrees * s_Pi / 180.0; }
+    double GetPi() {
+        return s_Pi;
+    }
 } // namespace Pixf::Core::Math

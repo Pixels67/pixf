@@ -1,4 +1,5 @@
 #include "Application/Application.hpp"
+#include "Entities/Components/Graphics/Model.hpp"
 #include "Entities/Components/Transform.hpp"
 #include "Entities/System.hpp"
 #include "Files/Assets/AssetManager.hpp"
@@ -7,6 +8,7 @@
 #include "Graphics/Renderer.hpp"
 #include "Gui/Gui.hpp"
 #include "Pixf.hpp"
+#include "Serialization/JsonArchive.hpp"
 
 using namespace Pixf::Core;
 using namespace Pixf::Core::Math;
@@ -17,7 +19,7 @@ using namespace Pixf::Core::Entities::Components;
 
 struct Backpack {
     Transform transform{};
-    Model model;
+    Entities::Graphics::Model model;
 };
 
 struct BackpackSystem final : System {
@@ -34,8 +36,20 @@ public:
     void OnAttach(Application::State &state) override {
         const auto entity = state.entityRegistry.CreateEntity();
         Backpack backpack{};
-        const Uuid::Uuid uuid = Uuid::Uuid::FromString("03afb080-1f81-5ed9-80da-0bbe2a5d1b22").value();
-        backpack.model = state.assetManager.ImportModel(uuid, state.resources);
+
+        //backpack.model.uuid = Uuid::Uuid::FromString("03afb080-1f81-5ed9-80da-0bbe2a5d1b22").value();
+
+        //std::ofstream os("out.json");
+        //Serialization::JsonOutputArchive archive(os);
+        //archive.Save("Transform", backpack.transform);
+        //archive.Save("Model", backpack.model);
+
+        std::ifstream is("out.json");
+        Serialization::JsonInputArchive archive(is);
+        archive.Load("Transform", backpack.transform);
+        archive.Load("Model", backpack.model);
+
+        state.assetManager.ImportModel(backpack.model.uuid, state.resources);
 
         state.entityRegistry.AddComponent(entity, backpack);
         state.systemRegistry.Register<BackpackSystem>();
@@ -51,8 +65,8 @@ public:
         Renderer &renderer = state.renderer;
         renderer.BeginPass({.projectionMatrix = Matrix4f::Perspective(60.0F, 4.0F / 3.0F, 0.1F, 100.0F)});
 
-        state.entityRegistry.ForEach<Backpack>([&renderer](Backpack &backpack) {
-            for (auto &[mesh, material]: backpack.model.elements) {
+        state.entityRegistry.ForEach<const Backpack>([&](const Backpack &backpack) {
+            for (auto &[mesh, material]: state.assetManager.GetModel(backpack.model.uuid).elements) {
                 renderer.Submit({.mesh = mesh, .material = material, .modelMatrix = backpack.transform.GetMatrix()});
             }
         });

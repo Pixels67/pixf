@@ -5,6 +5,7 @@
 
 #include "Common.hpp"
 #include "Vector.hpp"
+#include "Math.hpp"
 
 namespace Pixf::Core::Math {
     template<typename T>
@@ -112,6 +113,30 @@ namespace Pixf::Core::Math {
 
             return Quaternion(q1.x * w1 + qz.x * w2, q1.y * w1 + qz.y * w2, q1.z * w1 + qz.z * w2,
                               q1.w * w1 + qz.w * w2);
+        }
+
+        Vector3f EulerAngles() const {
+            Vector3f angles;
+            const float sp = 2.0F * (w * y - z * x);
+
+            if (constexpr float epsilon = 0.9999F; std::abs(sp) >= epsilon) {
+                angles.y = (sp > 0) ? (GetPi() / 2.0F) : (-GetPi() / 2.0F);
+
+                angles.x = -2.0F * std::atan2(x, w); // or 2.0F * atan2(x, w)
+                angles.z = 0.0F;
+
+            } else {
+                angles.y = std::asin(sp);
+
+                const float srcp = 2.0F * (w * z + x * y);
+                const float crcp = 1.0F - 2.0F * (y * y + z * z);
+                angles.z = std::atan2(srcp, crcp);
+                const float sycp = 2.0F * (w * x + y * z);
+                const float cycp = 1.0F - 2.0F * (x * x + y * y);
+                angles.x = std::atan2(sycp, cycp);
+            }
+
+            return angles;
         }
 
         Matrix4f ToMatrix() const;

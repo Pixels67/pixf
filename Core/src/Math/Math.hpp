@@ -30,6 +30,7 @@ namespace Pixf::Core::Math {
 
     PIXF_API double RadiansToDegrees(double angleRadians);
     PIXF_API double DegreesToRadians(double angleDegrees);
+    PIXF_API double GetPi();
 } // namespace Pixf::Core::Math
 
 #endif // PIXF_MATH_HPP

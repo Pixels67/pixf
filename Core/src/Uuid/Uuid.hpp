@@ -8,6 +8,8 @@
 namespace Pixf::Core::Uuid {
     class PIXF_API Uuid {
     public:
+        Uuid() = default;
+
         static Uuid DnsNamespace();
         static Uuid UrlNamespace();
 
@@ -20,8 +22,6 @@ namespace Pixf::Core::Uuid {
 
     private:
         uuids::uuid m_Value;
-
-        Uuid() = default;
     };
 } // namespace Pixf::Core::Uuid
 

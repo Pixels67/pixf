@@ -64,6 +64,15 @@ CPMAddPackage(
         "UUID_BUILD_TESTS OFF"
 )
 
+CPMAddPackage(
+        URI "gh:USCiLab/cereal#v1.3.2"
+        OPTIONS
+        "BUILD_DOC OFF"
+        "BUILD_TESTS OFF"
+        "BUILD_SANDBOX OFF"
+        "SKIP_PERFORMANCE_COMPARISON ON"
+)
+
 add_library(stbi STATIC vendor/stbi/stbi.h vendor/stbi/stbi.c)
 
 CPMAddPackage(
@@ -179,6 +188,9 @@ set(PROJECT_SOURCES
         src/Uuid/Uuid.cpp
         src/Files/File.hpp
         src/Files/File.cpp
+        src/Entities/Components/Graphics/Model.hpp
+        src/Serialization/JsonArchive.hpp
+        src/Serialization/Serialization.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
@@ -195,6 +207,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         assimp::assimp
         EnTT::EnTT
         stduuid
+        cereal
         stbi
         imgui
 )
