@@ -4,7 +4,6 @@
 #include "Math/Matrix.hpp"
 #include "Math/Quaternion.hpp"
 #include "Math/Vector.hpp"
-#include "Serialization/Serialization.hpp"
 
 namespace Pixf::Core::Entities::Components {
     struct Transform {
@@ -28,16 +27,14 @@ namespace Pixf::Core::Entities::Components {
             return Math::Matrix4f::Rotate(rotation) * Math::Matrix4f::Scale(scale) *
                    Math::Matrix4f::Translate(position);
         }
+
+        template<class Archive>
+        static void Serialize(Archive &archive, Transform &transform) {
+            archive("position", transform.position);
+            archive("rotation", transform.rotation);
+            archive("scale", transform.scale);
+        }
     };
-
-    template<class Archive>
-    void Serialize(Archive &archive, Transform &transform) {
-        Serialization::SerializeNvp(archive, "position", transform.position);
-        Serialization::SerializeNvp(archive, "rotation", transform.rotation);
-        Serialization::SerializeNvp(archive, "scale", transform.scale);
-    }
-
-    PIXF_SERIALIZE(Transform)
 } // namespace Pixf::Core::Entities::Components
 
 #endif // PIXF_TRANSFORM_HPP

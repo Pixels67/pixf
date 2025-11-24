@@ -4,7 +4,6 @@
 #include "Math/Matrix.hpp"
 #include "Math/Quaternion.hpp"
 #include "Math/Vector.hpp"
-#include "Serialization/Serialization.hpp"
 
 namespace Pixf::Core::Entities::Components {
     struct RigidTransform {
@@ -24,15 +23,14 @@ namespace Pixf::Core::Entities::Components {
         Math::Matrix4f GetMatrix() const {
             return Math::Matrix4f::Rotate(rotation) * Math::Matrix4f::Translate(position);
         }
+
+        template<class Archive>
+        static void Serialize(Archive &archive, RigidTransform &transform) {
+            archive("rx", transform.position.x);
+            archive("ry", transform.position.y);
+            archive("rz", transform.position.z);
+        }
     };
-
-    template<class Archive>
-    void Serialize(Archive &archive, RigidTransform &transform) {
-        Serialization::SerializeNvp(archive, "position", transform.position);
-        Serialization::SerializeNvp(archive, "rotation", transform.rotation);
-    }
-
-    PIXF_SERIALIZE(RigidTransform)
 } // namespace Pixf::Core::Entities::Components
 
 #endif // PIXF_RIGIDTRANSFORM_HPP

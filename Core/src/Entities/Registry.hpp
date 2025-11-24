@@ -4,6 +4,7 @@
 #include <entt/entt.hpp>
 
 #include "Common.hpp"
+#include "TypeId.hpp"
 
 namespace Pixf::Core::Entities {
     using Entity = entt::entity;
@@ -12,6 +13,43 @@ namespace Pixf::Core::Entities {
     public:
         Entity CreateEntity();
         void DestroyEntity(Entity);
+
+        template<typename Archive, typename T>
+        void Register(const std::string &name) {
+            m_SerializeFns[GetTypeId<Archive>()][entt::type_hash<T>::value()] = [name](void *archivePtr, void *self) {
+                auto &archive = *static_cast<Archive *>(archivePtr);
+                auto *comp = static_cast<T *>(self);
+                archive(name, *comp);
+            };
+        }
+
+        template<typename Archive>
+        void SerializeEntity(Archive &archive, Entity &entity) {
+            archive.AddObject("components", [&](Archive &ar) { SerializeEntityComponents(ar, entity); });
+            archive("id", entity);
+        }
+
+        template<typename Archive>
+        void SerializeEntityComponents(Archive &archive, Entity &entity) {
+            const TypeId archiveTypeId = GetTypeId<Archive>();
+            if (!m_SerializeFns.contains(archiveTypeId)) {
+                return;
+            }
+
+            for (auto [id, storage]: m_Registry.storage()) {
+                if (!storage.contains(entity)) {
+                    continue;
+                }
+
+                if (!m_SerializeFns[archiveTypeId].contains(id)) {
+                    continue;
+                }
+
+                void *component = storage.value(entity);
+                auto func = m_SerializeFns[archiveTypeId][id];
+                func(&archive, component);
+            }
+        }
 
         template<typename T>
         void AddComponent(const Entity entity, const T component = {}) {
@@ -38,7 +76,7 @@ namespace Pixf::Core::Entities {
         }
 
         template<typename T>
-        T GetComponent(const Entity entity) {
+        T &GetComponent(const Entity entity) {
             return m_Registry.get<T>(entity);
         }
 
@@ -59,6 +97,8 @@ namespace Pixf::Core::Entities {
 
     private:
         entt::registry m_Registry;
+        std::unordered_map<TypeId, std::unordered_map<entt::id_type, std::function<void(void *, void *)>>>
+                m_SerializeFns;
     };
 } // namespace Pixf::Core::Entities
 

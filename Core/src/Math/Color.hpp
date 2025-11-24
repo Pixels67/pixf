@@ -53,6 +53,13 @@ namespace Pixf::Core::Math {
     b op o
         PIXF_MATH_ASSIGN_OPS(Color3, T, EXPR)
 #undef EXPR
+
+        template<typename Archive>
+        static void Serialize(Archive &archive, Color3 &color) {
+            archive("r", color.r);
+            archive("g", color.g);
+            archive("b", color.b);
+        }
     };
 
     template<typename T>
@@ -112,6 +119,14 @@ namespace Pixf::Core::Math {
     a op o
         PIXF_MATH_ASSIGN_OPS(Color4, T, EXPR)
 #undef EXPR
+
+        template<typename Archive>
+        static void Serialize(Archive &archive, Color4 &color) {
+            archive("r", color.r);
+            archive("g", color.g);
+            archive("b", color.b);
+            archive("a", color.a);
+        }
     };
 
     using Color3u8 = Color3<uint8_t>;

@@ -48,6 +48,12 @@ namespace Pixf::Core::Math {
             y /= mag;
             return *this;
         }
+
+        template<class Archive>
+        static void Serialize(Archive &archive, Vector2 &vector) {
+            archive("x", vector.x);
+            archive("y", vector.y);
+        }
     };
 
     template<typename T>
@@ -98,6 +104,13 @@ namespace Pixf::Core::Math {
             z /= mag;
             return *this;
         }
+
+        template<class Archive>
+        static void Serialize(Archive &archive, Vector3 &vector) {
+            archive("x", vector.x);
+            archive("y", vector.y);
+            archive("z", vector.z);
+        }
     };
 
     template<typename T>
@@ -145,6 +158,14 @@ namespace Pixf::Core::Math {
             z /= mag;
             w /= mag;
             return *this;
+        }
+
+        template<class Archive>
+        static void Serialize(Archive &archive, Vector4 &vector) {
+            archive("x", vector.x);
+            archive("y", vector.y);
+            archive("z", vector.z);
+            archive("w", vector.w);
         }
     };
 

@@ -65,12 +65,11 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
-        URI "gh:USCiLab/cereal#v1.3.2"
+        URI "gh:nlohmann/json#v3.12.0"
         OPTIONS
-        "BUILD_DOC OFF"
-        "BUILD_TESTS OFF"
-        "BUILD_SANDBOX OFF"
-        "SKIP_PERFORMANCE_COMPARISON ON"
+        "NLOHMANN_JSON_BUILD_MODULES OFF"
+        "JSON_BuildTests OFF"
+        "JSON_CI OFF"
 )
 
 add_library(stbi STATIC vendor/stbi/stbi.h vendor/stbi/stbi.c)
@@ -189,8 +188,12 @@ set(PROJECT_SOURCES
         src/Files/File.hpp
         src/Files/File.cpp
         src/Entities/Components/Graphics/Model.hpp
-        src/Serialization/JsonArchive.hpp
-        src/Serialization/Serialization.hpp
+        src/Entities/World.hpp
+        src/Json/Json.cpp
+        src/Json/Json.hpp
+        src/Serial/Serial.hpp
+        src/Serial/JsonArchive.cpp
+        src/Serial/JsonArchive.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
@@ -207,7 +210,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         assimp::assimp
         EnTT::EnTT
         stduuid
-        cereal
+        nlohmann_json
         stbi
         imgui
 )

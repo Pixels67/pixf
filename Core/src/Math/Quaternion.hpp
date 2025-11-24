@@ -140,6 +140,14 @@ namespace Pixf::Core::Math {
         }
 
         Matrix4f ToMatrix() const;
+
+        template<class Archive>
+        static void Serialize(Archive &archive, Quaternion &quat) {
+            archive("x", quat.x);
+            archive("y", quat.y);
+            archive("z", quat.z);
+            archive("w", quat.w);
+        }
     };
 } // namespace Pixf::Core::Math
 

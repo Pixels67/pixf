@@ -1,14 +1,4 @@
-#include "Application/Application.hpp"
-#include "Entities/Components/Graphics/Model.hpp"
-#include "Entities/Components/Transform.hpp"
-#include "Entities/System.hpp"
-#include "Files/Assets/AssetManager.hpp"
-#include "Files/Model.hpp"
-#include "Graphics/Gl/Viewport.hpp"
-#include "Graphics/Renderer.hpp"
-#include "Gui/Gui.hpp"
 #include "Pixf.hpp"
-#include "Serialization/JsonArchive.hpp"
 
 using namespace Pixf::Core;
 using namespace Pixf::Core::Math;
@@ -34,25 +24,29 @@ struct BackpackSystem final : System {
 class RenderStage final : public Application::Stage {
 public:
     void OnAttach(Application::State &state) override {
-        const auto entity = state.entityRegistry.CreateEntity();
+        auto entity = state.entityRegistry.CreateEntity();
         Backpack backpack{};
 
-        //backpack.model.uuid = Uuid::Uuid::FromString("03afb080-1f81-5ed9-80da-0bbe2a5d1b22").value();
-
-        //std::ofstream os("out.json");
-        //Serialization::JsonOutputArchive archive(os);
-        //archive.Save("Transform", backpack.transform);
-        //archive.Save("Model", backpack.model);
-
-        std::ifstream is("out.json");
-        Serialization::JsonInputArchive archive(is);
-        archive.Load("Transform", backpack.transform);
-        archive.Load("Model", backpack.model);
-
+        backpack.model.uuid = Uuid::Uuid::FromString("03afb080-1f81-5ed9-80da-0bbe2a5d1b22").value();
         state.assetManager.ImportModel(backpack.model.uuid, state.resources);
 
         state.entityRegistry.AddComponent(entity, backpack);
+
+        state.entityRegistry.Register<Serial::JsonOutputArchive, Transform>("Transform");
+        state.entityRegistry.Register<Serial::JsonInputArchive, Transform>("Transform");
+
+        state.entityRegistry.AddComponent<Transform>(entity);
         state.systemRegistry.Register<BackpackSystem>();
+
+        Serial::JsonOutputArchive archive;
+        state.entityRegistry.SerializeEntity(archive, entity);
+        Files::WriteFile("entity.json", archive.Get().ToString());
+
+        // const Json::Json json = Json::Json::Parse(Files::ReadFile("entity.json"));
+        // Serial::JsonInputArchive archive(json);
+        // state.entityRegistry.SerializeEntity(archive, entity);
+        // auto smth = state.entityRegistry.GetComponent<Transform>(entity);
+        // state.entityRegistry.GetComponent<Backpack>(entity).transform = smth;
     }
 
     void Update(Application::State &state, const double deltaTime) override {
