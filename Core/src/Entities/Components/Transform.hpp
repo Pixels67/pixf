@@ -5,6 +5,7 @@
 #include "Math/Matrix.hpp"
 #include "Math/Quaternion.hpp"
 #include "Math/Vector.hpp"
+#include "Serial/Serial.hpp"
 
 namespace Pixf::Core::Entities::Components {
     struct Transform {
@@ -30,12 +31,8 @@ namespace Pixf::Core::Entities::Components {
         }
     };
 
-    template<class Archive>
-    PIXF_API void Serialize(Archive &archive, Transform &transform) {
-        archive("position", transform.position);
-        archive("rotation", transform.rotation);
-        archive("scale", transform.scale);
-    }
+    PIXF_SERIALIZE(Transform, PIXF_FIELD(position, Transform.position); PIXF_FIELD(rotation, Transform.rotation);
+                   PIXF_FIELD(scale, Transform.scale);)
 } // namespace Pixf::Core::Entities::Components
 
 #endif // PIXF_TRANSFORM_HPP

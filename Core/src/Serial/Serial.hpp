@@ -12,4 +12,12 @@ namespace Pixf::Core::Serial {
     };
 } // namespace Pixf::Core::Serial
 
+#define PIXF_SERIALIZE(Type, ...)                                                                                      \
+    template<class Archive>                                                                                            \
+    void Serialize(Archive &archive, Type &Type) {                                                                     \
+        __VA_ARGS__                                                                                                    \
+    }
+
+#define PIXF_FIELD(Name, Field) archive(#Name, Field)
+
 #endif // PIXF_SERIAL_HPP

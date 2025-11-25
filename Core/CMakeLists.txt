@@ -229,6 +229,8 @@ elseif (UNIX AND NOT APPLE)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(X11 REQUIRED x11)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${X11_LIBRARIES})
+elseif (WIN32)
+    target_link_libraries(${PROJECT_NAME} PRIVATE DbgHelp)
 endif ()
 
 if (NOT MSVC)

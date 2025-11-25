@@ -4,6 +4,7 @@
 #include <uuid.h>
 
 #include "Common.hpp"
+#include "Serial/Serial.hpp"
 
 namespace Pixf::Core::Uuid {
     class PIXF_API Uuid {
@@ -24,12 +25,11 @@ namespace Pixf::Core::Uuid {
         uuids::uuid m_Value;
     };
 
-    template<typename Archive>
-    PIXF_API void Serialize(Archive &archive, Uuid &uuid) {
-        std::string str = uuid.ToString();
-        archive("uuid", str);
-        uuid = Uuid::FromString(str).value();
-    }
+    PIXF_SERIALIZE(Uuid,
+        std::string str = Uuid.ToString();
+        PIXF_FIELD(uuid, str);
+        Uuid = Uuid::FromString(str).value();
+    )
 } // namespace Pixf::Core::Uuid
 
 #endif // PIXF_UUID_HPP

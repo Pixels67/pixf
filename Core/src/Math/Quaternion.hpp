@@ -150,13 +150,12 @@ namespace Pixf::Core::Math {
         Matrix4f ToMatrix() const;
     };
 
-    template<class Archive>
-    PIXF_API void Serialize(Archive &archive, Quaternion &quat) {
-        archive("x", quat.x);
-        archive("y", quat.y);
-        archive("z", quat.z);
-        archive("w", quat.w);
-    }
+    PIXF_SERIALIZE(Quaternion,
+        PIXF_FIELD(x, Quaternion.x);
+        PIXF_FIELD(y, Quaternion.y);
+        PIXF_FIELD(z, Quaternion.z);
+        PIXF_FIELD(w, Quaternion.w);
+    )
 } // namespace Pixf::Core::Math
 
 #endif // PIXF_QUATERNION_HPP

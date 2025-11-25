@@ -1,10 +1,11 @@
 #ifndef PIXF_RIGIDTRANSFORM_HPP
 #define PIXF_RIGIDTRANSFORM_HPP
 
+#include "Common.hpp"
 #include "Math/Matrix.hpp"
 #include "Math/Quaternion.hpp"
 #include "Math/Vector.hpp"
-#include "Common.hpp"
+#include "Serial/Serial.hpp"
 
 namespace Pixf::Core::Entities::Components {
     struct RigidTransform {
@@ -26,11 +27,8 @@ namespace Pixf::Core::Entities::Components {
         }
     };
 
-    template<class Archive>
-    PIXF_API void Serialize(Archive &archive, RigidTransform &transform) {
-        archive("position", transform.position);
-        archive("rotation", transform.rotation);
-    }
+    PIXF_SERIALIZE(RigidTransform, PIXF_FIELD(position, RigidTransform.position);
+                   PIXF_FIELD(rotation, RigidTransform.rotation);)
 } // namespace Pixf::Core::Entities::Components
 
 #endif // PIXF_RIGIDTRANSFORM_HPP

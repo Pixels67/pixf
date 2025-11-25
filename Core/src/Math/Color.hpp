@@ -119,21 +119,23 @@ namespace Pixf::Core::Math {
     a op o
         PIXF_MATH_ASSIGN_OPS(Color4, T, EXPR)
 #undef EXPR
-
-        template<typename Archive>
-        static void Serialize(Archive &archive, Color4 &color) {
-            archive("r", color.r);
-            archive("g", color.g);
-            archive("b", color.b);
-            archive("a", color.a);
-        }
     };
 
     using Color3u8 = Color3<uint8_t>;
     using Color4u8 = Color4<uint8_t>;
 
-    using Color3u16 = Color3<uint16_t>;
-    using Color4u16 = Color4<uint16_t>;
+    PIXF_SERIALIZE(Color3u8,
+        PIXF_FIELD(r, Color3u8.r);
+        PIXF_FIELD(g, Color3u8.g);
+        PIXF_FIELD(b, Color3u8.b);
+    )
+
+    PIXF_SERIALIZE(Color4u8,
+        PIXF_FIELD(r, Color4u8.r);
+        PIXF_FIELD(g, Color4u8.g);
+        PIXF_FIELD(b, Color4u8.b);
+        PIXF_FIELD(a, Color4u8.a);
+    )
 } // namespace Pixf::Core::Math
 
 #endif // PIXF_COLOR_HPP

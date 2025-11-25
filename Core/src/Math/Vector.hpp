@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "Math.hpp"
+#include "Serial/Serial.hpp"
 
 namespace Pixf::Core::Math {
     template<typename T>
@@ -177,25 +178,40 @@ namespace Pixf::Core::Math {
     using Vector3d = Vector3<double>;
     using Vector4d = Vector4<double>;
 
-    template<class Archive>
-    PIXF_API void Serialize(Archive &archive, Vector2f &vector) {
-        archive("x", vector.x);
-        archive("y", vector.y);
-    }
+    PIXF_SERIALIZE(Vector2f,
+        PIXF_FIELD(x, Vector2f.x);
+        PIXF_FIELD(y, Vector2f.y);
+    )
 
-    template<class Archive>
-    PIXF_API void Serialize(Archive &archive, Vector3f &vector) {
-        archive("x", vector.x);
-        archive("y", vector.y);
-        archive("z", vector.z);
-    }
+    PIXF_SERIALIZE(Vector3f,
+        PIXF_FIELD(x, Vector3f.x);
+        PIXF_FIELD(y, Vector3f.y);
+        PIXF_FIELD(z, Vector3f.z);
+    )
 
-    template<class Archive>
-    PIXF_API void Serialize(Archive &archive, Vector4f &vector) {
-        archive("x", vector.x);
-        archive("y", vector.y);
-        archive("z", vector.z);
-        archive("w", vector.w);
-    }
+    PIXF_SERIALIZE(Vector4f,
+        PIXF_FIELD(x, Vector4f.x);
+        PIXF_FIELD(y, Vector4f.y);
+        PIXF_FIELD(z, Vector4f.z);
+        PIXF_FIELD(w, Vector4f.w);
+    )
+
+    PIXF_SERIALIZE(Vector2i,
+        PIXF_FIELD(x, Vector2i.x);
+        PIXF_FIELD(y, Vector2i.y);
+    )
+
+    PIXF_SERIALIZE(Vector3i,
+        PIXF_FIELD(x, Vector3i.x);
+        PIXF_FIELD(y, Vector3i.y);
+        PIXF_FIELD(z, Vector3i.z);
+    )
+
+    PIXF_SERIALIZE(Vector4i,
+        PIXF_FIELD(x, Vector4i.x);
+        PIXF_FIELD(y, Vector4i.y);
+        PIXF_FIELD(z, Vector4i.z);
+        PIXF_FIELD(w, Vector4i.w);
+    )
 } // namespace Pixf::Core::Math
 #endif // PIXF_VECTOR_HPP
