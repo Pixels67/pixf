@@ -17,23 +17,23 @@ namespace Pixf::Core::Application {
 
         ~Pipeline() = default;
 
-        void Update(State &state, double deltaTime);
-        void Render(State &state, double deltaTime);
-        void RenderGui(State &state, double deltaTime);
+        void Update(Context &context, double deltaTime);
+        void Render(Context &context, double deltaTime);
+        void RenderGui(Context &context, double deltaTime);
 
-        void OnEvent(State &state, Event::Event &event);
+        void OnEvent(Context &context, Event::Event &event);
 
         template<typename T>
-        void Attach(State &state, T stage = {}) {
+        void Attach(Context &context, T stage = {}) {
             static_assert(std::is_base_of<Stage, T>());
 
             TypeId typeId = GetTypeId<T>();
             m_Stages.push_back(std::make_pair(typeId, std::make_unique<T>(stage)));
-            m_Stages.back().second->OnAttach(state);
+            m_Stages.back().second->OnAttach(context);
         }
 
         template<typename T>
-        void Detach(State &state) {
+        void Detach(Context &context) {
             const TypeId typeId = GetTypeId<T>();
 
             for (size_t i = 0; i < m_Stages.size(); i++) {
@@ -41,7 +41,7 @@ namespace Pixf::Core::Application {
                     continue;
                 }
 
-                m_Stages[i].second->OnDetach(state);
+                m_Stages[i].second->OnDetach(context);
                 m_Stages.erase(m_Stages.begin() + i);
                 break;
             }

@@ -2,8 +2,7 @@
 #define PIXF_STATE_HPP
 
 #include "Common.hpp"
-#include "Entities/Registry.hpp"
-#include "Entities/SystemRegistry.hpp"
+#include "Entities/World.hpp"
 #include "Files/Assets/AssetManager.hpp"
 #include "Graphics/Gl/Window.hpp"
 #include "Graphics/Renderer.hpp"
@@ -11,14 +10,13 @@
 #include "Time/Clock.hpp"
 
 namespace Pixf::Core::Application {
-    struct PIXF_API State {
+    struct PIXF_API Context {
         Graphics::Gl::Window window;
         Graphics::Resources resources{};
         Graphics::Renderer renderer{};
         Files::Assets::AssetManager assetManager{"./Assets/"};
         Time::Clock clock{};
-        Entities::Registry entityRegistry{};
-        Entities::SystemRegistry systemRegistry;
+        Entities::World world{};
     };
 } // namespace Pixf::Core::Application
 

@@ -60,8 +60,10 @@ in vec2 vTexCoords;
 out vec4 fragColor;
 
 uniform AmbientLight uAmbientLight;
+
 uniform DirectionalLight uDirectionalLights[MAX_DIRECTIONAL_LIGHTS];
 uniform int uDirectionalLightCount;
+
 uniform PointLight uPointLights[MAX_POINT_LIGHTS];
 uniform int uPointLightCount;
 
@@ -112,8 +114,7 @@ void main() {
         spec += vec4(attenuation * light.color, 1.0) * specular(vWorldPos, vViewPos, lightDir, normal, uSpecularStrength, uShininess) * specularColor;
     }
 
-    //fragColor = ambient + diff + spec;
-    fragColor = diffuseColor;
+    fragColor = ambient + diff + spec;
 }
 )";
 

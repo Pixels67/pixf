@@ -98,6 +98,10 @@ namespace Pixf::Core::Graphics::Gl {
         glfwSetWindowSize(m_GlfwWindowPtr, static_cast<int>(size.x), static_cast<int>(size.y));
     }
 
+    float Window::GetAspectRatio() const {
+        return static_cast<float>(GetSize().x) / static_cast<float>(GetSize().y);
+    }
+
     std::string Window::GetTitle() const { return glfwGetWindowTitle(m_GlfwWindowPtr); }
 
     void Window::SetTitle(const std::string &title) const { glfwSetWindowTitle(m_GlfwWindowPtr, title.c_str()); }

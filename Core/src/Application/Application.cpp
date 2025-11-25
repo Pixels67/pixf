@@ -5,46 +5,46 @@
 
 namespace Pixf::Core::Application {
     Application::Application(const ApplicationConfig &config) :
-        m_State{.window = Graphics::Gl::Window::Create(config.windowConfig)} {
-        m_State.window.MakeCurrent();
+        m_Context{.window = Graphics::Gl::Window::Create(config.windowConfig)} {
+        m_Context.window.MakeCurrent();
 
         Input::InputManager::Initialize();
         Gui::Initialize();
 
         Event::EventManager::Subscribe([&](Event::Event &event) {
-            m_Pipeline.OnEvent(m_State, event);
+            m_Pipeline.OnEvent(m_Context, event);
         });
     }
 
     void Application::Run() {
         Awake();
 
-        while (!m_State.window.ShouldClose()) {
-            m_State.clock.StartFrameTimer(glfwGetTime());
+        while (!m_Context.window.ShouldClose()) {
+            m_Context.clock.StartFrameTimer(glfwGetTime());
 
             Graphics::Gl::Window::PollEvents();
             Event::EventManager::ProcessEvents();
 
-            const double deltaTime = m_State.clock.GetDeltaTime();
+            const double deltaTime = m_Context.clock.GetDeltaTime();
 
             Update(deltaTime);
-            m_Pipeline.Update(m_State, deltaTime);
+            m_Pipeline.Update(m_Context, deltaTime);
 
             Render(deltaTime);
-            m_Pipeline.Render(m_State, deltaTime);
+            m_Pipeline.Render(m_Context, deltaTime);
 
             Gui::BeginRenderGui(deltaTime);
             RenderGui(deltaTime);
-            m_Pipeline.RenderGui(m_State, deltaTime);
+            m_Pipeline.RenderGui(m_Context, deltaTime);
             Gui::EndRenderGui();
 
-            m_State.window.SwapBuffers();
+            m_Context.window.SwapBuffers();
 
-            m_State.clock.EndFrameTimer(glfwGetTime());
+            m_Context.clock.EndFrameTimer(glfwGetTime());
         }
     }
 
-    State &Application::GetState() { return m_State; }
+    Context &Application::GetContext() { return m_Context; }
 
     void Application::Awake() {}
 

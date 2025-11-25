@@ -106,6 +106,25 @@ namespace Pixf::Core::Entities {
             m_Registry.remove<T>(entity);
         }
 
+        template<typename T>
+        void CreateSingleton(const T component = {}) {
+            if (HasSingleton<T>()) {
+                return;
+            }
+
+            m_Registry.ctx().emplace<T>(component);
+        }
+
+        template<typename T>
+        bool HasSingleton() {
+            return m_Registry.ctx().contains<T>();
+        }
+
+        template<typename T>
+        T &GetSingleton() {
+            return m_Registry.ctx().get<T>();
+        }
+
         template<typename... Args, typename Func>
         void ForEach(Func func) {
             m_Registry.view<Args...>().each(func);

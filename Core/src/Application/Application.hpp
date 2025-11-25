@@ -1,9 +1,9 @@
 #ifndef PIXF_APPLICATION_HPP
 #define PIXF_APPLICATION_HPP
 
+#include "Context.hpp"
 #include "Graphics/Gl/Window.hpp"
 #include "Pipeline.hpp"
-#include "State.hpp"
 
 namespace Pixf::Core::Application {
     struct PIXF_API ApplicationConfig {
@@ -23,16 +23,16 @@ namespace Pixf::Core::Application {
 
         void Run();
 
-        State &GetState();
+        Context &GetContext();
 
         template<typename T>
         void AttachStage(T stage = {}) {
-            m_Pipeline.Attach<T>(m_State, stage);
+            m_Pipeline.Attach<T>(m_Context, stage);
         }
 
         template<typename T>
         void DetachStage() {
-            m_Pipeline.Detach<T>(m_State);
+            m_Pipeline.Detach<T>(m_Context);
         }
 
     protected:
@@ -43,7 +43,7 @@ namespace Pixf::Core::Application {
         virtual void Shutdown();
 
     private:
-        State m_State;
+        Context m_Context;
         Pipeline m_Pipeline;
         ApplicationConfig m_Config;
     };

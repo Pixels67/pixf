@@ -11,7 +11,9 @@ namespace Pixf::Core::Entities::Components::Graphics {
     };
 
     PIXF_SERIALIZE(CameraType,
-        PIXF_FIELD(value, static_cast<uint8_t>(CameraType));
+        uint8_t uint = static_cast<uint8_t>(CameraType);
+        PIXF_FIELD(value, uint);
+        CameraType = static_cast<Graphics::CameraType>(uint);
     )
 
     struct Camera {

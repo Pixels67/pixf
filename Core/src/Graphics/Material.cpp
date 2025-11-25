@@ -5,7 +5,7 @@ namespace Pixf::Core::Graphics {
         SetDiffuse(Math::Color3u8::White());
         SetSpecular(Math::Color3u8::White());
         SetSpecularStrength(0.5F);
-        SetShininess(16.0F);
+        SetShininess(8.0F);
     }
 
     void Material::SetDiffuse(const Math::Color3u8 &value) {

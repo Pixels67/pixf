@@ -3,6 +3,8 @@
 namespace Pixf::Core::Graphics {
     void Renderer::BeginPass(const RenderPass &pass) { m_CurrentPass = pass; }
 
+    void Renderer::AddLights(const LightingEnvironment &lights) { m_LightEnv = lights; }
+
     void Renderer::Submit(const RenderCommand &cmd) { m_RenderQueue.push(cmd); }
 
     void Renderer::Render(const Gl::Viewport &viewport, Resources &resources) {
@@ -12,28 +14,7 @@ namespace Pixf::Core::Graphics {
         }
 
         viewport.Apply();
-
-        if (m_CurrentPass->depthTest) {
-            PIXF_GL_CALL(glEnable(GL_DEPTH_TEST));
-        }
-
-        const Math::Color3u8 clearColor = m_CurrentPass.value().clearColor;
-        PIXF_GL_CALL(glClearColor(clearColor.r / 255.0F, clearColor.g / 255.0F, clearColor.b / 255.0F, 1.0F));
-
-        unsigned int glClearFlags = 0;
-        if (m_CurrentPass.value().clearFlags & ClearColor) {
-            glClearFlags |= GL_COLOR_BUFFER_BIT;
-        }
-
-        if (m_CurrentPass.value().clearFlags & ClearDepth) {
-            glClearFlags |= GL_DEPTH_BUFFER_BIT;
-        }
-
-        if (m_CurrentPass.value().clearFlags & ClearStencil) {
-            glClearFlags |= GL_STENCIL_BUFFER_BIT;
-        }
-
-        PIXF_GL_CALL(glClear(glClearFlags));
+        ProcessPass(m_CurrentPass.value());
 
         while (!m_RenderQueue.empty()) {
             const auto [meshHandle, matHandle, modelMatrix] = m_RenderQueue.front();
@@ -47,6 +28,10 @@ namespace Pixf::Core::Graphics {
             shader.SetUniform("uView", m_CurrentPass->viewMatrix);
             shader.SetUniform("uProj", m_CurrentPass->projectionMatrix);
 
+            if (m_LightEnv) {
+                SetLights(shader, m_LightEnv.value());
+            }
+
             resources.meshStore.Get(meshHandle).Bind();
 
             BindMaterial(material, resources);
@@ -58,6 +43,30 @@ namespace Pixf::Core::Graphics {
             Gl::Shader::Unbind();
             Mesh::Unbind();
         }
+    }
+
+    void Renderer::ProcessPass(const RenderPass &pass) {
+        if (pass.depthTest) {
+            PIXF_GL_CALL(glEnable(GL_DEPTH_TEST));
+        }
+
+        const Math::Color3u8 clearColor = pass.clearColor;
+        PIXF_GL_CALL(glClearColor(clearColor.r / 255.0F, clearColor.g / 255.0F, clearColor.b / 255.0F, 1.0F));
+
+        unsigned int glClearFlags = 0;
+        if (pass.clearFlags & ClearColor) {
+            glClearFlags |= GL_COLOR_BUFFER_BIT;
+        }
+
+        if (pass.clearFlags & ClearDepth) {
+            glClearFlags |= GL_DEPTH_BUFFER_BIT;
+        }
+
+        if (pass.clearFlags & ClearStencil) {
+            glClearFlags |= GL_STENCIL_BUFFER_BIT;
+        }
+
+        PIXF_GL_CALL(glClear(glClearFlags));
     }
 
     void Renderer::BindMaterial(const Material &material, Resources &resources) {
@@ -97,6 +106,29 @@ namespace Pixf::Core::Graphics {
 
         for (auto &[name, value]: material.GetTexture2DUniforms()) {
             shader.SetUniform(name, resources.textureStore.Get(value));
+        }
+    }
+
+    void Renderer::SetLights(const Gl::Shader &shader, const LightingEnvironment &lights) {
+        shader.SetUniform("uAmbientLight.color", lights.ambientLight.color);
+        shader.SetUniform("uAmbientLight.intensity", lights.ambientLight.intensity);
+
+        shader.SetUniform("uPointLightCount", static_cast<int>(lights.pointLights.size()));
+        for (int i = 0; i < std::min(16, static_cast<int>(lights.pointLights.size())); i++) {
+            std::string idx = std::to_string(i);
+            shader.SetUniform("uPointLights[" + idx + "].position", lights.pointLights[i].position);
+            shader.SetUniform("uPointLights[" + idx + "].color", lights.pointLights[i].color);
+            shader.SetUniform("uPointLights[" + idx + "].intensity", lights.pointLights[i].intensity);
+            shader.SetUniform("uPointLights[" + idx + "].linearFalloff", lights.pointLights[i].linearFalloff);
+            shader.SetUniform("uPointLights[" + idx + "].quadraticFalloff", lights.pointLights[i].quadraticFalloff);
+        }
+
+        shader.SetUniform("uDirectionalLightCount", static_cast<int>(lights.directionalLights.size()));
+        for (int i = 0; i < std::min(8, static_cast<int>(lights.directionalLights.size())); i++) {
+            std::string idx = std::to_string(i);
+            shader.SetUniform("uDirectionalLights[" + idx + "].direction", lights.directionalLights[i].direction);
+            shader.SetUniform("uDirectionalLights[" + idx + "].color", lights.directionalLights[i].color);
+            shader.SetUniform("uDirectionalLights[" + idx + "].intensity", lights.directionalLights[i].intensity);
         }
     }
 } // namespace Pixf::Core::Graphics

@@ -5,8 +5,8 @@
 
 namespace Pixf::Core::Entities::Components::Graphics {
     struct AmbientLight {
-        Math::Color4u8 color = Math::Color4u8::White();
-        float intensity = 1.0F;
+        Math::Color3u8 color = Math::Color3u8::White();
+        float intensity = 0.2F;
     };
 
     PIXF_SERIALIZE(AmbientLight,

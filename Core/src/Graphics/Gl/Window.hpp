@@ -86,6 +86,8 @@ namespace Pixf::Core::Graphics::Gl {
         Math::Vector2u GetSize() const;
         void SetSize(Math::Vector2u size) const;
 
+        float GetAspectRatio() const;
+
         std::string GetTitle() const;
         void SetTitle(const std::string &title) const;
 

@@ -168,7 +168,7 @@ set(PROJECT_SOURCES
         src/Event/Event.hpp
         src/Application/Pipeline.cpp
         src/Application/Pipeline.hpp
-        src/Application/State.hpp
+        src/Application/Context.hpp
         src/Input/InputManager.hpp
         src/Input/InputManager.cpp
         src/Gui/Gui.hpp
@@ -198,6 +198,7 @@ set(PROJECT_SOURCES
         src/Entities/Components/Graphics/DirectionalLight.hpp
         src/Entities/Components/Graphics/PointLight.hpp
         src/Entities/Components/Graphics/Camera.hpp
+        src/Graphics/LightingEnvironment.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
