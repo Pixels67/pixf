@@ -37,16 +37,6 @@ public:
         PIXF_REGISTER_COMP(Transform, state.entityRegistry);
         PIXF_REGISTER_COMP(ModelRenderer, state.entityRegistry);
 
-        auto entity = state.entityRegistry.CreateEntity();
-
-        // ModelRenderer model;
-        // model.uuid = Uuid::Uuid::FromString("03afb080-1f81-5ed9-80da-0bbe2a5d1b22").value();
-        // state.entityRegistry.AddComponent(entity, model);
-        // state.entityRegistry.AddComponent<Transform>(entity);
-        // Serial::JsonOutputArchive archive;
-        // archive("registry", state.entityRegistry);
-        // Files::WriteFile("reg.json", archive.Get().ToString());
-
         const Json::Json json = Json::Json::Parse(Files::ReadFile("reg.json"));
         Serial::JsonInputArchive archive(json);
         archive("registry", state.entityRegistry);

@@ -40,7 +40,7 @@ namespace Pixf::Core::Graphics::Gl {
         void SetUniform(const std::string &name, Math::Color3u8 value) const;
         void SetUniform(const std::string &name, Math::Color4u8 value) const;
         void SetUniform(const std::string &name, const Math::Matrix4f &value) const;
-        void SetUniform(const std::string & name, const Texture2D &value);
+        void SetUniform(const std::string & name, const Texture2D &value) const;
 
         std::unordered_map<std::string, uint8_t> GetTextureUniformMap() const;
 
@@ -60,6 +60,7 @@ namespace Pixf::Core::Graphics::Gl {
         unsigned int GetUniformCount() const;
         std::string GetUniformName(unsigned int uniformId) const;
         unsigned int GetUniformType(unsigned int uniformId) const;
+        static Texture2D &GetDefaultTexture();
     };
 } // namespace Pixf::Core::Graphics::Gl
 

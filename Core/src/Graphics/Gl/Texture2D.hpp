@@ -21,7 +21,7 @@ namespace Pixf::Core::Graphics::Gl {
             FilterMode filterMode = FilterMode::Linear;
             FilterMode mipmapFilterMode = FilterMode::Linear;
             WrapMode wrapMode = WrapMode::Repeat;
-            bool generateMipmaps = true;
+            bool generateMipmaps = false;
 
             unsigned int GetGlWrap() const;
             unsigned int GetGlMinFilter() const;
@@ -46,7 +46,7 @@ namespace Pixf::Core::Graphics::Gl {
 
         void Clear() const;
 
-    private:
+    //private:
         unsigned int m_Id = 0;
         Config m_Config;
 

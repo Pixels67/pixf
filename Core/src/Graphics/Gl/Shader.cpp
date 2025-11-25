@@ -49,7 +49,12 @@ namespace Pixf::Core::Graphics::Gl {
 
     Shader::~Shader() { Clear(); }
 
-    void Shader::Bind() const { PIXF_GL_CALL(glUseProgram(m_Id)); }
+    void Shader::Bind() const {
+        PIXF_GL_CALL(glUseProgram(m_Id));
+        for (auto &[name, unit] : m_TextureUniformMap) {
+            SetUniform(name, GetDefaultTexture());
+        }
+    }
 
     void Shader::Unbind() { PIXF_GL_CALL(glUseProgram(0)); }
 
@@ -96,7 +101,13 @@ namespace Pixf::Core::Graphics::Gl {
         PIXF_GL_CALL(glUniformMatrix4fv(glGetUniformLocation(m_Id, name.c_str()), 1, GL_FALSE, value.Data()));
     }
 
-    void Shader::SetUniform(const std::string &name, const Texture2D &value) { value.Bind(m_TextureUniformMap[name]); }
+    void Shader::SetUniform(const std::string &name, const Texture2D &value) const {
+        if (!m_TextureUniformMap.contains(name)) {
+            return;
+        }
+
+        value.Bind(m_TextureUniformMap.at(name));
+    }
 
     std::unordered_map<std::string, uint8_t> Shader::GetTextureUniformMap() const { return m_TextureUniformMap; }
 
@@ -174,9 +185,6 @@ namespace Pixf::Core::Graphics::Gl {
     void Shader::InitTextureUniformMap() {
         uint8_t textureUnit = 0;
 
-        const unsigned int activeShader = GetActiveShader();
-        Bind();
-
         for (unsigned int i = 0; i < GetUniformCount(); i++) {
             if (textureUnit == g_MaxTextureCount) {
                 break;
@@ -191,8 +199,6 @@ namespace Pixf::Core::Graphics::Gl {
                 textureUnit++;
             }
         }
-
-        PIXF_GL_CALL(glUseProgram(activeShader));
     }
 
     unsigned int Shader::GetUniformCount() const {
@@ -218,5 +224,17 @@ namespace Pixf::Core::Graphics::Gl {
         PIXF_GL_CALL(glGetActiveUniform(m_Id, uniformId, 0, nullptr, nullptr, &type, nullptr));
 
         return type;
+    }
+
+    Texture2D &Shader::GetDefaultTexture() {
+        static std::optional<Texture2D> defaultTexture = std::nullopt;
+        if (!defaultTexture.has_value()) {
+            const Math::Color4u8 pixel = Math::Color4u8::White();
+            const Memory::Buffer buffer(&pixel.r, sizeof(pixel));
+            const ImageData image(1, 1, sizeof(pixel), buffer);
+            defaultTexture = Texture2D::Create(image, {});
+        }
+
+        return defaultTexture.value();
     }
 } // namespace Pixf::Core::Graphics::Gl

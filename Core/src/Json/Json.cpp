@@ -1,7 +1,7 @@
 #include "Json.hpp"
 
 namespace Pixf::Core::Json {
-    static constexpr unsigned int s_IndentLevel = 4;
+    static constexpr unsigned int s_IndentLevel = 2;
 
     Json Json::Parse(std::string str) {
         Json json;

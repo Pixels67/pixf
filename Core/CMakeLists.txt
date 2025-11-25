@@ -194,6 +194,10 @@ set(PROJECT_SOURCES
         src/Serial/Serial.hpp
         src/Serial/JsonArchive.cpp
         src/Serial/JsonArchive.hpp
+        src/Entities/Components/Graphics/AmbientLight.hpp
+        src/Entities/Components/Graphics/DirectionalLight.hpp
+        src/Entities/Components/Graphics/PointLight.hpp
+        src/Entities/Components/Graphics/Camera.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
