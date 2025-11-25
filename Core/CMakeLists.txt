@@ -199,6 +199,10 @@ set(PROJECT_SOURCES
         src/Entities/Components/Graphics/PointLight.hpp
         src/Entities/Components/Graphics/Camera.hpp
         src/Graphics/LightingEnvironment.hpp
+        src/Entities/WorldManager.cpp
+        src/Entities/WorldManager.hpp
+        src/Entities/Blueprint.cpp
+        src/Entities/Blueprint.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

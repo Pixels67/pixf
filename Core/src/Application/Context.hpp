@@ -2,7 +2,7 @@
 #define PIXF_STATE_HPP
 
 #include "Common.hpp"
-#include "Entities/World.hpp"
+#include "Entities/WorldManager.hpp"
 #include "Files/Assets/AssetManager.hpp"
 #include "Graphics/Gl/Window.hpp"
 #include "Graphics/Renderer.hpp"
@@ -16,7 +16,7 @@ namespace Pixf::Core::Application {
         Graphics::Renderer renderer{};
         Files::Assets::AssetManager assetManager{"./Assets/"};
         Time::Clock clock{};
-        Entities::World world{};
+        Entities::WorldManager worldManager{};
     };
 } // namespace Pixf::Core::Application
 

@@ -6,11 +6,11 @@
 namespace Pixf::Core {
     using TypeId = uint64_t;
 
-    TypeId PIXF_API GetNextTypeId();
+    TypeId PIXF_API RegisterType(const char* typeName);
 
     template<typename T>
     TypeId GetTypeId() {
-        static const TypeId s_Id = GetNextTypeId();
+        static const TypeId s_Id = RegisterType(typeid(T).name());
         return s_Id;
     }
 } // namespace Pixf::Core

@@ -23,7 +23,7 @@ namespace Pixf::Core::Entities::Components::Graphics {
         float scale = 5.0F;
         float aspectRatio = 16.0F / 9.0F;
         float near = 0.1F;
-        float far = 100.0F;
+        float far = 1000.0F;
 
         Math::Matrix4f GetViewMatrix() const { return transform.GetMatrix(); }
 

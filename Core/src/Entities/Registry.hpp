@@ -17,6 +17,7 @@ namespace Pixf::Core::Entities {
 
         template<typename Archive, typename T>
         void Register(const std::string &name) {
+            PIXF_CORE_LOG_DEBUG("Registering component {} with archive {}", entt::type_hash<T>::value(), GetTypeId<Archive>());
             m_SerializeFns[GetTypeId<Archive>()][entt::type_hash<T>::value()] = [name](void *archivePtr,
                                                                                        void *self) -> bool {
                 auto &archive = *static_cast<Archive *>(archivePtr);
@@ -45,12 +46,14 @@ namespace Pixf::Core::Entities {
         void SerializeEntityComponents(Archive &archive, Entity &entity) {
             const TypeId archiveTypeId = GetTypeId<Archive>();
             if (!m_SerializeFns.contains(archiveTypeId)) {
+                PIXF_CORE_LOG_DEBUG("Archive {} not registered", GetTypeId<Archive>());
                 return;
             }
 
             for (const auto &[id, storage]: m_Registry.storage()) {
                 // If the component is not registered, skip to the next one
                 if (!m_SerializeFns[archiveTypeId].contains(id)) {
+                    PIXF_CORE_LOG_DEBUG("Component {} not registered", id);
                     continue;
                 }
 
