@@ -7,8 +7,8 @@ namespace Pixf::Core::Json {
 
 namespace Pixf::Core::Serial {
     template<typename Archive, typename T>
-    concept Serializable = requires(Archive archive, T &type) {
-        { T::Serialize(archive, type) } -> std::same_as<void>;
+    concept Serializable = requires(Archive &ar, T &value) {
+        { Serialize(ar, value) } -> std::same_as<void>;
     };
 } // namespace Pixf::Core::Serial
 

@@ -159,14 +159,6 @@ namespace Pixf::Core::Math {
             w /= mag;
             return *this;
         }
-
-        template<class Archive>
-        static void Serialize(Archive &archive, Vector4 &vector) {
-            archive("x", vector.x);
-            archive("y", vector.y);
-            archive("z", vector.z);
-            archive("w", vector.w);
-        }
     };
 
     using Vector2i = Vector2<int>;
@@ -184,5 +176,26 @@ namespace Pixf::Core::Math {
     using Vector2d = Vector2<double>;
     using Vector3d = Vector3<double>;
     using Vector4d = Vector4<double>;
+
+    template<class Archive>
+    PIXF_API void Serialize(Archive &archive, Vector2f &vector) {
+        archive("x", vector.x);
+        archive("y", vector.y);
+    }
+
+    template<class Archive>
+    PIXF_API void Serialize(Archive &archive, Vector3f &vector) {
+        archive("x", vector.x);
+        archive("y", vector.y);
+        archive("z", vector.z);
+    }
+
+    template<class Archive>
+    PIXF_API void Serialize(Archive &archive, Vector4f &vector) {
+        archive("x", vector.x);
+        archive("y", vector.y);
+        archive("z", vector.z);
+        archive("w", vector.w);
+    }
 } // namespace Pixf::Core::Math
 #endif // PIXF_VECTOR_HPP

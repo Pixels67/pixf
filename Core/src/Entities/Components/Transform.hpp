@@ -1,6 +1,7 @@
 #ifndef PIXF_TRANSFORM_HPP
 #define PIXF_TRANSFORM_HPP
 
+#include "Common.hpp"
 #include "Math/Matrix.hpp"
 #include "Math/Quaternion.hpp"
 #include "Math/Vector.hpp"
@@ -27,14 +28,14 @@ namespace Pixf::Core::Entities::Components {
             return Math::Matrix4f::Rotate(rotation) * Math::Matrix4f::Scale(scale) *
                    Math::Matrix4f::Translate(position);
         }
-
-        template<class Archive>
-        static void Serialize(Archive &archive, Transform &transform) {
-            archive("position", transform.position);
-            archive("rotation", transform.rotation);
-            archive("scale", transform.scale);
-        }
     };
+
+    template<class Archive>
+    PIXF_API void Serialize(Archive &archive, Transform &transform) {
+        archive("position", transform.position);
+        archive("rotation", transform.rotation);
+        archive("scale", transform.scale);
+    }
 } // namespace Pixf::Core::Entities::Components
 
 #endif // PIXF_TRANSFORM_HPP

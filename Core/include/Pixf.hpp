@@ -3,7 +3,7 @@
 
 #include "Application/Application.hpp"
 #include "Debug/Logger.hpp"
-#include "Entities/Components/Graphics/Model.hpp"
+#include "Entities/Components/Graphics/ModelRenderer.hpp"
 #include "Entities/Components/RigidTransform.hpp"
 #include "Entities/Components/Transform.hpp"
 #include "Entities/System.hpp"

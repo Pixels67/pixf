@@ -56,4 +56,10 @@ namespace Pixf::Core::Application {
         app.Run();                                                                                                     \
     }
 
+#define PIXF_CREATE_APPLICATION(application)                                                                           \
+    extern "C" {                                                                                                       \
+    Pixf::Core::Application::Application *CreateApplication() { return new application(); }                            \
+    void DestroyApplication(Pixf::Core::Application::Application *app) { delete app; }                                 \
+    }
+
 #endif // PIXF_APPLICATION_HPP

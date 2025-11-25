@@ -95,7 +95,7 @@ target_include_directories(imgui PUBLIC
         ${imgui_SOURCE_DIR}/backends
 )
 
-target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
+target_link_libraries(imgui PRIVATE glfw OpenGL::GL)
 
 set(PROJECT_SOURCES
         Pch.hpp
@@ -187,7 +187,7 @@ set(PROJECT_SOURCES
         src/Uuid/Uuid.cpp
         src/Files/File.hpp
         src/Files/File.cpp
-        src/Entities/Components/Graphics/Model.hpp
+        src/Entities/Components/Graphics/ModelRenderer.hpp
         src/Entities/World.hpp
         src/Json/Json.cpp
         src/Json/Json.hpp

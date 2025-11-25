@@ -23,6 +23,13 @@ namespace Pixf::Core::Uuid {
     private:
         uuids::uuid m_Value;
     };
+
+    template<typename Archive>
+    PIXF_API void Serialize(Archive &archive, Uuid &uuid) {
+        std::string str = uuid.ToString();
+        archive("uuid", str);
+        uuid = Uuid::FromString(str).value();
+    }
 } // namespace Pixf::Core::Uuid
 
 #endif // PIXF_UUID_HPP

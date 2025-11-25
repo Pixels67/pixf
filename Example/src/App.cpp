@@ -1,4 +1,18 @@
-#include "Pixf.hpp"
+#include "Application/Application.hpp"
+#include "Debug/Logger.hpp"
+#include "Entities/Components/Graphics/ModelRenderer.hpp"
+#include "Entities/Components/RigidTransform.hpp"
+#include "Entities/Components/Transform.hpp"
+#include "Entities/System.hpp"
+#include "Files/Assets/AssetManager.hpp"
+#include "Files/File.hpp"
+#include "Files/Model.hpp"
+#include "Graphics/Gl/Gl.hpp"
+#include "Graphics/Gl/Viewport.hpp"
+#include "Graphics/Gl/Window.hpp"
+#include "Graphics/Renderer.hpp"
+#include "Gui/Gui.hpp"
+#include "Serial/JsonArchive.hpp"
 
 using namespace Pixf::Core;
 using namespace Pixf::Core::Math;
@@ -6,17 +20,13 @@ using namespace Pixf::Core::Graphics;
 using namespace Pixf::Core::Debug;
 using namespace Pixf::Core::Entities;
 using namespace Pixf::Core::Entities::Components;
+using namespace Pixf::Core::Entities::Graphics;
 
-struct Backpack {
-    Transform transform{};
-    Entities::Graphics::Model model;
-};
-
-struct BackpackSystem final : System {
+struct RotateSystem final : System {
     void Update(Registry &registry, const double deltaTime) override {
-        registry.ForEach<Backpack>([deltaTime](Backpack &backpack) {
-            backpack.transform.Rotate(360.0F * deltaTime, Vector3f::Up());
-            backpack.transform.Translate(Vector3f(0.0F, 0.0F, 5.0F * deltaTime));
+        registry.ForEach<Transform>([deltaTime](Transform &transform) {
+            transform.Rotate(360.0F * deltaTime, Vector3f::Up());
+            transform.Translate(Vector3f(0.0F, 0.0F, 5.0F * deltaTime));
         });
     }
 };
@@ -24,29 +34,26 @@ struct BackpackSystem final : System {
 class RenderStage final : public Application::Stage {
 public:
     void OnAttach(Application::State &state) override {
+        PIXF_REGISTER_COMP(Transform, state.entityRegistry);
+        PIXF_REGISTER_COMP(ModelRenderer, state.entityRegistry);
+
         auto entity = state.entityRegistry.CreateEntity();
-        Backpack backpack{};
 
-        backpack.model.uuid = Uuid::Uuid::FromString("03afb080-1f81-5ed9-80da-0bbe2a5d1b22").value();
-        state.assetManager.ImportModel(backpack.model.uuid, state.resources);
+        // ModelRenderer model;
+        // model.uuid = Uuid::Uuid::FromString("03afb080-1f81-5ed9-80da-0bbe2a5d1b22").value();
+        // state.entityRegistry.AddComponent(entity, model);
+        // state.entityRegistry.AddComponent<Transform>(entity);
+        // Serial::JsonOutputArchive archive;
+        // archive("registry", state.entityRegistry);
+        // Files::WriteFile("reg.json", archive.Get().ToString());
 
-        state.entityRegistry.AddComponent(entity, backpack);
+        const Json::Json json = Json::Json::Parse(Files::ReadFile("reg.json"));
+        Serial::JsonInputArchive archive(json);
+        archive("registry", state.entityRegistry);
 
-        state.entityRegistry.Register<Serial::JsonOutputArchive, Transform>("Transform");
-        state.entityRegistry.Register<Serial::JsonInputArchive, Transform>("Transform");
-
-        state.entityRegistry.AddComponent<Transform>(entity);
-        state.systemRegistry.Register<BackpackSystem>();
-
-        Serial::JsonOutputArchive archive;
-        state.entityRegistry.SerializeEntity(archive, entity);
-        Files::WriteFile("entity.json", archive.Get().ToString());
-
-        // const Json::Json json = Json::Json::Parse(Files::ReadFile("entity.json"));
-        // Serial::JsonInputArchive archive(json);
-        // state.entityRegistry.SerializeEntity(archive, entity);
-        // auto smth = state.entityRegistry.GetComponent<Transform>(entity);
-        // state.entityRegistry.GetComponent<Backpack>(entity).transform = smth;
+        state.systemRegistry.Register<RotateSystem>();
+        state.assetManager.ImportModel(Uuid::Uuid::FromString("03afb080-1f81-5ed9-80da-0bbe2a5d1b22").value(),
+                                       state.resources);
     }
 
     void Update(Application::State &state, const double deltaTime) override {
@@ -59,11 +66,12 @@ public:
         Renderer &renderer = state.renderer;
         renderer.BeginPass({.projectionMatrix = Matrix4f::Perspective(60.0F, 4.0F / 3.0F, 0.1F, 100.0F)});
 
-        state.entityRegistry.ForEach<const Backpack>([&](const Backpack &backpack) {
-            for (auto &[mesh, material]: state.assetManager.GetModel(backpack.model.uuid).elements) {
-                renderer.Submit({.mesh = mesh, .material = material, .modelMatrix = backpack.transform.GetMatrix()});
-            }
-        });
+        state.entityRegistry.ForEach<const ModelRenderer, const Transform>(
+                [&](const ModelRenderer &model, const Transform &transform) {
+                    for (auto &[mesh, material]: state.assetManager.GetModel(model.uuid).elements) {
+                        renderer.Submit({.mesh = mesh, .material = material, .modelMatrix = transform.GetMatrix()});
+                    }
+                });
 
         renderer.Render(viewport, state.resources);
     }
@@ -92,4 +100,4 @@ protected:
     }
 };
 
-PIXF_RUN_APPLICATION(App)
+PIXF_CREATE_APPLICATION(App)

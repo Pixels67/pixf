@@ -4,8 +4,8 @@
 #include <cmath>
 
 #include "Common.hpp"
-#include "Vector.hpp"
 #include "Math.hpp"
+#include "Vector.hpp"
 
 namespace Pixf::Core::Math {
     template<typename T>
@@ -23,7 +23,9 @@ namespace Pixf::Core::Math {
         static Quaternion AngleAxis(const float angleDegrees, const Vector3f axis) {
             const float halfAngle = DegreesToRadians(angleDegrees) * 0.5F;
             float s = std::sin(halfAngle);
-            return Quaternion(axis.Normalized().x * s, axis.Normalized().y * s, axis.Normalized().z * s,
+            return Quaternion(axis.Normalized().x * s,
+                              axis.Normalized().y * s,
+                              axis.Normalized().z * s,
                               std::cos(halfAngle));
         }
 
@@ -47,8 +49,10 @@ namespace Pixf::Core::Math {
         }
 
         Quaternion operator*(const Quaternion &o) const {
-            return Quaternion(w * o.x + x * o.w + y * o.z - z * o.y, w * o.y - x * o.z + y * o.w + z * o.x,
-                              w * o.z + x * o.y - y * o.x + z * o.w, w * o.w - x * o.x - y * o.y - z * o.z);
+            return Quaternion(w * o.x + x * o.w + y * o.z - z * o.y,
+                              w * o.y - x * o.z + y * o.w + z * o.x,
+                              w * o.z + x * o.y - y * o.x + z * o.w,
+                              w * o.w - x * o.x - y * o.y - z * o.z);
         }
 
         Quaternion &operator*=(const Quaternion &o) {
@@ -101,7 +105,9 @@ namespace Pixf::Core::Math {
             }
 
             if (cosTheta > 0.9995F) {
-                return Quaternion(q1.x + t * (qz.x - q1.x), q1.y + t * (qz.y - q1.y), q1.z + t * (qz.z - q1.z),
+                return Quaternion(q1.x + t * (qz.x - q1.x),
+                                  q1.y + t * (qz.y - q1.y),
+                                  q1.z + t * (qz.z - q1.z),
                                   q1.w + t * (qz.w - q1.w))
                         .Normalized();
             }
@@ -111,7 +117,9 @@ namespace Pixf::Core::Math {
             const float w1 = std::sin((1.0F - t) * angle) / sinTheta;
             const float w2 = std::sin(t * angle) / sinTheta;
 
-            return Quaternion(q1.x * w1 + qz.x * w2, q1.y * w1 + qz.y * w2, q1.z * w1 + qz.z * w2,
+            return Quaternion(q1.x * w1 + qz.x * w2,
+                              q1.y * w1 + qz.y * w2,
+                              q1.z * w1 + qz.z * w2,
                               q1.w * w1 + qz.w * w2);
         }
 
@@ -140,15 +148,15 @@ namespace Pixf::Core::Math {
         }
 
         Matrix4f ToMatrix() const;
-
-        template<class Archive>
-        static void Serialize(Archive &archive, Quaternion &quat) {
-            archive("x", quat.x);
-            archive("y", quat.y);
-            archive("z", quat.z);
-            archive("w", quat.w);
-        }
     };
+
+    template<class Archive>
+    PIXF_API void Serialize(Archive &archive, Quaternion &quat) {
+        archive("x", quat.x);
+        archive("y", quat.y);
+        archive("z", quat.z);
+        archive("w", quat.w);
+    }
 } // namespace Pixf::Core::Math
 
 #endif // PIXF_QUATERNION_HPP

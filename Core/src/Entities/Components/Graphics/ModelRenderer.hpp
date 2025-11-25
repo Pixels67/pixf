@@ -1,16 +1,17 @@
 #ifndef PIXF_MODEL_HPP
 #define PIXF_MODEL_HPP
 
+#include "Common.hpp"
 #include "Uuid/Uuid.hpp"
 
 namespace Pixf::Core::Entities::Graphics {
-    struct Model {
+    struct ModelRenderer {
         Uuid::Uuid uuid;
     };
 
     template<typename Archive>
-    void Serialize(Archive &archive, Model &model) {
-        archive("uuid", model.uuid);
+    PIXF_API void Serialize(Archive &archive, ModelRenderer &model) {
+        Serialize(archive, model.uuid);
     }
 } // namespace Pixf::Core::Entities::Graphics
 
