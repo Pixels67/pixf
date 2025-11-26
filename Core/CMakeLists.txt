@@ -15,6 +15,12 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
+        URI "gh:mackron/miniaudio#0.11.23"
+        OPTIONS
+        "MINIAUDIO_NO_ENGINE ON"
+)
+
+CPMAddPackage(
         NAME glad
         GITHUB_REPOSITORY Pixels67/glad
         GIT_TAG master
@@ -203,6 +209,9 @@ set(PROJECT_SOURCES
         src/Entities/WorldManager.hpp
         src/Entities/Blueprint.cpp
         src/Entities/Blueprint.hpp
+        src/Audio/Ma/PlaybackDevice.cpp
+        src/Audio/Ma/PlaybackDevice.hpp
+        src/Audio/SampleFormat.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
@@ -214,6 +223,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE PIXF_DYLIB_BUILD)
 target_link_libraries(${PROJECT_NAME} PUBLIC
         OpenGL::GL
         glfw
+        miniaudio
         glad
         fmt
         assimp::assimp

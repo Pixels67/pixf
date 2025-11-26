@@ -1,4 +1,5 @@
 #include "Application/Application.hpp"
+#include "Audio/Ma/PlaybackDevice.hpp"
 #include "Debug/Logger.hpp"
 #include "Entities/Components/Graphics/Camera.hpp"
 #include "Entities/Components/Graphics/ModelRenderer.hpp"
@@ -86,6 +87,9 @@ class App final : public Application::Application {
 protected:
     void Awake() override {
         Logger::Get("Core").GetConfig().visibility &= ~LogLevelTrace;
+        Audio::Ma::PlaybackDevice device = Audio::Ma::PlaybackDevice::Create({});
+        device.Start();
+        device.Stop();
         AttachStage<RenderStage>();
     }
 
