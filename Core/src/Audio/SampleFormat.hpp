@@ -1,6 +1,8 @@
 #ifndef PIXF_SAMPLEFORMAT_HPP
 #define PIXF_SAMPLEFORMAT_HPP
 
+#include <miniaudio.h>
+
 namespace Pixf::Core::Audio {
     enum class SampleFormat : uint8_t {
         Default = 0,
@@ -10,6 +12,9 @@ namespace Pixf::Core::Audio {
         Int32,
         UInt8,
     };
+
+    ma_format ToMaFormat(const SampleFormat &format);
+    SampleFormat FromMaFormat(const ma_format &format);
 }
 
 #endif // PIXF_SAMPLEFORMAT_HPP

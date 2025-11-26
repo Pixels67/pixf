@@ -212,6 +212,10 @@ set(PROJECT_SOURCES
         src/Audio/Ma/PlaybackDevice.cpp
         src/Audio/Ma/PlaybackDevice.hpp
         src/Audio/SampleFormat.hpp
+        src/Audio/Ma/Clip.hpp
+        src/Files/Audio.hpp
+        src/Files/Audio.cpp
+        src/Audio/SampleFormat.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

@@ -26,7 +26,12 @@ namespace Pixf::Core::Application {
         Context &GetContext();
 
         template<typename T>
-        void AttachStage(T stage = {}) {
+        void AttachStage() {
+            m_Pipeline.Attach<T>(m_Context);
+        }
+
+        template<typename T>
+        void AttachStage(T stage) {
             m_Pipeline.Attach<T>(m_Context, stage);
         }
 

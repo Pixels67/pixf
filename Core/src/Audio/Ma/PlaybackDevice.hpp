@@ -4,8 +4,9 @@
 #include <miniaudio.h>
 
 #include "Audio/SampleFormat.hpp"
-#include "Error/Error.hpp"
+#include "Clip.hpp"
 #include "Common.hpp"
+#include "Error/Error.hpp"
 
 namespace Pixf::Core::Audio::Ma {
     class PIXF_API PlaybackDeviceError final : public Error::Error {
@@ -33,6 +34,9 @@ namespace Pixf::Core::Audio::Ma {
         void Start() const;
         void Stop() const;
 
+        void Play(Clip &clip);
+        bool IsPlaying() const;
+
     private:
         PlaybackDeviceConfig m_Config;
         std::unique_ptr<ma_device> m_Device = std::make_unique<ma_device>();
@@ -40,7 +44,6 @@ namespace Pixf::Core::Audio::Ma {
         explicit PlaybackDevice(const PlaybackDeviceConfig &config);
 
         static void HandleAudioData(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount);
-        static ma_format ToMaFormat(SampleFormat sampleFormat);
     };
 } // namespace Pixf::Core::Audio::Ma
 

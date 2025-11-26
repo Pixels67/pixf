@@ -1,7 +1,5 @@
 #include "Buffer.hpp"
 
-#include "../Graphics/Vertex.hpp"
-
 namespace Pixf::Core::Memory {
     Buffer::Buffer(const size_t size) : m_Data(size > 0 ? malloc(size) : nullptr), m_Size(size) {}
 
@@ -61,7 +59,29 @@ namespace Pixf::Core::Memory {
         memcpy(m_Data, data, length);
     }
 
+    void Buffer::ReadTo(void *buffer) const { ReadTo(buffer, m_Size); }
+
+    void Buffer::ReadTo(void *buffer, const size_t length) const {
+        if (buffer != nullptr && m_Data != nullptr && m_Size >= length) {
+            memcpy(buffer, m_Data, length);
+        }
+    }
+
+    void Buffer::ReadTo(void *buffer, const size_t offset, const size_t length) const {
+        if (buffer != nullptr && m_Data != nullptr && m_Size > offset) {
+            memcpy(buffer, (void *) ((size_t) m_Data + offset), std::min(m_Size - offset, length));
+        }
+    }
+
     void *Buffer::Get() const { return m_Data; }
+
+    void *Buffer::Get(const size_t offset) const {
+        if (offset >= m_Size) {
+            return nullptr;
+        }
+
+        return (void *) ((size_t) Get() + offset);
+    }
 
     size_t Buffer::GetSize() const { return m_Size; }
 

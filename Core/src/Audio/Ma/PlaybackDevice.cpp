@@ -18,9 +18,7 @@ namespace Pixf::Core::Audio::Ma {
         return device;
     }
 
-    PlaybackDevice::~PlaybackDevice() {
-        ma_device_uninit(m_Device.get());
-    }
+    PlaybackDevice::~PlaybackDevice() { ma_device_uninit(m_Device.get()); }
 
     void PlaybackDevice::Start() const {
         if (ma_device_start(m_Device.get()) != MA_SUCCESS) {
@@ -34,36 +32,42 @@ namespace Pixf::Core::Audio::Ma {
         }
     }
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void PlaybackDevice::Play(Clip &clip) { m_Device->pUserData = &clip; }
+
+    bool PlaybackDevice::IsPlaying() const { return m_Device->pUserData != nullptr; }
+
     PlaybackDevice::PlaybackDevice(const PlaybackDeviceConfig &config) : m_Config(config) {}
 
     void PlaybackDevice::HandleAudioData(ma_device *pDevice, void *pOutput, const void *pInput, ma_uint32 frameCount) {
-
-    }
-
-    ma_format PlaybackDevice::ToMaFormat(const SampleFormat sampleFormat) {
-        ma_format maFmt = ma_format_unknown;
-
-        switch (sampleFormat) {
-            case SampleFormat::Default:
-                maFmt = ma_format_unknown;
-                break;
-            case SampleFormat::Float32:
-                maFmt = ma_format_f32;
-                break;
-            case SampleFormat::Int16:
-                maFmt = ma_format_s16;
-                break;
-            case SampleFormat::Int24:
-                maFmt = ma_format_s24;
-                break;
-            case SampleFormat::Int32:
-                maFmt = ma_format_s32;
-                break;
-            case SampleFormat::UInt8:
-                maFmt = ma_format_u8;
-                break;
+        if (pDevice->pUserData == nullptr) {
+            return;
         }
 
-        return maFmt;
+        const auto clip = static_cast<Clip *>(pDevice->pUserData);
+
+        if (clip->readOffset >= clip->frameCount) {
+            clip->readOffset = 0;
+            pDevice->pUserData = nullptr;
+            return;
+        }
+
+        ma_audio_buffer audioBuffer;
+        const ma_audio_buffer_config bufferConfig =
+                ma_audio_buffer_config_init(ToMaFormat(clip->sampleFormat),
+                                            clip->channels,
+                                            clip->frameCount - clip->readOffset,
+                                            clip->buffer.Get(clip->readOffset * clip->frameSize),
+                                            nullptr);
+
+        if (ma_audio_buffer_init(&bufferConfig, &audioBuffer) != MA_SUCCESS) {
+            PIXF_CORE_LOG_ERROR("Failed to initialize audio buffer");
+            return;
+        }
+
+        clip->readOffset += frameCount;
+
+        ma_audio_buffer_read_pcm_frames(&audioBuffer, pOutput, frameCount, false);
+        ma_audio_buffer_uninit(&audioBuffer);
     }
 } // namespace Pixf::Core::Audio::Ma

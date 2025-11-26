@@ -24,7 +24,16 @@ namespace Pixf::Core::Application {
         void OnEvent(Context &context, Event::Event &event);
 
         template<typename T>
-        void Attach(Context &context, T stage = {}) {
+        void Attach(Context &context) {
+            static_assert(std::is_base_of<Stage, T>());
+
+            TypeId typeId = GetTypeId<T>();
+            m_Stages.push_back(std::make_pair(typeId, std::make_unique<T>()));
+            m_Stages.back().second->OnAttach(context);
+        }
+
+        template<typename T>
+        void Attach(Context &context, T stage) {
             static_assert(std::is_base_of<Stage, T>());
 
             TypeId typeId = GetTypeId<T>();

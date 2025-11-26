@@ -7,6 +7,7 @@
 #include "Entities/Components/Transform.hpp"
 #include "Entities/System.hpp"
 #include "Files/Assets/AssetManager.hpp"
+#include "Files/Audio.hpp"
 #include "Files/Model.hpp"
 #include "Graphics/Gl/Viewport.hpp"
 #include "Graphics/Gl/Window.hpp"
@@ -17,6 +18,7 @@
 using namespace Pixf::Core;
 using namespace Pixf::Core::Math;
 using namespace Pixf::Core::Graphics;
+using namespace Pixf::Core::Audio;
 using namespace Pixf::Core::Debug;
 using namespace Pixf::Core::Entities;
 using namespace Pixf::Core::Entities::Components;
@@ -26,7 +28,7 @@ struct RotateSystem final : System {
     void Update(Registry &registry, const double deltaTime) override {
         registry.ForEach<Transform>([deltaTime](Transform &transform) {
             transform.Rotate(360.0F * deltaTime, Vector3f::Up());
-            transform.Translate(Vector3f(0.0F, 0.0F, 5.0F * deltaTime));
+            transform.Translate(Vector3f(0.0F, 0.0F, 50.0F * deltaTime));
         });
     }
 };
@@ -83,17 +85,9 @@ public:
     }
 };
 
-class App final : public Application::Application {
-protected:
-    void Awake() override {
-        Logger::Get("Core").GetConfig().visibility &= ~LogLevelTrace;
-        Audio::Ma::PlaybackDevice device = Audio::Ma::PlaybackDevice::Create({});
-        device.Start();
-        device.Stop();
-        AttachStage<RenderStage>();
-    }
-
-    void RenderGui(double deltaTime) override {
+class RenderGuiStage final : public Application::Stage {
+public:
+    void RenderGui(Application::Context &state, double deltaTime) override {
         Gui::BeginWindow("Window");
         Gui::BeginChild("Timmy", {300, 400});
         Gui::ColoredText({255, 0, 255, 255}, "Test: {}, {}", 5.76, true);
@@ -106,6 +100,29 @@ protected:
 
         Gui::EndChild();
         Gui::EndWindow();
+    }
+};
+
+class PlaySoundStage final : public Application::Stage {
+public:
+    Ma::PlaybackDevice device = Ma::PlaybackDevice::Create({});
+    Ma::Clip clip{};
+
+    void OnAttach(Application::Context &state) override {
+        device.Start();
+        PIXF_CORE_LOG_INFO("Loading audio file: music.wav");
+        clip = Files::LoadAudioFile("music.wav");
+        device.Play(clip);
+    }
+};
+
+class App final : public Application::Application {
+protected:
+    void Awake() override {
+        Logger::Get("Core").GetConfig().visibility &= ~LogLevelTrace;
+        AttachStage<RenderStage>();
+        AttachStage<RenderGuiStage>();
+        AttachStage<PlaySoundStage>();
     }
 };
 

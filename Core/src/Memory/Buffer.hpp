@@ -6,6 +6,8 @@
 namespace Pixf::Core::Memory {
     class PIXF_API Buffer {
     public:
+        Buffer() = default;
+
         explicit Buffer(size_t size);
         Buffer(const void *src, size_t size);
 
@@ -27,7 +29,12 @@ namespace Pixf::Core::Memory {
         ~Buffer();
 
         void SetData(const void *data, size_t length) const;
+        void ReadTo(void *buffer) const;
+        void ReadTo(void *buffer, size_t length) const;
+        void ReadTo(void *buffer, size_t offset, size_t length) const;
+
         void *Get() const;
+        void *Get(size_t offset) const;
 
         size_t GetSize() const;
         void *At(size_t offset) const;

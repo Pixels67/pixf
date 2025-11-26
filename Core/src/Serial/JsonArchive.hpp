@@ -76,7 +76,6 @@ namespace Pixf::Core::Serial {
         template<typename T>
         bool operator()(const std::string &key, T &value) {
             if (!m_Json.Contains(key)) {
-                PIXF_CORE_LOG_ERROR("Failed to deserialize key value pair: Key {} not found", key);
                 return false;
             }
 
@@ -92,7 +91,6 @@ namespace Pixf::Core::Serial {
         template<typename T>
         bool operator()(const std::string &key, std::vector<T> &array) {
             if (!m_Json.Contains(key)) {
-                PIXF_CORE_LOG_ERROR("Failed to deserialize key value pair: Key {} not found", key);
                 return false;
             }
 
@@ -117,7 +115,6 @@ namespace Pixf::Core::Serial {
         bool
         AddArray(const std::string &key, std::vector<T> &array, std::function<void(JsonInputArchive &, T &)> func) {
             if (!m_Json.Contains(key)) {
-                PIXF_CORE_LOG_ERROR("Failed to deserialize key value pair: Key {} not found", key);
                 return false;
             }
 

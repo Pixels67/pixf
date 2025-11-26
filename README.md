@@ -14,7 +14,7 @@ You can either build the core library and use it like a library, or build it wit
 
 ## Building from Source
 
-Make sure you have C++ compiler and CMake installed and run the following commands:
+Make sure you have a C++ compiler and CMake installed and run the following commands:
 
 ```sh
 git clone https://github.com/Pixels67/pixf.git
