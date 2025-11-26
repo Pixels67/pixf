@@ -8,13 +8,13 @@
 A C++ game framework/engine using OpenGL 3.3, currently only supports desktop.
 You can either build the core library and use it like a library, or build it with the Editor and Runtime (Note: both are WIP) and use it like an engine.
 
-> [!WARNING]
+> [!WARNING]  
 > This is just a hobby project and most of it is not finished yet.  
 > Expect a lot of features missing.
 
 ## Building from Source
 
-Make sure you have a C++ compiler (Clang preferred) and CMake installed and run the following commands:
+Make sure you have C++ compiler and CMake installed and run the following commands:
 
 ```sh
 git clone https://github.com/Pixels67/pixf.git
