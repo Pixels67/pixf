@@ -1,7 +1,16 @@
-# PiXF
+<h3 align="center">
+  <img align="center" src="PiXF.gif"><br><br>
+  C++ game framework / engine.
+</h3>
 
-![PiXF](PiXF.gif)  
-C++ game framework using OpenGL 3.3.
+---
+
+A C++ game framework/engine using OpenGL 3.3, currently only supports desktop.
+You can either build the core library and use it like a library, or build it with the Editor and Runtime (Note: both are WIP) and use it like an engine.
+
+> [!WARNING]
+> This is just a hobby project and most of it is not finished yet.  
+> Expect a lot of features missing.
 
 ## Building from Source
 
