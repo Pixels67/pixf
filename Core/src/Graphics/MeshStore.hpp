@@ -1,9 +1,9 @@
 #ifndef PIXF_MESHMANAGER_HPP
 #define PIXF_MESHMANAGER_HPP
 
+#include "Handle.hpp"
 #include "Common.hpp"
 #include "Error/Error.hpp"
-#include "Handle.hpp"
 #include "Mesh.hpp"
 
 namespace Pixf::Core::Graphics {
@@ -29,7 +29,7 @@ namespace Pixf::Core::Graphics {
 
         ~MeshStore() = default;
 
-        MeshHandle Create(const MeshData &meshData);
+        MeshHandle Create(Mesh &&mesh);
         void Destroy(MeshHandle handle);
 
         Mesh &Get(MeshHandle handle);

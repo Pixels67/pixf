@@ -10,14 +10,14 @@ namespace Pixf::Core::Application {
     public:
         virtual ~Stage() = default;
 
-        virtual void OnAttach(Context &state) {}
-        virtual void OnDetach(Context &state) {}
+        virtual void OnAttach(Context &context) {}
+        virtual void OnDetach(Context &context) {}
 
-        virtual void Update(Context &state, double deltaTime) {}
-        virtual void Render(Context &state, double deltaTime) {}
-        virtual void RenderGui(Context &state, double deltaTime) {}
+        virtual void Update(Context &context, double deltaTime) {}
+        virtual void Render(Context &context, double deltaTime) {}
+        virtual void RenderGui(Context &context, double deltaTime) {}
 
-        virtual bool OnEvent(Context &state, Event::Event &event) { return false; }
+        virtual bool OnEvent(Context &context, Event::Event &event) { return false; }
     };
 } // namespace Pixf::Core::Application
 

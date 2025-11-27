@@ -3,7 +3,7 @@
 
 #include <miniaudio.h>
 
-namespace Pixf::Core::Audio {
+namespace Pixf::Core::Audio::Ma {
     enum class SampleFormat : uint8_t {
         Default = 0,
         Float32,
@@ -15,6 +15,6 @@ namespace Pixf::Core::Audio {
 
     ma_format ToMaFormat(const SampleFormat &format);
     SampleFormat FromMaFormat(const ma_format &format);
-}
+} // namespace Pixf::Core::Audio::Ma
 
 #endif // PIXF_SAMPLEFORMAT_HPP

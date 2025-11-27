@@ -1,8 +1,8 @@
 #ifndef PIXF_MATERIAL_HPP
 #define PIXF_MATERIAL_HPP
 
-#include "Error/Error.hpp"
 #include "Handle.hpp"
+#include "Error/Error.hpp"
 #include "Math/Color.hpp"
 #include "Math/Vector.hpp"
 

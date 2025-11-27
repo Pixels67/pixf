@@ -2,8 +2,8 @@
 #define PIXF_RENDERCOMMAND_HPP
 
 #include "Handle.hpp"
-#include "Math/Matrix.hpp"
 #include "Common.hpp"
+#include "Math/Matrix.hpp"
 
 namespace Pixf::Core::Graphics {
     struct PIXF_API RenderCommand {

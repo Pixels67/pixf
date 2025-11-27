@@ -1,6 +1,6 @@
 #include "SampleFormat.hpp"
 
-namespace Pixf::Core::Audio {
+namespace Pixf::Core::Audio::Ma {
     ma_format ToMaFormat(const SampleFormat &format) {
         ma_format maFmt = ma_format_unknown;
 

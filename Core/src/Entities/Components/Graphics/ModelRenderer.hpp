@@ -6,10 +6,10 @@
 
 namespace Pixf::Core::Entities::Components::Graphics {
     struct ModelRenderer {
-        Uuid::Uuid uuid;
+        Files::Assets::ModelAssetHandle assetHandle;
     };
 
-    PIXF_SERIALIZE(ModelRenderer, Serialize(archive, ModelRenderer.uuid);)
+    PIXF_SERIALIZE(ModelRenderer, Serialize(archive, ModelRenderer.assetHandle.uuid);)
 } // namespace Pixf::Core::Entities::Graphics
 
 #endif // PIXF_MODEL_HPP

@@ -7,7 +7,6 @@
 #include "Entities/Components/Transform.hpp"
 #include "Entities/System.hpp"
 #include "Files/Assets/AssetManager.hpp"
-#include "Files/Audio.hpp"
 #include "Files/Model.hpp"
 #include "Graphics/Gl/Viewport.hpp"
 #include "Graphics/Gl/Window.hpp"
@@ -50,8 +49,7 @@ public:
         const auto idx = context.worldManager.LoadWorld(blueprint, "world.json");
         context.worldManager.SetActive(idx);
 
-        const auto uuid = Uuid::Uuid::FromString("03afb080-1f81-5ed9-80da-0bbe2a5d1b22").value();
-        context.assetManager.ImportModel(uuid, context.resources);
+        context.assetManager.ImportModel("Assets/backpack.obj", context.resources);
     }
 
     void Update(Application::Context &context, const double deltaTime) override {
@@ -76,7 +74,7 @@ public:
 
         registry.ForEach<const ModelRenderer, const Transform>(
                 [&](const ModelRenderer &model, const Transform &transform) {
-                    for (auto &[mesh, material]: context.assetManager.GetModel(model.uuid).elements) {
+                    for (auto &[mesh, material]: context.assetManager.GetModel(model.assetHandle).elements) {
                         renderer.Submit({.mesh = mesh, .material = material, .modelMatrix = transform.GetMatrix()});
                     }
                 });
@@ -87,7 +85,7 @@ public:
 
 class RenderGuiStage final : public Application::Stage {
 public:
-    void RenderGui(Application::Context &state, double deltaTime) override {
+    void RenderGui(Application::Context &context, double deltaTime) override {
         Gui::BeginWindow("Window");
         Gui::BeginChild("Timmy", {300, 400});
         Gui::ColoredText({255, 0, 255, 255}, "Test: {}, {}", 5.76, true);
@@ -108,11 +106,11 @@ public:
     Ma::PlaybackDevice device = Ma::PlaybackDevice::Create({});
     Ma::Clip clip{};
 
-    void OnAttach(Application::Context &state) override {
+    void OnAttach(Application::Context &context) override {
+        const auto clipHandle = context.assetManager.ImportClip("Assets/sound.wav", context.resources);
+
         device.Start();
-        PIXF_CORE_LOG_INFO("Loading audio file: music.wav");
-        clip = Files::LoadAudioFile("music.wav");
-        device.Play(clip);
+        device.Play(context.resources.clipStore.Get(context.assetManager.GetClip(clipHandle)));
     }
 };
 

@@ -2,7 +2,7 @@
 
 #include <miniaudio.h>
 
-#include "Audio/SampleFormat.hpp"
+#include "Audio/Ma/SampleFormat.hpp"
 
 namespace Pixf::Core::Files {
     Audio::Ma::Clip LoadAudioFile(const std::string &filepath) {
@@ -45,6 +45,6 @@ namespace Pixf::Core::Files {
                                .readOffset = 0,
                                .sampleRate = decoder.outputSampleRate,
                                .channels = channels,
-                               .sampleFormat = Audio::FromMaFormat(decoder.outputFormat)};
+                               .sampleFormat = Audio::Ma::FromMaFormat(decoder.outputFormat)};
     }
 } // namespace Pixf::Core::Files

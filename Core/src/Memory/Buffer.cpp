@@ -92,4 +92,9 @@ namespace Pixf::Core::Memory {
 
         return static_cast<char *>(m_Data) + offset;
     }
+
+    void Buffer::Clear() {
+        free(m_Data);
+        m_Size = 0;
+    }
 } // namespace Pixf::Core::Memory

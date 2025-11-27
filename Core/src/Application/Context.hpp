@@ -1,18 +1,18 @@
 #ifndef PIXF_STATE_HPP
 #define PIXF_STATE_HPP
 
+#include "Resources.hpp"
 #include "Common.hpp"
 #include "Entities/WorldManager.hpp"
 #include "Files/Assets/AssetManager.hpp"
 #include "Graphics/Gl/Window.hpp"
 #include "Graphics/Renderer.hpp"
-#include "Graphics/Resources.hpp"
 #include "Time/Clock.hpp"
 
 namespace Pixf::Core::Application {
     struct PIXF_API Context {
         Graphics::Gl::Window window;
-        Graphics::Resources resources{};
+        Resources resources{};
         Graphics::Renderer renderer{};
         Files::Assets::AssetManager assetManager{"./Assets/"};
         Time::Clock clock{};

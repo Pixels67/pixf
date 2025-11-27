@@ -2,7 +2,7 @@
 #define PIXF_CLIP_HPP
 
 #include "Memory/Buffer.hpp"
-#include "Audio/SampleFormat.hpp"
+#include "SampleFormat.hpp"
 
 namespace Pixf::Core::Audio::Ma {
     struct Clip {
@@ -13,6 +13,16 @@ namespace Pixf::Core::Audio::Ma {
         unsigned int sampleRate = 0;
         unsigned int channels = 0;
         SampleFormat sampleFormat = SampleFormat::Default;
+
+        void Clear() {
+            buffer.Clear();
+            frameCount = 0;
+            frameSize = 4;
+            readOffset = 0;
+            sampleRate = 0;
+            channels = 0;
+            sampleFormat = SampleFormat::Default;
+        }
     };
 } // namespace Pixf::Core::Audio
 

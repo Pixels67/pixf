@@ -1,12 +1,12 @@
 #ifndef PIXF_RENDERER_HPP
 #define PIXF_RENDERER_HPP
 
+#include "Resources.hpp"
 #include "Common.hpp"
 #include "Gl/Viewport.hpp"
 #include "LightingEnvironment.hpp"
 #include "RenderCommand.hpp"
 #include "RenderPass.hpp"
-#include "Resources.hpp"
 
 namespace Pixf::Core::Graphics {
     class PIXF_API Renderer {

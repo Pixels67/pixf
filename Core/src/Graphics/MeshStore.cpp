@@ -1,10 +1,10 @@
 #include "MeshStore.hpp"
 
 namespace Pixf::Core::Graphics {
-    MeshHandle MeshStore::Create(const MeshData &meshData) {
+    MeshHandle MeshStore::Create(Mesh &&mesh) {
         auto [idx, slot] = GetSlot();
 
-        slot.mesh = Mesh(meshData);
+        slot.mesh = std::move(mesh);
         slot.active = true;
 
         return {.id = idx, .version = slot.version};

@@ -1,9 +1,9 @@
 #ifndef PIXF_TEXTURESTORE_HPP
 #define PIXF_TEXTURESTORE_HPP
 
+#include "Handle.hpp"
 #include "Error/Error.hpp"
 #include "Gl/Texture2D.hpp"
-#include "Handle.hpp"
 
 namespace Pixf::Core::Graphics {
     class PIXF_API TextureStoreError final : public Error::Error {

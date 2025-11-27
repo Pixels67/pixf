@@ -140,7 +140,7 @@ set(PROJECT_SOURCES
         src/Graphics/Mesh.cpp
         src/Graphics/Mesh.hpp
         src/Graphics/Material.hpp
-        src/Graphics/Handle.hpp
+        src/Handle.hpp
         src/Graphics/ShaderStore.cpp
         src/Graphics/ShaderStore.hpp
         src/Graphics/MeshStore.cpp
@@ -159,7 +159,7 @@ set(PROJECT_SOURCES
         src/Graphics/Model.hpp
         src/Files/Model.cpp
         src/Files/Model.hpp
-        src/Graphics/Resources.hpp
+        src/Resources.hpp
         src/Graphics/RenderCommand.hpp
         src/Graphics/Renderer.cpp
         src/Graphics/Renderer.hpp
@@ -211,11 +211,15 @@ set(PROJECT_SOURCES
         src/Entities/Blueprint.hpp
         src/Audio/Ma/PlaybackDevice.cpp
         src/Audio/Ma/PlaybackDevice.hpp
-        src/Audio/SampleFormat.hpp
+        src/Audio/Ma/SampleFormat.hpp
         src/Audio/Ma/Clip.hpp
         src/Files/Audio.hpp
         src/Files/Audio.cpp
-        src/Audio/SampleFormat.cpp
+        src/Audio/Ma/SampleFormat.cpp
+        src/Audio/AudioClip.hpp
+        src/Audio/Ma/ClipStore.cpp
+        src/Audio/Ma/ClipStore.hpp
+        src/Files/Assets/AssetHandle.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

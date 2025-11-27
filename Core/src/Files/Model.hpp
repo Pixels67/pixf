@@ -4,26 +4,24 @@
 #include <assimp/scene.h>
 
 #include "Graphics/Model.hpp"
-#include "Graphics/Resources.hpp"
+#include "Resources.hpp"
+#include "Math/Color.hpp"
 
 namespace Pixf::Core::Files {
-    using TextureCache = std::unordered_map<std::string, Graphics::Texture2DHandle>;
+    struct MeshData {
+        Graphics::MeshData data;
+        size_t materialIndex;
+    };
 
-    PIXF_API Graphics::Model LoadModel(const std::string &path, Graphics::Resources &resources);
+    struct MaterialData {
+        std::optional<std::string> diffusePath = std::nullopt;
+        std::optional<std::string> specularPath = std::nullopt;
+        Math::Color3u8 diffuseColor;
+        Math::Color3u8 specularColor;
+    };
 
-    void ProcessModelNode(Graphics::Model &model,
-                          const std::string &directory,
-                          const aiNode *node,
-                          const aiScene *scene,
-                          const TextureCache &textures,
-                          Graphics::Resources &resources);
-
-    Graphics::MeshHandle LoadMesh(const aiMesh *mesh, Graphics::Resources &resources);
-
-    TextureCache LoadTextures(const aiScene *scene, const std::string &directory, Graphics::Resources &resources);
-
-    Graphics::MaterialHandle
-    LoadMaterial(const aiMaterial *material, const TextureCache &textures, Graphics::Resources &resources);
+    std::vector<MeshData> LoadModelMeshes(const std::string &filepath);
+    std::vector<MaterialData> LoadModelMaterials(const std::string &filepath);
 } // namespace Pixf::Core::Files
 
 #endif // PIXF_FILES_MODEL_HPP

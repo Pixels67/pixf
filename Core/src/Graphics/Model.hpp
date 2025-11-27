@@ -1,8 +1,8 @@
 #ifndef PIXF_GRAPHICS_MODEL_HPP
 #define PIXF_GRAPHICS_MODEL_HPP
 
-#include "Common.hpp"
 #include "Handle.hpp"
+#include "Common.hpp"
 
 namespace Pixf::Core::Graphics {
     struct PIXF_API ModelElement {

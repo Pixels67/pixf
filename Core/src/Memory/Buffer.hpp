@@ -39,6 +39,8 @@ namespace Pixf::Core::Memory {
         size_t GetSize() const;
         void *At(size_t offset) const;
 
+        void Clear();
+
     private:
         void *m_Data = nullptr;
         size_t m_Size = 0;

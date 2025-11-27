@@ -3,10 +3,10 @@
 
 #include <miniaudio.h>
 
-#include "Audio/SampleFormat.hpp"
 #include "Clip.hpp"
 #include "Common.hpp"
 #include "Error/Error.hpp"
+#include "SampleFormat.hpp"
 
 namespace Pixf::Core::Audio::Ma {
     class PIXF_API PlaybackDeviceError final : public Error::Error {
