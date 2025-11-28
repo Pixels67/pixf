@@ -4,13 +4,117 @@
 #include "Files/File.hpp"
 #include "Files/Image.hpp"
 #include "Files/Model.hpp"
+#include "Json/Json.hpp"
 
 namespace Pixf::Core::Files::Assets {
+    std::string ToString(const AssetType type) {
+        switch (type) {
+            case AssetType::None:
+                return "None";
+            case AssetType::Model:
+                return "Model";
+            case AssetType::Texture2D:
+                return "Texture2D";
+            case AssetType::Clip:
+                return "Clip";
+            default:
+                return "None";
+        }
+    }
+
+    AssetType FromString(const std::string &str) {
+        if (str == "None") {
+            return AssetType::None;
+        }
+
+        if (str == "Model") {
+            return AssetType::Model;
+        }
+
+        if (str == "Texture2D") {
+            return AssetType::Texture2D;
+        }
+
+        if (str == "Clip") {
+            return AssetType::Clip;
+        }
+
+        return AssetType::None;
+    }
+
     AssetManager::AssetManager(const std::string &assetsDirectory) : m_AssetsDirectory(assetsDirectory) {
         RegisterAssetPaths();
     }
 
-    ModelAssetHandle AssetManager::ImportModel(const std::string &filepath, Resources &resources) {
+    void AssetManager::ImportAll() {
+        for (auto path: GetFilesInDirectory(m_AssetsDirectory, true)) {
+            if (!GenerateMetaFile(path)) {
+                continue;
+            }
+
+            switch (auto [assetUuid, type] = GetAssetMetaData(path + ".meta"); type) {
+                case AssetType::Model:
+                    ImportModel(path);
+                    break;
+                case AssetType::Texture2D:
+                    ImportTexture2D(path, {});
+                    break;
+                case AssetType::Clip:
+                    ImportClip(path);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    void AssetManager::LoadAll(Resources &resources) {
+        for (auto [uuid, path]: m_AssetPaths) {
+            switch (auto [assetUuid, type] = GetAssetMetaData(path + ".meta"); type) {
+                case AssetType::Model:
+                    LoadModel({assetUuid}, resources);
+                    break;
+                case AssetType::Texture2D:
+                    LoadTexture2D({assetUuid}, resources);
+                    break;
+                case AssetType::Clip:
+                    LoadClip({assetUuid}, resources);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    ModelAssetHandle AssetManager::ImportModel(const std::string &filepath) {
+        GenerateMetaFile(filepath, AssetType::Model);
+        auto [uuid, type] = GetAssetMetaData(filepath + ".meta");
+        m_AssetPaths[uuid.Hash()] = filepath;
+
+        return {.uuid = uuid};
+    }
+
+    Texture2DAssetHandle AssetManager::ImportTexture2D(const std::string &filepath,
+                                                       Graphics::Gl::Texture2D::Config config) {
+        // TODO: Save config to metafile
+        GenerateMetaFile(filepath, AssetType::Texture2D);
+        auto [uuid, type] = GetAssetMetaData(filepath + ".meta");
+        m_AssetPaths[uuid.Hash()] = filepath;
+
+        return {.uuid = uuid};
+    }
+
+    ClipAssetHandle AssetManager::ImportClip(const std::string &filepath) {
+        GenerateMetaFile(filepath, AssetType::Clip);
+        auto [uuid, type] = GetAssetMetaData(filepath + ".meta");
+        m_AssetPaths[uuid.Hash()] = filepath;
+
+        return {.uuid = uuid};
+    }
+
+    Graphics::Model AssetManager::LoadModel(const ModelAssetHandle handle, Resources &resources) {
+        const std::string filepath = m_AssetPaths[handle.uuid.Hash()];
+
         std::vector<MeshData> meshes = LoadModelMeshes(filepath);
         std::vector<MaterialData> materials = LoadModelMaterials(filepath);
 
@@ -22,13 +126,13 @@ namespace Pixf::Core::Files::Assets {
             material.SetShader(resources.shaderStore.GetStandardShader());
 
             if (diffusePath) {
-                const auto diff = ImportTexture2D(diffusePath.value(), {}, resources);
-                material.SetDiffuseTexture(GetTexture2D(diff));
+                const auto diff = LoadTexture2D(ImportTexture2D(diffusePath.value(), {}), resources);
+                material.SetDiffuseTexture(diff);
             }
 
             if (specularPath) {
-                const auto spec = ImportTexture2D(specularPath.value(), {}, resources);
-                material.SetSpecularTexture(GetTexture2D(spec));
+                const auto spec = LoadTexture2D(ImportTexture2D(specularPath.value(), {}), resources);
+                material.SetSpecularTexture(spec);
             }
 
             material.SetDiffuse(diffuseColor);
@@ -43,82 +147,126 @@ namespace Pixf::Core::Files::Assets {
                     {resources.meshStore.Create(Graphics::Mesh(data)), outputMaterials[materialIndex]});
         }
 
-        const auto uuid = PathToUuid(filepath);
-        m_Models[uuid.Hash()] = model;
-        return {uuid};
+        if (const auto [uuid, type] = GetAssetMetaData(filepath + ".meta"); type != AssetType::Model) {
+            throw AssetError("Failed to import model: Mismatched asset types");
+        }
+
+        m_Models[handle.uuid.Hash()] = model;
+        return model;
     }
 
-    Texture2DAssetHandle AssetManager::ImportTexture2D(const std::string &filepath,
-                                             const Graphics::Gl::Texture2D::Config config,
-                                             Resources &resources) {
+    Graphics::Texture2DHandle AssetManager::LoadTexture2D(const Texture2DAssetHandle handle, Resources &resources) {
+        const std::string filepath = m_AssetPaths[handle.uuid.Hash()];
+
         const auto image = LoadImage(filepath);
-        const auto texture = resources.textureStore.Create(image, config);
+        const auto texture = resources.textureStore.Create(image, {});
 
-        const auto uuid = PathToUuid(filepath);
-        m_Textures[uuid.Hash()] = texture;
-        return {uuid};
+        if (const auto [uuid, type] = GetAssetMetaData(filepath + ".meta"); type != AssetType::Texture2D) {
+            throw AssetError("Failed to import texture: Mismatched asset types");
+        }
+
+        m_Textures[handle.uuid.Hash()] = texture;
+        return texture;
     }
 
-    ClipAssetHandle AssetManager::ImportClip(const std::string &filepath, Resources &resources) {
+    Audio::ClipHandle AssetManager::LoadClip(const ClipAssetHandle handle, Resources &resources) {
+        const std::string filepath = m_AssetPaths[handle.uuid.Hash()];
+
         auto &&audio = LoadAudioFile(filepath);
         const Audio::ClipHandle clip = resources.clipStore.Create(std::move(audio));
 
-        const auto uuid = PathToUuid(filepath);
-        m_Clips[uuid.Hash()] = clip;
-        return {uuid};
-    }
-
-    Graphics::Model AssetManager::GetModel(const ModelAssetHandle &model) {
-        if (!m_Models.contains(model.uuid.Hash())) {
-            throw AssetError("Invalid UUID used to retrieve model: " + model.uuid.ToString());
+        if (const auto [uuid, type] = GetAssetMetaData(filepath + ".meta"); type != AssetType::Clip) {
+            throw AssetError("Failed to import clip: Mismatched asset types");
         }
 
-        return m_Models[model.uuid.Hash()];
+        m_Clips[handle.uuid.Hash()] = clip;
+        return clip;
     }
-
-    Graphics::Texture2DHandle AssetManager::GetTexture2D(const Texture2DAssetHandle &texture) {
-        if (!m_Textures.contains(texture.uuid.Hash())) {
-            throw AssetError("Invalid UUID used to retrieve texture: " + texture.uuid.ToString());
+    Graphics::Model AssetManager::GetModel(const ModelAssetHandle handle) {
+        if (!m_Models.contains(handle.uuid.Hash())) {
+            throw AssetError("Invalid UUID used to retrieve model: " + handle.uuid.ToString());
         }
 
-        return m_Textures[texture.uuid.Hash()];
+        return m_Models[handle.uuid.Hash()];
     }
 
-    Audio::ClipHandle AssetManager::GetClip(const ClipAssetHandle &clip) {
-        if (!m_Clips.contains(clip.uuid.Hash())) {
-            throw AssetError("Invalid UUID used to retrieve clip: " + clip.uuid.ToString());
+    Graphics::Texture2DHandle AssetManager::GetTexture2D(const Texture2DAssetHandle handle) {
+        if (!m_Textures.contains(handle.uuid.Hash())) {
+            throw AssetError("Invalid UUID used to retrieve model: " + handle.uuid.ToString());
         }
 
-        return m_Clips[clip.uuid.Hash()];
+        return m_Textures[handle.uuid.Hash()];
     }
 
-    Uuid::Uuid AssetManager::PathToUuid(const std::string &filepath) {
-        if (!FileExists(filepath + ".meta")) {
-            GenerateMetaFile(filepath);
+    Audio::ClipHandle AssetManager::GetClip(ClipAssetHandle handle) {
+        if (!m_Clips.contains(handle.uuid.Hash())) {
+            throw AssetError("Invalid UUID used to retrieve model: " + handle.uuid.ToString());
         }
 
-        const Uuid::Uuid uuid = Uuid::Uuid::FromString(ReadFile(filepath + ".meta")).value();
-        return uuid;
+        return m_Clips[handle.uuid.Hash()];
     }
 
-    std::optional<std::string> AssetManager::UuidToPath(const Uuid::Uuid &uuid) const {
-        if (!m_AssetPaths.contains(uuid.Hash())) {
-            return std::nullopt;
-        }
+    bool AssetManager::IsModelFile(const std::string &filepath) {
+        const std::string extension = filepath.substr(filepath.find_last_of('.') + 1);
 
-        return m_AssetPaths.at(uuid.Hash());
+        return extension == "obj" || extension == "fbx" || extension == "gltf";
     }
 
-    void AssetManager::GenerateMetaFile(const std::string &filepath) {
+    bool AssetManager::IsImageFile(const std::string &filepath) {
+        const std::string extension = filepath.substr(filepath.find_last_of('.') + 1);
+
+        return extension == "png" || extension == "jpg" || extension == "bmp";
+    }
+
+    bool AssetManager::IsAudioFile(const std::string &filepath) {
+        const std::string extension = filepath.substr(filepath.find_last_of('.') + 1);
+
+        return extension == "wav" || extension == ".ogg" || extension == "mp3";
+    }
+
+    void AssetManager::GenerateMetaFile(const std::string &filepath, const AssetType assetType) {
         const Uuid::Uuid uuid = Uuid::Uuid::FromName(filepath, Uuid::Uuid::UrlNamespace());
-        WriteFile(filepath + ".meta", uuid.ToString());
-        RegisterAssetPaths();
+
+        Json::Json json;
+        json.Add("uuid", uuid.ToString());
+        json.Add("type", ToString(assetType));
+
+        WriteFile(filepath + ".meta", json.ToString());
+    }
+
+    bool AssetManager::GenerateMetaFile(const std::string &filepath) {
+        if (IsModelFile(filepath)) {
+            GenerateMetaFile(filepath, AssetType::Model);
+            return true;
+        }
+
+        if (IsImageFile(filepath)) {
+            GenerateMetaFile(filepath, AssetType::Texture2D);
+            return true;
+        }
+
+        if (IsAudioFile(filepath)) {
+            GenerateMetaFile(filepath, AssetType::Clip);
+            return true;
+        }
+
+        return false;
+    }
+
+    AssetMetaData AssetManager::GetAssetMetaData(const std::string &metafile) {
+        const Json::Json json = Json::Json::Parse(ReadFile(metafile));
+
+        const Uuid::Uuid uuid = Uuid::Uuid::FromString(json.Get<std::string>("uuid")).value();
+        const AssetType assetType = FromString(json.Get<std::string>("type"));
+
+        return {.uuid = uuid, .type = assetType};
     }
 
     void AssetManager::RegisterAssetPaths() {
         for (auto path: GetFilesInDirectory(m_AssetsDirectory, ".meta", true)) {
+            auto [uuid, type] = GetAssetMetaData(path);
             path.erase(path.find_last_of('.'));
-            m_AssetPaths[PathToUuid(path).Hash()] = path;
+            m_AssetPaths[uuid.Hash()] = path;
         }
     }
 } // namespace Pixf::Core::Files::Assets

@@ -49,7 +49,8 @@ public:
         const auto idx = context.worldManager.LoadWorld(blueprint, "world.json");
         context.worldManager.SetActive(idx);
 
-        context.assetManager.ImportModel("Assets/backpack.obj", context.resources);
+        context.assetManager.ImportAll();
+        context.assetManager.LoadAll(context.resources);
     }
 
     void Update(Application::Context &context, const double deltaTime) override {
@@ -104,13 +105,10 @@ public:
 class PlaySoundStage final : public Application::Stage {
 public:
     Ma::PlaybackDevice device = Ma::PlaybackDevice::Create({});
-    Ma::Clip clip{};
 
     void OnAttach(Application::Context &context) override {
-        const auto clipHandle = context.assetManager.ImportClip("Assets/sound.wav", context.resources);
-
         device.Start();
-        device.Play(context.resources.clipStore.Get(context.assetManager.GetClip(clipHandle)));
+        device.Play(context.resources.clipStore.Get({0, 0}));
     }
 };
 

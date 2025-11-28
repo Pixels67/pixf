@@ -9,23 +9,44 @@
 #include "Uuid/Uuid.hpp"
 
 namespace Pixf::Core::Files::Assets {
-    class AssetError final : public Error::Error {
+    class PIXF_API AssetError final : public Error::Error {
     public:
         using Error::Error;
+    };
+
+    enum class AssetType : uint8_t {
+        None = 0,
+        Model,
+        Texture2D,
+        Clip,
+    };
+
+    std::string ToString(AssetType type);
+    AssetType FromString(const std::string &str);
+
+    struct AssetMetaData {
+        Uuid::Uuid uuid;
+        AssetType type;
     };
 
     class PIXF_API AssetManager {
     public:
         explicit AssetManager(const std::string &assetsDirectory);
 
-        ModelAssetHandle ImportModel(const std::string &filepath, Resources &resources);
-        Texture2DAssetHandle
-        ImportTexture2D(const std::string &filepath, Graphics::Gl::Texture2D::Config config, Resources &resources);
-        ClipAssetHandle ImportClip(const std::string &filepath, Resources &resources);
+        void ImportAll();
+        void LoadAll(Resources &resources);
 
-        Graphics::Model GetModel(const ModelAssetHandle &model);
-        Graphics::Texture2DHandle GetTexture2D(const Texture2DAssetHandle &texture);
-        Audio::ClipHandle GetClip(const ClipAssetHandle &clip);
+        ModelAssetHandle ImportModel(const std::string &filepath);
+        Texture2DAssetHandle ImportTexture2D(const std::string &filepath, Graphics::Gl::Texture2D::Config config);
+        ClipAssetHandle ImportClip(const std::string &filepath);
+
+        Graphics::Model LoadModel(ModelAssetHandle handle, Resources &resources);
+        Graphics::Texture2DHandle LoadTexture2D(Texture2DAssetHandle handle, Resources &resources);
+        Audio::ClipHandle LoadClip(ClipAssetHandle handle, Resources &resources);
+
+        Graphics::Model GetModel(ModelAssetHandle handle);
+        Graphics::Texture2DHandle GetTexture2D(Texture2DAssetHandle handle);
+        Audio::ClipHandle GetClip(ClipAssetHandle handle);
 
     private:
         std::string m_AssetsDirectory;
@@ -35,10 +56,14 @@ namespace Pixf::Core::Files::Assets {
         std::unordered_map<uint64_t, Graphics::Texture2DHandle> m_Textures;
         std::unordered_map<uint64_t, Audio::ClipHandle> m_Clips;
 
-        Uuid::Uuid PathToUuid(const std::string &filepath);
-        std::optional<std::string> UuidToPath(const Uuid::Uuid &uuid) const;
+        static bool IsModelFile(const std::string &filepath);
+        static bool IsImageFile(const std::string &filepath);
+        static bool IsAudioFile(const std::string &filepath);
 
-        void GenerateMetaFile(const std::string &filepath);
+        static void GenerateMetaFile(const std::string &filepath, AssetType assetType);
+        static bool GenerateMetaFile(const std::string &filepath);
+        static AssetMetaData GetAssetMetaData(const std::string &metafile);
+
         void RegisterAssetPaths();
     };
 } // namespace Pixf::Core::Files::Assets
