@@ -12,10 +12,6 @@ You can either build the core library and use it like a library, or build it wit
 > This is just a hobby project and most of it is not finished yet.  
 > Expect a lot of features missing.
 
-## Renders  
-
-![Cubes](https://github.com/user-attachments/assets/b87134a2-5350-4332-94b8-3b8091e8d425)
-
 ## Building from Source
 
 Make sure you have a C++ compiler and CMake installed and run the following commands:
@@ -48,3 +44,10 @@ cmake --build build/ --config Debug
 > > ```sh
 > > sudo apt-get install libwayland-dev libxkbcommon-dev xorg-dev
 > > ```
+
+## Gallery  
+
+<img width="456" height="370" alt="Screen Shot 2025-10-08 at 8 15 32 PM" src="https://github.com/user-attachments/assets/eba021cb-140f-4fc7-bfe0-c34d9b9579d5" />
+<img width="456" height="370" alt="Screen Shot 2025-10-08 at 7 47 43 PM" src="https://github.com/user-attachments/assets/32d914e1-8d03-4e70-8554-4b87b32ec2e7" />
+<img width="456" height="370" alt="Screen Shot 2025-10-10 at 6 04 55 PM" src="https://github.com/user-attachments/assets/2c1495f9-2fe3-4db5-a07b-0b422982e3b7" />
+<img width="456" height="370" alt="Screen Shot 2025-10-10 at 7 48 44 PM" src="https://github.com/user-attachments/assets/6646af09-9db3-4616-9303-0feae00a8ed7" />
