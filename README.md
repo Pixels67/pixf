@@ -12,6 +12,10 @@ You can either build the core library and use it like a library, or build it wit
 > This is just a hobby project and most of it is not finished yet.  
 > Expect a lot of features missing.
 
+## Renders  
+
+![Cubes](https://github.com/user-attachments/assets/b87134a2-5350-4332-94b8-3b8091e8d425)
+
 ## Building from Source
 
 Make sure you have a C++ compiler and CMake installed and run the following commands:
