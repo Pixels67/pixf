@@ -1,19 +1,18 @@
 #ifndef PIXF_CLOCK_HPP
 #define PIXF_CLOCK_HPP
+#include "Timer.hpp"
 
 namespace Pixf::Core::Time {
     class Clock {
     public:
-        double GetTime() const;
-
-        void StartFrameTimer(double timeSeconds);
-        void EndFrameTimer(double timeSeconds);
+        void StartFrameTimer();
+        void EndFrameTimer();
 
         double GetDeltaTime() const;
 
     private:
         double m_CurrentTimeSeconds = 0.0;
-        double m_DeltaTimeSeconds = 0.0;
+        Timer m_FrameTimer{};
     };
 } // namespace Pixf::Core::Time
 

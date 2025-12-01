@@ -49,7 +49,7 @@ namespace Pixf::Core::Graphics::Gl {
 
     Shader::~Shader() { Clear(); }
 
-    void Shader::Bind() const {
+    void Shader::Bind() {
         PIXF_GL_CALL(glUseProgram(m_Id));
         for (auto &[name, unit] : m_TextureUniformMap) {
             SetUniform(name, GetDefaultTexture());
@@ -58,38 +58,62 @@ namespace Pixf::Core::Graphics::Gl {
 
     void Shader::Unbind() { PIXF_GL_CALL(glUseProgram(0)); }
 
-    void Shader::SetUniform(const std::string &name, const char value) const {
-        PIXF_GL_CALL(glUniform1i(glGetUniformLocation(m_Id, name.c_str()), value));
+    void Shader::SetUniform(const std::string &name, const char value) {
+        if (!m_UniformLocations.contains(name)) {
+            PIXF_GL_CALL(m_UniformLocations[name] = glGetUniformLocation(m_Id, name.c_str()));
+        }
+        
+        PIXF_GL_CALL(glUniform1i(m_UniformLocations[name], value));
     }
 
-    void Shader::SetUniform(const std::string &name, const int value) const {
-        PIXF_GL_CALL(glUniform1i(glGetUniformLocation(m_Id, name.c_str()), value));
+    void Shader::SetUniform(const std::string &name, const int value) {
+        if (!m_UniformLocations.contains(name)) {
+            PIXF_GL_CALL(m_UniformLocations[name] = glGetUniformLocation(m_Id, name.c_str()));
+        }
+        
+        PIXF_GL_CALL(glUniform1i(m_UniformLocations[name], value));
     }
 
-    void Shader::SetUniform(const std::string &name, const float value) const {
-        PIXF_GL_CALL(glUniform1f(glGetUniformLocation(m_Id, name.c_str()), value));
+    void Shader::SetUniform(const std::string &name, const float value) {
+        if (!m_UniformLocations.contains(name)) {
+            PIXF_GL_CALL(m_UniformLocations[name] = glGetUniformLocation(m_Id, name.c_str()));
+        }
+        
+        PIXF_GL_CALL(glUniform1f(m_UniformLocations[name], value));
     }
 
-    void Shader::SetUniform(const std::string &name, const Math::Vector2f &value) const {
-        PIXF_GL_CALL(glUniform2f(glGetUniformLocation(m_Id, name.c_str()), value.x, value.y));
+    void Shader::SetUniform(const std::string &name, const Math::Vector2f &value) {
+        if (!m_UniformLocations.contains(name)) {
+            PIXF_GL_CALL(m_UniformLocations[name] = glGetUniformLocation(m_Id, name.c_str()));
+        }
+        
+        PIXF_GL_CALL(glUniform2f(m_UniformLocations[name], value.x, value.y));
     }
 
-    void Shader::SetUniform(const std::string &name, const Math::Vector3f &value) const {
-        PIXF_GL_CALL(glUniform3f(glGetUniformLocation(m_Id, name.c_str()), value.x, value.y, value.z));
+    void Shader::SetUniform(const std::string &name, const Math::Vector3f &value) {
+        if (!m_UniformLocations.contains(name)) {
+            PIXF_GL_CALL(m_UniformLocations[name] = glGetUniformLocation(m_Id, name.c_str()));
+        }
+        
+        PIXF_GL_CALL(glUniform3f(m_UniformLocations[name], value.x, value.y, value.z));
     }
 
-    void Shader::SetUniform(const std::string &name, const Math::Vector4f &value) const {
-        PIXF_GL_CALL(glUniform4f(glGetUniformLocation(m_Id, name.c_str()), value.x, value.y, value.z, value.w));
+    void Shader::SetUniform(const std::string &name, const Math::Vector4f &value) {
+        if (!m_UniformLocations.contains(name)) {
+            PIXF_GL_CALL(m_UniformLocations[name] = glGetUniformLocation(m_Id, name.c_str()));
+        }
+        
+        PIXF_GL_CALL(glUniform4f(m_UniformLocations[name], value.x, value.y, value.z, value.w));
     }
 
-    void Shader::SetUniform(const std::string &name, const Math::Color3u8 value) const {
+    void Shader::SetUniform(const std::string &name, const Math::Color3u8 value) {
         const Math::Vector3f vec(static_cast<float>(value.r) / 255.0F,
                                  static_cast<float>(value.g) / 255.0F,
                                  static_cast<float>(value.b) / 255.0F);
         SetUniform(name, vec);
     }
 
-    void Shader::SetUniform(const std::string &name, const Math::Color4u8 value) const {
+    void Shader::SetUniform(const std::string &name, const Math::Color4u8 value) {
         const Math::Vector4f vec(static_cast<float>(value.r) / 255.0F,
                                  static_cast<float>(value.g) / 255.0F,
                                  static_cast<float>(value.b) / 255.0F,
@@ -97,11 +121,15 @@ namespace Pixf::Core::Graphics::Gl {
         SetUniform(name, vec);
     }
 
-    void Shader::SetUniform(const std::string &name, const Math::Matrix4f &value) const {
-        PIXF_GL_CALL(glUniformMatrix4fv(glGetUniformLocation(m_Id, name.c_str()), 1, GL_FALSE, value.Data()));
+    void Shader::SetUniform(const std::string &name, const Math::Matrix4f &value) {
+        if (!m_UniformLocations.contains(name)) {
+            PIXF_GL_CALL(m_UniformLocations[name] = glGetUniformLocation(m_Id, name.c_str()));
+        }
+
+        PIXF_GL_CALL(glUniformMatrix4fv(m_UniformLocations[name], 1, GL_FALSE, value.Data()));
     }
 
-    void Shader::SetUniform(const std::string &name, const Texture2D &value) const {
+    void Shader::SetUniform(const std::string &name, const Texture2D &value) {
         if (!m_TextureUniformMap.contains(name)) {
             return;
         }

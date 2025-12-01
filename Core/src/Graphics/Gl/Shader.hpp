@@ -28,19 +28,19 @@ namespace Pixf::Core::Graphics::Gl {
 
         ~Shader();
 
-        void Bind() const;
+        void Bind();
         static void Unbind();
 
-        void SetUniform(const std::string &name, char value) const;
-        void SetUniform(const std::string &name, int value) const;
-        void SetUniform(const std::string &name, float value) const;
-        void SetUniform(const std::string &name, const Math::Vector2f &value) const;
-        void SetUniform(const std::string &name, const Math::Vector3f &value) const;
-        void SetUniform(const std::string &name, const Math::Vector4f &value) const;
-        void SetUniform(const std::string &name, Math::Color3u8 value) const;
-        void SetUniform(const std::string &name, Math::Color4u8 value) const;
-        void SetUniform(const std::string &name, const Math::Matrix4f &value) const;
-        void SetUniform(const std::string & name, const Texture2D &value) const;
+        void SetUniform(const std::string &name, char value);
+        void SetUniform(const std::string &name, int value);
+        void SetUniform(const std::string &name, float value);
+        void SetUniform(const std::string &name, const Math::Vector2f &value);
+        void SetUniform(const std::string &name, const Math::Vector3f &value);
+        void SetUniform(const std::string &name, const Math::Vector4f &value);
+        void SetUniform(const std::string &name, Math::Color3u8 value);
+        void SetUniform(const std::string &name, Math::Color4u8 value);
+        void SetUniform(const std::string &name, const Math::Matrix4f &value);
+        void SetUniform(const std::string & name, const Texture2D &value);
 
         std::unordered_map<std::string, uint8_t> GetTextureUniformMap() const;
 
@@ -48,6 +48,7 @@ namespace Pixf::Core::Graphics::Gl {
 
     private:
         unsigned int m_Id = 0;
+        std::unordered_map<std::string, unsigned int> m_UniformLocations;
         std::unordered_map<std::string, uint8_t> m_TextureUniformMap;
 
         explicit Shader(unsigned int id);

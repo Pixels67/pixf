@@ -15,6 +15,8 @@ namespace Pixf::Core::Graphics::Gl {
     struct PIXF_API WindowConfig {
         std::string title;
         Math::Vector2u size = {800, 600};
+        unsigned int samplesPerPixel = 4;
+        bool vsync = true;
     };
 
     class PIXF_API WindowError final : public Error::Error {

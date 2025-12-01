@@ -209,7 +209,7 @@ namespace Pixf::Core::Files::Assets {
     bool AssetManager::IsModelFile(const std::string &filepath) {
         const std::string extension = filepath.substr(filepath.find_last_of('.') + 1);
 
-        return extension == "obj" || extension == "fbx" || extension == "gltf";
+        return extension == "obj" || extension == "fbx" || extension == "gltf" || extension == "ply";
     }
 
     bool AssetManager::IsImageFile(const std::string &filepath) {

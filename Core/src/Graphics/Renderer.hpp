@@ -23,7 +23,7 @@ namespace Pixf::Core::Graphics {
 
         static void ProcessPass(const RenderPass &pass);
         static void BindMaterial(const Material &material, Resources &resources);
-        static void SetLights(const Gl::Shader &shader, const LightingEnvironment &lights);
+        static void SetLights(Gl::Shader &shader, const LightingEnvironment &lights);
     };
 } // namespace Pixf::Core::Graphics
 

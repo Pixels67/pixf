@@ -7,6 +7,8 @@
 #include "Serial/Serial.hpp"
 
 namespace Pixf::Core::Math {
+    class Quaternion;
+
     template<typename T>
     struct Vector2 {
         T x, y;
@@ -24,6 +26,10 @@ namespace Pixf::Core::Math {
         static Vector2 Down() { return Vector2(0, -1); }
         static Vector2 Right() { return Vector2(1, 0); }
         static Vector2 Left() { return Vector2(-1, 0); }
+
+        Vector2 operator-() const {
+            return {-x, -y};
+        }
 
 #define EXPR(op) (x op o.x), (y op o.y)
         PIXF_MATH_BINARY_OPS(Vector2, Vector2, EXPR)
@@ -78,6 +84,10 @@ namespace Pixf::Core::Math {
         static Vector3 Forward() { return Vector3(0, 0, 1); }
         static Vector3 Back() { return Vector3(0, 0, -1); }
 
+        Vector3 operator-() const {
+            return {-x, -y, -z};
+        }
+
 #define EXPR(op) (x op o.x), (y op o.y), (z op o.z)
         PIXF_MATH_BINARY_OPS(Vector3, Vector3, EXPR)
 #define EXPR(op)                                                                                                       \
@@ -93,6 +103,8 @@ namespace Pixf::Core::Math {
     z op o
         PIXF_MATH_ASSIGN_OPS(Vector3, T, EXPR)
 #undef EXPR
+
+        Vector3 operator*(const Quaternion &quaternion) { return quaternion * *this; }
 
         double SqrMagnitude() const { return x * x + y * y + z * z; }
         double Magnitude() const { return sqrt(SqrMagnitude()); }
@@ -129,6 +141,10 @@ namespace Pixf::Core::Math {
 
         static Vector4 Zero() { return Vector4(0, 0, 0, 0); }
         static Vector4 One() { return Vector4(1, 1, 1, 1); }
+
+        Vector4 operator-() const {
+            return {-x, -y, -z, -w};
+        }
 
 #define EXPR(op) (x op o.x), (y op o.y), (z op o.z), (w op o.w)
         PIXF_MATH_BINARY_OPS(Vector4, Vector4, EXPR)
@@ -178,40 +194,18 @@ namespace Pixf::Core::Math {
     using Vector3d = Vector3<double>;
     using Vector4d = Vector4<double>;
 
-    PIXF_SERIALIZE(Vector2f,
-        PIXF_FIELD(x, Vector2f.x);
-        PIXF_FIELD(y, Vector2f.y);
-    )
+    PIXF_SERIALIZE(Vector2f, PIXF_FIELD(x, Vector2f.x); PIXF_FIELD(y, Vector2f.y);)
 
-    PIXF_SERIALIZE(Vector3f,
-        PIXF_FIELD(x, Vector3f.x);
-        PIXF_FIELD(y, Vector3f.y);
-        PIXF_FIELD(z, Vector3f.z);
-    )
+    PIXF_SERIALIZE(Vector3f, PIXF_FIELD(x, Vector3f.x); PIXF_FIELD(y, Vector3f.y); PIXF_FIELD(z, Vector3f.z);)
 
-    PIXF_SERIALIZE(Vector4f,
-        PIXF_FIELD(x, Vector4f.x);
-        PIXF_FIELD(y, Vector4f.y);
-        PIXF_FIELD(z, Vector4f.z);
-        PIXF_FIELD(w, Vector4f.w);
-    )
+    PIXF_SERIALIZE(Vector4f, PIXF_FIELD(x, Vector4f.x); PIXF_FIELD(y, Vector4f.y); PIXF_FIELD(z, Vector4f.z);
+                   PIXF_FIELD(w, Vector4f.w);)
 
-    PIXF_SERIALIZE(Vector2i,
-        PIXF_FIELD(x, Vector2i.x);
-        PIXF_FIELD(y, Vector2i.y);
-    )
+    PIXF_SERIALIZE(Vector2i, PIXF_FIELD(x, Vector2i.x); PIXF_FIELD(y, Vector2i.y);)
 
-    PIXF_SERIALIZE(Vector3i,
-        PIXF_FIELD(x, Vector3i.x);
-        PIXF_FIELD(y, Vector3i.y);
-        PIXF_FIELD(z, Vector3i.z);
-    )
+    PIXF_SERIALIZE(Vector3i, PIXF_FIELD(x, Vector3i.x); PIXF_FIELD(y, Vector3i.y); PIXF_FIELD(z, Vector3i.z);)
 
-    PIXF_SERIALIZE(Vector4i,
-        PIXF_FIELD(x, Vector4i.x);
-        PIXF_FIELD(y, Vector4i.y);
-        PIXF_FIELD(z, Vector4i.z);
-        PIXF_FIELD(w, Vector4i.w);
-    )
+    PIXF_SERIALIZE(Vector4i, PIXF_FIELD(x, Vector4i.x); PIXF_FIELD(y, Vector4i.y); PIXF_FIELD(z, Vector4i.z);
+                   PIXF_FIELD(w, Vector4i.w);)
 } // namespace Pixf::Core::Math
 #endif // PIXF_VECTOR_HPP

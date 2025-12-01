@@ -16,32 +16,48 @@ namespace Pixf::Core::Graphics {
         viewport.Apply();
         ProcessPass(m_CurrentPass.value());
 
+        static MeshHandle s_PreviousMesh;
+        static MaterialHandle s_PreviousMaterial;
+        static ShaderHandle s_PreviousShader;
+        static bool s_First = true;
+
+        ShaderHandle previousFrameShader;
+
         while (!m_RenderQueue.empty()) {
             const auto [meshHandle, matHandle, modelMatrix] = m_RenderQueue.front();
             m_RenderQueue.pop();
 
+            Mesh &mesh = resources.meshStore.Get(meshHandle);
             Material &material = resources.materialStore.Get(matHandle);
             Gl::Shader &shader = resources.shaderStore.Get(material.GetShader());
-            shader.Bind();
+
+            if (meshHandle.id != s_PreviousMesh.id || meshHandle.version != s_PreviousMesh.version || s_First) {
+                mesh.Bind();
+                s_PreviousMesh = meshHandle;
+            }
+
+            if (material.GetShader().id != s_PreviousShader.id ||
+                material.GetShader().version != s_PreviousShader.version || s_First) {
+                shader.Bind();
+
+                s_PreviousShader = material.GetShader();
+            }
+
+            if (matHandle.id != s_PreviousMaterial.id || matHandle.version != s_PreviousMaterial.version || s_First) {
+                if (m_LightEnv) {
+                    SetLights(shader, m_LightEnv.value());
+                }
+
+                BindMaterial(material, resources);
+                s_PreviousMaterial = matHandle;
+                s_First = false;
+            }
 
             shader.SetUniform("uModel", modelMatrix);
             shader.SetUniform("uView", m_CurrentPass->viewMatrix);
             shader.SetUniform("uProj", m_CurrentPass->projectionMatrix);
 
-            if (m_LightEnv) {
-                SetLights(shader, m_LightEnv.value());
-            }
-
-            resources.meshStore.Get(meshHandle).Bind();
-
-            BindMaterial(material, resources);
-
-            Mesh &mesh = resources.meshStore.Get(meshHandle);
             PIXF_GL_CALL(glDrawElements(GL_TRIANGLES, mesh.GetIndexCount(), GL_UNSIGNED_INT, nullptr));
-
-            Gl::Texture2D::Unbind(0);
-            Gl::Shader::Unbind();
-            Mesh::Unbind();
         }
     }
 
@@ -49,6 +65,9 @@ namespace Pixf::Core::Graphics {
         if (pass.depthTest) {
             PIXF_GL_CALL(glEnable(GL_DEPTH_TEST));
         }
+
+        PIXF_GL_CALL(glEnable(GL_MULTISAMPLE));
+        PIXF_GL_CALL(glEnable(GL_CULL_FACE));
 
         const Math::Color3u8 clearColor = pass.clearColor;
         PIXF_GL_CALL(glClearColor(clearColor.r / 255.0F, clearColor.g / 255.0F, clearColor.b / 255.0F, 1.0F));
@@ -109,7 +128,7 @@ namespace Pixf::Core::Graphics {
         }
     }
 
-    void Renderer::SetLights(const Gl::Shader &shader, const LightingEnvironment &lights) {
+    void Renderer::SetLights(Gl::Shader &shader, const LightingEnvironment &lights) {
         shader.SetUniform("uAmbientLight.color", lights.ambientLight.color);
         shader.SetUniform("uAmbientLight.intensity", lights.ambientLight.intensity);
 

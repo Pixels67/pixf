@@ -49,15 +49,22 @@ namespace Pixf::Core::Math {
         }
 
         Quaternion operator*(const Quaternion &o) const {
-            return Quaternion(w * o.x + x * o.w + y * o.z - z * o.y,
-                              w * o.y - x * o.z + y * o.w + z * o.x,
-                              w * o.z + x * o.y - y * o.x + z * o.w,
-                              w * o.w - x * o.x - y * o.y - z * o.z);
+            return Quaternion(w * o.x + x * o.w + y * o.z - z * o.y, // x
+                              w * o.y - x * o.z + y * o.w + z * o.x, // y
+                              w * o.z + x * o.y - y * o.x + z * o.w, // z
+                              w * o.w - x * o.x - y * o.y - z * o.z); // w
         }
 
         Quaternion &operator*=(const Quaternion &o) {
             *this = *this * o;
             return *this;
+        }
+
+        Vector3f operator*(const Vector3f &o) const {
+            Quaternion quat(o.x, o.y, o.z, 0);
+            Quaternion result = Normalized() * quat * Conjugate().Normalize();
+
+            return {result.x, result.y, result.z};
         }
 
         float SqrMagnitude() const { return x * x + y * y + z * z + w * w; }

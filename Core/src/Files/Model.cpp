@@ -7,13 +7,13 @@
 #include "Debug/Logger.hpp"
 #include "Image.hpp"
 
-static constexpr float s_ImportScale = 1.0F;
+static constexpr float s_ImportScale = 25.0F;
 
 namespace Pixf::Core::Files {
     std::vector<MeshData> LoadModelMeshes(const std::string &filepath) {
         Assimp::Importer importer;
-        unsigned int flags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_JoinIdenticalVertices |
-                             aiProcess_CalcTangentSpace | aiProcess_MakeLeftHanded;
+        unsigned int flags =
+                aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_MakeLeftHanded;
 
         if (const std::string extension = filepath.substr(filepath.find_last_of('.') + 1);
             extension == "obj" || extension == "fbx") {

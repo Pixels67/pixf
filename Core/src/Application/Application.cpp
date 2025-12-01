@@ -20,7 +20,7 @@ namespace Pixf::Core::Application {
         Awake();
 
         while (!m_Context.window.ShouldClose()) {
-            m_Context.clock.StartFrameTimer(glfwGetTime());
+            m_Context.clock.StartFrameTimer();
 
             Graphics::Gl::Window::PollEvents();
             Event::EventManager::ProcessEvents();
@@ -40,7 +40,7 @@ namespace Pixf::Core::Application {
 
             m_Context.window.SwapBuffers();
 
-            m_Context.clock.EndFrameTimer(glfwGetTime());
+            m_Context.clock.EndFrameTimer();
         }
     }
 

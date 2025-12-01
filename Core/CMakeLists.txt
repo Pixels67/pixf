@@ -53,6 +53,7 @@ CPMAddPackage(
         "ASSIMP_BUILD_FBX_IMPORTER ON"
         "ASSIMP_BUILD_GLTF_IMPORTER ON"
         "ASSIMP_BUILD_OBJ_IMPORTER ON"
+        "ASSIMP_BUILD_PLY_IMPORTER ON"
         "ASSIMP_BUILD_TESTS OFF"
 )
 
@@ -220,6 +221,10 @@ set(PROJECT_SOURCES
         src/Audio/Ma/ClipStore.cpp
         src/Audio/Ma/ClipStore.hpp
         src/Files/Assets/AssetHandle.hpp
+        src/Time/Timer.hpp
+        src/Time/Timer.cpp
+        src/Profile/Timer.hpp
+        src/Profile/Timer.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

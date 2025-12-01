@@ -25,7 +25,11 @@ namespace Pixf::Core::Entities::Components::Graphics {
         float near = 0.1F;
         float far = 1000.0F;
 
-        Math::Matrix4f GetViewMatrix() const { return transform.GetMatrix(); }
+        Math::Matrix4f GetViewMatrix() const {
+            auto rotInverse = Math::Matrix4f::Rotate(transform.rotation.Inverse());
+            const auto transInverse = Math::Matrix4f::Translate(-transform.position);
+            return rotInverse * transInverse;
+        }
 
         Math::Matrix4f GetProjMatrix() const {
             if (type == CameraType::Perspective) {

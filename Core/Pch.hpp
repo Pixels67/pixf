@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <any>
+#include <chrono>
 #include <cstdint>
 #include <cstring>
 #include <filesystem>

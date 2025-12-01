@@ -19,6 +19,7 @@ namespace Pixf::Core::Graphics::Gl {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, s_OpenGlVersionMajor);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, s_OpenGlVersionMinor);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_SAMPLES, config.samplesPerPixel);
 
 #ifdef __APPLE__
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -41,6 +42,7 @@ namespace Pixf::Core::Graphics::Gl {
         GLFWwindow *currentWindow = glfwGetCurrentContext();
 
         glfwMakeContextCurrent(window);
+        glfwSwapInterval(config.vsync);
 
         if (gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)) == 0) {
             if (s_WindowCount == 0) {
