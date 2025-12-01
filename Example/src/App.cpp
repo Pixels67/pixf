@@ -90,18 +90,11 @@ public:
         renderer.BeginPass({.viewMatrix = cam.GetViewMatrix(), .projectionMatrix = cam.GetProjMatrix()});
         renderer.AddLights({.ambientLight = registry.GetSingleton<AmbientLight>(), .pointLights = lights});
 
-        bool first = true;
         registry.ForEach<const ModelRenderer, const Transform>(
                 [&](const ModelRenderer &model, const Transform &transform) {
-                    if (!first) {
-                        //return;
-                    }
-
                     for (auto &[mesh, material]: context.assetManager.GetModel(model.assetHandle).elements) {
                         renderer.Submit({.mesh = mesh, .material = material, .modelMatrix = transform.GetMatrix()});
                     }
-
-                    first = false;
                 });
 
         renderer.Render(viewport, context.resources);
