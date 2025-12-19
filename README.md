@@ -6,11 +6,22 @@
 ---
 
 A C++ game framework/engine using OpenGL 3.3, currently only supports desktop.
-You can either build the core library and use it like a library, or build it with the Editor and Runtime (Note: both are WIP) and use it like an engine.
+You can either build the *Core* library and use it like a library, or build it with the *Editor* and *Runtime* and use it like an engine.
 
-> [!WARNING]  
+> [!IMPORTANT]  
 > This is just a hobby project and most of it is not finished yet.  
 > Expect a lot of features missing.
+
+## Features
+- [x] Phong Rendering
+- [ ] PBR
+- [x] ECS (using EnTT)
+- [ ] Audio
+- [x] Serialization
+- [x] Immediate mode GUI
+- [ ] Retained mode GUI
+- [x] Keyboard & Mouse Input
+- [ ] Editor 
 
 ## Building from Source
 
