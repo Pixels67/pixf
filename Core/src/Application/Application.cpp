@@ -17,9 +17,11 @@ namespace Pixf::Core::Application {
     }
 
     void Application::Run() {
+        m_IsRunning = true;
+
         Awake();
 
-        while (!m_Context.window.ShouldClose()) {
+        while (!m_Context.window.ShouldClose() && m_IsRunning) {
             m_Context.clock.StartFrameTimer();
 
             Graphics::Gl::Window::PollEvents();
@@ -42,6 +44,10 @@ namespace Pixf::Core::Application {
 
             m_Context.clock.EndFrameTimer();
         }
+    }
+
+    void Application::Terminate() {
+        m_IsRunning = false;
     }
 
     Context &Application::GetContext() { return m_Context; }

@@ -7,6 +7,7 @@
 #include "Common.hpp"
 #include "Math/Color.hpp"
 #include "Math/Vector.hpp"
+#include "Rect.hpp"
 
 namespace Pixf::Core::Gui {
     PIXF_API void Initialize();
@@ -15,7 +16,7 @@ namespace Pixf::Core::Gui {
     PIXF_API void BeginRenderGui(double deltaTime);
     PIXF_API void EndRenderGui();
 
-    PIXF_API void BeginWindow(const std::string &label);
+    PIXF_API void BeginWindow(const std::string &label, const Rect &rect);
     PIXF_API void EndWindow();
 
     PIXF_API void BeginChild(const std::string &label, Math::Vector2u size);

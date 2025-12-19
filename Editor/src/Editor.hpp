@@ -14,6 +14,9 @@ namespace Pixf::Editor {
         void RenderGui(Core::Application::Context &context, double deltaTime) override;
 
         void RenderOutline(Core::Application::Context &context);
+        void RenderInspector(Core::Application::Context &context);
+        void RenderFileBrowser(Core::Application::Context &context);
+        void RenderConsole(Core::Application::Context &context);
     };
 }
 

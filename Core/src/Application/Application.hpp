@@ -22,6 +22,7 @@ namespace Pixf::Core::Application {
         virtual ~Application() = default;
 
         void Run();
+        void Terminate();
 
         Context &GetContext();
 
@@ -51,6 +52,7 @@ namespace Pixf::Core::Application {
         Context m_Context;
         Pipeline m_Pipeline;
         ApplicationConfig m_Config;
+        bool m_IsRunning = false;
     };
 } // namespace Pixf::Core::Application
 

@@ -18,7 +18,7 @@ namespace Pixf::Core::Event {
         static void Clear();
 
         template<typename T>
-        static void Subscribe(EventCallback<T> callback) {
+        static void SubscribeTo(EventCallback<T> callback) {
             static_assert(std::is_base_of<Event, T>());
 
             const auto typeIndex = GetTypeId<T>();

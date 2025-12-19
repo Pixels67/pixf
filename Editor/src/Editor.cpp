@@ -78,13 +78,33 @@ namespace Pixf::Editor {
         renderer.Render(viewport, context.resources);
     }
 
-    void EditorGui::RenderGui(Application::Context &context, double deltaTime) { RenderOutline(context); }
+    void EditorGui::RenderGui(Application::Context &context, double deltaTime) {
+        RenderOutline(context);
+        RenderInspector(context);
+        RenderFileBrowser(context);
+        RenderConsole(context);
+    }
 
     void EditorGui::RenderOutline(Application::Context &context) {
-        Gui::BeginWindow("Outline");
-        if (Gui::Button("Button")) {
-            PIXF_CORE_LOG_DEBUG("Button pressed");
-        }
+        Gui::BeginWindow("Outline", {{0, 0}, {300, context.window.GetSize().y - 400}});
+
+        Gui::EndWindow();
+    }
+
+    void EditorGui::RenderInspector(Application::Context &context) {
+        Gui::BeginWindow("Inspector", {{context.window.GetSize().x - 300, 0}, {300, context.window.GetSize().y}});
+
+        Gui::EndWindow();
+    }
+
+    void EditorGui::RenderFileBrowser(Application::Context &context) {
+        Gui::BeginWindow("Files", {{0, context.window.GetSize().y - 400}, {300, 600}});
+
+        Gui::EndWindow();
+    }
+
+    void EditorGui::RenderConsole(Application::Context &context) {
+        Gui::BeginWindow("Console", {{300, context.window.GetSize().y - 300}, {context.window.GetSize().x - 600, 300}});
 
         Gui::EndWindow();
     }
@@ -116,6 +136,14 @@ namespace Pixf::Editor {
 
             AttachStage<EditorRender>();
             AttachStage<EditorGui>();
+
+            // Exit when ESC is pressed
+            // TEMP
+            Event::EventManager::SubscribeTo<Input::KeyEvent>([this](const Input::KeyEvent &event) {
+                if (event.key == Input::Key::Escape && event.action == Input::KeyAction::Press) {
+                    Terminate();
+                }
+            });
         }
 
         void Update(const double deltaTime) override {

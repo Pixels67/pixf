@@ -268,24 +268,24 @@ namespace Pixf::Core::Gui {
         ImGuiIO &io = ImGui::GetIO();
         io.IniFilename = nullptr;
 
-        Event::EventManager::Subscribe<Graphics::Gl::WindowSizeChangedEvent>(
+        Event::EventManager::SubscribeTo<Graphics::Gl::WindowSizeChangedEvent>(
                 [&](const Graphics::Gl::WindowSizeChangedEvent &event) {
                     io.DisplaySize.x = event.newSize.x;
                     io.DisplaySize.y = event.newSize.y;
                 });
 
-        Event::EventManager::Subscribe<Input::KeyEvent>([&](const Input::KeyEvent &event) {
+        Event::EventManager::SubscribeTo<Input::KeyEvent>([&](const Input::KeyEvent &event) {
             io.AddKeyEvent(ToImGuiKey(event.key), event.action == Input::KeyAction::Press);
         });
 
-        Event::EventManager::Subscribe<Input::MouseKeyEvent>([&](const Input::MouseKeyEvent &event) {
+        Event::EventManager::SubscribeTo<Input::MouseKeyEvent>([&](const Input::MouseKeyEvent &event) {
             io.AddMouseButtonEvent(ToImGuiMouseKey(event.key), event.action == Input::KeyAction::Press);
         });
 
-        Event::EventManager::Subscribe<Input::MouseMovedEvent>(
+        Event::EventManager::SubscribeTo<Input::MouseMovedEvent>(
                 [&](const Input::MouseMovedEvent &event) { io.AddMousePosEvent(event.position.x, event.position.y); });
 
-        Event::EventManager::Subscribe<Input::CharacterEvent>(
+        Event::EventManager::SubscribeTo<Input::CharacterEvent>(
                 [&](const Input::CharacterEvent &event) { io.AddInputCharacter(event.codepoint); });
 
         ImGui_ImplOpenGL3_Init("#version 330");
@@ -309,7 +309,9 @@ namespace Pixf::Core::Gui {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
-    void BeginWindow(const std::string &label) {
+    void BeginWindow(const std::string &label, const Rect &rect) {
+        ImGui::SetNextWindowPos({static_cast<float>(rect.origin.x), static_cast<float>(rect.origin.y)});
+        ImGui::SetNextWindowSize({static_cast<float>(rect.aspect.x), static_cast<float>(rect.aspect.y)});
         ImGui::Begin(label.c_str());
     }
 

@@ -225,6 +225,7 @@ set(PROJECT_SOURCES
         src/Time/Timer.cpp
         src/Profile/Timer.hpp
         src/Profile/Timer.cpp
+        src/Gui/Rect.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

@@ -8,15 +8,15 @@ namespace Pixf::Core::Input {
     using namespace Graphics;
 
     void InputManager::Initialize() {
-        Event::EventManager::Subscribe<Gl::KeyEvent>([](const Gl::KeyEvent &keyEvent) { HandleKeyEvent(keyEvent); });
+        Event::EventManager::SubscribeTo<Gl::KeyEvent>([](const Gl::KeyEvent &keyEvent) { HandleKeyEvent(keyEvent); });
 
-        Event::EventManager::Subscribe<Gl::MouseKeyEvent>(
+        Event::EventManager::SubscribeTo<Gl::MouseKeyEvent>(
                 [](const Gl::MouseKeyEvent &mouseKeyEvent) { HandleMouseKeyEvent(mouseKeyEvent); });
 
-        Event::EventManager::Subscribe<Gl::MouseMovedEvent>(
+        Event::EventManager::SubscribeTo<Gl::MouseMovedEvent>(
                 [](const Gl::MouseMovedEvent &mouseMovedEvent) { HandleMouseMovedEvent(mouseMovedEvent); });
 
-        Event::EventManager::Subscribe<Gl::CharEvent>(
+        Event::EventManager::SubscribeTo<Gl::CharEvent>(
                 [](const Gl::CharEvent &charEvent) { HandleCharEvent(charEvent); });
     }
 

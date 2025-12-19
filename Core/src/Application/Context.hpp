@@ -16,7 +16,7 @@ namespace Pixf::Core::Application {
         Graphics::Renderer renderer{};
         Files::Assets::AssetManager assetManager{"./Assets/"};
         Time::Clock clock{};
-        Entities::WorldManager worldManager{};
+        Entities::WorldManager worldManager;
     };
 } // namespace Pixf::Core::Application
 
