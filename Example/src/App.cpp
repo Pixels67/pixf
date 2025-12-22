@@ -104,7 +104,7 @@ public:
 class RenderGuiStage final : public Application::Stage {
 public:
     void RenderGui(Application::Context &context, double deltaTime) override {
-        Gui::BeginWindow("Window");
+        Gui::BeginWindow("Window", {{0, 0}, {400, 500}});
         Gui::BeginChild("Timmy", {300, 400});
         Gui::ColoredText({255, 0, 255, 255}, "Test: {}, {}", 5.76, true);
         if (Gui::Button("Button")) {
