@@ -88,6 +88,10 @@ namespace Pixf::Editor {
     void EditorGui::RenderOutline(Application::Context &context) {
         Gui::BeginWindow("Outline", {{0, 0}, {300, context.window.GetSize().y - 400}});
 
+        for (const auto &[entity, name] : context.worldManager.GetActiveWorld().registry.GetEntityNames()) {
+            Gui::Text("{}", name);
+        }
+
         Gui::EndWindow();
     }
 
@@ -142,6 +146,14 @@ namespace Pixf::Editor {
             Event::EventManager::SubscribeTo<Input::KeyEvent>([this](const Input::KeyEvent &event) {
                 if (event.key == Input::Key::Escape && event.action == Input::KeyAction::Press) {
                     Terminate();
+                }
+            });
+
+            // Save when K is pressed
+            // TEMP
+            Event::EventManager::SubscribeTo<Input::KeyEvent>([&](const Input::KeyEvent &event) {
+                if (event.key == Input::Key::K && event.action == Input::KeyAction::Press) {
+                    GetContext().worldManager.SaveWorld(0, "world.json");
                 }
             });
         }

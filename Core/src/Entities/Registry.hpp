@@ -10,14 +10,24 @@
 namespace Pixf::Core::Entities {
     using Entity = entt::entity;
 
+    uint32_t GetEntityId(Entity entity);
+    uint32_t GetEntityVersion(Entity entity);
+
     class PIXF_API Registry {
     public:
-        Entity CreateEntity();
-        void DestroyEntity(Entity);
+        Entity CreateEntity(const std::string &name = "Entity");
+        void DestroyEntity(Entity entity);
+
+        std::string GetEntityName(Entity entity);
+        std::vector<std::pair<Entity, std::string>> GetEntityNames();
+        void SetEntityName(Entity entity, const std::string &name);
+        void SetEntityName(uint32_t entityId, const std::string &name);
 
         template<typename Archive, typename T>
         void Register(const std::string &name) {
-            PIXF_CORE_LOG_DEBUG("Registering component {} with archive {}", entt::type_hash<T>::value(), GetTypeId<Archive>());
+            PIXF_CORE_LOG_DEBUG("Registering component {} with archive {}",
+                                entt::type_hash<T>::value(),
+                                GetTypeId<Archive>());
             m_SerializeFns[GetTypeId<Archive>()][entt::type_hash<T>::value()] = [name](void *archivePtr,
                                                                                        void *self) -> bool {
                 auto &archive = *static_cast<Archive *>(archivePtr);
@@ -31,8 +41,16 @@ namespace Pixf::Core::Entities {
 
         template<typename Archive>
         void SerializeEntity(Archive &archive, Entity &entity) {
-            std::uint32_t uint = static_cast<std::uint32_t>(entity);
+            // Entity ID
+            std::uint32_t uint = GetEntityId(entity);
             archive("id", uint);
+
+            // Entity name
+            std::string name = GetEntityName(entity);
+            archive("name", name);
+            SetEntityName(uint, name);
+
+            // Add entities until the entity ID is valid
             // This is bad, but it hopefully shouldn't matter too much
             while (!m_Registry.valid(static_cast<entt::basic_registry<>::entity_type>(uint))) {
                 m_Registry.create();
@@ -141,6 +159,7 @@ namespace Pixf::Core::Entities {
     private:
         entt::registry m_Registry;
         std::map<TypeId, std::map<entt::id_type, std::function<bool(void *, void *)>>> m_SerializeFns;
+        std::vector<std::string> m_EntityNames;
     };
 
     template<typename Archive>
