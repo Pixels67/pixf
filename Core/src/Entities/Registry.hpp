@@ -10,8 +10,8 @@
 namespace Pixf::Core::Entities {
     using Entity = entt::entity;
 
-    uint32_t GetEntityId(Entity entity);
-    uint32_t GetEntityVersion(Entity entity);
+    PIXF_API uint32_t GetEntityId(Entity entity);
+    PIXF_API uint32_t GetEntityVersion(Entity entity);
 
     class PIXF_API Registry {
     public:
@@ -175,6 +175,7 @@ namespace Pixf::Core::Entities {
 
 #define PIXF_REGISTER_COMP(Component, Registry)                                                                        \
     Registry.Register<Pixf::Core::Serial::JsonOutputArchive, Component>(#Component);                                   \
-    Registry.Register<Pixf::Core::Serial::JsonInputArchive, Component>(#Component)
+    Registry.Register<Pixf::Core::Serial::JsonInputArchive, Component>(#Component);                                    \
+    Registry.Register<Pixf::Core::Serial::GuiRenderArchive, Component>(#Component)
 
 #endif // PIXF_REGISTRY_HPP

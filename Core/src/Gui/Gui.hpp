@@ -35,6 +35,12 @@ namespace Pixf::Core::Gui {
         ImGui::TextColored(ImVec4(colorVec.x, colorVec.y, colorVec.z, colorVec.w), formatted.c_str());
     }
 
+    template<typename... Args>
+    bool SelectableText(const std::string &format, const bool selected, const Args &...args) {
+        const std::string formatted = fmt::format(fmt::runtime(format), args...);
+        return ImGui::Selectable(formatted.c_str(), selected);
+    }
+
     PIXF_API bool Button(const std::string &label);
     PIXF_API bool Checkbox(const std::string &label, bool *enabled = nullptr);
 

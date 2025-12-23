@@ -13,10 +13,13 @@ namespace Pixf::Editor {
     public:
         void RenderGui(Core::Application::Context &context, double deltaTime) override;
 
-        void RenderOutline(Core::Application::Context &context);
-        void RenderInspector(Core::Application::Context &context);
+        void RenderOutliner(Core::Application::Context &context);
+        void RenderInspector(Core::Application::Context &context) const;
         void RenderFileBrowser(Core::Application::Context &context);
         void RenderConsole(Core::Application::Context &context);
+
+    private:
+        std::optional<Core::Entities::Entity> m_SelectedEntity = std::nullopt;
     };
 }
 

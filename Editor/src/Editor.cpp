@@ -2,6 +2,7 @@
 #include "Entities/Components/Graphics/Camera.hpp"
 #include "Input/InputManager.hpp"
 #include "Pixf.hpp"
+#include "Serial/GuiRenderArchive.hpp"
 
 using namespace Pixf::Core;
 using namespace Pixf::Core::Math;
@@ -15,6 +16,10 @@ using namespace Pixf::Core::Entities::Components::Graphics;
 namespace Pixf::Editor {
     struct InputSystem final : System {
         void Update(Registry &registry, const double deltaTime) override {
+            if (!Input::InputManager::IsMouseKeyDown(Input::MouseKey::Mouse2)) {
+                return;
+            }
+
             if (Input::InputManager::IsKeyDown(Input::Key::W)) {
                 auto &trans = registry.GetSingleton<Camera>().transform;
                 trans.Translate(Vector3f::Forward() * 10.0F * deltaTime * trans.rotation);
@@ -79,24 +84,48 @@ namespace Pixf::Editor {
     }
 
     void EditorGui::RenderGui(Application::Context &context, double deltaTime) {
-        RenderOutline(context);
+        RenderOutliner(context);
         RenderInspector(context);
         RenderFileBrowser(context);
         RenderConsole(context);
     }
 
-    void EditorGui::RenderOutline(Application::Context &context) {
-        Gui::BeginWindow("Outline", {{0, 0}, {300, context.window.GetSize().y - 400}});
+    void EditorGui::RenderOutliner(Application::Context &context) {
+        Gui::BeginWindow("Outliner", {{0, 0}, {300, context.window.GetSize().y - 400}});
 
         for (const auto &[entity, name] : context.worldManager.GetActiveWorld().registry.GetEntityNames()) {
-            Gui::Text("{}", name);
+            bool selected = false;
+            if (m_SelectedEntity) {
+                selected = entity == m_SelectedEntity;
+            }
+
+            if (Gui::SelectableText("{}##{}", selected, name, GetEntityId(entity))) {
+                m_SelectedEntity = entity;
+            }
         }
 
         Gui::EndWindow();
     }
 
-    void EditorGui::RenderInspector(Application::Context &context) {
+    void EditorGui::RenderInspector(Application::Context &context) const {
         Gui::BeginWindow("Inspector", {{context.window.GetSize().x - 300, 0}, {300, context.window.GetSize().y}});
+
+        auto &registry = context.worldManager.GetActiveWorld().registry;
+
+        if (!m_SelectedEntity.has_value()) {
+            Gui::EndWindow();
+            return;
+        }
+
+        const std::string str = registry.GetEntityName(m_SelectedEntity.value());
+        if (std::string buf = str; Gui::InputText("Name", buf)) {
+            registry.SetEntityName(m_SelectedEntity.value(), buf);
+        }
+
+        Serial::GuiRenderArchive archive;
+
+        Entity e = m_SelectedEntity.value();
+        registry.SerializeEntityComponents(archive, e);
 
         Gui::EndWindow();
     }

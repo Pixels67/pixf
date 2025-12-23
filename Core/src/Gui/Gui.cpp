@@ -337,6 +337,10 @@ namespace Pixf::Core::Gui {
 
     bool InputText(const std::string &label, std::string &outputString, const unsigned int maxCharCount) {
         std::vector<char> buffer(maxCharCount);
+        for (size_t i = 0; i < std::min(maxCharCount, static_cast<unsigned>(outputString.size())); i++) {
+            buffer[i] = outputString[i];
+        }
+
         const bool result = ImGui::InputText(label.c_str(), buffer.data(), buffer.size());
         if (result) {
             outputString = buffer.data();
