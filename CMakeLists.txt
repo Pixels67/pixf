@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.5)
-project(Pixf)
+cmake_minimum_required(VERSION 3.0...4.0)
+project(Flock)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -41,5 +41,4 @@ include(cmake/CPM.cmake)
 enable_testing()
 
 add_subdirectory(Core)
-add_subdirectory(Runtime)
-add_subdirectory(Editor)
+add_subdirectory(Sandbox)
