@@ -30,8 +30,10 @@ set(PROJECT_SOURCES
         Pch.hpp
         include/Flock.hpp
         src/Flock.cpp
+        src/Entities/Storage.hpp
         src/Common.hpp
         src/Debug/Log.hpp
+        src/Entities/Entity.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
