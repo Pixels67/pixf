@@ -37,6 +37,12 @@ do {                                                                            
     }                                                                                                                  \
 } while (false)
 
+#ifdef _WIN32
+
+using ssize_t = unsigned int;
+
+#endif
+
 using usize = size_t;
 using isize = ssize_t;
 using u8    = uint8_t;

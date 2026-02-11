@@ -29,7 +29,6 @@ CPMAddPackage(
 set(PROJECT_SOURCES
         Pch.hpp
         include/Flock.hpp
-        src/Flock.cpp
         src/Ecs/Storage.hpp
         src/Common.hpp
         src/Debug/Log.hpp
@@ -38,6 +37,8 @@ set(PROJECT_SOURCES
         src/Ecs/Registry.hpp
         src/TypeId.hpp
         src/TypeId.cpp
+        src/Ecs/Schedule.cpp
+        src/Ecs/Schedule.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

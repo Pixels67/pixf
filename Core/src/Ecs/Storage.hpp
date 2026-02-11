@@ -9,9 +9,9 @@ namespace Flock::Ecs {
     public:
         virtual ~IStorage() = default;
 
-        virtual bool Has(EntityId id) const = 0;
-        virtual bool Remove(EntityId id) = 0;
-        virtual void Clear() = 0;
+        [[nodiscard]] virtual bool Has(EntityId id) const = 0;
+        virtual bool               Remove(EntityId id) = 0;
+        virtual void               Clear() = 0;
     };
 
     /**
@@ -21,6 +21,10 @@ namespace Flock::Ecs {
      */
     template<typename T>
     class Storage : public IStorage {
+        std::vector<usize>    m_Sparse;
+        std::vector<EntityId> m_Dense;
+        std::vector<T>        m_Data;
+
     public:
         /**
          * @brief Inserts component data at a specified entity ID.
@@ -83,7 +87,7 @@ namespace Flock::Ecs {
          * @param id The entity ID.
          * @return true if there is data at id; false otherwise.
          */
-        bool Has(const EntityId id) const override {
+        [[nodiscard]] bool Has(const EntityId id) const override {
             return id < m_Sparse.size() && m_Sparse[id] != ~0u;
         }
 
@@ -101,6 +105,14 @@ namespace Flock::Ecs {
         }
 
         /**
+         * @brief Retrieves a reference to all the values inside the storage.
+         * @return The storage data.
+         */
+        std::vector<T> &GetData() {
+            return m_Data;
+        }
+
+        /**
          * @brief Clears the storage.
          */
         void Clear() override {
@@ -108,11 +120,6 @@ namespace Flock::Ecs {
             m_Dense.clear();
             m_Data.clear();
         }
-
-    private:
-        std::vector<usize>    m_Sparse;
-        std::vector<EntityId> m_Dense;
-        std::vector<T>        m_Data;
     };
 }
 

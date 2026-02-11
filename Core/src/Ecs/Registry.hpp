@@ -17,9 +17,13 @@ namespace Flock::Ecs {
      * @brief ECS registry.
      */
     class FLK_API Registry {
+        std::vector<EntityData>                                m_EntityData;
+        std::vector<EntityId>                                  m_DeadEntities;
+        std::unordered_map<TypeId, std::unique_ptr<IStorage> > m_Storages;
+
     public:
         /**
-         * Creates an entity and returns a handle to it.
+         * @brief Creates an entity and returns a handle to it.
          * @return A newly created entity.
          */
         Entity Create();
@@ -29,7 +33,7 @@ namespace Flock::Ecs {
          * @param id The entity's ID.
          * @return A handle to the entity if found; std::nullopt otherwise.
          */
-        std::optional<Entity> Get(EntityId id) const;
+        [[nodiscard]] std::optional<Entity> Get(EntityId id) const;
 
         /**
          * @brief Destroys an entity if it's alive and valid.
@@ -43,14 +47,14 @@ namespace Flock::Ecs {
          * @param entity A handle to the entity.
          * @return true if it's valid; false otherwise.
          */
-        bool IsValid(Entity entity) const;
+        [[nodiscard]] bool IsValid(Entity entity) const;
 
         /**
          * @brief Whether an entity is alive or dead.
          * @param entity A handle to the entity.
          * @return true if it's alive; false otherwise.
          */
-        bool IsAlive(Entity entity) const;
+        [[nodiscard]] bool IsAlive(Entity entity) const;
 
         /**
          * @brief Registers a component type to the registry.
@@ -81,7 +85,7 @@ namespace Flock::Ecs {
          * @return true if the component type is registered; false otherwise.
          */
         template<typename T>
-        bool IsComponentRegistered() const {
+        [[nodiscard]] bool IsComponentRegistered() const {
             return m_Storages.contains(GetTypeId<T>());
         }
 
@@ -94,6 +98,28 @@ namespace Flock::Ecs {
         template<typename T>
         bool HasComponent(Entity entity) {
             return IsComponentRegistered<T>() && GetStorage<T>().value().get().Has(entity.id);
+        }
+
+        /**
+         * @brief Whether an entity has all the specified components or not.
+         * @tparam Args The component types.
+         * @param entity A handle to the entity.
+         * @return true if the entity has all the components; false otherwise.
+         */
+        template<typename... Args>
+        bool HasAllComponents(Entity entity) {
+            return ((IsComponentRegistered<Args>() && GetStorage<Args>().value().get().Has(entity.id)) && ...);
+        }
+
+        /**
+         * @brief Whether an entity has any of the specified components or not.
+         * @tparam Args The component types.
+         * @param entity A handle to the entity.
+         * @return true if the entity has any of the components; false otherwise.
+         */
+        template<typename... Args>
+        bool HasAnyComponents(Entity entity) {
+            return ((IsComponentRegistered<Args>() && GetStorage<Args>().value().get().Has(entity.id)) || ...);
         }
 
         /**
@@ -163,10 +189,49 @@ namespace Flock::Ecs {
          */
         void ClearComponents(Entity entity);
 
-    private:
-        std::vector<EntityData>                                m_EntityData;
-        std::vector<EntityId>                                  m_DeadEntities;
-        std::unordered_map<TypeId, std::unique_ptr<IStorage> > m_Storages;
+        /**
+         * @brief Invokes a callback for each entity with its components.
+         * @tparam Args The component types.
+         * @tparam F The callback type.
+         * @param callback The callback to execute.
+         */
+        template<typename... Args, typename F>
+        void ForEach(F &&callback) {
+            for (EntityId id = 0; id < m_EntityData.size(); id++) {
+                if (!Get(id)) {
+                    continue;
+                }
+
+                Entity entity = Get(id).value();
+                if (!HasAllComponents<Args...>(entity)) {
+                    continue;
+                }
+
+                callback(GetComponent<Args>(entity)->get()...);
+            }
+        }
+
+        /**
+         * @brief Invokes a callback for each entity with the entity and its components.
+         * @tparam Args The component types.
+         * @tparam F The callback type.
+         * @param callback The callback to execute.
+         */
+        template<typename... Args, typename F>
+        void ForEachEntity(F &&callback) {
+            for (EntityId id = 0; id < m_EntityData.size(); id++) {
+                if (!Get(id)) {
+                    continue;
+                }
+
+                Entity entity = Get(id).value();
+                if (!HasAllComponents<Args...>(entity)) {
+                    continue;
+                }
+
+                callback(entity, GetComponent<Args>(entity)->get()...);
+            }
+        }
     };
 }
 
