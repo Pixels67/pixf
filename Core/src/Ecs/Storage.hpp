@@ -4,14 +4,23 @@
 #include "Common.hpp"
 #include "Entity.hpp"
 
-namespace Flock::Entities {
+namespace Flock::Ecs {
+    class IStorage {
+    public:
+        virtual ~IStorage() = default;
+
+        virtual bool Has(EntityId id) const = 0;
+        virtual bool Remove(EntityId id) = 0;
+        virtual void Clear() = 0;
+    };
+
     /**
      * @class Storage
      * @brief An ECS component storage.
      * @tparam T The type to store.
      */
     template<typename T>
-    class Storage {
+    class Storage : public IStorage {
     public:
         /**
          * @brief Inserts component data at a specified entity ID.
@@ -38,7 +47,7 @@ namespace Flock::Entities {
          * @param id The entity ID.
          * @return true if successful; false otherwise.
          */
-        bool Remove(const EntityId id) {
+        bool Remove(const EntityId id) override {
             if (id >= m_Sparse.size()) {
                 return false;
             }
@@ -74,7 +83,7 @@ namespace Flock::Entities {
          * @param id The entity ID.
          * @return true if there is data at id; false otherwise.
          */
-        bool Has(const EntityId id) const {
+        bool Has(const EntityId id) const override {
             return id < m_Sparse.size() && m_Sparse[id] != ~0u;
         }
 
@@ -94,7 +103,7 @@ namespace Flock::Entities {
         /**
          * @brief Clears the storage.
          */
-        void Clear() {
+        void Clear() override {
             m_Sparse.clear();
             m_Dense.clear();
             m_Data.clear();

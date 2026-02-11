@@ -2,6 +2,6 @@
 #define FLK_FLOCK_HPP
 
 #include "Debug/Log.hpp"
-#include "Entities/Storage.hpp"
+#include "Ecs/Storage.hpp"
 
 #endif //FLK_FLOCK_HPP

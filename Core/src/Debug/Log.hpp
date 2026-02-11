@@ -4,7 +4,6 @@
 #include <SLog.hpp>
 
 namespace Flock::Debug {
-    // I know this feels wrong but it's intended
     using namespace SLog;
 
     /**

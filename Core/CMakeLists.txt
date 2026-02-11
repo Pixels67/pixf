@@ -30,10 +30,14 @@ set(PROJECT_SOURCES
         Pch.hpp
         include/Flock.hpp
         src/Flock.cpp
-        src/Entities/Storage.hpp
+        src/Ecs/Storage.hpp
         src/Common.hpp
         src/Debug/Log.hpp
-        src/Entities/Entity.hpp
+        src/Ecs/Entity.hpp
+        src/Ecs/Registry.cpp
+        src/Ecs/Registry.hpp
+        src/TypeId.hpp
+        src/TypeId.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
@@ -49,7 +53,25 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         SLog
 )
 
-# OS libs
+################## Tests ##################
+
+CPMAddPackage("https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip")
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+add_executable(${PROJECT_NAME}Tests
+        tests/Ecs.cpp
+)
+
+target_link_libraries(${PROJECT_NAME}Tests
+        GTest::gtest_main
+        ${PROJECT_NAME}
+)
+
+include(GoogleTest)
+gtest_discover_tests(${PROJECT_NAME}Tests)
+
+################## OS Libs ##################
+
 if (APPLE)
     find_library(COCOA_LIBRARY Cocoa REQUIRED)
     find_library(IOKIT_LIBRARY IOKit REQUIRED)
