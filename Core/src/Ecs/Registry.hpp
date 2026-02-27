@@ -22,6 +22,15 @@ namespace Flock::Ecs {
         std::unordered_map<TypeId, std::unique_ptr<IStorage> > m_Storages;
 
     public:
+        Registry()  = default;
+        ~Registry() = default;
+
+        Registry(const Registry &other)     = delete;
+        Registry(Registry &&other) noexcept = default;
+
+        Registry &operator=(const Registry &other)     = delete;
+        Registry &operator=(Registry &&other) noexcept = default;
+
         /**
          * @brief Creates an entity and returns a handle to it.
          * @return A newly created entity.
