@@ -6,25 +6,31 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(OpenGL REQUIRED)
 
+set(GLFW_BUILD_DOCS OFF)
+set(GLFW_BUILD_TESTS OFF)
+set(GLFW_BUILD_EXAMPLES OFF)
 CPMAddPackage(
-        URI "gh:glfw/glfw#3.4"
-        OPTIONS
-        "GLFW_BUILD_DOCS OFF"
-        "GLFW_BUILD_TESTS OFF"
-        "GLFW_BUILD_EXAMPLES OFF"
+        NAME glfw
+        GITHUB_REPOSITORY glfw/glfw
+        GIT_TAG 3.4
+        GIT_SHALLOW TRUE
 )
 
 CPMAddPackage(
         NAME glad
         GITHUB_REPOSITORY Pixels67/glad
         GIT_TAG master
+        GIT_SHALLOW TRUE
 )
 
 CPMAddPackage(
         NAME SLog
         GITHUB_REPOSITORY Pixels67/SLog
         GIT_TAG master
+        GIT_SHALLOW TRUE
 )
+
+add_library(stbi STATIC vendor/stbi.h vendor/stbi.c)
 
 set(PROJECT_SOURCES
         Pch.hpp
@@ -39,12 +45,43 @@ set(PROJECT_SOURCES
         src/TypeId.cpp
         src/Ecs/Schedule.cpp
         src/Ecs/Schedule.hpp
+        src/Graphics/Buffer.hpp
+        src/Memory/Buffer.hpp
+        src/Memory/Buffer.cpp
+        src/Graphics/Buffer.cpp
+        src/Graphics/Gl.hpp
+        src/Graphics/Gl.cpp
+        src/Graphics/Shader.hpp
+        src/Graphics/Shader.cpp
+        src/Graphics/Pipeline.cpp
+        src/Graphics/Pipeline.hpp
+        src/Graphics/Image.hpp
+        src/Math/Color.hpp
+        src/Math/Utils.hpp
+        src/Math/Utils.cpp
+        src/Math/Matrix.hpp
+        src/Math/Quaternion.hpp
+        src/Math/Vector.hpp
+        src/Math/Math.hpp
+        src/Graphics/Texture2D.cpp
+        src/Graphics/Texture2D.hpp
+        src/Graphics/Mesh.cpp
+        src/Graphics/Mesh.hpp
+        src/Graphics/Vertex.hpp
+        src/Graphics/VertexLayout.cpp
+        src/Graphics/VertexLayout.hpp
+        src/Graphics/VertexArray.cpp
+        src/Graphics/VertexArray.hpp
+        src/Glfw/Window.cpp
+        src/Glfw/Window.hpp
+        src/FileIo/Image.hpp
+        src/FileIo/Image.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC Pch.hpp)
-target_include_directories(${PROJECT_NAME} PUBLIC include src)
+target_include_directories(${PROJECT_NAME} PUBLIC include src PRIVATE vendor)
 target_compile_definitions(${PROJECT_NAME} PRIVATE FLK_DYLIB_BUILD)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
@@ -52,6 +89,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         glfw
         glad
         SLog
+        stbi
 )
 
 ################## Tests ##################

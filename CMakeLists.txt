@@ -38,6 +38,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
 endif ()
 
 include(cmake/CPM.cmake)
+set(FETCHCONTENT_QUIET OFF)
 enable_testing()
 
 add_subdirectory(Core)

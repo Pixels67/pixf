@@ -62,7 +62,7 @@ namespace Flock::Ecs {
          */
         template<typename T>
         void RegisterComponent() {
-            m_Storages[GetTypeId<T>()] = std::make_unique<Storage<T> >();
+            m_Storages.emplace(GetTypeId<T>(), std::move(std::make_unique<Storage<T> >()));
         }
 
         /**

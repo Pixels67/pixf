@@ -1,8 +1,7 @@
 var searchData=
 [
-  ['insert_0',['Insert',['../class_flock_1_1_ecs_1_1_storage.html#a7bc9809be8c7efaf79037ca62e2d9241',1,'Flock::Ecs::Storage']]],
-  ['isalive_1',['IsAlive',['../class_flock_1_1_ecs_1_1_registry.html#aed03fe1affcb4a7e1819d1e101bf4044',1,'Flock::Ecs::Registry']]],
-  ['iscomponentregistered_2',['IsComponentRegistered',['../class_flock_1_1_ecs_1_1_registry.html#aacafa8d9b93acd7f302df323d05f2235',1,'Flock::Ecs::Registry']]],
-  ['istorage_3',['IStorage',['../class_flock_1_1_ecs_1_1_i_storage.html',1,'Flock::Ecs']]],
-  ['isvalid_4',['IsValid',['../class_flock_1_1_ecs_1_1_registry.html#a0fb8a721ba4c5e15bf4f5b7efc03de92',1,'Flock::Ecs::Registry']]]
+  ['has_0',['Has',['../class_flock_1_1_ecs_1_1_storage.html#ae6113215d62af0f9e0c4a556669bd4b7',1,'Flock::Ecs::Storage']]],
+  ['hasallcomponents_1',['HasAllComponents',['../class_flock_1_1_ecs_1_1_registry.html#a9db4428bb8d89e95fdccffe8279dd50b',1,'Flock::Ecs::Registry']]],
+  ['hasanycomponents_2',['HasAnyComponents',['../class_flock_1_1_ecs_1_1_registry.html#ad93a056ded96fc670871601ec62cc0ed',1,'Flock::Ecs::Registry']]],
+  ['hascomponent_3',['HasComponent',['../class_flock_1_1_ecs_1_1_registry.html#a26b906cda70a965b49522aa9d5736e9f',1,'Flock::Ecs::Registry']]]
 ];

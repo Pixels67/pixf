@@ -1,7 +1,9 @@
 var searchData=
 [
-  ['has_0',['Has',['../class_flock_1_1_ecs_1_1_storage.html#ae6113215d62af0f9e0c4a556669bd4b7',1,'Flock::Ecs::Storage']]],
-  ['hasallcomponents_1',['HasAllComponents',['../class_flock_1_1_ecs_1_1_registry.html#a9db4428bb8d89e95fdccffe8279dd50b',1,'Flock::Ecs::Registry']]],
-  ['hasanycomponents_2',['HasAnyComponents',['../class_flock_1_1_ecs_1_1_registry.html#ad93a056ded96fc670871601ec62cc0ed',1,'Flock::Ecs::Registry']]],
-  ['hascomponent_3',['HasComponent',['../class_flock_1_1_ecs_1_1_registry.html#a26b906cda70a965b49522aa9d5736e9f',1,'Flock::Ecs::Registry']]]
+  ['get_0',['Get',['../class_flock_1_1_ecs_1_1_registry.html#ab997668e8cdab1d30a405dfba45b72ca',1,'Flock::Ecs::Registry::Get()'],['../class_flock_1_1_ecs_1_1_storage.html#a452ff39b5aa85b5c024e43acf68985a9',1,'Flock::Ecs::Storage::Get()']]],
+  ['getcomponent_1',['GetComponent',['../class_flock_1_1_ecs_1_1_registry.html#aa00c0e2059c1f566f89e70ada3a008b3',1,'Flock::Ecs::Registry']]],
+  ['getdata_2',['GetData',['../class_flock_1_1_ecs_1_1_storage.html#a9c034447e6beb73363475bf1b34afc3d',1,'Flock::Ecs::Storage']]],
+  ['getstorage_3',['GetStorage',['../class_flock_1_1_ecs_1_1_registry.html#ad681f8e15d44eafcfb87255b297a05c2',1,'Flock::Ecs::Registry']]],
+  ['getsystems_4',['GetSystems',['../class_flock_1_1_ecs_1_1_schedule.html#a1d63c01f87a58d6907bafaa3139604ab',1,'Flock::Ecs::Schedule']]],
+  ['gettype_5',['GetType',['../class_flock_1_1_graphics_1_1_buffer.html#a6c0d78aee98d79320de0954ce75bd0d2',1,'Flock::Graphics::Buffer']]]
 ];
