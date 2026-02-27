@@ -12,14 +12,14 @@ You can either build the *Core* library and use it like a library, or build it w
 > Expect a lot of features missing.
 
 ## Features
+- [x] ECS
 - [ ] Phong Rendering
 - [ ] PBR
-- [ ] ECS (using EnTT)
+- [ ] Keyboard & Mouse Input
 - [ ] Audio
 - [ ] Serialization
 - [ ] Immediate mode GUI
 - [ ] Retained mode GUI
-- [ ] Keyboard & Mouse Input
 - [ ] Editor 
 
 ## Building from Source
@@ -28,20 +28,11 @@ Make sure you have a C++ compiler and CMake installed and run the following comm
 
 ```sh
 git clone https://github.com/Pixels67/pixf.git
-cd Flock
+cd pixf
+git checkout refactor
 
 cmake -S . -B build/
-cmake --build build/ --config Release
-```
-
-For a Debug build run the following commands:
-
-```sh
-git clone https://github.com/Pixels67/pixf.git
-cd Flock
-
-cmake -S . -B build/
-cmake --build build/ --config Debug
+cmake --build build/ --config Release # Or Debug
 ```
 
 > [!NOTE]  

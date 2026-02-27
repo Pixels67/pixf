@@ -63,7 +63,7 @@ int main() {
     }
 
     Texture2D texture = Texture2D::Create(
-        FileIo::ReadImage("Checkerboard.png"),
+        FileIo::ReadImage("../../../assets/Checkerboard.png"),
         {.filterMode = Nearest}
     );
 

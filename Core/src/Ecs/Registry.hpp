@@ -173,6 +173,27 @@ namespace Flock::Ecs {
         }
 
         /**
+         * @brief Changes an entity's component data, fails if the component doesn't exist.
+         * @tparam T The component type.
+         * @param entity A handle to the entity.
+         * @param value The value to set for the data.
+         * @return true if successful; false otherwise.
+         */
+        template<typename T>
+        bool SetComponent(Entity entity, T value = {}) {
+            if (!IsComponentRegistered<T>()) {
+                RegisterComponent<T>();
+            }
+
+            if (!HasComponent<T>(entity)) {
+                return false;
+            }
+
+            GetStorage<T>().value().get().Insert(entity.id, std::move(value));
+            return true;
+        }
+
+        /**
          * @brief Removes a component to an entity, fails if the component does not exist.
          * @tparam T The component type.
          * @param entity A handle to the entity.
