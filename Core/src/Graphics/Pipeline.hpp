@@ -4,6 +4,7 @@
 #include "Common.hpp"
 #include "Shader.hpp"
 #include "Texture2D.hpp"
+#include "TextureArray.hpp"
 #include "Math/Math.hpp"
 
 namespace Flock::Graphics {
@@ -32,15 +33,20 @@ namespace Flock::Graphics {
         std::any    data;
     };
 
+    struct SamplerInfo {
+        i32 unit;
+        u32 glType;
+    };
+
     /**
      * @class Pipeline
      * @brief A shader pipeline.
      */
     class FLK_API Pipeline {
-        u32                           m_Id = 0;
-        HashMap<std::string, Uniform> m_Uniforms;
-        HashMap<std::string, u32>     m_SamplerUnits;
-        Texture2D                     m_DefaultTexture;
+        u32                               m_Id = 0;
+        HashMap<std::string, Uniform>     m_Uniforms;
+        HashMap<std::string, SamplerInfo> m_Samplers;
+        Texture2D                         m_DefaultTexture;
 
     public:
         /**
@@ -54,10 +60,10 @@ namespace Flock::Graphics {
         Pipeline() = default;
         ~Pipeline();
 
-        Pipeline(const Pipeline &other)     = delete;
+        Pipeline(const Pipeline &other) = delete;
         Pipeline(Pipeline &&other) noexcept;
 
-        Pipeline &operator=(const Pipeline &other)     = delete;
+        Pipeline &operator=(const Pipeline &other) = delete;
         Pipeline &operator=(Pipeline &&other) noexcept;
 
         /**
@@ -153,6 +159,14 @@ namespace Flock::Graphics {
          * @return true if successful; false otherwise.
          */
         bool SetUniform(const std::string &name, const Texture2D &value) const;
+
+        /**
+         * @brief Sets a 2D texture array (sampler2DArray) uniform.
+         * @param name The uniform name.
+         * @param value The uniform value to set.
+         * @return true if successful; false otherwise.
+         */
+        bool SetUniform(const std::string &name, const TextureArray &value) const;
 
     private:
         static u32 LinkShaders(const Shader &vertex, const Shader &fragment);

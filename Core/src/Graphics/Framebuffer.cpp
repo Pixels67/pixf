@@ -77,4 +77,33 @@ namespace Flock::Graphics {
 
         return true;
     }
+
+    bool Framebuffer::Attach(const Attachment attachment, const TextureArray &textureArray, u32 index) const {
+        if (index >= textureArray.GetLayerCount()) {
+            return false;
+        }
+
+        i32 boundFramebuffer;
+        i32 boundTexture;
+
+        FLK_GL_CALL(glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY, &boundTexture));
+        FLK_GL_CALL(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &boundFramebuffer));
+
+        FLK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, m_Id));
+        FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, textureArray.GetGlId()));
+        FLK_GL_CALL(
+            glFramebufferTextureLayer(
+                GL_FRAMEBUFFER,
+                ToGlType(attachment),
+                textureArray.GetGlId(),
+                0,
+                index
+            )
+        );
+
+        FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, boundTexture));
+        FLK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, boundFramebuffer));
+
+        return true;
+    }
 }

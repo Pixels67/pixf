@@ -23,7 +23,7 @@ namespace Flock::Graphics {
 
     Pipeline::Pipeline(Pipeline &&other) noexcept {
         m_Id             = other.m_Id;
-        m_SamplerUnits   = std::move(other.m_SamplerUnits);
+        m_Samplers   = std::move(other.m_Samplers);
         m_DefaultTexture = std::move(other.m_DefaultTexture);
         m_Uniforms       = std::move(other.m_Uniforms);
         other.m_Id       = 0;
@@ -37,7 +37,7 @@ namespace Flock::Graphics {
         Clear();
 
         m_Id       = other.m_Id;
-        m_SamplerUnits   = std::move(other.m_SamplerUnits);
+        m_Samplers   = std::move(other.m_Samplers);
         m_DefaultTexture = std::move(other.m_DefaultTexture);
         m_Uniforms       = std::move(other.m_Uniforms);
         other.m_Id = 0;
@@ -111,11 +111,28 @@ namespace Flock::Graphics {
     }
 
     bool Pipeline::SetUniform(const std::string &name, const Texture2D &value) const {
-        if (m_Id == 0 || !m_SamplerUnits.contains(name)) {
+        if (m_Id == 0 || !m_Samplers.contains(name)) {
             return false;
         }
 
-        Texture2D::SetActiveUnit(m_SamplerUnits.at(name));
+        if (m_Samplers.at(name).glType != GL_SAMPLER_2D) {
+            return false;
+        }
+
+        Texture2D::SetActiveUnit(m_Samplers.at(name).unit);
+        return value.Bind();
+    }
+
+    bool Pipeline::SetUniform(const std::string &name, const TextureArray &value) const {
+        if (m_Id == 0 || !m_Samplers.contains(name)) {
+            return false;
+        }
+
+        if (m_Samplers.at(name).glType != GL_SAMPLER_2D_ARRAY) {
+            return false;
+        }
+
+        Texture2D::SetActiveUnit(m_Samplers.at(name).unit);
         return value.Bind();
     }
 
@@ -165,7 +182,7 @@ namespace Flock::Graphics {
             GLenum  type;
             FLK_GL_CALL(glGetActiveUniform(m_Id, i, sizeof(name), &length, &size, &type, name));
 
-            if (type == GL_SAMPLER_2D || type == GL_SAMPLER_2D_SHADOW) {
+            if (type == GL_SAMPLER_2D || type == GL_SAMPLER_2D_SHADOW || type == GL_SAMPLER_2D_ARRAY) {
                 std::string uniformName = name;
 
                 if (uniformName.ends_with("[0]")) {
@@ -178,7 +195,7 @@ namespace Flock::Graphics {
                         : uniformName;
 
                     const i32 unit = unitCounter++;
-                    m_SamplerUnits[elementName] = unit;
+                    m_Samplers[elementName] = {.unit = unit, .glType = type};
 
                     i32 location = glGetUniformLocation(m_Id, elementName.c_str());
                     FLK_GL_CALL(glUniform1i(location, unit));
@@ -250,9 +267,13 @@ namespace Flock::Graphics {
         i32 activeUnit;
         FLK_GL_CALL(glGetIntegerv(GL_ACTIVE_TEXTURE, &activeUnit));
 
-        for (const auto &[name, unit]: m_SamplerUnits) {
+        for (const auto &[name, info]: m_Samplers) {
+            if (info.glType != GL_SAMPLER_2D) {
+                continue;
+            }
+
             i32 id = 0;
-            FLK_GL_CALL(glActiveTexture(GL_TEXTURE0 + unit));
+            FLK_GL_CALL(glActiveTexture(GL_TEXTURE0 + info.unit));
             FLK_GL_CALL(glGetIntegerv(GL_TEXTURE_BINDING_2D, &id));
 
             if (id != 0) {

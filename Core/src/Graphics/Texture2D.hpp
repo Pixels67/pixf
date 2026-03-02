@@ -25,19 +25,51 @@ namespace Flock::Graphics {
     };
 
     /**
+     * @enum FilterMode
+     * @brief Texture format.
+     */
+    enum class TextureFormat : u8 {
+        R,
+        Rg,
+        Rgb,
+        Rgba,
+        Depth
+    };
+
+    inline i32 ToGlType(const TextureFormat format) {
+        switch (format) {
+            case TextureFormat::R:
+                return GL_RED;
+            case TextureFormat::Rg:
+                return GL_RG;
+            case TextureFormat::Rgb:
+                return GL_RGB;
+            case TextureFormat::Rgba:
+                return GL_RGBA;
+            case TextureFormat::Depth:
+                return GL_DEPTH_COMPONENT;
+            default:
+                return 0;
+        }
+    }
+
+    /**
      * @struct TextureConfig
      * @brief Texture configuration.
      */
     struct FLK_API TextureConfig {
-        FilterMode filterMode       = Linear;
-        FilterMode mipmapFilterMode = Linear;
-        WrapMode   wrapMode         = Repeat;
-        bool       generateMipmaps  = true;
+        FilterMode                   filterMode       = Linear;
+        FilterMode                   mipmapFilterMode = Linear;
+        WrapMode                     wrapMode         = Repeat;
+        std::optional<TextureFormat> format           = std::nullopt;
+        bool                         generateMipmaps  = true;
 
         [[nodiscard]] u32 GetGlWrap() const;
         [[nodiscard]] u32 GetGlMinFilter() const;
         [[nodiscard]] u32 GetGlMagFilter() const;
     };
+
+    void FLK_API ConfigureTexture2D(TextureConfig config);
 
     /**
      * @class Texture2D
@@ -59,9 +91,10 @@ namespace Flock::Graphics {
         /**
          * @brief Static factory method.
          * @param size The size of the texture.
-         * @return A newly created 2D depth buffer texture.
+         * @param config The texture configuration.
+         * @return A newly created empty 2D texture.
          */
-        static Texture2D CreateDepth(Vector2u size);
+        static Texture2D CreateEmpty(Vector2u size, TextureConfig config = {});
 
         Texture2D() = default;
         ~Texture2D();

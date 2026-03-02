@@ -104,6 +104,8 @@ set(PROJECT_SOURCES
         src/Asset/AssetHandle.hpp
         src/Graphics/Framebuffer.cpp
         src/Graphics/Framebuffer.hpp
+        src/Graphics/TextureArray.cpp
+        src/Graphics/TextureArray.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
@@ -120,6 +122,11 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         stbi
         assimp
 )
+
+if (UNIX AND NOT APPLE)
+    find_package(ZLIB REQUIRED)
+    target_link_libraries(FlockCore PRIVATE ZLIB::ZLIB)
+endif ()
 
 ################## Tests ##################
 

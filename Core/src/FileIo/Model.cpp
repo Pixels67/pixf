@@ -22,14 +22,14 @@ namespace Flock::FileIo {
             flags |= aiProcess_FlipUVs;
         }
 
-        const aiScene *scene = importer.ReadFile(filePath, flags);
+        const aiScene *scene = importer.ReadFile(filePath.string(), flags);
 
         if (scene == nullptr) {
             Debug::LogErr("Failed to load model mesh: {}", importer.GetErrorString());
             return {};
         }
 
-        std::string directory = filePath;
+        std::string directory = filePath.string();
         directory.erase(directory.find_last_of('/') + 1);
 
         std::vector<MeshData> meshes;
@@ -85,14 +85,14 @@ namespace Flock::FileIo {
 
     std::vector<MaterialData> LoadModelMaterials(const std::filesystem::path &filePath) {
         Assimp::Importer importer;
-        const aiScene *  scene = importer.ReadFile(filePath, 0);
+        const aiScene *  scene = importer.ReadFile(filePath.string().c_str(), 0);
 
         if (scene == nullptr) {
             Debug::LogErr("Failed to load model 2D texture: {}", importer.GetErrorString());
             return {};
         }
 
-        std::string directory = filePath;
+        std::string directory = filePath.string();
         directory.erase(directory.find_last_of('/') + 1);
 
         std::vector<MaterialData> materials;
@@ -127,8 +127,6 @@ namespace Flock::FileIo {
 
             material->Get(AI_MATKEY_METALLIC_FACTOR, outputMaterial.metallic);
             material->Get(AI_MATKEY_ROUGHNESS_FACTOR, outputMaterial.roughness);
-
-            outputMaterial.metallic = 0.25F;
 
             materials.push_back(outputMaterial);
         }

@@ -65,6 +65,8 @@ namespace Flock {
             y        /= mag;
             return *this;
         }
+
+        bool operator==(const Vector2 & vector2) const = default;
     };
 
     template<typename T>

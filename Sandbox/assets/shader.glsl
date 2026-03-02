@@ -54,8 +54,10 @@ uniform vec3 uLightPositions[MAX_LIGHTS];   // world-space pos, or direction if 
 uniform vec3 uLightColors[MAX_LIGHTS];      // RGB color
 uniform float uLightIntensities[MAX_LIGHTS]; // scalar intensity
 uniform float uLightRadii[MAX_LIGHTS];       // 0 = directional, >0 = point light radius
-uniform sampler2DShadow uShadowMaps[MAX_LIGHTS];
 uniform mat4 uLightSpaceMatrices[MAX_LIGHTS];
+uniform int uLightShadowMapIndices[MAX_LIGHTS];
+
+uniform sampler2DArray uShadowMaps;
 
 // --- Camera ---
 uniform vec3 uCameraPosition;
@@ -92,36 +94,50 @@ vec3 F_Schlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
-float calcShadow(sampler2DShadow shadowMap, mat4 lightSpaceMatrix, vec3 N, vec3 L) {
-    vec4 fragPosLS = vec4(vWorldPos, 1.0) * lightSpaceMatrix;
+const vec2 poissonDisk[16] = vec2[](
+vec2(-0.94201624, -0.39906216),
+vec2(0.94558609, -0.76890725),
+vec2(-0.094184101, -0.92938870),
+vec2(0.34495938, 0.29387760),
+vec2(-0.91588581, 0.45771432),
+vec2(-0.81544232, -0.87912464),
+vec2(-0.38277543, 0.27676845),
+vec2(0.97484398, 0.75648379),
+vec2(0.44323325, -0.97511554),
+vec2(0.53742981, -0.47373420),
+vec2(-0.26496911, -0.41893023),
+vec2(0.79197514, 0.19090188),
+vec2(-0.24188840, 0.99706507),
+vec2(-0.81409955, 0.91437590),
+vec2(0.19984126, 0.78641367),
+vec2(0.14383161, -0.14100790)
+);
+
+float calcShadow(int i, vec3 N, vec3 L) {
+    vec4 fragPosLS = vec4(vWorldPos, 1.0) * uLightSpaceMatrices[i];
     vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
     projCoords = projCoords * 0.5 + 0.5;
 
-    if (projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0 || projCoords.z > 1.0)
-        return 0.0;
+    if (projCoords.x < 0.0 || projCoords.x > 1.0 ||
+    projCoords.y < 0.0 || projCoords.y > 1.0 ||
+    projCoords.z > 1.0)
+    return 0.0;
 
     float current = projCoords.z;
     float NdotL = max(dot(N, L), 0.0);
-    float bias = max(0.005 * (1.0 - NdotL), 0.005);
+    float bias = max(0.005 * (1.0 - NdotL), 0.0005);
 
-    vec2 texelSize = 1.0 / vec2(textureSize(shadowMap, 0));
-
+    vec2 texelSize = 1.0 / vec2(textureSize(uShadowMaps, 0).xy);
     float shadow = 0.0;
-    for (int y = -1; y <= 1; ++y) {
-        for (int x = -1; x <= 1; ++x) {
-            shadow += 1.0 - texture(shadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, current - bias));
-        }
+
+    float spreadRadius = 2.0; // Increase for softer shadows
+    for (int s = 0; s < 16; s++) {
+        vec2 offset = poissonDisk[s] * texelSize * spreadRadius;
+        float closest = texture(uShadowMaps, vec3(projCoords.xy + offset, float(i))).r;
+        shadow += (current - bias > closest) ? 1.0 : 0.0;
     }
-    shadow /= 9.0;
-    return shadow;
-}
 
-float shadowForLight(int i, vec3 N, vec3 L)
-{
-    if (i == 0) return calcShadow(uShadowMaps[0], uLightSpaceMatrices[0], N, L);
-    if (i == 1) return calcShadow(uShadowMaps[1], uLightSpaceMatrices[1], N, L);
-
-    return 0.0;
+    return shadow / 16.0;
 }
 
 void main() {
@@ -152,7 +168,11 @@ void main() {
             // Directional light — position is treated as direction
             L = normalize(uLightPositions[i]);
             attenuation = 1.0;
-            shadow = shadowForLight(i, N, L);
+            if (uLightShadowMapIndices[i] < 0) {
+                shadow = 0.0;
+            } else {
+                shadow = calcShadow(uLightShadowMapIndices[i], N, L);
+            }
         }
         else
         {

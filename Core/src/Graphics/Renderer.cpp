@@ -31,17 +31,14 @@ void main() {
 )";
 
     Renderer &Renderer::BeginPass(const RenderPassConfig &config) {
-        while (!m_RenderQueue.empty()) {
-            m_RenderQueue.pop();
-        }
-
+        m_RenderQueue.clear();
         m_RenderPass = config;
 
         return *this;
     }
 
     Renderer &Renderer::Submit(const RenderCommand &command) {
-        m_RenderQueue.push(command);
+        m_RenderQueue.push_back(command);
 
         return *this;
     }
@@ -50,6 +47,25 @@ void main() {
         if (!m_RenderPass) {
             return *this;
         }
+
+        std::sort(m_RenderPass->lights.begin(), m_RenderPass->lights.end(),
+                  [&](const Light &lhs, const Light &rhs) -> bool {
+                      return lhs.position.Magnitude() < rhs.position.Magnitude();
+                  });
+
+        const i32          lightCount = std::min(m_RenderPass->lights.size(), s_MaxLightsPerObject);
+        std::vector<Light> lights     = m_RenderPass->lights;
+        lights.resize(lightCount);
+
+        std::vector<RenderObject> objects;
+        for (auto cmd: m_RenderQueue) {
+            objects.push_back(
+                {.mesh = cmd.mesh, .position = cmd.position, .rotation = cmd.rotation, .scale = cmd.scale});
+        }
+
+        f32      shadowRange  = m_RenderPass->shadowRange;
+        Vector3f shadowCenter = m_RenderPass->cameraPosition;
+        GenerateShadowMaps(objects, lights, shadowCenter, shadowRange);
 
         if (framebuffer) {
             if (!framebuffer->get().Bind()) {
@@ -85,9 +101,11 @@ void main() {
             FLK_GL_CALL(glDisable(GL_DEPTH_TEST));
         }
 
-        while (!m_RenderQueue.empty()) {
-            auto [mesh, material, position, rotation, scale] = m_RenderQueue.front();
-            m_RenderQueue.pop();
+        auto queue = m_RenderQueue;
+        std::reverse(queue.begin(), queue.end());
+        while (!queue.empty()) {
+            auto [mesh, material, position, rotation, scale] = queue.back();
+            queue.pop_back();
 
             Pipeline &pipeline = assetLoader.Get(material.pipeline).value();
 
@@ -146,30 +164,38 @@ void main() {
             pipeline.SetUniform("uAmbientColor", m_RenderPass->ambientColor);
             pipeline.SetUniform("uAmbientIntensity", m_RenderPass->ambientIntensity);
 
-            std::sort(m_RenderPass->lights.begin(), m_RenderPass->lights.end(),
-                      [&](const Light &lhs, const Light &rhs) -> bool {
-                          return lhs.position.Magnitude() < rhs.position.Magnitude();
-                      });
-
-            const i32 lightCount = std::min(m_RenderPass->lights.size(), s_MaxLightsPerObject);
             pipeline.SetUniform("uNumLights", lightCount);
             for (i32 i = 0; i < lightCount; i++) {
-                const auto &[lightPosition, color, intensity, radius, shadowMap] = m_RenderPass->lights[i];
+                const auto &[lightPosition, color, intensity, radius, isStatic, hasShadows] = lights[i];
+
+                Matrix4f spaceMat =
+                        GetShadowMapView(lightPosition, shadowCenter, shadowRange) * GetShadowMapProj(
+                            aspectRatio, shadowRange);
 
                 pipeline.SetUniform("uLightPositions[" + std::to_string(i) + "]", lightPosition);
                 pipeline.SetUniform("uLightColors[" + std::to_string(i) + "]", color);
                 pipeline.SetUniform("uLightIntensities[" + std::to_string(i) + "]", intensity);
                 pipeline.SetUniform("uLightRadii[" + std::to_string(i) + "]", radius);
-                if (shadowMap) {
-                    pipeline.SetUniform("uShadowMaps[" + std::to_string(i) + "]", shadowMap->get().texture);
-                    pipeline.SetUniform("uLightSpaceMatrices[" + std::to_string(i) + "]",
-                                        shadowMap->get().lightSpaceMatrix);
+                pipeline.SetUniform("uLightSpaceMatrices[" + std::to_string(i) + "]", spaceMat);
+
+                if (m_LightShadowMapIndices[i] == ~1u) {
+                    pipeline.SetUniform("uLightShadowMapIndices[" + std::to_string(i) + "]", -1);
+                } else {
+                    pipeline.SetUniform("uLightShadowMapIndices[" + std::to_string(i) + "]",
+                                        static_cast<i32>(m_LightShadowMapIndices[i]));
                 }
             }
 
             pipeline.SetUniform("uCameraPosition", m_RenderPass->cameraPosition);
 
-            RenderMesh(mesh, pipeline);
+            if (m_ShadowMaps.GetLayerCount() > 0) {
+                if (!pipeline.SetUniform("uShadowMaps", m_ShadowMaps)) {
+                    Debug::LogErr("Render: Failed to upload shadow maps!");
+                    return *this;
+                }
+            }
+
+            RenderMesh(*mesh, pipeline);
         }
 
         Framebuffer::Unbind();
@@ -181,24 +207,64 @@ void main() {
         return *this;
     }
 
-    std::optional<ShadowMap> Renderer::GenerateShadowMap(
-        std::vector<RenderObject> &&objects,
-        const Vector2u              resolution,
-        const Vector3f              lightPosition,
-        const Vector3f              cameraPosition,
-        const f32                   range
+    void Renderer::GenerateShadowMaps(
+        const std::vector<RenderObject> &objects,
+        const std::vector<Light> &       lights,
+        const Vector3f                   centerPosition,
+        const f32                        range
+    ) {
+        m_LightShadowMapIndices.resize(lights.size());
+
+        std::vector<usize> lightIndices;
+        u32                counter = 0;
+        for (usize i = 0; i < lights.size(); i++) {
+            if (lights[i].hasShadows) {
+                m_LightShadowMapIndices[i] = counter;
+                lightIndices.push_back(i);
+                counter++;
+            } else {
+                m_LightShadowMapIndices[i] = ~1u;
+            }
+        }
+
+        bool mapsReset = false;
+        if (m_ShadowMaps.GetLayerCount() != counter || m_ShadowMaps.GetSize() != m_RenderPass->shadowMapResolution) {
+            m_ShadowMaps = TextureArray::Create(
+                counter,
+                m_RenderPass->shadowMapResolution,
+                {.format = TextureFormat::Depth}
+            );
+
+            mapsReset = true;
+        }
+
+        for (usize i = 0; i < lightIndices.size(); i++) {
+            if (lights[i].isStatic && !mapsReset) {
+                continue;
+            }
+
+            GenerateShadowMap(objects, m_ShadowMaps, lightIndices[i], lights[i].position, centerPosition, range);
+        }
+    }
+
+    bool Renderer::GenerateShadowMap(
+        std::vector<RenderObject> objects,
+        const TextureArray &      textureArray,
+        const u32                 index,
+        const Vector3f            lightPosition,
+        const Vector3f            centerPosition,
+        const f32                 range
     ) {
         static Framebuffer framebuffer = Framebuffer::Create().value();
-        Texture2D          shadowMap   = Texture2D::CreateDepth(resolution);
 
-        if (!framebuffer.Attach(Attachment::Depth, shadowMap)) {
+        if (!framebuffer.Attach(Attachment::Depth, textureArray, index)) {
             Debug::LogErr("Shadow map: Failed to attach depth texture!");
-            return std::nullopt;
+            return false;
         }
 
         if (!framebuffer.Bind()) {
             Debug::LogErr("Shadow map: Failed to bind framebuffer!");
-            return std::nullopt;
+            return false;
         }
 
         FLK_GL_CALL(glEnable(GL_CULL_FACE));
@@ -207,24 +273,12 @@ void main() {
 
         FLK_GL_CALL(glEnable(GL_DEPTH_TEST));
         FLK_GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
-        FLK_GL_CALL(glViewport(0, 0, resolution.x, resolution.y));
+        FLK_GL_CALL(glViewport(0, 0, textureArray.GetSize().x, textureArray.GetSize().y));
 
-        const Vector3f lightDir = (-lightPosition).Normalized();
-        const Vector3f target   = cameraPosition;
-        const Vector3f eye      = target - lightDir * range;
-        const Vector3f up       = std::abs(lightDir.y) > 0.99F ? Vector3f::Forward() : Vector3f::Up();
+        const f32 aspectRatio = static_cast<f32>(textureArray.GetSize().x) / static_cast<f32>(textureArray.GetSize().y);
 
-        Matrix4f view = Matrix4f::LookAt(eye, target, up);
-
-        const f32 aspectRatio = static_cast<f32>(resolution.x) / static_cast<f32>(resolution.y);
-        Matrix4f  proj        = Matrix4f::Orthographic(
-            -aspectRatio * range,
-            aspectRatio * range,
-            -range,
-            range,
-            0.0F,
-            range * 2.0F
-        );
+        const Matrix4f view = GetShadowMapView(lightPosition, centerPosition, range);
+        const Matrix4f proj = GetShadowMapProj(aspectRatio, range);
 
         static const Shader vert     = Shader::Create(VertexShader, s_DefaultVertShader).value();
         static const Shader frag     = Shader::Create(FragmentShader, s_DefaultFragShader).value();
@@ -240,16 +294,14 @@ void main() {
             pipeline.SetUniform("uView", view);
             pipeline.SetUniform("uProj", proj);
 
-            RenderMesh(mesh, pipeline);
+            RenderMesh(*mesh, pipeline);
         }
-
-        //DumpDepthTexture(shadowMap, resolution);
 
         Mesh::Unbind();
         Pipeline::Unbind();
         Framebuffer::Unbind();
 
-        return ShadowMap{(std::move(shadowMap)), view * proj};
+        return true;
     }
 
     bool Renderer::RenderMesh(const Mesh &mesh, const Pipeline &pipeline) {
@@ -265,6 +317,26 @@ void main() {
 
         FLK_GL_CALL(glDrawElements(GL_TRIANGLES, mesh.GetIndexCount(), GL_UNSIGNED_INT, nullptr));
         return true;
+    }
+
+    Matrix4f Renderer::GetShadowMapView(const Vector3f lightPosition, const Vector3f centerPosition, const f32 range) {
+        const Vector3f lightDir = (-lightPosition).Normalized();
+        const Vector3f target   = centerPosition;
+        const Vector3f eye      = target - lightDir * range;
+        const Vector3f up       = std::abs(lightDir.y) > 0.99F ? Vector3f::Forward() : Vector3f::Up();
+
+        return Matrix4f::LookAt(eye, target, up);
+    }
+
+    Matrix4f Renderer::GetShadowMapProj(f32 aspectRatio, f32 range) {
+        return Matrix4f::Orthographic(
+            -aspectRatio * range,
+            aspectRatio * range,
+            -range,
+            range,
+            0.0F,
+            range * 2.0F
+        );
     }
 
     void Renderer::DumpDepthTexture(const Texture2D &texture, const Vector2u resolution) {

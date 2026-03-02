@@ -25,24 +25,6 @@ int main() {
         Vector3f   position = {0.0F, -0.6F, 1.2F};
         Quaternion rotation = Quaternion::Euler(0.0F, rot, 0.0F);
 
-        std::vector<RenderObject> objects;
-        objects.reserve(model.meshes.size());
-        for (auto &mesh: model.meshes) {
-            objects.push_back({
-                .mesh     = mesh,
-                .position = position,
-                .rotation = rotation
-            });
-        }
-
-        auto shadowMap = Renderer::GenerateShadowMap(
-            std::move(objects),
-            {2048, 2048},
-            {0.5F, 1.0F, -0.5F},
-            position,
-            1.0F
-        ).value();
-
         renderer.BeginPass({
             .projection       = Projection::Perspective,
             .viewport         = {{0, 0}, window.GetSize()},
@@ -50,16 +32,20 @@ int main() {
             .lights           = {
                 {
                     .position  = {0.5F, 1.0F, -0.5F},
-                    .color     = {240, 220, 160},
+                    .color     = {255, 220, 40},
                     .intensity = 10.0F,
-                    .shadowMap = std::ref(shadowMap),
+                },
+                {
+                    .position  = {-0.5F, 1.0F, 0.5F},
+                    .color     = {40, 220, 255},
+                    .intensity = 10.0F,
                 }
             }
         });
 
         for (usize i = 0; i < model.meshes.size(); i++) {
             renderer.Submit({
-                .mesh     = model.meshes[i],
+                .mesh     = &model.meshes[i],
                 .material = model.materials[i],
                 .position = position,
                 .rotation = rotation

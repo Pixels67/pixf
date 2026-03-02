@@ -57,6 +57,25 @@ namespace Flock::Graphics {
         }
     }
 
+    void ConfigureTexture2D(const TextureConfig config) {
+        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, config.GetGlWrap()));
+        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, config.GetGlWrap()));
+
+        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, config.GetGlMinFilter()));
+        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, config.GetGlMagFilter()));
+
+        if (config.generateMipmaps && (!config.format || config.format.value() != TextureFormat::Depth)) {
+            FLK_GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
+        }
+
+        if (config.format && config.format.value() == TextureFormat::Depth) {
+            FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+            FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+            FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE));
+            FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL));
+        }
+    }
+
     Texture2D Texture2D::FromImage(const Image &image, const TextureConfig config) {
         Texture2D texture;
         texture.m_Config = config;
@@ -71,13 +90,10 @@ namespace Flock::Graphics {
         FLK_GL_CALL(glActiveTexture(GL_TEXTURE0));
         FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D, texture.m_Id));
 
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, config.GetGlWrap()));
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, config.GetGlWrap()));
-
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, config.GetGlMinFilter()));
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, config.GetGlMagFilter()));
-
-        const u32 format = ToGlType(image.format);
+        u32 format = ToGlType(image.format);
+        if (config.format) {
+            format = ToGlType(config.format.value());
+        }
 
         FLK_GL_CALL(glTexImage2D(GL_TEXTURE_2D,
                 0,
@@ -90,9 +106,7 @@ namespace Flock::Graphics {
                 image.data.Get())
         );
 
-        if (config.generateMipmaps) {
-            FLK_GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
-        }
+        ConfigureTexture2D(config);
 
         FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
         FLK_GL_CALL(glActiveTexture(activeUnit));
@@ -101,9 +115,9 @@ namespace Flock::Graphics {
         return texture;
     }
 
-    Texture2D Texture2D::CreateDepth(const Vector2u size) {
+    Texture2D Texture2D::CreateEmpty(const Vector2u size, TextureConfig config) {
         Texture2D texture;
-        texture.m_Config = {};
+        texture.m_Config = config;
 
         i32 activeUnit;
         i32 boundTexture;
@@ -115,29 +129,27 @@ namespace Flock::Graphics {
         FLK_GL_CALL(glActiveTexture(GL_TEXTURE0));
         FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D, texture.m_Id));
 
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE));
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
-        constexpr f32 borderColor[] = {1.0F, 1.0F, 1.0F, 1.0F};
-        FLK_GL_CALL(glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor));
-
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE));
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL));
+        u32 varType = GL_UNSIGNED_BYTE;
+        u32 format  = GL_RGBA;
+        if (config.format) {
+            format = ToGlType(config.format.value());
+            if (config.format.value() == TextureFormat::Depth) {
+                varType                = GL_FLOAT;
+            }
+        }
 
         FLK_GL_CALL(glTexImage2D(GL_TEXTURE_2D,
                 0,
-                GL_DEPTH_COMPONENT,
+                format,
                 size.x,
                 size.y,
                 0,
-                GL_DEPTH_COMPONENT,
-                GL_FLOAT,
+                format,
+                varType,
                 nullptr)
         );
+
+        ConfigureTexture2D(config);
 
         FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
         FLK_GL_CALL(glActiveTexture(activeUnit));
