@@ -10,7 +10,7 @@
 
 namespace Flock {
     template<typename T>
-    class Matrix4 {
+    class FLK_API Matrix4 {
     public:
         std::array<T, 4 * 4> m;
 
@@ -43,18 +43,14 @@ namespace Flock {
             return mat;
         }
 
-        static Matrix4 Translate(const Vector3<T> &translation) {
+        static Matrix4 Translate(const Vector3<T> &t) {
             Matrix4 mat;
-
-            mat.At(0, 0) = 1;
-            mat.At(1, 1) = 1;
-            mat.At(2, 2) = 1;
-            mat.At(3, 3) = 1;
-
-            mat.At(0, 3) = translation.x;
-            mat.At(1, 3) = translation.y;
-            mat.At(2, 3) = translation.z;
-
+            mat.m = {
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                t.x, t.y, t.z, 1
+            };
             return mat;
         }
 
@@ -69,8 +65,8 @@ namespace Flock {
             mat.At(3, 3) = 1;
             mat.At(1, 1) = cosTheta;
             mat.At(2, 2) = cosTheta;
-            mat.At(1, 2) = -sinTheta;
-            mat.At(2, 1) = sinTheta;
+            mat.At(1, 2) = sinTheta;
+            mat.At(2, 1) = -sinTheta;
 
             return mat;
         }
@@ -86,8 +82,8 @@ namespace Flock {
             mat.At(3, 3) = 1;
             mat.At(0, 0) = cosTheta;
             mat.At(2, 2) = cosTheta;
-            mat.At(0, 2) = -sinTheta;
-            mat.At(2, 0) = sinTheta;
+            mat.At(0, 2) = sinTheta;
+            mat.At(2, 0) = -sinTheta;
 
             return mat;
         }
@@ -101,8 +97,8 @@ namespace Flock {
 
             mat.At(0, 0) = cosTheta;
             mat.At(1, 1) = cosTheta;
-            mat.At(0, 1) = -sinTheta;
-            mat.At(1, 0) = sinTheta;
+            mat.At(0, 1) = sinTheta;
+            mat.At(1, 0) = -sinTheta;
             mat.At(2, 2) = 1;
             mat.At(3, 3) = 1;
 
@@ -115,7 +111,7 @@ namespace Flock {
 
         static Matrix4 Rotate(T angleDegrees, Vector3<T> axis) {
             axis.Normalize();
-            return RotateY(axis.y * angleDegrees) * RotateX(axis.x * angleDegrees) * RotateZ(axis.z * angleDegrees);
+            return RotateY(axis.y * -angleDegrees) * RotateX(axis.x * -angleDegrees) * RotateZ(axis.z * -angleDegrees);
         }
 
         static Matrix4 Rotate(const Quaternion &quaternion) {
@@ -135,16 +131,42 @@ namespace Flock {
             T wz = q.w * q.z;
 
             mat.At(0, 0) = 2 * (ww + xx) - 1;
-            mat.At(0, 1) = 2 * (xy - wz);
-            mat.At(0, 2) = 2 * (xz + wy);
-            mat.At(1, 0) = 2 * (xy + wz);
+            mat.At(1, 0) = 2 * (xy - wz);
+            mat.At(2, 0) = 2 * (xz + wy);
+            mat.At(0, 1) = 2 * (xy + wz);
             mat.At(1, 1) = 2 * (ww + yy) - 1;
-            mat.At(1, 2) = 2 * (xz - wx);
-            mat.At(2, 0) = 2 * (xz - wy);
-            mat.At(2, 1) = 2 * (yz + wx);
+            mat.At(2, 1) = 2 * (xz - wx);
+            mat.At(0, 2) = 2 * (xz - wy);
+            mat.At(1, 2) = 2 * (yz + wx);
             mat.At(2, 2) = 2 * (ww + zz) - 1;
 
             return mat;
+        }
+
+        static Matrix4 LookAt(const Vector3<T> &eye, const Vector3<T> &target, const Vector3<T> &up) {
+            Vector3<T> z = (target - eye).Normalized();
+            Vector3<T> x = up.Cross(z).Normalized();
+            Vector3<T> y = z.Cross(x);
+
+            Matrix4 m;
+            m.m.fill(0);
+
+            m.At(0, 0) = x.x;
+            m.At(1, 0) = x.y;
+            m.At(2, 0) = x.z;
+            m.At(0, 1) = y.x;
+            m.At(1, 1) = y.y;
+            m.At(2, 1) = y.z;
+            m.At(0, 2) = z.x;
+            m.At(1, 2) = z.y;
+            m.At(2, 2) = z.z;
+
+            m.At(3, 0) = -x.Dot(eye);
+            m.At(3, 1) = -y.Dot(eye);
+            m.At(3, 2) = -z.Dot(eye);
+            m.At(3, 3) = 1;
+
+            return m;
         }
 
         static Matrix4 Scale(const Vector3<T> &scale) {
@@ -158,35 +180,32 @@ namespace Flock {
             return mat;
         }
 
-        static Matrix4 Perspective(const T &fovY, const T &aspect, const T &nearZ, const T &farZ) {
-            Matrix4 mat;
-            mat.m.fill(0);
-            f64 radians = DegreesToRadians(fovY);
+        static Matrix4 Perspective(T fovY, T aspect, T n, T f) {
+            Matrix4 m;
+            m.m.fill(0);
+            T y = static_cast<T>(1) / std::tan(DegreesToRadians(fovY) / static_cast<T>(2));
+            T x = y / aspect;
 
-            T tanHalfFovY = std::tan(radians / static_cast<T>(2));
+            m.At(0, 0) = x;
+            m.At(1, 1) = y;
+            m.At(2, 2) = (f + n) / (f - n);
+            m.At(2, 3) = 1;
+            m.At(3, 2) = -(2 * f * n) / (f - n);
 
-            mat.At(0, 0) = 1 / (aspect * tanHalfFovY);
-            mat.At(1, 1) = 1 / tanHalfFovY;
-            mat.At(2, 2) = farZ / (farZ - nearZ);
-            mat.At(2, 3) = -(farZ * nearZ) / (farZ - nearZ);
-            mat.At(3, 2) = 1;
-
-            return mat;
+            return m;
         }
 
-        static Matrix4 Orthographic(T left, T right, T bottom, T top, T nearZ, T farZ) {
-            Matrix4 mat;
-            mat.m.fill(0);
-
-            mat.At(0, 0) = 2 / (right - left);
-            mat.At(1, 1) = 2 / (top - bottom);
-            mat.At(2, 2) = 1 / (farZ - nearZ);
-            mat.At(0, 3) = -(right + left) / (right - left);
-            mat.At(1, 3) = -(top + bottom) / (top - bottom);
-            mat.At(2, 3) = -nearZ / (farZ - nearZ);
-            mat.At(3, 3) = 1;
-
-            return mat;
+        static Matrix4 Orthographic(T left, T right, T bottom, T top, T near, T far) {
+            Matrix4 m;
+            m.m.fill(0);
+            m.At(0, 0) = 2 / (right - left);
+            m.At(1, 1) = 2 / (top - bottom);
+            m.At(2, 2) = 2 / (far - near);
+            m.At(3, 0) = -(right + left) / (right - left);
+            m.At(3, 1) = -(top + bottom) / (top - bottom);
+            m.At(3, 2) = -(far + near) / (far - near);
+            m.At(3, 3) = 1;
+            return m;
         }
     };
 

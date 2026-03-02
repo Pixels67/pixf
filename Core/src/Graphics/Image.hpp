@@ -11,9 +11,7 @@ namespace Flock::Graphics {
         R,
         Rg,
         Rgb,
-        Rgba,
-        Bgr,
-        Bgra,
+        Rgba
     };
 
     inline u32 ToGlType(const ImageFormat format) {
@@ -26,15 +24,15 @@ namespace Flock::Graphics {
                 return GL_RGB;
             case ImageFormat::Rgba:
                 return GL_RGBA;
-            case ImageFormat::Bgr:
-                return GL_BGR;
-            case ImageFormat::Bgra:
-                return GL_BGRA;
             default:
                 return 0;
         }
     }
 
+    /**
+     * @struct Image
+     * @brief 2D image data.
+     */
     struct FLK_API Image {
         Memory::Buffer data;
         Vector2u       size;

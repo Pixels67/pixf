@@ -1,97 +1,74 @@
-#include "Flock.hpp"
-#include "FileIo/Image.hpp"
+#include "Asset/AssetLoader.hpp"
 #include "Glfw/Window.hpp"
-#include "Graphics/Gl.hpp"
+#include "Graphics/Renderer.hpp"
 
 using namespace Flock;
 using namespace Flock::Graphics;
 
-static const auto s_VertShader = R"(
-#version 330 core
-
-layout(location = 0) in vec3 aVertPos;
-layout(location = 1) in vec3 aNormal;
-layout(location = 2) in vec2 aTexCoords;
-
-out vec2 vTexCoords;
-out vec3 vColor;
-
-void main() {
-    gl_Position = vec4(aVertPos, 1.0);
-    vTexCoords = aTexCoords;
-    vColor = aNormal;
-}
-)";
-
-static const auto s_FragShader = R"(
-#version 330 core
-
-in vec2 vTexCoords;
-in vec3 vColor;
-
-out vec4 fragColor;
-
-uniform sampler2D uTex;
-
-void main() {
-    fragColor = vec4(vec3(texture(uTex, vTexCoords)) * vColor, 1.0);
-}
-)";
-
-static const std::vector s_Vertices = {
-    Vertex{{-1.0F, -1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}, {0.0F, 0.0F}},
-    Vertex{{-1.0F, 1.0F, 0.0F}, {1.0F, 0.0F, 0.0F}, {0.0F, 1.0F}},
-    Vertex{{1.0F, -1.0F, 0.0F}, {0.0F, 0.0F, 1.0F}, {1.0F, 0.0F}},
-    Vertex{{1.0F, 1.0F, 0.0F}, {1.0F, 0.0F, 0.0F}, {1.0F, 1.0F}}
-};
-
-static const std::vector s_Indices = {
-    0u, 1u, 2u,
-    2u, 3u, 1u
-};
-
 int main() {
-    const Glfw::Window window = Glfw::Window::Create().value();
+    const Glfw::Window window = Glfw::Window::Create({.size = {800, 800}}).value();
     window.MakeCurrent();
 
-    const Shader   vertShader = Shader::Create(VertexShader, s_VertShader).value();
-    const Shader   fragShader = Shader::Create(FragmentShader, s_FragShader).value();
-    const Pipeline pipeline   = Pipeline::Create(vertShader, fragShader).value();
+    Renderer           renderer;
+    Asset::AssetLoader loader;
 
-    if (!pipeline.Bind()) {
-        return -1;
-    }
+    const auto pipeline = loader.Load<Pipeline>("../../../assets/shader.glsl").value();
+    loader.SetDefaultPipeline(Asset::PipelineType::Pbr, pipeline);
 
-    Texture2D texture = Texture2D::Create(
-        FileIo::ReadImage("../../../assets/Checkerboard.png"),
-        {.filterMode = Nearest}
-    );
+    const auto modelAsset = loader.Load<Model>("../../../assets/dragon1.ply").value();
+    Model &    model      = loader.Get(modelAsset).value();
 
-    if (!pipeline.SetUniform("uTex", texture)) {
-        return -1;
-    }
-
-    const Mesh mesh = Mesh::Create({
-        .vertices = s_Vertices,
-        .indices  = s_Indices
-    }).value();
-
-    if (!mesh.Bind()) {
-        return -1;
-    }
-
+    float rot = 35.0F;
     while (!window.ShouldClose()) {
         Glfw::PollEvents();
 
-        glViewport(0, 0, window.GetSize().x, window.GetSize().y);
-        glClearColor(0.15F, 0.2F, 0.2F, 1.0F);
-        glClear(GL_COLOR_BUFFER_BIT);
+        Vector3f   position = {0.0F, -0.6F, 1.2F};
+        Quaternion rotation = Quaternion::Euler(0.0F, rot, 0.0F);
 
-        glDrawElements(GL_TRIANGLES, mesh.GetIndexCount(), GL_UNSIGNED_INT, nullptr);
+        std::vector<RenderObject> objects;
+        objects.reserve(model.meshes.size());
+        for (auto &mesh: model.meshes) {
+            objects.push_back({
+                .mesh     = mesh,
+                .position = position,
+                .rotation = rotation
+            });
+        }
 
+        auto shadowMap = Renderer::GenerateShadowMap(
+            std::move(objects),
+            {2048, 2048},
+            {0.5F, 1.0F, -0.5F},
+            position,
+            1.0F
+        ).value();
+
+        renderer.BeginPass({
+            .projection       = Projection::Perspective,
+            .viewport         = {{0, 0}, window.GetSize()},
+            .ambientIntensity = 0.1F,
+            .lights           = {
+                {
+                    .position  = {0.5F, 1.0F, -0.5F},
+                    .color     = {240, 220, 160},
+                    .intensity = 10.0F,
+                    .shadowMap = std::ref(shadowMap),
+                }
+            }
+        });
+
+        for (usize i = 0; i < model.meshes.size(); i++) {
+            renderer.Submit({
+                .mesh     = model.meshes[i],
+                .material = model.materials[i],
+                .position = position,
+                .rotation = rotation
+            });
+        }
+
+        renderer.Render(loader);
         window.SwapBuffers();
-    }
 
-    Mesh::Unbind();
-    Pipeline::Unbind();
+        rot += 1.0F;
+    }
 }

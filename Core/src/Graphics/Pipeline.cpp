@@ -11,7 +11,7 @@ namespace Flock::Graphics {
             return std::nullopt;
         }
 
-        pipeline.m_DefaultTexture = Texture2D::Create(Image::Default());
+        pipeline.m_DefaultTexture = Texture2D::FromImage(Image::Default());
         pipeline.SetSamplerUnits();
 
         return pipeline;
@@ -115,7 +115,8 @@ namespace Flock::Graphics {
             return false;
         }
 
-        return value.Bind(m_SamplerUnits.at(name));
+        Texture2D::SetActiveUnit(m_SamplerUnits.at(name));
+        return value.Bind();
     }
 
     u32 Pipeline::LinkShaders(const Shader &vertex, const Shader &fragment) {
@@ -164,13 +165,24 @@ namespace Flock::Graphics {
             GLenum  type;
             FLK_GL_CALL(glGetActiveUniform(m_Id, i, sizeof(name), &length, &size, &type, name));
 
-            if (type == GL_SAMPLER_2D) {
-                const i32 unit       = unitCounter++;
-                m_SamplerUnits[name] = unit;
+            if (type == GL_SAMPLER_2D || type == GL_SAMPLER_2D_SHADOW) {
+                std::string uniformName = name;
 
-                i32 location = 0;
-                FLK_GL_CALL(location = glGetUniformLocation(m_Id, name));
-                FLK_GL_CALL(glUniform1i(location, unit));
+                if (uniformName.ends_with("[0]")) {
+                    uniformName = uniformName.substr(0, uniformName.size() - 3);
+                }
+
+                for (i32 j = 0; j < size; j++) {
+                    std::string elementName = size > 1
+                        ? uniformName + "[" + std::to_string(j) + "]"
+                        : uniformName;
+
+                    const i32 unit = unitCounter++;
+                    m_SamplerUnits[elementName] = unit;
+
+                    i32 location = glGetUniformLocation(m_Id, elementName.c_str());
+                    FLK_GL_CALL(glUniform1i(location, unit));
+                }
             }
         }
 
@@ -197,6 +209,11 @@ namespace Flock::Graphics {
             case UniformType::F32:
                 FLK_GL_CALL(glUniform1f(glGetUniformLocation(m_Id, name.c_str()), std::any_cast<f32>(data)));
                 break;
+            case UniformType::Vec2: {
+                const auto vec = std::any_cast<Vector2f>(data);
+                FLK_GL_CALL(glUniform2f(glGetUniformLocation(m_Id, name.c_str()), vec.x, vec.y));
+                break;
+            }
             case UniformType::Vec3: {
                 const auto vec = std::any_cast<Vector3f>(data);
                 FLK_GL_CALL(glUniform3f(glGetUniformLocation(m_Id, name.c_str()), vec.x, vec.y, vec.z));
@@ -219,7 +236,7 @@ namespace Flock::Graphics {
             }
             case UniformType::Mat4: {
                 const auto mat = std::any_cast<Matrix4f>(data);
-                FLK_GL_CALL(glUniformMatrix4fv(glGetUniformLocation(m_Id, name.c_str()), 1, false, mat.Data()));
+                FLK_GL_CALL(glUniformMatrix4fv(glGetUniformLocation(m_Id, name.c_str()), 1, true, mat.Data()));
                 break;
             }
             default:

@@ -10,7 +10,7 @@ namespace Flock {
     class Quaternion;
 
     template<typename T>
-    struct Vector2 {
+    struct FLK_API Vector2 {
         T x, y;
 
         Vector2() : x(0), y(0) {
@@ -50,6 +50,10 @@ namespace Flock {
     y op o
         FLK_MATH_ASSIGN_OPS(Vector2, T, EXPR)
 #undef EXPR
+
+        T Dot(const Vector2 &other) const {
+            return x * other.x + y * other.y;
+        }
 
         f64     SqrMagnitude() const { return x * x + y * y; }
         f64     Magnitude() const { return sqrt(SqrMagnitude()); }
@@ -112,6 +116,18 @@ namespace Flock {
 
         Vector3 operator*(const Quaternion &quaternion) { return quaternion * *this; }
 
+        T Dot(const Vector3 &other) const {
+            return x * other.x + y * other.y + z * other.z;
+        }
+
+        Vector3 Cross(const Vector3 &other) const {
+            return {
+                y * other.z - z * other.y,
+                z * other.x - x * other.z,
+                x * other.y - y * other.x
+            };
+        }
+
         f64     SqrMagnitude() const { return x * x + y * y + z * z; }
         f64     Magnitude() const { return sqrt(SqrMagnitude()); }
         Vector3 Normalized() const { return *this / Magnitude(); }
@@ -168,6 +184,10 @@ namespace Flock {
     w op o
         FLK_MATH_ASSIGN_OPS(Vector4, T, EXPR)
 #undef EXPR
+
+        T Dot(const Vector4 &other) const {
+            return x * other.x + y * other.y + z * other.z + w * other.w;
+        }
 
         f64     SqrMagnitude() const { return x * x + y * y + z * z + w * w; }
         f64     Magnitude() const { return sqrt(SqrMagnitude()); }

@@ -13,7 +13,7 @@ namespace Flock {
 
     using Matrix4f = Matrix4<f32>;
 
-    class Quaternion {
+    class FLK_API Quaternion {
     public:
         f32 x, y, z, w;
 
@@ -25,7 +25,7 @@ namespace Flock {
 
         static Quaternion AngleAxis(const f32 angleDegrees, const Vector3f axis) {
             const f32 halfAngle = DegreesToRadians(angleDegrees) * 0.5F;
-            f32       s = std::sin(halfAngle);
+            f32       s         = std::sin(halfAngle);
             return Quaternion(axis.Normalized().x * s,
                               axis.Normalized().y * s,
                               axis.Normalized().z * s,
@@ -36,18 +36,18 @@ namespace Flock {
             return Euler(eulerAngles.x, eulerAngles.y, eulerAngles.z);
         }
 
-        static Quaternion Euler(const f32 pitch, const f32 yaw, const f32 roll) {
-            const f32 cy = std::cos(yaw * 0.5F);
-            const f32 sy = std::sin(yaw * 0.5F);
-            const f32 cp = std::cos(pitch * 0.5F);
-            const f32 sp = std::sin(pitch * 0.5F);
-            const f32 cr = std::cos(roll * 0.5F);
-            const f32 sr = std::sin(roll * 0.5F);
+        static Quaternion Euler(const f32 x, const f32 y, const f32 z) {
+            const f32 cy = std::cos(DegreesToRadians(y) * 0.5F);
+            const f32 sy = std::sin(DegreesToRadians(y) * 0.5F);
+            const f32 cp = std::cos(DegreesToRadians(x) * 0.5F);
+            const f32 sp = std::sin(DegreesToRadians(x) * 0.5F);
+            const f32 cr = std::cos(DegreesToRadians(z) * 0.5F);
+            const f32 sr = std::sin(DegreesToRadians(z) * 0.5F);
 
-            return Quaternion(sr * cp * cy - cr * sp * sy, // x
-                              cr * sp * cy + sr * cp * sy, // y
-                              cr * cp * sy - sr * sp * cy, // z
-                              cr * cp * cy + sr * sp * sy  // w
+            return Quaternion(cy * sp * cr + sy * cp * sr, // x
+                              sy * cp * cr - cy * sp * sr, // y
+                              cy * cp * sr - sy * sp * cr, // z
+                              cy * cp * cr + sy * sp * sr  // w
             );
         }
 
@@ -77,10 +77,10 @@ namespace Flock {
         Quaternion &Normalize() {
             if (const f32 mag = Magnitude(); mag > 0.0F) {
                 const f32 invMag = 1.0F / mag;
-                x *= invMag;
-                y *= invMag;
-                z *= invMag;
-                w *= invMag;
+                x                *= invMag;
+                y                *= invMag;
+                z                *= invMag;
+                w                *= invMag;
             }
 
             return *this;
@@ -106,11 +106,11 @@ namespace Flock {
         f32 Dot(const Quaternion &q) const { return x * q.x + y * q.y + z * q.z + w * q.w; }
 
         static Quaternion Slerp(const Quaternion &q1, const Quaternion &q2, f32 t) {
-            Quaternion qz = q2;
-            f32      cosTheta = q1.Dot(q2);
+            Quaternion qz       = q2;
+            f32        cosTheta = q1.Dot(q2);
 
             if (cosTheta < 0.0F) {
-                qz = Quaternion(-q2.x, -q2.y, -q2.z, -q2.w);
+                qz       = Quaternion(-q2.x, -q2.y, -q2.z, -q2.w);
                 cosTheta = -cosTheta;
             }
 
@@ -122,10 +122,10 @@ namespace Flock {
                         .Normalized();
             }
 
-            const f32 angle = std::acos(cosTheta);
+            const f32 angle    = std::acos(cosTheta);
             const f32 sinTheta = std::sin(angle);
-            const f32 w1 = std::sin((1.0F - t) * angle) / sinTheta;
-            const f32 w2 = std::sin(t * angle) / sinTheta;
+            const f32 w1       = std::sin((1.0F - t) * angle) / sinTheta;
+            const f32 w2       = std::sin(t * angle) / sinTheta;
 
             return Quaternion(q1.x * w1 + qz.x * w2,
                               q1.y * w1 + qz.y * w2,
@@ -134,24 +134,29 @@ namespace Flock {
         }
 
         Vector3f EulerAngles() const {
-            Vector3f    angles;
-            const f32 sp = 2.0F * (w * y - z * x);
+            Vector3f  angles;
+            const f32 sp = 2.0F * (w * x - y * z);
 
             if (constexpr f32 epsilon = 0.9999F; std::abs(sp) >= epsilon) {
-                angles.y = (sp > 0) ? (GetPi() / 2.0F) : (-GetPi() / 2.0F);
+                angles.x = (sp > 0) ? (GetPi() / 2.0F) : (-GetPi() / 2.0F);
 
-                angles.x = -2.0F * std::atan2(x, w); // or 2.0F * atan2(x, w)
+                angles.y = 2.0F * std::atan2(y, w);
                 angles.z = 0.0F;
             } else {
-                angles.y = std::asin(sp);
+                angles.x = std::asin(sp);
 
-                const f32 srcp = 2.0F * (w * z + x * y);
-                const f32 crcp = 1.0F - 2.0F * (y * y + z * z);
-                angles.z = std::atan2(srcp, crcp);
-                const f32 sycp = 2.0F * (w * x + y * z);
-                const f32 cycp = 1.0F - 2.0F * (x * x + y * y);
-                angles.x = std::atan2(sycp, cycp);
+                const f32 sycy = 2.0F * (w * y + x * z);
+                const f32 cycy = 1.0F - 2.0F * (x * x + y * y);
+                angles.y       = std::atan2(sycy, cycy);
+
+                const f32 szcz = 2.0F * (w * z + x * y);
+                const f32 czcz = 1.0F - 2.0F * (x * x + z * z);
+                angles.z       = std::atan2(szcz, czcz);
             }
+
+            angles.x = RadiansToDegrees(angles.x);
+            angles.y = RadiansToDegrees(angles.y);
+            angles.z = RadiansToDegrees(angles.z);
 
             return angles;
         }

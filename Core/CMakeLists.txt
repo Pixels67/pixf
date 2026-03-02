@@ -30,6 +30,19 @@ CPMAddPackage(
         GIT_SHALLOW TRUE
 )
 
+CPMAddPackage(
+        NAME assimp
+        URL "https://github.com/assimp/assimp/archive/refs/tags/v6.0.2.tar.gz"
+        OPTIONS
+        "ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF"
+        "ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF"
+        "ASSIMP_BUILD_FBX_IMPORTER ON"
+        "ASSIMP_BUILD_GLTF_IMPORTER ON"
+        "ASSIMP_BUILD_OBJ_IMPORTER ON"
+        "ASSIMP_BUILD_PLY_IMPORTER ON"
+        "ASSIMP_BUILD_TESTS OFF"
+)
+
 add_library(stbi STATIC vendor/stbi.h vendor/stbi.c)
 
 set(PROJECT_SOURCES
@@ -76,6 +89,21 @@ set(PROJECT_SOURCES
         src/Glfw/Window.hpp
         src/FileIo/Image.hpp
         src/FileIo/Image.cpp
+        src/Asset/AssetLoader.hpp
+        src/Graphics/Material.hpp
+        src/FileIo/Pipeline.hpp
+        src/FileIo/Pipeline.cpp
+        src/FileIo/File.hpp
+        src/FileIo/File.cpp
+        src/Graphics/Renderer.cpp
+        src/Graphics/Renderer.hpp
+        src/Math/Rect.hpp
+        src/FileIo/Model.hpp
+        src/FileIo/Model.cpp
+        src/Graphics/Model.hpp
+        src/Asset/AssetHandle.hpp
+        src/Graphics/Framebuffer.cpp
+        src/Graphics/Framebuffer.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
@@ -90,6 +118,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         glad
         SLog
         stbi
+        assimp
 )
 
 ################## Tests ##################

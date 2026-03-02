@@ -7,7 +7,7 @@
 
 namespace Flock {
     template<typename T>
-    struct Color3 {
+    struct FLK_API Color3 {
         T r, g, b;
 
         Color3() : r(0), g(0), b(0) {

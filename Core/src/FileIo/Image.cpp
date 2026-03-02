@@ -3,11 +3,14 @@
 #include <stbi.h>
 
 namespace Flock::FileIo {
-    Graphics::Image ReadImage(const std::filesystem::path& filePath) {
+    Graphics::Image ReadImage(const std::filesystem::path &filePath) {
         stbi_set_flip_vertically_on_load(1);
 
         i32   width, height, channels;
-        void *data = stbi_load(filePath.string().c_str(), &width, &height, &channels, 4);
+        void *data = stbi_load(filePath.string().c_str(), &width, &height, &channels, 0);
+        if (!data) {
+            Debug::LogErr("Failed to read image: {}", stbi_failure_reason());
+        }
 
         auto format = Graphics::ImageFormat::Rgba;
         switch (channels) {

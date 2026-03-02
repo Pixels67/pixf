@@ -32,7 +32,7 @@ namespace Flock::Graphics {
         FilterMode filterMode       = Linear;
         FilterMode mipmapFilterMode = Linear;
         WrapMode   wrapMode         = Repeat;
-        bool       generateMipmaps  = false;
+        bool       generateMipmaps  = true;
 
         [[nodiscard]] u32 GetGlWrap() const;
         [[nodiscard]] u32 GetGlMinFilter() const;
@@ -54,15 +54,22 @@ namespace Flock::Graphics {
          * @param config The texture configuration.
          * @return A newly created 2D texture.
          */
-        static Texture2D Create(const Image &image, TextureConfig config = {});
+        static Texture2D FromImage(const Image &image, TextureConfig config = {});
+
+        /**
+         * @brief Static factory method.
+         * @param size The size of the texture.
+         * @return A newly created 2D depth buffer texture.
+         */
+        static Texture2D CreateDepth(Vector2u size);
 
         Texture2D() = default;
         ~Texture2D();
 
-        Texture2D(const Texture2D &other)     = delete;
+        Texture2D(const Texture2D &other) = delete;
         Texture2D(Texture2D &&other) noexcept;
 
-        Texture2D &operator=(const Texture2D &other)     = delete;
+        Texture2D &operator=(const Texture2D &other) = delete;
         Texture2D &operator=(Texture2D &&other) noexcept;
 
         /**
@@ -71,19 +78,25 @@ namespace Flock::Graphics {
         void Clear() const;
 
         /**
-         * @brief Binds the texture to a texture unit.
-         * @param unit The texture unit to bind to.
-         * @return true if successful; false otherwise.
+         * @brief Sets the active texture unit.
+         * @param unit The unit.
          */
-        bool Bind(u8 unit) const;
+        static void SetActiveUnit(u8 unit);
 
         /**
-         * @brief Unbinds a texture from a texture unit.
-         * @param unit The texture unit to unbind from.
+         * @brief Binds the texture to the active texture unit.
+         * @return true if successful; false otherwise.
          */
-        static void Unbind(u8 unit);
+        bool Bind() const;
+
+        /**
+         * @brief Unbinds a texture from the active texture unit.
+         */
+        static void Unbind();
 
         [[nodiscard]] TextureConfig GetConfig() const;
+
+        [[nodiscard]] u32 GetGlId() const;
     };
 }
 
