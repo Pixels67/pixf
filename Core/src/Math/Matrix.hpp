@@ -16,6 +16,10 @@ namespace Flock {
 
         Matrix4() { m = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1}; }
 
+        Matrix4(std::array<T, 16> array) {
+            m = array;
+        }
+
         static Matrix4 Identity() { return Matrix4(); }
 
         T &At(const u32 row, const u32 col) { return m[(row * 4) + col]; }

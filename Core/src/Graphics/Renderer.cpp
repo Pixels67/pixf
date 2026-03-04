@@ -1,7 +1,7 @@
 #include "Renderer.hpp"
 
 namespace Flock::Graphics {
-    static constexpr usize s_MaxLightsPerObject = 2;
+    static constexpr usize s_MaxLightsPerObject = 16;
 
     static constexpr auto s_DefaultVertShader = R"(
 #version 330 core
@@ -11,12 +11,11 @@ layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoords;
 
 uniform mat4 uModel;
-uniform mat4 uView;
-uniform mat4 uProj;
+uniform mat4 uVP;
 
 void main() {
     vec4 worldPos = vec4(aPosition, 1.0) * uModel;
-    gl_Position = worldPos * uView * uProj;
+    gl_Position = worldPos * uVP;
 }
 )";
 
@@ -30,9 +29,9 @@ void main() {
 }
 )";
 
-    Renderer &Renderer::BeginPass(const RenderPassConfig &config) {
+    Renderer &Renderer::BeginPass(const RenderConfig &config) {
         m_RenderQueue.clear();
-        m_RenderPass = config;
+        m_RenderConfig = config;
 
         return *this;
     }
@@ -44,39 +43,41 @@ void main() {
     }
 
     Renderer &Renderer::Render(Asset::AssetLoader &assetLoader, const OptionalRef<Framebuffer> framebuffer) {
-        if (!m_RenderPass) {
+        if (!m_RenderConfig) {
+            ClearFrame();
             return *this;
         }
 
-        std::sort(m_RenderPass->lights.begin(), m_RenderPass->lights.end(),
+        std::sort(m_RenderConfig->lights.begin(), m_RenderConfig->lights.end(),
                   [&](const Light &lhs, const Light &rhs) -> bool {
                       return lhs.position.Magnitude() < rhs.position.Magnitude();
                   });
 
-        const i32          lightCount = std::min(m_RenderPass->lights.size(), s_MaxLightsPerObject);
-        std::vector<Light> lights     = m_RenderPass->lights;
+        const i32          lightCount = std::min(m_RenderConfig->lights.size(), s_MaxLightsPerObject);
+        std::vector<Light> lights     = m_RenderConfig->lights;
         lights.resize(lightCount);
 
         std::vector<RenderObject> objects;
         for (auto cmd: m_RenderQueue) {
             objects.push_back(
-                {.mesh = cmd.mesh, .position = cmd.position, .rotation = cmd.rotation, .scale = cmd.scale});
+                {.mesh = cmd.mesh, .transform = cmd.transform});
         }
 
-        f32      shadowRange  = m_RenderPass->shadowRange;
-        Vector3f shadowCenter = m_RenderPass->cameraPosition;
+        f32      shadowRange  = m_RenderConfig->shadowRange;
+        Vector3f shadowCenter = m_RenderConfig->camera.position;
         GenerateShadowMaps(objects, lights, shadowCenter, shadowRange);
 
         if (framebuffer) {
             if (!framebuffer->get().Bind()) {
                 Debug::LogErr("Render failed: Unable to bind framebuffer!");
+                ClearFrame();
                 return *this;
             }
         } else {
             Framebuffer::Unbind();
         }
 
-        auto [origin, aspect] = m_RenderPass->viewport;
+        auto [origin, aspect] = m_RenderConfig->viewport;
 
         // Hardcoded for now
         FLK_GL_CALL(glEnable(GL_CULL_FACE));
@@ -86,15 +87,15 @@ void main() {
 
         FLK_GL_CALL(glViewport(origin.x, origin.y, aspect.x, aspect.y));
 
-        if (m_RenderPass->clearColor) {
-            const auto vec = m_RenderPass->clearColor->ToVector();
+        if (m_RenderConfig->clearColor) {
+            const auto vec = m_RenderConfig->clearColor->ToVector();
             FLK_GL_CALL(glClearColor(vec.x, vec.y, vec.z, 1.0F));
             FLK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
         }
 
-        FLK_GL_CALL(glDepthFunc(ToGlType(m_RenderPass->depthFunc)));
+        FLK_GL_CALL(glDepthFunc(ToGlType(m_RenderConfig->depthFunc)));
 
-        if (m_RenderPass->clearDepth) {
+        if (m_RenderConfig->clearDepth) {
             FLK_GL_CALL(glEnable(GL_DEPTH_TEST));
             FLK_GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
         } else {
@@ -104,40 +105,40 @@ void main() {
         auto queue = m_RenderQueue;
         std::reverse(queue.begin(), queue.end());
         while (!queue.empty()) {
-            auto [mesh, material, position, rotation, scale] = queue.back();
+            auto [mesh, material, trans] = queue.back();
             queue.pop_back();
 
             Pipeline &pipeline = assetLoader.Get(material.pipeline).value();
 
             Matrix4f model = Matrix4f::Identity() *
-                             Matrix4f::Rotate(rotation) *
-                             Matrix4f::Scale(scale) *
-                             Matrix4f::Translate(position);
+                             Matrix4f::Scale(trans.scale) *
+                             Matrix4f::Rotate(trans.rotation) *
+                             Matrix4f::Translate(trans.position);
 
             Matrix4f view = Matrix4f::Identity() *
-                            Matrix4f::Translate(-m_RenderPass->cameraPosition) *
-                            Matrix4f::Rotate(m_RenderPass->cameraRotation.Inverse());
+                            Matrix4f::Translate(-m_RenderConfig->camera.position) *
+                            Matrix4f::Rotate(m_RenderConfig->camera.rotation.Inverse());
 
             Matrix4f proj;
 
             f32 aspectRatio = static_cast<f32>(aspect.x - origin.x) / static_cast<f32>(aspect.y - origin.y);
-            if (m_RenderPass->projection == Projection::Orthographic) {
+            if (m_RenderConfig->camera.projection == Projection::Orthographic) {
                 proj = Matrix4f::Orthographic(
-                    -aspectRatio * m_RenderPass->size,
-                    aspectRatio * m_RenderPass->size,
-                    -m_RenderPass->size,
-                    m_RenderPass->size,
-                    m_RenderPass->nearZ,
-                    m_RenderPass->farZ
+                    -aspectRatio * m_RenderConfig->camera.size,
+                    aspectRatio * m_RenderConfig->camera.size,
+                    -m_RenderConfig->camera.size,
+                    m_RenderConfig->camera.size,
+                    m_RenderConfig->camera.size,
+                    m_RenderConfig->camera.size
                 );
             }
 
-            if (m_RenderPass->projection == Projection::Perspective) {
+            if (m_RenderConfig->camera.projection == Projection::Perspective) {
                 proj = Matrix4f::Perspective(
-                    m_RenderPass->fovY,
+                    m_RenderConfig->camera.fovY,
                     aspectRatio,
-                    m_RenderPass->nearZ,
-                    m_RenderPass->farZ
+                    m_RenderConfig->camera.nearZ,
+                    m_RenderConfig->camera.farZ
                 );
             }
 
@@ -161,16 +162,18 @@ void main() {
                 pipeline.SetUniform("uRoughnessMap", assetLoader.Get(material.roughnessMap.value()).value());
             }
 
-            pipeline.SetUniform("uAmbientColor", m_RenderPass->ambientColor);
-            pipeline.SetUniform("uAmbientIntensity", m_RenderPass->ambientIntensity);
+            pipeline.SetUniform("uAmbientColor", m_RenderConfig->ambientColor);
+            pipeline.SetUniform("uAmbientIntensity", m_RenderConfig->ambientIntensity);
 
             pipeline.SetUniform("uNumLights", lightCount);
             for (i32 i = 0; i < lightCount; i++) {
                 const auto &[lightPosition, color, intensity, radius, isStatic, hasShadows] = lights[i];
 
-                Matrix4f spaceMat =
-                        GetShadowMapView(lightPosition, shadowCenter, shadowRange) * GetShadowMapProj(
-                            aspectRatio, shadowRange);
+                const f32 shadowAspect = static_cast<f32>(m_RenderConfig->shadowMapResolution.x) /
+                                         static_cast<f32>(m_RenderConfig->shadowMapResolution.y);
+
+                Vector3f offset   = m_RenderConfig->camera.position;
+                Matrix4f spaceMat = lights[i].GetLightSpaceMatrix(shadowRange, shadowAspect, offset);
 
                 pipeline.SetUniform("uLightPositions[" + std::to_string(i) + "]", lightPosition);
                 pipeline.SetUniform("uLightColors[" + std::to_string(i) + "]", color);
@@ -186,11 +189,12 @@ void main() {
                 }
             }
 
-            pipeline.SetUniform("uCameraPosition", m_RenderPass->cameraPosition);
+            pipeline.SetUniform("uCameraPosition", m_RenderConfig->camera.position);
 
             if (m_ShadowMaps.GetLayerCount() > 0) {
                 if (!pipeline.SetUniform("uShadowMaps", m_ShadowMaps)) {
                     Debug::LogErr("Render: Failed to upload shadow maps!");
+                    ClearFrame();
                     return *this;
                 }
             }
@@ -202,15 +206,27 @@ void main() {
         Mesh::Unbind();
         Pipeline::Unbind();
 
-        m_RenderPass = std::nullopt;
+        m_RenderConfig = std::nullopt;
 
         return *this;
+    }
+
+    void Renderer::ClearFrame(const OptionalRef<Framebuffer> framebuffer) {
+        if (framebuffer) {
+            if (!framebuffer->get().Bind()) {
+                return;
+            }
+        } else {
+            Framebuffer::Unbind();
+        }
+
+        FLK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     }
 
     void Renderer::GenerateShadowMaps(
         const std::vector<RenderObject> &objects,
         const std::vector<Light> &       lights,
-        const Vector3f                   centerPosition,
+        const Vector3f                   offset,
         const f32                        range
     ) {
         m_LightShadowMapIndices.resize(lights.size());
@@ -218,7 +234,7 @@ void main() {
         std::vector<usize> lightIndices;
         u32                counter = 0;
         for (usize i = 0; i < lights.size(); i++) {
-            if (lights[i].hasShadows) {
+            if (lights[i].hasShadows && lights[i].radius == 0.0F) {
                 m_LightShadowMapIndices[i] = counter;
                 lightIndices.push_back(i);
                 counter++;
@@ -228,22 +244,22 @@ void main() {
         }
 
         bool mapsReset = false;
-        if (m_ShadowMaps.GetLayerCount() != counter || m_ShadowMaps.GetSize() != m_RenderPass->shadowMapResolution) {
+        if (m_ShadowMaps.GetLayerCount() != counter || m_ShadowMaps.GetSize() != m_RenderConfig->shadowMapResolution) {
             m_ShadowMaps = TextureArray::Create(
                 counter,
-                m_RenderPass->shadowMapResolution,
+                m_RenderConfig->shadowMapResolution,
                 {.format = TextureFormat::Depth}
             );
 
             mapsReset = true;
         }
 
-        for (usize i = 0; i < lightIndices.size(); i++) {
-            if (lights[i].isStatic && !mapsReset) {
+        for (const usize idx: lightIndices) {
+            if (lights[idx].isStatic && !mapsReset) {
                 continue;
             }
 
-            GenerateShadowMap(objects, m_ShadowMaps, lightIndices[i], lights[i].position, centerPosition, range);
+            GenerateShadowMap(objects, m_ShadowMaps, idx, lights[idx], offset, range);
         }
     }
 
@@ -251,8 +267,8 @@ void main() {
         std::vector<RenderObject> objects,
         const TextureArray &      textureArray,
         const u32                 index,
-        const Vector3f            lightPosition,
-        const Vector3f            centerPosition,
+        const Light &             light,
+        const Vector3f            offset,
         const f32                 range
     ) {
         static Framebuffer framebuffer = Framebuffer::Create().value();
@@ -277,22 +293,20 @@ void main() {
 
         const f32 aspectRatio = static_cast<f32>(textureArray.GetSize().x) / static_cast<f32>(textureArray.GetSize().y);
 
-        const Matrix4f view = GetShadowMapView(lightPosition, centerPosition, range);
-        const Matrix4f proj = GetShadowMapProj(aspectRatio, range);
+        const Matrix4f spaceMat = light.GetLightSpaceMatrix(range, aspectRatio, offset);
 
         static const Shader vert     = Shader::Create(VertexShader, s_DefaultVertShader).value();
         static const Shader frag     = Shader::Create(FragmentShader, s_DefaultFragShader).value();
         static Pipeline     pipeline = Pipeline::Create(vert, frag).value();
 
-        for (auto &[mesh, position, rotation, scale]: objects) {
+        for (auto &[mesh, trans]: objects) {
             const Matrix4f model =
-                    Matrix4f::Scale(scale) *
-                    Matrix4f::Rotate(rotation) *
-                    Matrix4f::Translate(position);
+                    Matrix4f::Scale(trans.scale) *
+                    Matrix4f::Rotate(trans.rotation) *
+                    Matrix4f::Translate(trans.position);
 
             pipeline.SetUniform("uModel", model);
-            pipeline.SetUniform("uView", view);
-            pipeline.SetUniform("uProj", proj);
+            pipeline.SetUniform("uVP", spaceMat);
 
             RenderMesh(*mesh, pipeline);
         }
@@ -317,51 +331,5 @@ void main() {
 
         FLK_GL_CALL(glDrawElements(GL_TRIANGLES, mesh.GetIndexCount(), GL_UNSIGNED_INT, nullptr));
         return true;
-    }
-
-    Matrix4f Renderer::GetShadowMapView(const Vector3f lightPosition, const Vector3f centerPosition, const f32 range) {
-        const Vector3f lightDir = (-lightPosition).Normalized();
-        const Vector3f target   = centerPosition;
-        const Vector3f eye      = target - lightDir * range;
-        const Vector3f up       = std::abs(lightDir.y) > 0.99F ? Vector3f::Forward() : Vector3f::Up();
-
-        return Matrix4f::LookAt(eye, target, up);
-    }
-
-    Matrix4f Renderer::GetShadowMapProj(f32 aspectRatio, f32 range) {
-        return Matrix4f::Orthographic(
-            -aspectRatio * range,
-            aspectRatio * range,
-            -range,
-            range,
-            0.0F,
-            range * 2.0F
-        );
-    }
-
-    void Renderer::DumpDepthTexture(const Texture2D &texture, const Vector2u resolution) {
-        std::vector<f32> pixels(resolution.x * resolution.y);
-
-        glBindTexture(GL_TEXTURE_2D, texture.GetGlId());
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_FLOAT, pixels.data());
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        std::vector<u8> output(pixels.size());
-        const f32       minV = *std::min_element(pixels.begin(), pixels.end());
-        const f32       maxV = *std::max_element(pixels.begin(), pixels.end());
-
-        for (u32 y = 0; y < resolution.y; ++y) {
-            u32 srcY = (resolution.y - 1) - y;
-            for (u32 x = 0; x < resolution.x; ++x) {
-                size_t i                     = srcY * resolution.x + x;
-                float  v                     = pixels[i];
-                output[y * resolution.x + x] =
-                        static_cast<u8>(((v - minV) / (maxV - minV)) * 255.0f);
-            }
-        }
-
-        std::ofstream file("depth_debug.pgm", std::ios::binary);
-        file << "P5\n" << resolution.x << " " << resolution.y << "\n255\n";
-        file.write(reinterpret_cast<const char *>(output.data()), output.size());
     }
 }

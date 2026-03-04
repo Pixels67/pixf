@@ -1,9 +1,9 @@
 #include "Schedule.hpp"
 
 namespace Flock::Ecs {
-    void Schedule::Execute(const Stage stage, Registry &registry) {
+    void Schedule::Execute(const Stage stage, World &world) {
         for (auto &system: m_Systems[stage]) {
-            system(registry);
+            system(world);
         }
     }
 

@@ -23,7 +23,7 @@ namespace Flock::Graphics {
 
     Pipeline::Pipeline(Pipeline &&other) noexcept {
         m_Id             = other.m_Id;
-        m_Samplers   = std::move(other.m_Samplers);
+        m_Samplers       = std::move(other.m_Samplers);
         m_DefaultTexture = std::move(other.m_DefaultTexture);
         m_Uniforms       = std::move(other.m_Uniforms);
         other.m_Id       = 0;
@@ -36,11 +36,11 @@ namespace Flock::Graphics {
 
         Clear();
 
-        m_Id       = other.m_Id;
-        m_Samplers   = std::move(other.m_Samplers);
+        m_Id             = other.m_Id;
+        m_Samplers       = std::move(other.m_Samplers);
         m_DefaultTexture = std::move(other.m_DefaultTexture);
         m_Uniforms       = std::move(other.m_Uniforms);
-        other.m_Id = 0;
+        other.m_Id       = 0;
 
         return *this;
     }
@@ -115,7 +115,8 @@ namespace Flock::Graphics {
             return false;
         }
 
-        if (m_Samplers.at(name).glType != GL_SAMPLER_2D) {
+        if (m_Samplers.at(name).glType != GL_SAMPLER_2D &&
+            m_Samplers.at(name).glType != GL_SAMPLER_2D_SHADOW) {
             return false;
         }
 
@@ -128,7 +129,8 @@ namespace Flock::Graphics {
             return false;
         }
 
-        if (m_Samplers.at(name).glType != GL_SAMPLER_2D_ARRAY) {
+        if (m_Samplers.at(name).glType != GL_SAMPLER_2D_ARRAY &&
+            m_Samplers.at(name).glType != GL_SAMPLER_2D_ARRAY_SHADOW) {
             return false;
         }
 
@@ -182,7 +184,8 @@ namespace Flock::Graphics {
             GLenum  type;
             FLK_GL_CALL(glGetActiveUniform(m_Id, i, sizeof(name), &length, &size, &type, name));
 
-            if (type == GL_SAMPLER_2D || type == GL_SAMPLER_2D_SHADOW || type == GL_SAMPLER_2D_ARRAY) {
+            if (type == GL_SAMPLER_2D || type == GL_SAMPLER_2D_SHADOW || type == GL_SAMPLER_2D_ARRAY || type ==
+                GL_SAMPLER_2D_ARRAY_SHADOW) {
                 std::string uniformName = name;
 
                 if (uniformName.ends_with("[0]")) {
@@ -191,10 +194,10 @@ namespace Flock::Graphics {
 
                 for (i32 j = 0; j < size; j++) {
                     std::string elementName = size > 1
-                        ? uniformName + "[" + std::to_string(j) + "]"
-                        : uniformName;
+                                                  ? uniformName + "[" + std::to_string(j) + "]"
+                                                  : uniformName;
 
-                    const i32 unit = unitCounter++;
+                    const i32 unit          = unitCounter++;
                     m_Samplers[elementName] = {.unit = unit, .glType = type};
 
                     i32 location = glGetUniformLocation(m_Id, elementName.c_str());

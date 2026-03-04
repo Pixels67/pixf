@@ -69,8 +69,24 @@ namespace Flock::Glfw {
         Window window{};
         window.m_GlfwWindowPtr = windowPtr;
         window.m_Config        = config;
+        window.SetupCallbacks();
 
         return window;
+    }
+
+    OptionalRef<Window> Window::GetCurrentWindow() {
+        if (s_CurrentWindow) {
+            return *s_CurrentWindow;
+        }
+
+        return std::nullopt;
+    }
+
+    void Window::PollEvents(Event::EventHandler &eventHandler) {
+        Glfw::PollEvents();
+        while (!s_EventQueue.IsEmpty()) {
+            eventHandler.QueueEvent(s_EventQueue.PopEvent());
+        }
     }
 
     Window::~Window() {
@@ -111,10 +127,18 @@ namespace Flock::Glfw {
     }
 
     std::string Window::GetTitle() const {
+        if (m_GlfwWindowPtr == nullptr) {
+            return "";
+        }
+
         return glfwGetWindowTitle(m_GlfwWindowPtr);
     }
 
     Vector2u Window::GetSize() const {
+        if (m_GlfwWindowPtr == nullptr) {
+            return {};
+        }
+
         i32 width;
         i32 height;
         glfwGetWindowSize(m_GlfwWindowPtr, &width, &height);
@@ -123,27 +147,103 @@ namespace Flock::Glfw {
     }
 
     f32 Window::GetAspectRatio() const {
+        if (m_GlfwWindowPtr == nullptr) {
+            return 0.0F;
+        }
+
         const Vector2f size = GetSize();
         return size.x / size.y;
     }
 
     bool Window::ShouldClose() const {
+        if (m_GlfwWindowPtr == nullptr) {
+            return true;
+        }
+
         return glfwWindowShouldClose(m_GlfwWindowPtr) == GLFW_TRUE;
     }
 
     void Window::SetTitle(const std::string &title) const {
+        if (m_GlfwWindowPtr == nullptr) {
+            return;
+        }
+
         glfwSetWindowTitle(m_GlfwWindowPtr, title.c_str());
     }
 
-    void Window::SetSize(Vector2u size) const {
+    void Window::SetSize(const Vector2u size) const {
+        if (m_GlfwWindowPtr == nullptr) {
+            return;
+        }
+
         glfwSetWindowSize(m_GlfwWindowPtr, size.x, size.y);
     }
 
-    void Window::MakeCurrent() const {
+    void Window::MakeCurrent() {
+        if (m_GlfwWindowPtr == nullptr) {
+            return;
+        }
+
+        s_CurrentWindow = this;
         glfwMakeContextCurrent(m_GlfwWindowPtr);
     }
 
     void Window::SwapBuffers() const {
+        if (m_GlfwWindowPtr == nullptr) {
+            return;
+        }
+
         glfwSwapBuffers(m_GlfwWindowPtr);
+    }
+
+    bool Window::operator==(const Window &other) const {
+        return m_GlfwWindowPtr == other.m_GlfwWindowPtr;
+    }
+
+    bool Window::operator!=(const Window &other) const {
+        return m_GlfwWindowPtr != other.m_GlfwWindowPtr;
+    }
+
+    void Window::KeyCallback(GLFWwindow *window, const i32 key, const i32 scancode, const i32 action, const i32 mods) {
+        if (!glfwGetWindowAttrib(window, GLFW_FOCUSED)) {
+            return;
+        }
+
+        s_EventQueue.QueueEvent(KeyEvent{key, scancode, action, mods});
+    }
+
+    void Window::MouseButtonCallback(GLFWwindow *window, const i32 button, const i32 action, const i32 mods) {
+        if (!glfwGetWindowAttrib(window, GLFW_FOCUSED)) {
+            return;
+        }
+
+        s_EventQueue.QueueEvent(MouseButtonEvent{button, action, mods});
+    }
+
+    void Window::CursorPosCallback(GLFWwindow *window, const f64 xPos, const f64 yPos) {
+        if (!glfwGetWindowAttrib(window, GLFW_FOCUSED)) {
+            return;
+        }
+
+        s_EventQueue.QueueEvent(CursorPositionEvent{xPos, yPos});
+    }
+
+    void Window::MouseScrollCallback(GLFWwindow *window, const f64 xOffset, const f64 yOffset) {
+        if (!glfwGetWindowAttrib(window, GLFW_FOCUSED)) {
+            return;
+        }
+
+        s_EventQueue.QueueEvent(MouseScrollEvent{xOffset, yOffset});
+    }
+
+    void Window::SetupCallbacks() const {
+        if (m_GlfwWindowPtr == nullptr) {
+            return;
+        }
+
+        glfwSetKeyCallback(m_GlfwWindowPtr, KeyCallback);
+        glfwSetMouseButtonCallback(m_GlfwWindowPtr, MouseButtonCallback);
+        glfwSetCursorPosCallback(m_GlfwWindowPtr, CursorPosCallback);
+        glfwSetScrollCallback(m_GlfwWindowPtr, MouseScrollCallback);
     }
 }

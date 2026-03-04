@@ -1,7 +1,7 @@
 #ifndef FLK_ASSETLOADER_HPP
 #define FLK_ASSETLOADER_HPP
 
-#include "AssetHandle.hpp"
+#include "Handle.hpp"
 #include "Common.hpp"
 #include "TypeId.hpp"
 #include "FileIo/Image.hpp"
@@ -35,7 +35,7 @@ namespace Flock::Asset {
         HashMap<std::string, AssetId>          m_AssetIds;
         std::vector<AssetId>                   m_FreeAssetIds;
 
-        HashMap<PipelineType, AssetHandle<Graphics::Pipeline> > m_DefaultPipelines;
+        HashMap<PipelineType, Handle<Graphics::Pipeline> > m_DefaultPipelines;
 
     public:
         /**
@@ -45,7 +45,7 @@ namespace Flock::Asset {
          * @return A handle to the asset if successful; std::nullopt otherwise.
          */
         template<typename T>
-        std::optional<AssetHandle<T> > Load(const std::filesystem::path &filePath) {
+        std::optional<Handle<T> > Load(const std::filesystem::path &filePath) {
             std::string pathStr = filePath.string();
 
             if (m_AssetIds.contains(pathStr)) {
@@ -56,7 +56,7 @@ namespace Flock::Asset {
                     return std::nullopt;
                 }
 
-                return AssetHandle<T>{.id = id, .typeId = typeId};
+                return Handle<T>{.id = id, .typeId = typeId};
             }
 
             auto asset = Loader<T>::Load(*this, filePath, std::nullopt);
@@ -84,7 +84,7 @@ namespace Flock::Asset {
             }
 
             m_AssetIds[pathStr] = id;
-            return AssetHandle<T>{.id = id, .typeId = typeId};
+            return Handle<T>{.id = id, .typeId = typeId};
         }
 
         /**
@@ -96,7 +96,7 @@ namespace Flock::Asset {
          * @return A handle to the asset if successful; std::nullopt otherwise.
          */
         template<typename T, typename C>
-        std::optional<AssetHandle<T> > Load(const std::filesystem::path &filePath, C config) {
+        std::optional<Handle<T> > Load(const std::filesystem::path &filePath, C config) {
             std::string pathStr = filePath.string();
 
             if (m_AssetIds.contains(pathStr)) {
@@ -107,7 +107,7 @@ namespace Flock::Asset {
                     return std::nullopt;
                 }
 
-                return AssetHandle<T>{.id = id, .typeId = typeId};
+                return Handle<T>{.id = id, .typeId = typeId};
             }
 
             auto asset = Loader<T>::Load(*this, filePath, config);
@@ -135,7 +135,7 @@ namespace Flock::Asset {
             }
 
             m_AssetIds[pathStr] = id;
-            return AssetHandle<T>{.id = id, .typeId = typeId};
+            return Handle<T>{.id = id, .typeId = typeId};
         }
 
         /**
@@ -145,7 +145,7 @@ namespace Flock::Asset {
          * @return A reference to the asset if successful; std::nullopt otherwise.
          */
         template<typename T>
-        OptionalRef<T> Get(AssetHandle<T> handle) {
+        OptionalRef<T> Get(Handle<T> handle) {
             if (handle.id >= m_Assets.size() || !m_Assets.at(handle.id).has_value()) {
                 return std::nullopt;
             }
@@ -164,7 +164,7 @@ namespace Flock::Asset {
          * @return true if successful; false otherwise.
          */
         template<typename T>
-        bool Unload(AssetHandle<T> handle) {
+        bool Unload(Handle<T> handle) {
             if (handle.id >= m_Assets.size()) {
                 return false;
             }
@@ -198,7 +198,7 @@ namespace Flock::Asset {
          * @param pipeline The pipeline to set.
          * @return true if successful; false otherwise.
          */
-        bool SetDefaultPipeline(const PipelineType type, const AssetHandle<Graphics::Pipeline> pipeline) {
+        bool SetDefaultPipeline(const PipelineType type, const Handle<Graphics::Pipeline> pipeline) {
             if (pipeline.id >= m_Assets.size() || !m_Assets.at(pipeline.id).has_value()) {
                 return false;
             }
@@ -212,7 +212,7 @@ namespace Flock::Asset {
          * @param type The pipeline type.
          * @return The default pipeline of that type if found; std::nullopt otherwise.
          */
-        std::optional<AssetHandle<Graphics::Pipeline> > GetDefaultPipeline(const PipelineType type) {
+        std::optional<Handle<Graphics::Pipeline> > GetDefaultPipeline(const PipelineType type) {
             if (!m_DefaultPipelines.contains(type)) {
                 return std::nullopt;
             }

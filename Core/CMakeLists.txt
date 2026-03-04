@@ -101,11 +101,22 @@ set(PROJECT_SOURCES
         src/FileIo/Model.hpp
         src/FileIo/Model.cpp
         src/Graphics/Model.hpp
-        src/Asset/AssetHandle.hpp
+        src/Asset/Handle.hpp
         src/Graphics/Framebuffer.cpp
         src/Graphics/Framebuffer.hpp
         src/Graphics/TextureArray.cpp
         src/Graphics/TextureArray.hpp
+        src/Event/EventHandler.hpp
+        src/Event/EventHandler.cpp
+        src/App.cpp
+        src/App.hpp
+        src/Graphics/ModelRenderer.hpp
+        src/Math/Transform.hpp
+        src/Input/Input.hpp
+        src/Input/InputHandler.cpp
+        src/Input/InputHandler.hpp
+        src/Ecs/World.cpp
+        src/Ecs/World.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

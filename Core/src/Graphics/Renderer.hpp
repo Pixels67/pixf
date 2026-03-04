@@ -6,6 +6,7 @@
 #include "Mesh.hpp"
 #include "Asset/AssetLoader.hpp"
 #include "Math/Rect.hpp"
+#include "Math/Transform.hpp"
 
 namespace Flock::Graphics {
     enum class Projection {
@@ -48,23 +49,13 @@ namespace Flock::Graphics {
     }
 
     struct FLK_API RenderObject {
-        Mesh *     mesh;
-        Vector3f   position = {};
-        Quaternion rotation = {};
-        Vector3f   scale    = Vector3f::One();
+        Mesh *    mesh;
+        Transform transform;
     };
 
     struct FLK_API ShadowMap {
         Texture2D texture;
         Matrix4f  lightSpaceMatrix;
-    };
-
-    struct FLK_API RenderCommand {
-        Mesh *     mesh;
-        Material   material;
-        Vector3f   position = {};
-        Quaternion rotation = {};
-        Vector3f   scale    = Vector3f::One();
     };
 
     struct FLK_API Light {
@@ -74,48 +65,79 @@ namespace Flock::Graphics {
         f32      radius     = 0.0F;
         bool     isStatic   = false;
         bool     hasShadows = true;
+
+        [[nodiscard]] Matrix4f GetLightSpaceMatrix(const f32 range, const f32 aspectRatio, Vector3f center = {}) const {
+            if (isStatic) {
+                center = position;
+            }
+
+            const Vector3f lightDir = -position.Normalized();
+            const Vector3f up = std::abs(lightDir.Dot(Vector3f::Up())) < 0.99F ? Vector3f::Up() : Vector3f::Forward();
+            Matrix4f       view = Matrix4f::LookAt(center - lightDir * range, center, up);
+
+            const Matrix4f proj = Matrix4f::Orthographic(
+                -aspectRatio * range,
+                aspectRatio * range,
+                -range,
+                range,
+                0.0F,
+                range * 2.0F
+            );
+
+            return view * proj;
+        }
     };
 
-    struct FLK_API RenderPassConfig {
+    struct FLK_API Camera {
+        Vector3f   position   = {};
+        Quaternion rotation   = {};
+        Projection projection = Projection::Orthographic;
+        f32        size       = 5.0F;
+        f32        fovY       = 60.0F;
+        f32        nearZ      = 0.1F;
+        f32        farZ       = 1000.0F;
+    };
+
+    struct FLK_API RenderConfig {
         std::optional<Color3u8> clearColor          = Color3u8{30, 30, 30};
         DepthFunc               depthFunc           = DepthFunc::Less;
         bool                    clearDepth          = true;
         bool                    blending            = true;
-        Vector3f                cameraPosition      = {};
-        Quaternion              cameraRotation      = {};
-        Projection              projection          = Projection::Orthographic;
+        Camera                  camera              = {};
         Rect2u                  viewport            = {{0, 0}, {800, 600}};
-        f32                     size                = 5.0F;
-        f32                     fovY                = 60.0F;
-        f32                     nearZ               = 0.1F;
-        f32                     farZ                = 1000.0F;
         Color3u8                ambientColor        = Color3u8::White();
         f32                     ambientIntensity    = 0.1F;
         std::vector<Light>      lights              = {};
-        f32                     shadowRange         = 1.0F;
+        f32                     shadowRange         = 5.0F;
         Vector2u                shadowMapResolution = {2048, 2048};
+    };
+
+    struct FLK_API RenderCommand {
+        Mesh *    mesh = nullptr;
+        Material  material;
+        Transform transform;
     };
 
     using RenderQueue = std::vector<RenderCommand>;
 
     class FLK_API Renderer {
-        RenderQueue                     m_RenderQueue;
-        std::optional<RenderPassConfig> m_RenderPass;
-        TextureArray                    m_ShadowMaps;
-        std::vector<u32>                m_LightShadowMapIndices;
+        RenderQueue                 m_RenderQueue;
+        std::optional<RenderConfig> m_RenderConfig;
+        TextureArray                m_ShadowMaps;
+        std::vector<u32>            m_LightShadowMapIndices;
 
     public:
-        Renderer &BeginPass(const RenderPassConfig &config);
-
+        Renderer &BeginPass(const RenderConfig &config);
         Renderer &Submit(const RenderCommand &command);
-
         Renderer &Render(Asset::AssetLoader &assetLoader, OptionalRef<Framebuffer> framebuffer = std::nullopt);
 
     private:
+        static void ClearFrame(OptionalRef<Framebuffer> framebuffer = std::nullopt);
+
         void GenerateShadowMaps(
             const std::vector<RenderObject> &objects,
             const std::vector<Light> &       lights,
-            Vector3f                         centerPosition,
+            Vector3f                         offset,
             f32                              range
         );
 
@@ -123,17 +145,12 @@ namespace Flock::Graphics {
             std::vector<RenderObject> objects,
             const TextureArray &      textureArray,
             u32                       index,
-            Vector3f                  lightPosition,
-            Vector3f                  centerPosition,
+            const Light &             light,
+            Vector3f                  offset,
             f32                       range
         );
 
         static bool RenderMesh(const Mesh &mesh, const Pipeline &pipeline);
-
-        static Matrix4f GetShadowMapView(Vector3f lightPosition, Vector3f centerPosition, f32 range);
-        static Matrix4f GetShadowMapProj(f32 aspectRatio, f32 range);
-
-        static void DumpDepthTexture(const Texture2D &texture, Vector2u resolution);
     };
 }
 

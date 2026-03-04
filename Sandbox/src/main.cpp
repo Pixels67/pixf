@@ -1,60 +1,57 @@
-#include "Asset/AssetLoader.hpp"
-#include "Glfw/Window.hpp"
-#include "Graphics/Renderer.hpp"
+#include "Flock.hpp"
 
 using namespace Flock;
+using namespace Flock::Ecs;
 using namespace Flock::Graphics;
+using namespace Flock::Input;
 
-int main() {
-    const Glfw::Window window = Glfw::Window::Create({.size = {800, 800}}).value();
-    window.MakeCurrent();
+i32 main() {
+    f32 rotation = 0.0F;
 
-    Renderer           renderer;
-    Asset::AssetLoader loader;
+    App app;
+    app
+    .AddSystem(Stage::Startup, [](World &world) {
+        auto &reg = world.GetRegistry();
 
-    const auto pipeline = loader.Load<Pipeline>("../../../assets/shader.glsl").value();
-    loader.SetDefaultPipeline(Asset::PipelineType::Pbr, pipeline);
+        const Entity e = reg.Create();
+        reg.AddComponent(e, Transform{.position = {0.0F, -0.6F, 1.2F}});
+        reg.AddComponent(e, ModelRenderer{.modelPath = "../../../assets/dragon1.ply"});
+    })
+    .AddSystem(Stage::Update, [&](World &world) {
+        const auto input = world.GetResource<InputState>();
+        auto &     cam   = world.GetResource<Camera>();
 
-    const auto modelAsset = loader.Load<Model>("../../../assets/dragon1.ply").value();
-    Model &    model      = loader.Get(modelAsset).value();
+        constexpr f32 moveSpeed = 0.02F;
+        constexpr f32 rotSpeed  = 1.0F;
 
-    float rot = 35.0F;
-    while (!window.ShouldClose()) {
-        Glfw::PollEvents();
-
-        Vector3f   position = {0.0F, -0.6F, 1.2F};
-        Quaternion rotation = Quaternion::Euler(0.0F, rot, 0.0F);
-
-        renderer.BeginPass({
-            .projection       = Projection::Perspective,
-            .viewport         = {{0, 0}, window.GetSize()},
-            .ambientIntensity = 0.1F,
-            .lights           = {
-                {
-                    .position  = {0.5F, 1.0F, -0.5F},
-                    .color     = {255, 220, 40},
-                    .intensity = 10.0F,
-                },
-                {
-                    .position  = {-0.5F, 1.0F, 0.5F},
-                    .color     = {40, 220, 255},
-                    .intensity = 10.0F,
-                }
-            }
-        });
-
-        for (usize i = 0; i < model.meshes.size(); i++) {
-            renderer.Submit({
-                .mesh     = &model.meshes[i],
-                .material = model.materials[i],
-                .position = position,
-                .rotation = rotation
-            });
+        if (input.IsKeyDown(Key::W)) {
+            cam.position += Vector3f::Forward() * moveSpeed * cam.rotation;
+        }
+        if (input.IsKeyDown(Key::S)) {
+            cam.position -= Vector3f::Forward() * moveSpeed * cam.rotation;
         }
 
-        renderer.Render(loader);
-        window.SwapBuffers();
+        if (input.IsKeyDown(Key::D)) {
+            cam.position += Vector3f::Right() * moveSpeed * cam.rotation;
+        }
+        if (input.IsKeyDown(Key::A)) {
+            cam.position -= Vector3f::Right() * moveSpeed * cam.rotation;
+        }
 
-        rot += 1.0F;
-    }
+        if (input.IsKeyDown(Key::LShift)) {
+            cam.position += Vector3f::Up() * moveSpeed * cam.rotation;
+        }
+        if (input.IsKeyDown(Key::LControl)) {
+            cam.position -= Vector3f::Up() * moveSpeed * cam.rotation;
+        }
+
+        if (input.IsKeyDown(Key::E)) {
+            rotation += rotSpeed;
+        }
+        if (input.IsKeyDown(Key::Q)) {
+            rotation -= rotSpeed;
+        }
+
+        cam.rotation = Quaternion::Euler(0.0F, rotation, 0.0F);
+    }).Run();
 }

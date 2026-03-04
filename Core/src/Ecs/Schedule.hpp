@@ -2,10 +2,10 @@
 #define FLK_SCHEDULE_HPP
 
 #include "Common.hpp"
-#include "Registry.hpp"
+#include "World.hpp"
 
 namespace Flock::Ecs {
-    using System = std::function<void(Registry &)>;
+    using System = std::function<void(World &)>;
 
     /**
      * @enum Stage
@@ -27,9 +27,9 @@ namespace Flock::Ecs {
         /**
          * @brief Executes a stage of the schedule.
          * @param stage The stage to execute.
-         * @param registry The registry to run the systems on.
+         * @param world The world to run the systems on.
          */
-        void Execute(Stage stage, Registry &registry);
+        void Execute(Stage stage, World &world);
 
         /**
          * @brief Adds a system to a stage.
