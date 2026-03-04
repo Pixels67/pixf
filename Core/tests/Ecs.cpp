@@ -92,25 +92,25 @@ TEST(Entities, RegistryForEach) {
 
 TEST(Entities, Schedule) {
     // Arrange
-    Registry registry{};
+    World world{};
     Schedule schedule{};
 
-    const Entity entity = registry.Create();
-    registry.AddComponent<int>(entity, 1);
+    const Entity entity = world.GetRegistry().Create();
+    world.GetRegistry().AddComponent<int>(entity, 1);
 
     // Act
-    schedule.AddSystem(Stage::Startup, [&](Registry &reg) {
-        reg.GetComponent<int>(entity)->get()--;
+    schedule.AddSystem(Stage::Startup, [&](World &world) {
+        world.GetRegistry().GetComponent<int>(entity)->get()--;
     });
 
-    schedule.AddSystem(Stage::Update, [&](Registry &reg) {
-        reg.GetComponent<int>(entity)->get()++;
+    schedule.AddSystem(Stage::Update, [&](World &world) {
+        world.GetRegistry().GetComponent<int>(entity)->get()++;
     });
 
-    schedule.Execute(Stage::Update, registry);
-    schedule.Execute(Stage::Startup, registry);
-    schedule.Execute(Stage::Update, registry);
+    schedule.Execute(Stage::Update, world);
+    schedule.Execute(Stage::Startup, world);
+    schedule.Execute(Stage::Update, world);
 
     // Assert
-    ASSERT_EQ(registry.GetComponent<int>(entity)->get(), 2);
+    ASSERT_EQ(world.GetRegistry().GetComponent<int>(entity)->get(), 2);
 }
