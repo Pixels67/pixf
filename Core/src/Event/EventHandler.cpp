@@ -1,12 +1,12 @@
 #include "EventHandler.hpp"
 
 namespace Flock::Event {
-    void EventQueue::QueueEvent(OwnedPtr<Event> &&event) {
+    void EventQueue::QueueEvent(std::unique_ptr<Event> &&event) {
         m_Queue.push(std::move(event));
     }
 
-    OwnedPtr<Event> EventQueue::PopEvent() {
-        OwnedPtr<Event> ptr = std::move(m_Queue.front());
+    std::unique_ptr<Event> EventQueue::PopEvent() {
+        std::unique_ptr<Event> ptr = std::move(m_Queue.front());
         m_Queue.pop();
 
         return ptr;
@@ -20,7 +20,7 @@ namespace Flock::Event {
         return m_Queue.empty();
     }
 
-    void EventHandler::QueueEvent(OwnedPtr<Event> &&event) {
+    void EventHandler::QueueEvent(std::unique_ptr<Event> &&event) {
         m_EventQueue.QueueEvent(std::move(event));
     }
 

@@ -25,7 +25,7 @@ namespace Flock::Event {
     using GenericCallback = std::function<void(Event &)>;
 
     class FLK_API EventQueue {
-        std::queue<OwnedPtr<Event> > m_Queue;
+        std::queue<std::unique_ptr<Event> > m_Queue;
 
     public:
         EventQueue()  = default;
@@ -53,8 +53,8 @@ namespace Flock::Event {
             return std::nullopt;
         }
 
-        void            QueueEvent(OwnedPtr<Event> &&event = {});
-        OwnedPtr<Event> PopEvent();
+        void            QueueEvent(std::unique_ptr<Event> &&event = {});
+        std::unique_ptr<Event> PopEvent();
 
         [[nodiscard]] usize GetSize() const;
         [[nodiscard]] bool  IsEmpty() const;
@@ -93,7 +93,7 @@ namespace Flock::Event {
             return m_Callbacks.size() - 1;
         }
 
-        void QueueEvent(OwnedPtr<Event> &&event);
+        void QueueEvent(std::unique_ptr<Event> &&event);
 
         void Unsubscribe(usize index);
 

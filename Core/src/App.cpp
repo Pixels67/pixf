@@ -1,10 +1,37 @@
 #include "App.hpp"
 
+#include "Audio/AudioSource.hpp"
 #include "Graphics/ModelRenderer.hpp"
 #include "Input/Input.hpp"
 #include "Math/Transform.hpp"
+#include "Time/Time.hpp"
 
 namespace Flock {
+    std::optional<App> App::Create(const AppConfig &config) {
+        App app;
+        app.m_Config = config;
+        auto window  = Glfw::Window::Create(config.windowConfig);
+        if (!window) {
+            Debug::LogErr("App::Create: Failed to create window!");
+            return std::nullopt;
+        }
+
+        app.m_Services.window = std::move(window.value());
+
+        auto audioPlayer = Audio::AudioPlayer::Create();
+        if (!audioPlayer) {
+            Debug::LogErr("App::Create: Failed to create audio player!");
+            return std::nullopt;
+        }
+
+        app.m_Services.audioPlayer = std::move(audioPlayer.value());
+        return app;
+    }
+
+    App::~App() {
+        m_Services.assetLoader.UnloadAll();
+    }
+
     App &App::AddSystem(const Ecs::Stage stage, const Ecs::System &system) {
         m_Schedule.AddSystem(stage, system);
 
@@ -18,51 +45,31 @@ namespace Flock {
     }
 
     App &App::Run() {
-        auto window = Glfw::Window::Create({.size = {800, 800}});
-        if (!window) {
-            Debug::LogErr("App::Run: Failed to create window!");
-            return *this;
-        }
-
-        window.value().MakeCurrent();
-        m_Services.window = std::move(window.value());
-
+        m_Services.window.MakeCurrent();
         m_Services.inputHandler.HookEvents(m_Services.eventHandler);
+
+        m_World.InsertResource<Time::TimeState>();
         m_World.InsertResource<Input::InputState>();
-        m_World.InsertResource<Graphics::Camera>({.projection = Graphics::Projection::Perspective});
+        m_World.InsertResource<Graphics::Camera>();
+        m_World.InsertResource<Graphics::AmbientLight>();
+        m_World.InsertResource<Audio::AudioListener>();
+
         m_Schedule.Execute(Ecs::Stage::Startup, m_World);
 
-        Graphics::RenderConfig config = {
-            .camera = {
-                .projection = Graphics::Projection::Perspective,
-            },
-            .viewport         = {{0, 0}, m_Services.window.GetSize()},
-            .ambientIntensity = 0.1F,
-            .lights           = {
-                {
-                    .position  = {0.5F, 1.0F, -0.5F},
-                    .color     = {255, 220, 40},
-                    .intensity = 10.0F,
-                    .isStatic  = true,
-                },
-                {
-                    .position  = {-0.5F, 1.0F, 0.5F},
-                    .color     = {40, 220, 255},
-                    .intensity = 10.0F,
-                    .isStatic  = true,
-                },
-            },
-        };
-
         while (!m_Services.window.ShouldClose()) {
+            // Begin
             m_Services.window.PollEvents(m_Services.eventHandler);
             m_Services.eventHandler.Update();
-            m_World.InsertResource(m_Services.inputHandler.GetState());
 
+            // Update
+            Prepare();
             m_Schedule.Execute(Ecs::Stage::Update, m_World);
+            Extract();
 
-            config.camera = m_World.GetResource<Graphics::Camera>();
-            Render(config);
+            // Render
+            Render(m_Config.shadowConfig);
+
+            // Finish
             m_Services.window.SwapBuffers();
             m_Services.inputHandler.ResetState();
         }
@@ -74,17 +81,67 @@ namespace Flock {
         return m_Services;
     }
 
-    void App::Render(Graphics::RenderConfig config) {
+    void App::Prepare() {
+        const f64 deltaTime = Time::GetTime() - m_World.GetResource<Time::TimeState>().time;
+
+        m_World.InsertResource(Time::TimeState{.time = Time::GetTime(), .deltaTime = deltaTime});
+        m_World.InsertResource(m_Services.inputHandler.GetState());
+    }
+
+    void App::Extract() {
+        const auto listener = m_World.GetResource<Audio::AudioListener>();
+        m_Services.audioPlayer.SetListener(listener);
+
+        std::vector<Audio::AudioSource> sources;
+        m_World.GetRegistry().ForEach<Audio::AudioSource>([&](Audio::AudioSource &source) {
+            if (!source.play) {
+                return;
+            }
+
+            source.play = false;
+
+            const auto clip = m_Services.assetLoader.Load<Audio::AudioClip>(source.audioClipPath);
+            if (!clip) {
+                Debug::LogErr("App::Extract: Invalid AudioSource clip path '{}'!", source.audioClipPath);
+                return;
+            }
+
+            const Audio::AudioConfig config = {
+                .position   = source.position,
+                .volume     = source.volume,
+                .pitch      = source.pitch,
+                .pan        = source.pan,
+                .looping    = source.looping,
+                .spatialize = source.spatialize
+            };
+
+            m_Services.audioPlayer.Play(m_Services.assetLoader.Get(clip.value()).value(), config);
+        });
+    }
+
+    void App::Render(const Graphics::ShadowConfig shadowConfig) {
         using namespace Graphics;
+
+        const Camera       camera   = m_World.GetResource<Camera>();
+        const Rect2u       viewport = {{0, 0}, m_Services.window.GetSize()};
+        std::vector<Light> lights;
+        m_World.GetRegistry().ForEach<Light>([&](auto &light) {
+            lights.push_back(light);
+        });
+
+        SceneData scene = {
+            .camera = camera,
+            .lights = lights,
+        };
 
         const auto pipeline = m_Services.assetLoader.Load<Pipeline>("../../../assets/shader.glsl");
         if (!pipeline) {
-            Debug::LogErr("App::Render: Could not find shader file 'shader.glsl'!");
+            Debug::LogErr("App::Render: Could not load shader file 'shader.glsl'!");
             return;
         }
 
         m_Services.assetLoader.SetDefaultPipeline(Asset::PipelineType::Pbr, pipeline.value());
-        m_Services.renderer.BeginPass(config);
+        m_Services.renderer.BeginPass({.viewport = viewport});
 
         m_World.GetRegistry().ForEach<ModelRenderer, Transform>(
             [&](const ModelRenderer &renderer, const Transform &transform) {
@@ -105,6 +162,6 @@ namespace Flock {
                 }
             });
 
-        m_Services.renderer.Render(m_Services.assetLoader);
+        m_Services.renderer.Render(scene, shadowConfig, m_Services.assetLoader);
     }
 }

@@ -29,43 +29,46 @@ void main() {
 }
 )";
 
-    Renderer &Renderer::BeginPass(const RenderConfig &config) {
-        m_RenderQueue.clear();
-        m_RenderConfig = config;
+    Renderer &Renderer::BeginPass(const RenderPassConfig &config) {
+        while (!m_RenderQueue.empty()) {
+            m_RenderQueue.pop();
+        }
+
+        m_RenderPass = config;
 
         return *this;
     }
 
     Renderer &Renderer::Submit(const RenderCommand &command) {
-        m_RenderQueue.push_back(command);
+        m_RenderQueue.push(command);
 
         return *this;
     }
 
-    Renderer &Renderer::Render(Asset::AssetLoader &assetLoader, const OptionalRef<Framebuffer> framebuffer) {
-        if (!m_RenderConfig) {
+    Renderer &Renderer::Render(
+        SceneData &                    scene,
+        ShadowConfig                   shadowConfig,
+        Asset::AssetLoader &           assetLoader,
+        const OptionalRef<Framebuffer> framebuffer
+    ) {
+        if (!m_RenderPass) {
             ClearFrame();
             return *this;
         }
 
-        std::sort(m_RenderConfig->lights.begin(), m_RenderConfig->lights.end(),
-                  [&](const Light &lhs, const Light &rhs) -> bool {
-                      return lhs.position.Magnitude() < rhs.position.Magnitude();
-                  });
-
-        const i32          lightCount = std::min(m_RenderConfig->lights.size(), s_MaxLightsPerObject);
-        std::vector<Light> lights     = m_RenderConfig->lights;
-        lights.resize(lightCount);
+        auto lights = GetNearestLights(scene.lights, scene.camera.position, s_MaxLightsPerObject);
 
         std::vector<RenderObject> objects;
-        for (auto cmd: m_RenderQueue) {
-            objects.push_back(
-                {.mesh = cmd.mesh, .transform = cmd.transform});
+        RenderQueue               queue = m_RenderQueue;
+        while (!queue.empty()) {
+            auto obj = queue.front();
+            queue.pop();
+            objects.push_back({.mesh = obj.mesh, .transform = obj.transform});
         }
 
-        f32      shadowRange  = m_RenderConfig->shadowRange;
-        Vector3f shadowCenter = m_RenderConfig->camera.position;
-        GenerateShadowMaps(objects, lights, shadowCenter, shadowRange);
+        f32      shadowRange  = shadowConfig.shadowRange;
+        Vector3f shadowCenter = scene.camera.position;
+        GenerateShadowMaps(shadowConfig, objects, lights, shadowCenter);
 
         if (framebuffer) {
             if (!framebuffer->get().Bind()) {
@@ -77,74 +80,25 @@ void main() {
             Framebuffer::Unbind();
         }
 
-        auto [origin, aspect] = m_RenderConfig->viewport;
+        ConfigureFrame(m_RenderPass.value());
 
-        // Hardcoded for now
-        FLK_GL_CALL(glEnable(GL_CULL_FACE));
-        FLK_GL_CALL(glCullFace(GL_BACK));
-        FLK_GL_CALL(glFrontFace(GL_CCW));
-        FLK_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
-        FLK_GL_CALL(glViewport(origin.x, origin.y, aspect.x, aspect.y));
-
-        if (m_RenderConfig->clearColor) {
-            const auto vec = m_RenderConfig->clearColor->ToVector();
-            FLK_GL_CALL(glClearColor(vec.x, vec.y, vec.z, 1.0F));
-            FLK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
-        }
-
-        FLK_GL_CALL(glDepthFunc(ToGlType(m_RenderConfig->depthFunc)));
-
-        if (m_RenderConfig->clearDepth) {
-            FLK_GL_CALL(glEnable(GL_DEPTH_TEST));
-            FLK_GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
-        } else {
-            FLK_GL_CALL(glDisable(GL_DEPTH_TEST));
-        }
-
-        auto queue = m_RenderQueue;
-        std::reverse(queue.begin(), queue.end());
-        while (!queue.empty()) {
-            auto [mesh, material, trans] = queue.back();
-            queue.pop_back();
+        while (!m_RenderQueue.empty()) {
+            auto [mesh, material, trans] = m_RenderQueue.front();
+            m_RenderQueue.pop();
 
             Pipeline &pipeline = assetLoader.Get(material.pipeline).value();
 
-            Matrix4f model = Matrix4f::Identity() *
-                             Matrix4f::Scale(trans.scale) *
-                             Matrix4f::Rotate(trans.rotation) *
-                             Matrix4f::Translate(trans.position);
+            Matrix4f model = trans.GetMatrix();
+            Matrix4f view  = scene.camera.GetViewMatrix();
 
-            Matrix4f view = Matrix4f::Identity() *
-                            Matrix4f::Translate(-m_RenderConfig->camera.position) *
-                            Matrix4f::Rotate(m_RenderConfig->camera.rotation.Inverse());
-
-            Matrix4f proj;
-
-            f32 aspectRatio = static_cast<f32>(aspect.x - origin.x) / static_cast<f32>(aspect.y - origin.y);
-            if (m_RenderConfig->camera.projection == Projection::Orthographic) {
-                proj = Matrix4f::Orthographic(
-                    -aspectRatio * m_RenderConfig->camera.size,
-                    aspectRatio * m_RenderConfig->camera.size,
-                    -m_RenderConfig->camera.size,
-                    m_RenderConfig->camera.size,
-                    m_RenderConfig->camera.size,
-                    m_RenderConfig->camera.size
-                );
-            }
-
-            if (m_RenderConfig->camera.projection == Projection::Perspective) {
-                proj = Matrix4f::Perspective(
-                    m_RenderConfig->camera.fovY,
-                    aspectRatio,
-                    m_RenderConfig->camera.nearZ,
-                    m_RenderConfig->camera.farZ
-                );
-            }
+            auto     [origin, aspect] = m_RenderPass->viewport;
+            f32      aspectRatio      = static_cast<f32>(aspect.x - origin.x) / static_cast<f32>(aspect.y - origin.y);
+            Matrix4f proj             = scene.camera.GetProjMatrix(aspectRatio);
 
             pipeline.SetUniform("uModel", model);
             pipeline.SetUniform("uView", view);
             pipeline.SetUniform("uProj", proj);
+            pipeline.SetUniform("uCameraPosition", scene.camera.position);
 
             pipeline.SetUniform("uColor", material.color);
             pipeline.SetUniform("uMetallic", material.metallic);
@@ -162,18 +116,18 @@ void main() {
                 pipeline.SetUniform("uRoughnessMap", assetLoader.Get(material.roughnessMap.value()).value());
             }
 
-            pipeline.SetUniform("uAmbientColor", m_RenderConfig->ambientColor);
-            pipeline.SetUniform("uAmbientIntensity", m_RenderConfig->ambientIntensity);
+            pipeline.SetUniform("uAmbientColor", scene.ambientLight.color);
+            pipeline.SetUniform("uAmbientIntensity", scene.ambientLight.intensity);
 
-            pipeline.SetUniform("uNumLights", lightCount);
-            for (i32 i = 0; i < lightCount; i++) {
-                const auto &[lightPosition, color, intensity, radius, isStatic, hasShadows] = lights[i];
+            pipeline.SetUniform("uNumLights", static_cast<i32>(lights.size()));
+            for (i32 i = 0; i < lights.size(); i++) {
+                const auto &[lightPosition, color, intensity, radius, hasShadows] = lights[i];
 
-                const f32 shadowAspect = static_cast<f32>(m_RenderConfig->shadowMapResolution.x) /
-                                         static_cast<f32>(m_RenderConfig->shadowMapResolution.y);
+                const f32 shadowAspect = static_cast<f32>(shadowConfig.shadowMapResolution.x) /
+                                         static_cast<f32>(shadowConfig.shadowMapResolution.y);
 
-                Vector3f offset   = m_RenderConfig->camera.position;
-                Matrix4f spaceMat = lights[i].GetLightSpaceMatrix(shadowRange, shadowAspect, offset);
+                const Vector3f offset   = scene.camera.position;
+                Matrix4f       spaceMat = lights[i].GetLightSpaceMatrix(shadowRange, shadowAspect, offset);
 
                 pipeline.SetUniform("uLightPositions[" + std::to_string(i) + "]", lightPosition);
                 pipeline.SetUniform("uLightColors[" + std::to_string(i) + "]", color);
@@ -189,12 +143,9 @@ void main() {
                 }
             }
 
-            pipeline.SetUniform("uCameraPosition", m_RenderConfig->camera.position);
-
             if (m_ShadowMaps.GetLayerCount() > 0) {
                 if (!pipeline.SetUniform("uShadowMaps", m_ShadowMaps)) {
                     Debug::LogErr("Render: Failed to upload shadow maps!");
-                    ClearFrame();
                     return *this;
                 }
             }
@@ -206,7 +157,7 @@ void main() {
         Mesh::Unbind();
         Pipeline::Unbind();
 
-        m_RenderConfig = std::nullopt;
+        m_RenderPass = std::nullopt;
 
         return *this;
     }
@@ -223,11 +174,50 @@ void main() {
         FLK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     }
 
+    void Renderer::ConfigureFrame(RenderPassConfig config) {
+        auto [origin, aspect] = config.viewport;
+
+        // Hardcoded for now
+        FLK_GL_CALL(glEnable(GL_CULL_FACE));
+        FLK_GL_CALL(glCullFace(GL_BACK));
+        FLK_GL_CALL(glFrontFace(GL_CCW));
+        FLK_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
+        FLK_GL_CALL(glViewport(origin.x, origin.y, aspect.x, aspect.y));
+
+        if (config.clearColor) {
+            const auto vec = config.clearColor->ToVector();
+            FLK_GL_CALL(glClearColor(vec.x, vec.y, vec.z, 1.0F));
+            FLK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
+        }
+
+        FLK_GL_CALL(glDepthFunc(ToGlType(config.depthFunc)));
+
+        if (config.clearDepth) {
+            FLK_GL_CALL(glEnable(GL_DEPTH_TEST));
+            FLK_GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
+        } else {
+            FLK_GL_CALL(glDisable(GL_DEPTH_TEST));
+        }
+    }
+
+    std::vector<Light> Renderer::GetNearestLights(std::vector<Light> lights, const Vector3f center, const usize count) {
+        std::sort(lights.begin(), lights.end(), [&](const Light &lhs, const Light &rhs) -> bool {
+            return (center - lhs.position).Magnitude() < (center - rhs.position).Magnitude();
+        });
+
+        if (lights.size() > count) {
+            lights.resize(count);
+        }
+
+        return lights;
+    }
+
     void Renderer::GenerateShadowMaps(
+        const ShadowConfig               shadowConfig,
         const std::vector<RenderObject> &objects,
         const std::vector<Light> &       lights,
-        const Vector3f                   offset,
-        const f32                        range
+        const Vector3f                   offset
     ) {
         m_LightShadowMapIndices.resize(lights.size());
 
@@ -243,23 +233,14 @@ void main() {
             }
         }
 
-        bool mapsReset = false;
-        if (m_ShadowMaps.GetLayerCount() != counter || m_ShadowMaps.GetSize() != m_RenderConfig->shadowMapResolution) {
-            m_ShadowMaps = TextureArray::Create(
-                counter,
-                m_RenderConfig->shadowMapResolution,
-                {.format = TextureFormat::Depth}
-            );
+        m_ShadowMaps = TextureArray::Create(
+            counter,
+            shadowConfig.shadowMapResolution,
+            {.format = TextureFormat::Depth}
+        );
 
-            mapsReset = true;
-        }
-
-        for (const usize idx: lightIndices) {
-            if (lights[idx].isStatic && !mapsReset) {
-                continue;
-            }
-
-            GenerateShadowMap(objects, m_ShadowMaps, idx, lights[idx], offset, range);
+        for (const usize idx: m_LightShadowMapIndices) {
+            GenerateShadowMap(objects, m_ShadowMaps, idx, lights[idx], offset, shadowConfig.shadowRange);
         }
     }
 

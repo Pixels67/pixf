@@ -43,7 +43,14 @@ CPMAddPackage(
         "ASSIMP_BUILD_TESTS OFF"
 )
 
-add_library(stbi STATIC vendor/stbi.h vendor/stbi.c)
+add_library(stbi STATIC vendor/stbi/stbi.h vendor/stbi/stbi.c)
+add_library(stbv STATIC vendor/stbv/stbv.c)
+
+set(SOLOUD_BACKEND_OGGVORBIS OFF)
+file(GLOB_RECURSE SOLOUD_SOURCES CONFIGURE_DEPENDS "vendor/soloud/src/*.cpp" "vendor/soloud/src/*.h")
+add_library(soloud STATIC ${SOLOUD_SOURCES})
+target_include_directories(soloud PUBLIC vendor/soloud/include vendor/soloud/src)
+target_compile_definitions(soloud PUBLIC WITH_MINIAUDIO)
 
 set(PROJECT_SOURCES
         Pch.hpp
@@ -117,12 +124,21 @@ set(PROJECT_SOURCES
         src/Input/InputHandler.hpp
         src/Ecs/World.cpp
         src/Ecs/World.hpp
+        src/Time/Time.hpp
+        src/Audio/AudioPlayer.cpp
+        src/Audio/AudioPlayer.hpp
+        src/Audio/AudioClip.hpp
+        src/FileIo/Audio.hpp
+        src/FileIo/Audio.cpp
+        src/Asset/AssetLoader.cpp
+        src/Audio/AudioSource.hpp
+        src/Audio/AudioListener.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC Pch.hpp)
-target_include_directories(${PROJECT_NAME} PUBLIC include src PRIVATE vendor)
+target_include_directories(${PROJECT_NAME} PUBLIC include src PRIVATE vendor/stbi)
 target_compile_definitions(${PROJECT_NAME} PRIVATE FLK_DYLIB_BUILD)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
@@ -131,6 +147,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         glad
         SLog
         stbi
+        stbv
+        soloud
         assimp
 )
 

@@ -19,7 +19,7 @@ namespace Flock::Ecs {
     class FLK_API Registry {
         std::vector<EntityData>            m_EntityData;
         std::vector<EntityId>              m_DeadEntities;
-        HashMap<TypeId, RefPtr<IStorage> > m_Storages;
+        std::unordered_map<TypeId, std::shared_ptr<IStorage> > m_Storages;
 
     public:
         /**

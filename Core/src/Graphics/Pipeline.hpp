@@ -44,8 +44,8 @@ namespace Flock::Graphics {
      */
     class FLK_API Pipeline {
         u32                               m_Id = 0;
-        HashMap<std::string, Uniform>     m_Uniforms;
-        HashMap<std::string, SamplerInfo> m_Samplers;
+        std::unordered_map<std::string, Uniform>     m_Uniforms;
+        std::unordered_map<std::string, SamplerInfo> m_Samplers;
         Texture2D                         m_DefaultTexture;
 
     public:

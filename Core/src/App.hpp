@@ -3,6 +3,7 @@
 
 #include "Common.hpp"
 #include "Asset/AssetLoader.hpp"
+#include "Audio/AudioPlayer.hpp"
 #include "Ecs/Schedule.hpp"
 #include "Ecs/World.hpp"
 #include "Event/EventHandler.hpp"
@@ -20,6 +21,12 @@ namespace Flock {
         Asset::AssetLoader  assetLoader;
         Graphics::Renderer  renderer;
         Input::InputHandler inputHandler;
+        Audio::AudioPlayer  audioPlayer;
+    };
+
+    struct FLK_API AppConfig {
+        Glfw::WindowConfig     windowConfig;
+        Graphics::ShadowConfig shadowConfig;
     };
 
     /**
@@ -29,8 +36,25 @@ namespace Flock {
         Ecs::World    m_World;
         Ecs::Schedule m_Schedule;
         Services      m_Services;
+        AppConfig     m_Config;
 
     public:
+        /**
+         * @brief Static factory method.
+         * @param config The app config.
+         * @return A newly created app.
+         */
+        static std::optional<App> Create(const AppConfig &config = {});
+
+        App() = default;
+        ~App();
+
+        App(const App &other)     = delete;
+        App(App &&other) noexcept = default;
+
+        App &operator=(const App &other)     = delete;
+        App &operator=(App &&other) noexcept = default;
+
         /**
          * @brief Adds a system to a stage.
          * @param stage The stage.
@@ -55,7 +79,10 @@ namespace Flock {
         [[nodiscard]] Services &GetServices();
 
     private:
-        void Render(Graphics::RenderConfig config);
+        void Prepare();
+        void Extract();
+
+        void Render(Graphics::ShadowConfig shadowConfig);
     };
 }
 

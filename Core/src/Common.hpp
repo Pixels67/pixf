@@ -59,13 +59,4 @@ using f64   = double;
 template<typename T>
 using OptionalRef = std::optional<std::reference_wrapper<T> >;
 
-template<typename T>
-using OwnedPtr = std::unique_ptr<T>;
-
-template<typename T>
-using RefPtr = std::shared_ptr<T>;
-
-template<typename K, typename V>
-using HashMap = std::unordered_map<K,V>;
-
 #endif //FLK_COMMON_HPP

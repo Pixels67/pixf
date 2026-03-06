@@ -11,6 +11,10 @@ namespace Flock {
         Quaternion rotation;
         Vector3f   scale = Vector3f::One();
         Vector3f   eulerAngles;
+
+        Matrix4f GetMatrix() const {
+            return Matrix4f::Scale(scale) * Matrix4f::Rotate(rotation) * Matrix4f::Translate(position);
+        }
     };
 }
 

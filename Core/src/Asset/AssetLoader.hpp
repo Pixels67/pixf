@@ -4,6 +4,8 @@
 #include "Handle.hpp"
 #include "Common.hpp"
 #include "TypeId.hpp"
+#include "Audio/AudioClip.hpp"
+#include "FileIo/Audio.hpp"
 #include "FileIo/Image.hpp"
 #include "Graphics/Pipeline.hpp"
 #include "Graphics/Texture2D.hpp"
@@ -22,8 +24,8 @@ namespace Flock::Asset {
     };
 
     struct AssetSlot {
-        RefPtr<void> data;
-        TypeId       typeId;
+        std::shared_ptr<void> data;
+        TypeId                typeId;
     };
 
     /**
@@ -31,11 +33,11 @@ namespace Flock::Asset {
      * @brief Loads, unloads, and stores all the in-game assets.
      */
     class FLK_API AssetLoader {
-        std::vector<std::optional<AssetSlot> > m_Assets;
-        HashMap<std::string, AssetId>          m_AssetIds;
-        std::vector<AssetId>                   m_FreeAssetIds;
+        std::vector<std::optional<AssetSlot> >   m_Assets;
+        std::unordered_map<std::string, AssetId> m_AssetIds;
+        std::vector<AssetId>                     m_FreeAssetIds;
 
-        HashMap<PipelineType, Handle<Graphics::Pipeline> > m_DefaultPipelines;
+        std::unordered_map<PipelineType, Handle<Graphics::Pipeline> > m_DefaultPipelines;
 
     public:
         /**
@@ -64,7 +66,7 @@ namespace Flock::Asset {
                 return std::nullopt;
             }
 
-            RefPtr<T> ptr = std::make_shared<T>(std::move(asset.value()));
+            std::shared_ptr<T> ptr = std::make_shared<T>(std::move(asset.value()));
 
             AssetId id     = 0;
             TypeId  typeId = 0;
@@ -115,7 +117,7 @@ namespace Flock::Asset {
                 return std::nullopt;
             }
 
-            RefPtr<T> ptr = std::make_shared<T>(std::move(asset.value()));
+            std::shared_ptr<T> ptr = std::make_shared<T>(std::move(asset.value()));
 
             AssetId id     = 0;
             TypeId  typeId = 0;
@@ -193,6 +195,25 @@ namespace Flock::Asset {
         }
 
         /**
+         * @brief Unloads all assets of a specified type.
+         * @tparam T The asset type.
+         */
+        template<typename T>
+        void UnloadAll() {
+            for (auto &asset: m_Assets) {
+                if (!asset.has_value()) {
+                    continue;
+                }
+
+                if (asset.value().typeId != GetTypeId<T>()) {
+                    continue;
+                }
+
+                asset = std::nullopt;
+            }
+        }
+
+        /**
          * @brief Sets a default pipeline.
          * @param type The pipeline type.
          * @param pipeline The pipeline to set.
@@ -219,6 +240,11 @@ namespace Flock::Asset {
 
             return m_DefaultPipelines.at(type);
         }
+
+        /**
+         * @brief Unloads all assets.
+         */
+        void UnloadAll();
     };
 
     template<>
@@ -238,7 +264,19 @@ namespace Flock::Asset {
             const std::filesystem::path &                filePath,
             const std::optional<Graphics::TextureConfig> config
         ) {
-            return Graphics::Texture2D::FromImage(FileIo::ReadImage(filePath), config.value_or(Graphics::TextureConfig{}));
+            return Graphics::Texture2D::FromImage(FileIo::ReadImage(filePath),
+                                                  config.value_or(Graphics::TextureConfig{}));
+        }
+    };
+
+    template<>
+    struct Loader<Audio::AudioClip> {
+        static std::optional<Audio::AudioClip> Load(
+            AssetLoader &                loader,
+            const std::filesystem::path &filePath,
+            const std::optional<bool>    config
+        ) {
+            return FileIo::LoadAudioClip(filePath);
         }
     };
 

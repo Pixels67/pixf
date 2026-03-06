@@ -13,9 +13,10 @@ You can either build the *Core* library and use it like a library, or build it w
 
 ## Features
 - [x] ECS
-- [x] PBR (No IBL, no normal maps)
+- [x] PBR
+- [ ] IBL
 - [x] Keyboard & Mouse Input
-- [ ] Audio
+- [x] Audio
 - [ ] Serialization
 - [ ] Immediate mode GUI
 - [ ] Retained mode GUI

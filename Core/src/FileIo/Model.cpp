@@ -128,9 +128,6 @@ namespace Flock::FileIo {
             material->Get(AI_MATKEY_METALLIC_FACTOR, outputMaterial.metallic);
             material->Get(AI_MATKEY_ROUGHNESS_FACTOR, outputMaterial.roughness);
 
-            outputMaterial.metallic = 1.0F;
-            outputMaterial.roughness = 0.5F;
-
             materials.push_back(outputMaterial);
         }
 
