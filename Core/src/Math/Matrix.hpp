@@ -184,7 +184,7 @@ namespace Flock {
             return mat;
         }
 
-        static Matrix4 Perspective(T fovY, T aspect, T n, T f) {
+        static Matrix4 Perspective(T fovY, T aspect, T nearPlane, T farPlane) {
             Matrix4 m;
             m.m.fill(0);
             T y = static_cast<T>(1) / std::tan(DegreesToRadians(fovY) / static_cast<T>(2));
@@ -192,22 +192,22 @@ namespace Flock {
 
             m.At(0, 0) = x;
             m.At(1, 1) = y;
-            m.At(2, 2) = (f + n) / (f - n);
+            m.At(2, 2) = (farPlane + nearPlane) / (farPlane - nearPlane);
             m.At(2, 3) = 1;
-            m.At(3, 2) = -(2 * f * n) / (f - n);
+            m.At(3, 2) = -(2 * farPlane * nearPlane) / (farPlane - nearPlane);
 
             return m;
         }
 
-        static Matrix4 Orthographic(T left, T right, T bottom, T top, T near, T far) {
+        static Matrix4 Orthographic(T left, T right, T bottom, T top, T nearPlane, T farPlane) {
             Matrix4 m;
             m.m.fill(0);
             m.At(0, 0) = 2 / (right - left);
             m.At(1, 1) = 2 / (top - bottom);
-            m.At(2, 2) = 2 / (far - near);
+            m.At(2, 2) = 2 / (farPlane - nearPlane);
             m.At(3, 0) = -(right + left) / (right - left);
             m.At(3, 1) = -(top + bottom) / (top - bottom);
-            m.At(3, 2) = -(far + near) / (far - near);
+            m.At(3, 2) = -(farPlane + nearPlane) / (farPlane - nearPlane);
             m.At(3, 3) = 1;
             return m;
         }
