@@ -133,6 +133,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aef6ba2cad31885dfa155b5edf3036d0c" id="r_aef6ba2cad31885dfa155b5edf3036d0c"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
 <tr class="memitem:aef6ba2cad31885dfa155b5edf3036d0c template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aef6ba2cad31885dfa155b5edf3036d0c">AddComponent</a> (<a class="el" href="struct_flock_1_1_ecs_1_1_entity.html">Entity</a> entity, T value={})</td></tr>
 <tr class="memdesc:aef6ba2cad31885dfa155b5edf3036d0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a component to an entity, fails if the component already exists.  <br /></td></tr>
+<tr class="memitem:a3d37ba9a5a625c65aeb88971fbf161a2" id="r_a3d37ba9a5a625c65aeb88971fbf161a2"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
+<tr class="memitem:a3d37ba9a5a625c65aeb88971fbf161a2 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3d37ba9a5a625c65aeb88971fbf161a2">SetComponent</a> (<a class="el" href="struct_flock_1_1_ecs_1_1_entity.html">Entity</a> entity, T value={})</td></tr>
+<tr class="memdesc:a3d37ba9a5a625c65aeb88971fbf161a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Changes an entity's component data, fails if the component doesn't exist.  <br /></td></tr>
 <tr class="memitem:ae0c79fbb4ab6e14300ec812cef0827aa" id="r_ae0c79fbb4ab6e14300ec812cef0827aa"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
 <tr class="memitem:ae0c79fbb4ab6e14300ec812cef0827aa template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae0c79fbb4ab6e14300ec812cef0827aa">RemoveComponent</a> (<a class="el" href="struct_flock_1_1_ecs_1_1_entity.html">Entity</a> entity)</td></tr>
 <tr class="memdesc:ae0c79fbb4ab6e14300ec812cef0827aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes a component to an entity, fails if the component does not exist.  <br /></td></tr>
@@ -144,6 +147,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a6bdedfb5115aaa3b1a8fc9599b682b77" id="r_a6bdedfb5115aaa3b1a8fc9599b682b77"><td class="memTemplParams" colspan="2">template&lt;typename... Args, typename F&gt; </td></tr>
 <tr class="memitem:a6bdedfb5115aaa3b1a8fc9599b682b77 template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6bdedfb5115aaa3b1a8fc9599b682b77">ForEachEntity</a> (F &amp;&amp;callback)</td></tr>
 <tr class="memdesc:a6bdedfb5115aaa3b1a8fc9599b682b77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invokes a callback for each entity with the entity and its components.  <br /></td></tr>
+<tr class="memitem:adcd1c661dbf567a9b5d860d54b6463a6" id="r_adcd1c661dbf567a9b5d860d54b6463a6"><td class="memItemLeft" align="right" valign="top"><a id="adcd1c661dbf567a9b5d860d54b6463a6" name="adcd1c661dbf567a9b5d860d54b6463a6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Archive</b> (<a class="el" href="class_flock_1_1_serial_1_1_i_archive.html">Serial::IArchive</a> &amp;archive)</td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>ECS registry. </p>
@@ -762,6 +767,53 @@ template&lt;typename T&gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">entity</td><td>A handle to the entity. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if successful; false otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="a3d37ba9a5a625c65aeb88971fbf161a2" name="a3d37ba9a5a625c65aeb88971fbf161a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d37ba9a5a625c65aeb88971fbf161a2">&#9670;&#160;</a></span>SetComponent()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Flock::Ecs::Registry::SetComponent </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_flock_1_1_ecs_1_1_entity.html">Entity</a></td>          <td class="paramname"><span class="paramname"><em>entity</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>value</em></span><span class="paramdefsep"> = </span><span class="paramdefval">{}</span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Changes an entity's component data, fails if the component doesn't exist. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>The component type. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">entity</td><td>A handle to the entity. </td></tr>
+    <tr><td class="paramname">value</td><td>The value to set for the data. </td></tr>
   </table>
   </dd>
 </dl>

@@ -1,11 +1,16 @@
-<h3 align="center">
-  C++ game framework / engine.
-</h3>
+<h1 align="center">
+  Flock
+</h1>
+
+<h4 align="center">
+  C++ Game Engine
+</h4>
 
 ---
 
-A C++ game framework/engine using OpenGL 3.3, currently only supports desktop.
-You can either build the *Core* library and use it like a library, or build it with the *Editor* and *Runtime* and use it like an engine.
+A C++ game engine using OpenGL 3.3 inspired by Bevy (hence the name).
+You can either build the *Core* library and use it like a library,
+or build it with the *Editor* and *Runtime* and use it like an engine.
 
 > [!IMPORTANT]  
 > This is just a hobby project and most of it is not finished yet.  
@@ -27,9 +32,8 @@ You can either build the *Core* library and use it like a library, or build it w
 Make sure you have a C++ compiler and CMake installed and run the following commands:
 
 ```sh
-git clone https://github.com/Pixels67/pixf.git
-cd pixf
-git checkout refactor
+git clone https://github.com/Pixels67/Flock.git
+cd Flock
 
 cmake -S . -B build/
 cmake --build build/ --config Release # Or Debug

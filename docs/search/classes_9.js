@@ -1,5 +1,9 @@
 var searchData=
 [
-  ['texture2d_0',['Texture2D',['../class_flock_1_1_graphics_1_1_texture2_d.html',1,'Flock::Graphics']]],
-  ['textureconfig_1',['TextureConfig',['../struct_flock_1_1_graphics_1_1_texture_config.html',1,'Flock::Graphics']]]
+  ['light_0',['Light',['../struct_flock_1_1_graphics_1_1_light.html',1,'Flock::Graphics']]],
+  ['loader_1',['Loader',['../struct_flock_1_1_asset_1_1_loader.html',1,'Flock::Asset']]],
+  ['loader_3c_20audio_3a_3aaudioclip_20_3e_2',['Loader&lt; Audio::AudioClip &gt;',['../struct_flock_1_1_asset_1_1_loader_3_01_audio_1_1_audio_clip_01_4.html',1,'Flock::Asset']]],
+  ['loader_3c_20graphics_3a_3amodel_20_3e_3',['Loader&lt; Graphics::Model &gt;',['../struct_flock_1_1_asset_1_1_loader_3_01_graphics_1_1_model_01_4.html',1,'Flock::Asset']]],
+  ['loader_3c_20graphics_3a_3apipeline_20_3e_4',['Loader&lt; Graphics::Pipeline &gt;',['../struct_flock_1_1_asset_1_1_loader_3_01_graphics_1_1_pipeline_01_4.html',1,'Flock::Asset']]],
+  ['loader_3c_20graphics_3a_3atexture2d_20_3e_5',['Loader&lt; Graphics::Texture2D &gt;',['../struct_flock_1_1_asset_1_1_loader_3_01_graphics_1_1_texture2_d_01_4.html',1,'Flock::Asset']]]
 ];

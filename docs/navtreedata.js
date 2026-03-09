@@ -25,6 +25,7 @@
 var NAVTREE =
 [
   [ "Flock", "index.html", [
+    [ "Concepts", "concepts.html", "concepts" ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
@@ -42,7 +43,7 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"_color_8hpp_source.html"
+"_app_8hpp_source.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronization';

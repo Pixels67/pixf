@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['registercomponent_0',['RegisterComponent',['../class_flock_1_1_ecs_1_1_registry.html#ad6008636250a4e1681afb2fdd490f96c',1,'Flock::Ecs::Registry']]],
-  ['remove_1',['Remove',['../class_flock_1_1_ecs_1_1_storage.html#a9491338941744493c742299a671961b4',1,'Flock::Ecs::Storage']]],
-  ['removecomponent_2',['RemoveComponent',['../class_flock_1_1_ecs_1_1_registry.html#ae0c79fbb4ab6e14300ec812cef0827aa',1,'Flock::Ecs::Registry']]]
+  ['popsystem_0',['PopSystem',['../class_flock_1_1_app.html#a848743b5f68a71707fbcd52a5a0994e1',1,'Flock::App::PopSystem()'],['../class_flock_1_1_ecs_1_1_schedule.html#a5ad752d80ca0e91398a44d0f7f792773',1,'Flock::Ecs::Schedule::PopSystem()']]]
 ];

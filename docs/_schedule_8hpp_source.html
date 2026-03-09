@@ -95,10 +95,10 @@ $(function(){initNavTree('_schedule_8hpp_source.html','',''); });
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define FLK_SCHEDULE_HPP</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;Common.hpp&quot;</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;Registry.hpp&quot;</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;World.hpp&quot;</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="keyword">namespace </span>Flock::Ecs {</div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>    <span class="keyword">using </span>System = std::function&lt;void(<a class="code hl_class" href="class_flock_1_1_ecs_1_1_registry.html">Registry</a> &amp;)&gt;;</div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>    <span class="keyword">using </span>System = std::function&lt;void(<a class="code hl_class" href="class_flock_1_1_ecs_1_1_world.html">World</a> &amp;)&gt;;</div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span></div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>    <span class="keyword">enum class</span> Stage {</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>        Startup,</div>
@@ -110,7 +110,7 @@ $(function(){initNavTree('_schedule_8hpp_source.html','',''); });
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        std::unordered_map&lt;Stage, std::vector&lt;System&gt; &gt; m_Systems;</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_ecs_1_1_schedule.html#a18d92f02a30cc370ac4d087b9bd3d4bf">Execute</a>(Stage stage, <a class="code hl_class" href="class_flock_1_1_ecs_1_1_registry.html">Registry</a> &amp;registry);</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_ecs_1_1_schedule.html#a583b4344f326f47b8ff5a410d611c806">Execute</a>(Stage stage, <a class="code hl_class" href="class_flock_1_1_ecs_1_1_world.html">World</a> &amp;world);</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_ecs_1_1_schedule.html#a86480e629283fef96e3e59e65bcbd585">AddSystem</a>(Stage stage, <span class="keyword">const</span> System &amp;system);</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span></div>
@@ -124,13 +124,13 @@ $(function(){initNavTree('_schedule_8hpp_source.html','',''); });
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>}</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="preprocessor">#endif </span><span class="comment">//FLK_SCHEDULE_HPP</span></div>
-<div class="ttc" id="aclass_flock_1_1_ecs_1_1_registry_html"><div class="ttname"><a href="class_flock_1_1_ecs_1_1_registry.html">Flock::Ecs::Registry</a></div><div class="ttdoc">ECS registry.</div><div class="ttdef"><b>Definition</b> Registry.hpp:19</div></div>
 <div class="ttc" id="aclass_flock_1_1_ecs_1_1_schedule_html"><div class="ttname"><a href="class_flock_1_1_ecs_1_1_schedule.html">Flock::Ecs::Schedule</a></div><div class="ttdoc">Contains the ECS systems.</div><div class="ttdef"><b>Definition</b> Schedule.hpp:23</div></div>
-<div class="ttc" id="aclass_flock_1_1_ecs_1_1_schedule_html_a18d92f02a30cc370ac4d087b9bd3d4bf"><div class="ttname"><a href="class_flock_1_1_ecs_1_1_schedule.html#a18d92f02a30cc370ac4d087b9bd3d4bf">Flock::Ecs::Schedule::Execute</a></div><div class="ttdeci">void Execute(Stage stage, Registry &amp;registry)</div><div class="ttdoc">Executes a stage of the schedule.</div><div class="ttdef"><b>Definition</b> Schedule.cpp:4</div></div>
 <div class="ttc" id="aclass_flock_1_1_ecs_1_1_schedule_html_a1d63c01f87a58d6907bafaa3139604ab"><div class="ttname"><a href="class_flock_1_1_ecs_1_1_schedule.html#a1d63c01f87a58d6907bafaa3139604ab">Flock::Ecs::Schedule::GetSystems</a></div><div class="ttdeci">std::vector&lt; System &gt; GetSystems(Stage stage)</div><div class="ttdoc">Retrieves an ordered vector of all the systems in a stage.</div><div class="ttdef"><b>Definition</b> Schedule.cpp:18</div></div>
+<div class="ttc" id="aclass_flock_1_1_ecs_1_1_schedule_html_a583b4344f326f47b8ff5a410d611c806"><div class="ttname"><a href="class_flock_1_1_ecs_1_1_schedule.html#a583b4344f326f47b8ff5a410d611c806">Flock::Ecs::Schedule::Execute</a></div><div class="ttdeci">void Execute(Stage stage, World &amp;world)</div><div class="ttdoc">Executes a stage of the schedule.</div><div class="ttdef"><b>Definition</b> Schedule.cpp:4</div></div>
 <div class="ttc" id="aclass_flock_1_1_ecs_1_1_schedule_html_a5ad752d80ca0e91398a44d0f7f792773"><div class="ttname"><a href="class_flock_1_1_ecs_1_1_schedule.html#a5ad752d80ca0e91398a44d0f7f792773">Flock::Ecs::Schedule::PopSystem</a></div><div class="ttdeci">void PopSystem(Stage stage)</div><div class="ttdoc">Pops the last added system from a stage.</div><div class="ttdef"><b>Definition</b> Schedule.cpp:14</div></div>
 <div class="ttc" id="aclass_flock_1_1_ecs_1_1_schedule_html_a86480e629283fef96e3e59e65bcbd585"><div class="ttname"><a href="class_flock_1_1_ecs_1_1_schedule.html#a86480e629283fef96e3e59e65bcbd585">Flock::Ecs::Schedule::AddSystem</a></div><div class="ttdeci">void AddSystem(Stage stage, const System &amp;system)</div><div class="ttdoc">Adds a system to a stage.</div><div class="ttdef"><b>Definition</b> Schedule.cpp:10</div></div>
 <div class="ttc" id="aclass_flock_1_1_ecs_1_1_schedule_html_ad234e17590d31f67dc3c2c09d696a5dc"><div class="ttname"><a href="class_flock_1_1_ecs_1_1_schedule.html#ad234e17590d31f67dc3c2c09d696a5dc">Flock::Ecs::Schedule::Clear</a></div><div class="ttdeci">void Clear()</div><div class="ttdoc">Clears the schedule.</div><div class="ttdef"><b>Definition</b> Schedule.cpp:22</div></div>
+<div class="ttc" id="aclass_flock_1_1_ecs_1_1_world_html"><div class="ttname"><a href="class_flock_1_1_ecs_1_1_world.html">Flock::Ecs::World</a></div><div class="ttdef"><b>Definition</b> World.hpp:8</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->

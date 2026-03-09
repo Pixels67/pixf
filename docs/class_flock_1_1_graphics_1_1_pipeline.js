@@ -5,6 +5,7 @@ var class_flock_1_1_graphics_1_1_pipeline =
     [ "SetUniform", "class_flock_1_1_graphics_1_1_pipeline.html#a17662ddce16f14b7c45919b94002fbc1", null ],
     [ "SetUniform", "class_flock_1_1_graphics_1_1_pipeline.html#a5933d12c9381486fe75a8b0960247cd5", null ],
     [ "SetUniform", "class_flock_1_1_graphics_1_1_pipeline.html#a2f3625c7009c98f3217ca6d6ec276b02", null ],
+    [ "SetUniform", "class_flock_1_1_graphics_1_1_pipeline.html#a13ce3e826ab4d0d113c1620f1f961451", null ],
     [ "SetUniform", "class_flock_1_1_graphics_1_1_pipeline.html#ac31cf96f1dc30c456f35497a2d9a5646", null ],
     [ "SetUniform", "class_flock_1_1_graphics_1_1_pipeline.html#a5856c647345f53f9b8580e40d33a8fcc", null ],
     [ "SetUniform", "class_flock_1_1_graphics_1_1_pipeline.html#a285354f50e1dafe7891300bce9929af0", null ],

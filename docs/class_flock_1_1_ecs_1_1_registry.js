@@ -16,5 +16,6 @@ var class_flock_1_1_ecs_1_1_registry =
     [ "IsComponentRegistered", "class_flock_1_1_ecs_1_1_registry.html#aacafa8d9b93acd7f302df323d05f2235", null ],
     [ "IsValid", "class_flock_1_1_ecs_1_1_registry.html#a0fb8a721ba4c5e15bf4f5b7efc03de92", null ],
     [ "RegisterComponent", "class_flock_1_1_ecs_1_1_registry.html#ad6008636250a4e1681afb2fdd490f96c", null ],
-    [ "RemoveComponent", "class_flock_1_1_ecs_1_1_registry.html#ae0c79fbb4ab6e14300ec812cef0827aa", null ]
+    [ "RemoveComponent", "class_flock_1_1_ecs_1_1_registry.html#ae0c79fbb4ab6e14300ec812cef0827aa", null ],
+    [ "SetComponent", "class_flock_1_1_ecs_1_1_registry.html#a3d37ba9a5a625c65aeb88971fbf161a2", null ]
 ];
