@@ -209,6 +209,7 @@ namespace Flock {
             m.At(3, 1) = -(top + bottom) / (top - bottom);
             m.At(3, 2) = -(farPlane + nearPlane) / (farPlane - nearPlane);
             m.At(3, 3) = 1;
+
             return m;
         }
     };

@@ -43,6 +43,11 @@ using ssize_t = int32_t;
 
 #endif
 
+template<typename T>
+concept IsStringConvertable = requires(T type) {
+    ToString(type);
+};
+
 using usize = size_t;
 using isize = ssize_t;
 using u8    = uint8_t;
@@ -57,6 +62,9 @@ using f32   = float;
 using f64   = double;
 
 template<typename T>
-using OptionalRef = std::optional<std::reference_wrapper<T> >;
+using Ref = std::reference_wrapper<T>;
+
+template<typename T>
+using OptionalRef = std::optional<Ref<T> >;
 
 #endif //FLK_COMMON_HPP

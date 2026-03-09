@@ -9,6 +9,16 @@ namespace Flock::Audio {
         Vector3f   position = {};
         Quaternion rotation = {};
     };
+
+    inline auto Reflect(AudioListener &listener) {
+        return Reflectable{
+            "AudioListener",
+            std::make_tuple(
+                Field{"position", &listener.position},
+                Field{"rotation", &listener.rotation}
+            )
+        };
+    }
 }
 
 #endif //FLK_AUDIOLISTENER_HPP

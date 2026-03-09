@@ -36,14 +36,6 @@ i32 main() {
                                     .color     = {220, 240, 255},
                                     .intensity = 1.0F,
                                 });
-
-        const Entity sound = reg.Create();
-        reg.AddComponent<AudioSource>(sound, {
-            .audioClipPath = "../../../assets/test.wav",
-            .looping = true,
-        });
-
-        reg.GetComponent<AudioSource>(sound)->get().Play();
     }).AddSystem(Stage::Update, [&](World &world) {
         const f64  dt    = world.GetResource<Time::TimeState>().deltaTime;
         const auto input = world.GetResource<InputState>();

@@ -47,13 +47,16 @@ namespace Flock {
 
 #define EXPR(op) (r op o.r), (g op o.g), (b op o.b)
         FLK_MATH_BINARY_OPS(Color3, Color3, EXPR)
+#undef EXPR
 #define EXPR(op)                                                                                                       \
     r op o.r;                                                                                                          \
     g op o.g;                                                                                                          \
     b op o.b
         FLK_MATH_ASSIGN_OPS(Color3, Color3, EXPR)
+#undef EXPR
 #define EXPR(op) (r op o), (g op o), (b op o)
         FLK_MATH_BINARY_OPS(Color3, T, EXPR)
+#undef EXPR
 #define EXPR(op)                                                                                                       \
     r op o;                                                                                                            \
     g op o;                                                                                                            \
@@ -110,14 +113,17 @@ namespace Flock {
 
 #define EXPR(op) (r op o.r), (g op o.g), (b op o.b), (a op o.a)
         FLK_MATH_BINARY_OPS(Color4, Color4, EXPR)
+#undef EXPR
 #define EXPR(op)                                                                                                       \
     r op o.r;                                                                                                          \
     g op o.g;                                                                                                          \
     b op o.b;                                                                                                          \
     a op o.a
         FLK_MATH_ASSIGN_OPS(Color4, Color4, EXPR)
+#undef EXPR
 #define EXPR(op) (r op o), (g op o), (b op o), (a op o)
         FLK_MATH_BINARY_OPS(Color4, T, EXPR)
+#undef EXPR
 #define EXPR(op)                                                                                                       \
     r op o;                                                                                                            \
     g op o;                                                                                                            \
@@ -126,6 +132,31 @@ namespace Flock {
         FLK_MATH_ASSIGN_OPS(Color4, T, EXPR)
 #undef EXPR
     };
+
+    template<typename T>
+    auto Reflect(Color3<T> &color) {
+        return Reflectable{
+            "Color3",
+            std::make_tuple(
+                Field("r", &color.r),
+                Field("g", &color.g),
+                Field("b", &color.b)
+            )
+        };
+    }
+
+    template<typename T>
+    auto Reflect(Color4<T> &color) {
+        return Reflectable{
+            "Color4",
+            std::make_tuple(
+                Field("r", &color.r),
+                Field("g", &color.g),
+                Field("b", &color.b),
+                Field("a", &color.a)
+            )
+        };
+    }
 
     using Color3u8 = Color3<u8>;
     using Color4u8 = Color4<u8>;

@@ -31,6 +31,13 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
+        NAME json
+        GITHUB_REPOSITORY nlohmann/json
+        GIT_TAG v3.12.0
+        GIT_SHALLOW TRUE
+)
+
+CPMAddPackage(
         NAME assimp
         URL "https://github.com/assimp/assimp/archive/refs/tags/v6.0.2.tar.gz"
         OPTIONS
@@ -133,6 +140,14 @@ set(PROJECT_SOURCES
         src/Asset/AssetLoader.cpp
         src/Audio/AudioSource.hpp
         src/Audio/AudioListener.hpp
+        src/Reflect.hpp
+        src/Serial/Json.cpp
+        src/Serial/Json.hpp
+        src/Serial/Archive.hpp
+        src/Serial/JsonArchive.hpp
+        src/Serial/JsonArchive.cpp
+        src/Graphics/Camera.hpp
+        src/Graphics/Light.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
@@ -150,6 +165,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         stbv
         soloud
         assimp
+        nlohmann_json
 )
 
 if (UNIX AND NOT APPLE)

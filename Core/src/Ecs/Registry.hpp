@@ -17,9 +17,11 @@ namespace Flock::Ecs {
      * @brief ECS registry.
      */
     class FLK_API Registry {
-        std::vector<EntityData>            m_EntityData;
-        std::vector<EntityId>              m_DeadEntities;
+        std::vector<EntityData>                                m_EntityData;
+        std::vector<EntityId>                                  m_DeadEntities;
         std::unordered_map<TypeId, std::shared_ptr<IStorage> > m_Storages;
+
+        std::unordered_map<TypeId, std::function<void(IStorage &, Serial::IArchive &)> > m_ArchiveFns;
 
     public:
         /**
@@ -63,6 +65,11 @@ namespace Flock::Ecs {
         template<typename T>
         void RegisterComponent() {
             m_Storages.emplace(GetTypeId<T>(), std::make_shared<Storage<T> >());
+
+            m_ArchiveFns[GetTypeId<T>()] = [](IStorage &storage, Serial::IArchive &archive) {
+                Storage<T> &store = static_cast<Storage<T> &>(storage);
+                store.Archive(archive);
+            };
         }
 
         /**
@@ -253,6 +260,8 @@ namespace Flock::Ecs {
                 callback(entity, GetComponent<Args>(entity)->get()...);
             }
         }
+
+        void Archive(Serial::IArchive &archive);
     };
 }
 

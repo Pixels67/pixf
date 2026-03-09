@@ -61,4 +61,44 @@ namespace Flock::Ecs {
             storage->Remove(entity.id);
         }
     }
+
+    void Registry::Archive(Serial::IArchive &archive) {
+        usize size = m_EntityData.size();
+        archive.BeginArray("entities", size);
+
+        m_EntityData.resize(size);
+        m_DeadEntities.clear();
+
+        for (usize i = 0; i < size; i++) {
+            archive.BeginObject();
+            EntityId id = i;
+
+            archive("id", id);
+            archive("alive", m_EntityData[i].alive);
+
+            if (!m_EntityData[i].alive) {
+                m_DeadEntities.push_back(i);
+            }
+
+            u32 version = m_EntityData[i].version;
+            archive("version", version);
+            m_EntityData[i].version = version;
+
+            if (id != i) {
+                std::swap(m_EntityData[id], m_EntityData[i]);
+            }
+
+            archive.EndObject();
+        }
+
+        archive.EndArray();
+
+        archive.BeginObject("components");
+
+        for (auto &[typeId, fn]: m_ArchiveFns) {
+            fn(*m_Storages[typeId], archive);
+        }
+
+        archive.EndObject();
+    }
 }

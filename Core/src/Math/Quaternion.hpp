@@ -5,6 +5,7 @@
 
 #include "Common.hpp"
 #include "Utils.hpp"
+#include "Reflect.hpp"
 #include "Vector.hpp"
 
 namespace Flock {
@@ -26,10 +27,12 @@ namespace Flock {
         static Quaternion AngleAxis(const f32 angleDegrees, const Vector3f axis) {
             const f32 halfAngle = DegreesToRadians(angleDegrees) * 0.5F;
             f32       s         = std::sin(halfAngle);
-            return Quaternion(axis.Normalized().x * s,
-                              axis.Normalized().y * s,
-                              axis.Normalized().z * s,
-                              std::cos(halfAngle));
+            return {
+                axis.Normalized().x * s,
+                axis.Normalized().y * s,
+                axis.Normalized().z * s,
+                std::cos(halfAngle)
+            };
         }
 
         static Quaternion Euler(const Vector3f eulerAngles) {
@@ -70,9 +73,9 @@ namespace Flock {
             return {result.x, result.y, result.z};
         }
 
-        f32 SqrMagnitude() const { return x * x + y * y + z * z + w * w; }
+        [[nodiscard]] f32 SqrMagnitude() const { return x * x + y * y + z * z + w * w; }
 
-        f32 Magnitude() const { return std::sqrt(SqrMagnitude()); }
+        [[nodiscard]] f32 Magnitude() const { return std::sqrt(SqrMagnitude()); }
 
         Quaternion &Normalize() {
             if (const f32 mag = Magnitude(); mag > 0.0F) {
@@ -86,15 +89,17 @@ namespace Flock {
             return *this;
         }
 
-        Quaternion Normalized() const {
+        [[nodiscard]] Quaternion Normalized() const {
             Quaternion q = *this;
             q.Normalize();
             return q;
         }
 
-        Quaternion Conjugate() const { return Quaternion(-x, -y, -z, w); }
+        [[nodiscard]] Quaternion Conjugate() const {
+            return Quaternion(-x, -y, -z, w);
+        }
 
-        Quaternion Inverse() const {
+        [[nodiscard]] Quaternion Inverse() const {
             if (const f32 magSq = SqrMagnitude(); magSq > 0.0F) {
                 const f32 invMagSq = 1.0F / magSq;
                 return Quaternion(-x * invMagSq, -y * invMagSq, -z * invMagSq, w * invMagSq);
@@ -103,7 +108,9 @@ namespace Flock {
             return Quaternion();
         }
 
-        f32 Dot(const Quaternion &q) const { return x * q.x + y * q.y + z * q.z + w * q.w; }
+        [[nodiscard]] f32 Dot(const Quaternion &q) const {
+            return x * q.x + y * q.y + z * q.z + w * q.w;
+        }
 
         static Quaternion Slerp(const Quaternion &q1, const Quaternion &q2, f32 t) {
             Quaternion qz       = q2;
@@ -133,7 +140,7 @@ namespace Flock {
                               q1.w * w1 + qz.w * w2);
         }
 
-        Vector3f EulerAngles() const {
+        [[nodiscard]] Vector3f EulerAngles() const {
             Vector3f  angles;
             const f32 sp = 2.0F * (w * x - y * z);
 
@@ -161,8 +168,20 @@ namespace Flock {
             return angles;
         }
 
-        Matrix4f ToMatrix() const;
+        [[nodiscard]] Matrix4f ToMatrix() const;
     };
-} // namespace Flock
+
+    inline auto Reflect(Quaternion &quaternion) {
+        return Reflectable{
+            "Quaternion",
+            std::make_tuple(
+                Field("x", &quaternion.x),
+                Field("y", &quaternion.y),
+                Field("z", &quaternion.z),
+                Field("w", &quaternion.w)
+            )
+        };
+    }
+}
 
 #endif // FLK_QUATERNION_HPP

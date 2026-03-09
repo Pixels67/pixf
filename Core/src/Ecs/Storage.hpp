@@ -3,6 +3,7 @@
 
 #include "Common.hpp"
 #include "Entity.hpp"
+#include "Serial/Archive.hpp"
 
 namespace Flock::Ecs {
     class IStorage {
@@ -119,6 +120,33 @@ namespace Flock::Ecs {
             m_Sparse.clear();
             m_Dense.clear();
             m_Data.clear();
+        }
+
+        void Archive(Serial::IArchive &archive) {
+            usize count = m_Dense.size();
+            archive.BeginArray(GetTypeName<T>(), count);
+
+            m_Dense.resize(count);
+            m_Data.resize(count);
+
+            for (usize i = 0; i < count; i++) {
+                archive.BeginObject();
+                archive("id", m_Dense[i]);
+                archive("data", m_Data[i]);
+                archive.EndObject();
+            }
+
+            archive.EndArray();
+
+            m_Sparse.clear();
+            for (usize i = 0; i < m_Dense.size(); i++) {
+                const EntityId id = m_Dense[i];
+                if (id >= m_Sparse.size()) {
+                    m_Sparse.resize(id + 1, ~0u);
+                }
+
+                m_Sparse[id] = i;
+            }
         }
     };
 }

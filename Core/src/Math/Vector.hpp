@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "Common.hpp"
+#include "Reflect.hpp"
 #include "Utils.hpp"
 
 namespace Flock {
@@ -39,12 +40,15 @@ namespace Flock {
 
 #define EXPR(op) (x op o.x), (y op o.y)
         FLK_MATH_BINARY_OPS(Vector2, Vector2, EXPR)
+#undef EXPR
 #define EXPR(op)                                                                                                       \
     x op o.x;                                                                                                          \
     y op o.y
         FLK_MATH_ASSIGN_OPS(Vector2, Vector2, EXPR)
+#undef EXPR
 #define EXPR(op) (x op o), (y op o)
         FLK_MATH_BINARY_OPS(Vector2, T, EXPR)
+#undef EXPR
 #define EXPR(op)                                                                                                       \
     x op o;                                                                                                            \
     y op o
@@ -66,7 +70,7 @@ namespace Flock {
             return *this;
         }
 
-        bool operator==(const Vector2 & vector2) const = default;
+        bool operator==(const Vector2 &vector2) const = default;
     };
 
     template<typename T>
@@ -102,13 +106,16 @@ namespace Flock {
 
 #define EXPR(op) (x op o.x), (y op o.y), (z op o.z)
         FLK_MATH_BINARY_OPS(Vector3, Vector3, EXPR)
+#undef EXPR
 #define EXPR(op)                                                                                                       \
     x op o.x;                                                                                                          \
     y op o.y;                                                                                                          \
     z op o.z
         FLK_MATH_ASSIGN_OPS(Vector3, Vector3, EXPR)
+#undef EXPR
 #define EXPR(op) (x op o), (y op o), (z op o)
         FLK_MATH_BINARY_OPS(Vector3, T, EXPR)
+#undef EXPR
 #define EXPR(op)                                                                                                       \
     x op o;                                                                                                            \
     y op o;                                                                                                            \
@@ -171,14 +178,17 @@ namespace Flock {
 
 #define EXPR(op) (x op o.x), (y op o.y), (z op o.z), (w op o.w)
         FLK_MATH_BINARY_OPS(Vector4, Vector4, EXPR)
+#undef EXPR
 #define EXPR(op)                                                                                                       \
     x op o.x;                                                                                                          \
     y op o.y;                                                                                                          \
     z op o.z;                                                                                                          \
     w op o.w
         FLK_MATH_ASSIGN_OPS(Vector4, Vector4, EXPR)
+#undef EXPR
 #define EXPR(op) (x op o), (y op o), (z op o), (w op o)
         FLK_MATH_BINARY_OPS(Vector4, T, EXPR)
+#undef EXPR
 #define EXPR(op)                                                                                                       \
     x op o;                                                                                                            \
     y op o;                                                                                                            \
@@ -204,6 +214,42 @@ namespace Flock {
             return *this;
         }
     };
+
+    template<typename T>
+    auto Reflect(Vector2<T> &vector) {
+        return Reflectable{
+            "Vector2",
+            std::make_tuple(
+                Field("x", &vector.x),
+                Field("y", &vector.y)
+            )
+        };
+    }
+
+    template<typename T>
+    auto Reflect(Vector3<T> &vector) {
+        return Reflectable{
+            "Vector3",
+            std::make_tuple(
+                Field("x", &vector.x),
+                Field("y", &vector.y),
+                Field("z", &vector.z)
+            )
+        };
+    }
+
+    template<typename T>
+    auto Reflect(Vector4<T> &vector) {
+        return Reflectable{
+            "Vector4",
+            std::make_tuple(
+                Field("x", &vector.x),
+                Field("y", &vector.y),
+                Field("z", &vector.z),
+                Field("w", &vector.w)
+            )
+        };
+    }
 
     using Vector2i = Vector2<i32>;
     using Vector3i = Vector3<i32>;

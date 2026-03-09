@@ -250,7 +250,7 @@ namespace Flock::Asset {
     template<>
     struct Loader<Graphics::Pipeline> {
         static std::optional<Graphics::Pipeline> Load(
-            AssetLoader &                loader,
+            AssetLoader &,
             const std::filesystem::path &filePath,
             std::optional<bool>) {
             return FileIo::ReadPipeline(filePath);
@@ -260,7 +260,7 @@ namespace Flock::Asset {
     template<>
     struct Loader<Graphics::Texture2D> {
         static std::optional<Graphics::Texture2D> Load(
-            AssetLoader &                                loader,
+            AssetLoader &,
             const std::filesystem::path &                filePath,
             const std::optional<Graphics::TextureConfig> config
         ) {
@@ -271,11 +271,8 @@ namespace Flock::Asset {
 
     template<>
     struct Loader<Audio::AudioClip> {
-        static std::optional<Audio::AudioClip> Load(
-            AssetLoader &                loader,
-            const std::filesystem::path &filePath,
-            const std::optional<bool>    config
-        ) {
+        static std::optional<Audio::AudioClip> Load(AssetLoader &, const std::filesystem::path &filePath,
+                                                    const std::optional<bool>) {
             return FileIo::LoadAudioClip(filePath);
         }
     };
@@ -289,8 +286,8 @@ namespace Flock::Asset {
         ) {
             using namespace Graphics;
 
-            std::vector<FileIo::MeshData>     meshes    = std::move(FileIo::LoadModelMeshes(filePath));
-            std::vector<FileIo::MaterialData> materials = std::move(FileIo::LoadModelMaterials(filePath));
+            std::vector<FileIo::MeshData>     meshes    = FileIo::LoadModelMeshes(filePath);
+            std::vector<FileIo::MaterialData> materials = FileIo::LoadModelMaterials(filePath);
 
             std::vector<Material> outputMaterials;
 

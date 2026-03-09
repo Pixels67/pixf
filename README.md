@@ -17,7 +17,7 @@ You can either build the *Core* library and use it like a library, or build it w
 - [ ] IBL
 - [x] Keyboard & Mouse Input
 - [x] Audio
-- [ ] Serialization
+- [x] Serialization
 - [ ] Immediate mode GUI
 - [ ] Retained mode GUI
 - [ ] Editor 

@@ -8,7 +8,7 @@
 namespace Flock::Audio {
     struct FLK_API AudioClip {
         std::unique_ptr<SoLoud::Wav> data           = nullptr;
-        usize                        playbackHandle = ~1u;
+        usize                        playbackHandle = ~0u;
     };
 }
 

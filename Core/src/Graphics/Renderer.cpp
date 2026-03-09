@@ -29,6 +29,29 @@ void main() {
 }
 )";
 
+    i32 ToGlType(const DepthFunc depthFunc) {
+        switch (depthFunc) {
+            case DepthFunc::Always:
+                return GL_ALWAYS;
+            case DepthFunc::Never:
+                return GL_NEVER;
+            case DepthFunc::Equal:
+                return GL_EQUAL;
+            case DepthFunc::NEqual:
+                return GL_NOTEQUAL;
+            case DepthFunc::Less:
+                return GL_LESS;
+            case DepthFunc::Greater:
+                return GL_GREATER;
+            case DepthFunc::LEqual:
+                return GL_LEQUAL;
+            case DepthFunc::GEqual:
+                return GL_GEQUAL;
+            default:
+                return 0;
+        }
+    }
+
     Renderer &Renderer::BeginPass(const RenderPassConfig &config) {
         while (!m_RenderQueue.empty()) {
             m_RenderQueue.pop();
@@ -135,7 +158,7 @@ void main() {
                 pipeline.SetUniform("uLightRadii[" + std::to_string(i) + "]", radius);
                 pipeline.SetUniform("uLightSpaceMatrices[" + std::to_string(i) + "]", spaceMat);
 
-                if (m_LightShadowMapIndices[i] == ~1u) {
+                if (m_LightShadowMapIndices[i] == ~0u) {
                     pipeline.SetUniform("uLightShadowMapIndices[" + std::to_string(i) + "]", -1);
                 } else {
                     pipeline.SetUniform("uLightShadowMapIndices[" + std::to_string(i) + "]",
@@ -229,7 +252,7 @@ void main() {
                 lightIndices.push_back(i);
                 counter++;
             } else {
-                m_LightShadowMapIndices[i] = ~1u;
+                m_LightShadowMapIndices[i] = ~0u;
             }
         }
 

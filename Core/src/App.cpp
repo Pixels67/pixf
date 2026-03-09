@@ -4,6 +4,7 @@
 #include "Graphics/ModelRenderer.hpp"
 #include "Input/Input.hpp"
 #include "Math/Transform.hpp"
+#include "Serial/JsonArchive.hpp"
 #include "Time/Time.hpp"
 
 namespace Flock {
@@ -44,6 +45,147 @@ namespace Flock {
         return *this;
     }
 
+    std::string json = R"(
+{
+  "registry": {
+    "entities": [
+      {
+        "id": 0,
+        "alive": true,
+        "version": 0
+      },
+      {
+        "id": 1,
+        "alive": true,
+        "version": 0
+      },
+      {
+        "id": 2,
+        "alive": true,
+        "version": 0
+      }
+    ],
+    "components": {
+      "Light": [
+        {
+          "id": 1,
+          "data": {
+            "position": {
+              "x": -1.0,
+              "y": 1.0,
+              "z": -1.0
+            },
+            "color": {
+              "r": 255,
+              "g": 255,
+              "b": 220
+            },
+            "intensity": 5.0,
+            "radius": 0.0,
+            "hasShadows": true
+          }
+        },
+        {
+          "id": 2,
+          "data": {
+            "position": {
+              "x": 1.0,
+              "y": 1.0,
+              "z": 1.0
+            },
+            "color": {
+              "r": 220,
+              "g": 240,
+              "b": 255
+            },
+            "intensity": 1.0,
+            "radius": 0.0,
+            "hasShadows": true
+          }
+        }
+      ],
+      "ModelRenderer": [
+        {
+          "id": 0,
+          "data": {
+            "modelPath": "../../../assets/dragon2.ply"
+          }
+        }
+      ],
+      "Transform": [
+        {
+          "id": 0,
+          "data": {
+            "position": {
+              "x": 0.0,
+              "y": -0.6000000238418579,
+              "z": 1.2000000476837158
+            },
+            "rotation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0,
+              "z": 1.0
+            },
+            "eulerAngles": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            }
+          }
+        }
+      ]
+    }
+  },
+  "resources": {
+    "AudioListener": {
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 1.0
+      }
+    },
+    "AmbientLight": {
+      "color": {
+        "r": 40,
+        "g": 80,
+        "b": 100
+      },
+      "intensity": 0.1
+    },
+    "Camera": {
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 1.0
+      },
+      "projection": 1,
+      "size": 1.0,
+      "fovY": 90.0,
+      "nearZ": 0.10000000149011612,
+      "farZ": 1000.0
+    }
+  }
+}
+)";
+
     App &App::Run() {
         m_Services.window.MakeCurrent();
         m_Services.inputHandler.HookEvents(m_Services.eventHandler);
@@ -55,6 +197,9 @@ namespace Flock {
         m_World.InsertResource<Audio::AudioListener>();
 
         m_Schedule.Execute(Ecs::Stage::Startup, m_World);
+
+        Serial::JsonReader reader{Serial::Json::Parse(json).value()};
+        m_World.Archive(reader);
 
         while (!m_Services.window.ShouldClose()) {
             // Begin
@@ -129,9 +274,12 @@ namespace Flock {
             lights.push_back(light);
         });
 
+        const AmbientLight ambient = m_World.GetResource<AmbientLight>();
+
         SceneData scene = {
-            .camera = camera,
-            .lights = lights,
+            .camera       = camera,
+            .lights       = lights,
+            .ambientLight = ambient,
         };
 
         const auto pipeline = m_Services.assetLoader.Load<Pipeline>("../../../assets/shader.glsl");
