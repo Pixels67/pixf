@@ -48,6 +48,7 @@ namespace Flock::Serial {
         virtual void operator()(std::string_view, f32 &) = 0;
         virtual void operator()(std::string_view, f64 &) = 0;
 
+        virtual void operator()(std::string_view, char &) = 0;
         virtual void operator()(std::string_view, std::string &) = 0;
 
         virtual void operator()(std::string_view, Vector2f &) = 0;

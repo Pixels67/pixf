@@ -37,6 +37,10 @@ namespace Flock::Serial {
         Current()[key] = value;
     }
 
+    void JsonWriter::operator()(std::string_view key, char &value) {
+        Current()[key] = value;
+    }
+
     void JsonWriter::operator()(std::string_view key, std::string &value) {
         Current()[key] = value;
     }
@@ -168,6 +172,10 @@ namespace Flock::Serial {
 
     void JsonReader::operator()(std::string_view key, f64 &value) {
         value = Current()[key];
+    }
+
+    void JsonReader::operator()(std::string_view key, char &value) {
+        value = Current()[key].get<char>();
     }
 
     void JsonReader::operator()(std::string_view key, std::string &value) {

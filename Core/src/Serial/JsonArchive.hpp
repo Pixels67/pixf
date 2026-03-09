@@ -33,6 +33,7 @@ namespace Flock::Serial {
         void operator()(std::string_view key, f32 &value) override;
         void operator()(std::string_view key, f64 &value) override;
 
+        void operator()(std::string_view key, char &value) override;
         void operator()(std::string_view key, std::string &value) override;
 
         void operator()(std::string_view key, Vector2f &value) override;
@@ -84,6 +85,7 @@ namespace Flock::Serial {
         void operator()(std::string_view key, f32 &value) override;
         void operator()(std::string_view key, f64 &value) override;
 
+        void operator()(std::string_view key, char &value) override;
         void operator()(std::string_view key, std::string &value) override;
 
         void operator()(std::string_view key, Vector2f &value) override;

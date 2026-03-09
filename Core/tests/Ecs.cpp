@@ -92,7 +92,7 @@ TEST(Entities, RegistryForEach) {
 
 TEST(Entities, Schedule) {
     // Arrange
-    World world{};
+    World    world{};
     Schedule schedule{};
 
     const Entity entity = world.GetRegistry().Create();
