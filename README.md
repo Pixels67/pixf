@@ -1,10 +1,9 @@
-<h1 align="center">
+<h3 align="center">
+  <img width="896" height="128" alt="flock_banner" src="https://github.com/user-attachments/assets/0c0ba71e-5e0f-4163-9f95-3f76514b31c1" />
+  <br/>
+  <br/>
   Flock
-</h1>
-
-<h4 align="center">
-  C++ Game Engine
-</h4>
+</h3>
 
 ---
 
@@ -51,3 +50,5 @@ cmake --build build/ --config Release # Or Debug
 > > ```
 
 ## Gallery
+<img width="912" height="940" alt="rend2" src="https://github.com/user-attachments/assets/dd9a0383-4a8b-4e07-8be4-4b73c946f972" />
+<img width="912" height="940" alt="rend1" src="https://github.com/user-attachments/assets/a9bd5beb-4f7e-4a2d-a5d5-0a149a6538ab" />
