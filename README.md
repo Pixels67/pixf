@@ -1,11 +1,6 @@
-<h3 align="center">
-  <img width="896" height="128" alt="flock_banner" src="https://github.com/user-attachments/assets/0c0ba71e-5e0f-4163-9f95-3f76514b31c1" />
-  <br/>
-  <br/>
-  Flock
-</h3>
-
----
+<h1 align="center">
+  <img width="896" height="205" alt="flock_banner" src="https://github.com/user-attachments/assets/7b1f3e74-3b77-4e86-a4be-53ae2cf4e926" />
+</h1>
 
 A C++ game engine using OpenGL 3.3 inspired by Bevy (hence the name).
 You can either build the *Core* library and use it like a library,
