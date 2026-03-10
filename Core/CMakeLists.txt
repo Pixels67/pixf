@@ -38,6 +38,13 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
+        NAME reactphysics3d
+        GITHUB_REPOSITORY DanielChappuis/reactphysics3d
+        GIT_TAG v0.10.2
+        GIT_SHALLOW TRUE
+)
+
+CPMAddPackage(
         NAME assimp
         URL "https://github.com/assimp/assimp/archive/refs/tags/v6.0.2.tar.gz"
         OPTIONS
@@ -148,6 +155,11 @@ set(PROJECT_SOURCES
         src/Serial/JsonArchive.cpp
         src/Graphics/Camera.hpp
         src/Graphics/Light.hpp
+        src/Physics/RigidBody.hpp
+        src/Physics/Collider.hpp
+        src/Math/RigidTransform.hpp
+        src/Physics/PhysicsEngine.cpp
+        src/Physics/PhysicsEngine.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
@@ -166,6 +178,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         soloud
         assimp
         nlohmann_json
+        reactphysics3d
 )
 
 if (UNIX AND NOT APPLE)

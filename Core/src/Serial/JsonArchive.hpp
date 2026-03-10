@@ -10,13 +10,13 @@ namespace Flock::Serial {
         nlohmann::ordered_json                m_Root;
         std::vector<nlohmann::ordered_json *> m_Stack;
 
-        nlohmann::ordered_json &Current() const {
+        [[nodiscard]] nlohmann::ordered_json &Current() const {
             return *m_Stack.back();
         }
 
     public:
         JsonWriter();
-        Json GetOutput() const;
+        [[nodiscard]] Json GetOutput() const;
 
         usize CurrentArraySize() override {
             return 0;
@@ -61,9 +61,9 @@ namespace Flock::Serial {
     class FLK_API JsonReader : public IArchive {
         nlohmann::ordered_json                m_Root;
         std::vector<nlohmann::ordered_json *> m_Stack;
-        std::vector<usize>            m_IndexStack;
+        std::vector<usize>                    m_IndexStack;
 
-        nlohmann::ordered_json &Current() const {
+        [[nodiscard]] nlohmann::ordered_json &Current() const {
             return *m_Stack.back();
         }
 

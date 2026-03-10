@@ -17,8 +17,9 @@ or build it with the *Editor* and *Runtime* and use it like an engine.
 - [x] Keyboard & Mouse Input
 - [x] Audio
 - [x] Serialization
-- [ ] Immediate mode GUI
-- [ ] Retained mode GUI
+- [x] Physics
+- [ ] Editor GUI
+- [ ] In-game GUI
 - [ ] Editor 
 
 ## Building from Source

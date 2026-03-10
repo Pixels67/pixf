@@ -10,18 +10,20 @@
 #include "Glfw/Window.hpp"
 #include "Graphics/Renderer.hpp"
 #include "Input/InputHandler.hpp"
+#include "Physics/PhysicsEngine.hpp"
 
 namespace Flock {
     /**
      * @struct Services
      */
     struct FLK_API Services {
-        Event::EventHandler eventHandler;
-        Glfw::Window        window;
-        Asset::AssetLoader  assetLoader;
-        Graphics::Renderer  renderer;
-        Input::InputHandler inputHandler;
-        Audio::AudioPlayer  audioPlayer;
+        Event::EventHandler    eventHandler;
+        Glfw::Window           window;
+        Asset::AssetLoader     assetLoader;
+        Graphics::Renderer     renderer;
+        Input::InputHandler    inputHandler;
+        Audio::AudioPlayer     audioPlayer;
+        Physics::PhysicsEngine physicsEngine;
     };
 
     struct FLK_API AppConfig {

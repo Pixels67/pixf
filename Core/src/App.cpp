@@ -18,6 +18,7 @@ namespace Flock {
         }
 
         app.m_Services.window = std::move(window.value());
+        app.m_Services.window.MakeCurrent();
 
         auto audioPlayer = Audio::AudioPlayer::Create();
         if (!audioPlayer) {
@@ -25,7 +26,17 @@ namespace Flock {
             return std::nullopt;
         }
 
-        app.m_Services.audioPlayer = std::move(audioPlayer.value());
+        app.m_Services.audioPlayer   = std::move(audioPlayer.value());
+        app.m_Services.physicsEngine = std::move(Physics::PhysicsEngine::Create());
+
+        const auto pipeline = app.m_Services.assetLoader.Load<Graphics::Pipeline>("../../../assets/shader.glsl");
+        if (!pipeline) {
+            Debug::LogErr("App::Create: Could not load shader file 'shader.glsl'!");
+            return std::nullopt;
+        }
+
+        app.m_Services.assetLoader.SetDefaultPipeline(Asset::PipelineType::Pbr, pipeline.value());
+
         return app;
     }
 
@@ -45,147 +56,6 @@ namespace Flock {
         return *this;
     }
 
-    std::string json = R"(
-{
-  "registry": {
-    "entities": [
-      {
-        "id": 0,
-        "alive": true,
-        "version": 0
-      },
-      {
-        "id": 1,
-        "alive": true,
-        "version": 0
-      },
-      {
-        "id": 2,
-        "alive": true,
-        "version": 0
-      }
-    ],
-    "components": {
-      "Light": [
-        {
-          "id": 1,
-          "data": {
-            "position": {
-              "x": -1.0,
-              "y": 1.0,
-              "z": -1.0
-            },
-            "color": {
-              "r": 255,
-              "g": 255,
-              "b": 220
-            },
-            "intensity": 5.0,
-            "radius": 0.0,
-            "hasShadows": true
-          }
-        },
-        {
-          "id": 2,
-          "data": {
-            "position": {
-              "x": 1.0,
-              "y": 1.0,
-              "z": 1.0
-            },
-            "color": {
-              "r": 220,
-              "g": 240,
-              "b": 255
-            },
-            "intensity": 1.0,
-            "radius": 0.0,
-            "hasShadows": true
-          }
-        }
-      ],
-      "ModelRenderer": [
-        {
-          "id": 0,
-          "data": {
-            "modelPath": "../../../assets/dragon2.ply"
-          }
-        }
-      ],
-      "Transform": [
-        {
-          "id": 0,
-          "data": {
-            "position": {
-              "x": 0.0,
-              "y": -0.6000000238418579,
-              "z": 1.2000000476837158
-            },
-            "rotation": {
-              "x": 0.0,
-              "y": 0.0,
-              "z": 0.0,
-              "w": 1.0
-            },
-            "scale": {
-              "x": 1.0,
-              "y": 1.0,
-              "z": 1.0
-            },
-            "eulerAngles": {
-              "x": 0.0,
-              "y": 0.0,
-              "z": 0.0
-            }
-          }
-        }
-      ]
-    }
-  },
-  "resources": {
-    "AudioListener": {
-      "position": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0
-      },
-      "rotation": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0,
-        "w": 1.0
-      }
-    },
-    "AmbientLight": {
-      "color": {
-        "r": 40,
-        "g": 80,
-        "b": 100
-      },
-      "intensity": 0.1
-    },
-    "Camera": {
-      "position": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0
-      },
-      "rotation": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0,
-        "w": 1.0
-      },
-      "projection": 1,
-      "size": 1.0,
-      "fovY": 90.0,
-      "nearZ": 0.10000000149011612,
-      "farZ": 1000.0
-    }
-  }
-}
-)";
-
     App &App::Run() {
         m_Services.window.MakeCurrent();
         m_Services.inputHandler.HookEvents(m_Services.eventHandler);
@@ -197,9 +67,6 @@ namespace Flock {
         m_World.InsertResource<Audio::AudioListener>();
 
         m_Schedule.Execute(Ecs::Stage::Startup, m_World);
-
-        Serial::JsonReader reader{Serial::Json::Parse(json).value()};
-        m_World.Archive(reader);
 
         while (!m_Services.window.ShouldClose()) {
             // Begin
@@ -262,6 +129,22 @@ namespace Flock {
 
             m_Services.audioPlayer.Play(m_Services.assetLoader.Get(clip.value()).value(), config);
         });
+
+        std::vector<Physics::PhysicsObject> physicsObjects;
+        m_World.GetRegistry().ForEach<Transform, Physics::BoxCollider, Physics::RigidBody>(
+            [&](Transform &trans, Physics::BoxCollider &collider, Physics::RigidBody &rb) {
+                physicsObjects.push_back({.transform = &trans, .rigidBody = &rb, .collider = &collider});
+            }
+        );
+
+        m_World.GetRegistry().ForEach<Transform, Physics::SphereCollider, Physics::RigidBody>(
+            [&](Transform &trans, Physics::SphereCollider &collider, Physics::RigidBody &rb) {
+                physicsObjects.push_back({.transform = &trans, .rigidBody = &rb, .collider = &collider});
+            }
+        );
+
+        m_Services.physicsEngine.SetScene(physicsObjects);
+        m_Services.physicsEngine.Update(m_World.GetResource<Time::TimeState>().deltaTime);
     }
 
     void App::Render(const Graphics::ShadowConfig shadowConfig) {
@@ -282,13 +165,6 @@ namespace Flock {
             .ambientLight = ambient,
         };
 
-        const auto pipeline = m_Services.assetLoader.Load<Pipeline>("../../../assets/shader.glsl");
-        if (!pipeline) {
-            Debug::LogErr("App::Render: Could not load shader file 'shader.glsl'!");
-            return;
-        }
-
-        m_Services.assetLoader.SetDefaultPipeline(Asset::PipelineType::Pbr, pipeline.value());
         m_Services.renderer.BeginPass({.viewport = viewport});
 
         m_World.GetRegistry().ForEach<ModelRenderer, Transform>(

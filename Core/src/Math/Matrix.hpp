@@ -60,7 +60,7 @@ namespace Flock {
 
         static Matrix4 RotateX(const T &angleDegrees) {
             Matrix4 mat;
-            T       radians = DegreesToRadians(angleDegrees);
+            T       radians = DegreesToRadians(-angleDegrees);
 
             f64 sinTheta = std::sin(radians);
             f64 cosTheta = std::cos(radians);
@@ -77,7 +77,7 @@ namespace Flock {
 
         static Matrix4 RotateY(const T &angleDegrees) {
             Matrix4 mat;
-            T       radians = DegreesToRadians(angleDegrees);
+            T       radians = DegreesToRadians(-angleDegrees);
 
             f64 sinTheta = std::sin(radians);
             f64 cosTheta = std::cos(radians);
@@ -94,15 +94,15 @@ namespace Flock {
 
         static Matrix4 RotateZ(const T &angleDegrees) {
             Matrix4 mat;
-            T       radians = DegreesToRadians(angleDegrees);
+            T       radians = DegreesToRadians(-angleDegrees);
 
             f64 sinTheta = std::sin(radians);
             f64 cosTheta = std::cos(radians);
 
             mat.At(0, 0) = cosTheta;
             mat.At(1, 1) = cosTheta;
-            mat.At(0, 1) = sinTheta;
-            mat.At(1, 0) = -sinTheta;
+            mat.At(0, 1) = -sinTheta;
+            mat.At(1, 0) = sinTheta;
             mat.At(2, 2) = 1;
             mat.At(3, 3) = 1;
 
@@ -135,13 +135,13 @@ namespace Flock {
             T wz = q.w * q.z;
 
             mat.At(0, 0) = 2 * (ww + xx) - 1;
-            mat.At(1, 0) = 2 * (xy - wz);
-            mat.At(2, 0) = 2 * (xz + wy);
-            mat.At(0, 1) = 2 * (xy + wz);
+            mat.At(0, 1) = 2 * (xy - wz);
+            mat.At(0, 2) = 2 * (xz + wy);
+            mat.At(1, 0) = 2 * (xy + wz);
             mat.At(1, 1) = 2 * (ww + yy) - 1;
-            mat.At(2, 1) = 2 * (xz - wx);
-            mat.At(0, 2) = 2 * (xz - wy);
-            mat.At(1, 2) = 2 * (yz + wx);
+            mat.At(1, 2) = 2 * (yz - wx);
+            mat.At(2, 0) = 2 * (xz - wy);
+            mat.At(2, 1) = 2 * (yz + wx);
             mat.At(2, 2) = 2 * (ww + zz) - 1;
 
             return mat;

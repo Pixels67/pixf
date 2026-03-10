@@ -7,7 +7,7 @@
 #include "Math/Color.hpp"
 
 namespace Flock::FileIo {
-    static constexpr f32 s_ImportScale = 5.0F;
+    static constexpr f32 s_ImportScale = 1.0F;
 
     std::vector<MeshData> LoadModelMeshes(const std::filesystem::path &filePath) {
         Assimp::Importer importer;

@@ -25,7 +25,7 @@ namespace Flock {
         }
 
         static Quaternion AngleAxis(const f32 angleDegrees, const Vector3f axis) {
-            const f32 halfAngle = DegreesToRadians(angleDegrees) * 0.5F;
+            const f32 halfAngle = DegreesToRadians(-angleDegrees) * 0.5F;
             f32       s         = std::sin(halfAngle);
             return {
                 axis.Normalized().x * s,
@@ -40,12 +40,12 @@ namespace Flock {
         }
 
         static Quaternion Euler(const f32 x, const f32 y, const f32 z) {
-            const f32 cy = std::cos(DegreesToRadians(y) * 0.5F);
-            const f32 sy = std::sin(DegreesToRadians(y) * 0.5F);
-            const f32 cp = std::cos(DegreesToRadians(x) * 0.5F);
-            const f32 sp = std::sin(DegreesToRadians(x) * 0.5F);
-            const f32 cr = std::cos(DegreesToRadians(z) * 0.5F);
-            const f32 sr = std::sin(DegreesToRadians(z) * 0.5F);
+            const f32 cy = std::cos(DegreesToRadians(-y) * 0.5F);
+            const f32 sy = std::sin(DegreesToRadians(-y) * 0.5F);
+            const f32 cp = std::cos(DegreesToRadians(-x) * 0.5F);
+            const f32 sp = std::sin(DegreesToRadians(-x) * 0.5F);
+            const f32 cr = std::cos(DegreesToRadians(-z) * 0.5F);
+            const f32 sr = std::sin(DegreesToRadians(-z) * 0.5F);
 
             return Quaternion(cy * sp * cr + sy * cp * sr, // x
                               sy * cp * cr - cy * sp * sr, // y
@@ -55,10 +55,12 @@ namespace Flock {
         }
 
         Quaternion operator*(const Quaternion &o) const {
-            return Quaternion(w * o.x + x * o.w + y * o.z - z * o.y,  // x
-                              w * o.y - x * o.z + y * o.w + z * o.x,  // y
-                              w * o.z + x * o.y - y * o.x + z * o.w,  // z
-                              w * o.w - x * o.x - y * o.y - z * o.z); // w
+            return {
+                w * o.x + x * o.w + y * o.z - z * o.y, // x
+                w * o.y - x * o.z + y * o.w + z * o.x, // y
+                w * o.z + x * o.y - y * o.x + z * o.w, // z
+                w * o.w - x * o.x - y * o.y - z * o.z, // w
+            };
         }
 
         Quaternion &operator*=(const Quaternion &o) {
@@ -68,7 +70,7 @@ namespace Flock {
 
         Vector3f operator*(const Vector3f &o) const {
             Quaternion quat(o.x, o.y, o.z, 0);
-            Quaternion result = Normalized() * quat * Conjugate().Normalize();
+            Quaternion result = Conjugate() * quat * *this;
 
             return {result.x, result.y, result.z};
         }

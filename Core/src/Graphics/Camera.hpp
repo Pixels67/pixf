@@ -3,6 +3,7 @@
 
 #include "Common.hpp"
 #include "Math/Math.hpp"
+#include "Math/RigidTransform.hpp"
 
 namespace Flock::Graphics {
     enum class Projection {
@@ -11,19 +12,19 @@ namespace Flock::Graphics {
     };
 
     struct FLK_API Camera {
-        Vector3f   position   = {};
-        Quaternion rotation   = {};
-        Projection projection = Projection::Orthographic;
-        f32        size       = 1.0F;
-        f32        fovY       = 60.0F;
-        f32        nearZ      = 0.1F;
-        f32        farZ       = 1000.0F;
+        RigidTransform transform;
+        Projection     projection = Projection::Orthographic;
+        f32            size       = 1.0F;
+        f32            fovY       = 60.0F;
+        f32            nearZ      = 0.1F;
+        f32            farZ       = 1000.0F;
 
-        Matrix4f GetViewMatrix() const {
-            return Matrix4f::Translate(-position) * Matrix4f::Rotate(rotation.Inverse());
+        [[nodiscard]] Matrix4f GetViewMatrix() const {
+            return Matrix4f::Translate(-transform.position) * Matrix4f::Rotate(-transform.eulerAngles) *
+                   Matrix4f::Rotate(transform.rotation.Inverse());
         }
 
-        Matrix4f GetProjMatrix(f32 aspectRatio) const {
+        [[nodiscard]] Matrix4f GetProjMatrix(const f32 aspectRatio) const {
             if (projection == Projection::Orthographic) {
                 return Matrix4f::Orthographic(-aspectRatio * size, aspectRatio * size, -size, size, nearZ, farZ);
             }
@@ -32,17 +33,16 @@ namespace Flock::Graphics {
         }
     };
 
-    inline auto Reflect(Camera &light) {
+    inline auto Reflect(Camera &camera) {
         return Reflectable{
             "Camera",
             std::make_tuple(
-                Field{"position", &light.position},
-                Field{"rotation", &light.rotation},
-                Field{"projection", &light.projection},
-                Field{"size", &light.size},
-                Field{"fovY", &light.fovY},
-                Field{"nearZ", &light.nearZ},
-                Field{"farZ", &light.farZ}
+                Field{"transform", &camera.transform},
+                Field{"projection", &camera.projection},
+                Field{"size", &camera.size},
+                Field{"fovY", &camera.fovY},
+                Field{"nearZ", &camera.nearZ},
+                Field{"farZ", &camera.farZ}
             )
         };
     }

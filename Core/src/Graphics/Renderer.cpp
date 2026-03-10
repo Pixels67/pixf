@@ -79,7 +79,7 @@ void main() {
             return *this;
         }
 
-        auto lights = GetNearestLights(scene.lights, scene.camera.position, s_MaxLightsPerObject);
+        auto lights = GetNearestLights(scene.lights, scene.camera.transform.position, s_MaxLightsPerObject);
 
         std::vector<RenderObject> objects;
         RenderQueue               queue = m_RenderQueue;
@@ -90,7 +90,7 @@ void main() {
         }
 
         f32      shadowRange  = shadowConfig.shadowRange;
-        Vector3f shadowCenter = scene.camera.position;
+        Vector3f shadowCenter = scene.camera.transform.position;
         GenerateShadowMaps(shadowConfig, objects, lights, shadowCenter);
 
         if (framebuffer) {
@@ -121,7 +121,7 @@ void main() {
             pipeline.SetUniform("uModel", model);
             pipeline.SetUniform("uView", view);
             pipeline.SetUniform("uProj", proj);
-            pipeline.SetUniform("uCameraPosition", scene.camera.position);
+            pipeline.SetUniform("uCameraPosition", scene.camera.transform.position);
 
             pipeline.SetUniform("uColor", material.color);
             pipeline.SetUniform("uMetallic", material.metallic);
@@ -149,7 +149,7 @@ void main() {
                 const f32 shadowAspect = static_cast<f32>(shadowConfig.shadowMapResolution.x) /
                                          static_cast<f32>(shadowConfig.shadowMapResolution.y);
 
-                const Vector3f offset   = scene.camera.position;
+                const Vector3f offset   = scene.camera.transform.position;
                 Matrix4f       spaceMat = lights[i].GetLightSpaceMatrix(shadowRange, shadowAspect, offset);
 
                 pipeline.SetUniform("uLightPositions[" + std::to_string(i) + "]", lightPosition);
@@ -268,12 +268,12 @@ void main() {
     }
 
     bool Renderer::GenerateShadowMap(
-        std::vector<RenderObject> objects,
-        const TextureArray &      textureArray,
-        const u32                 index,
-        const Light &             light,
-        const Vector3f            offset,
-        const f32                 range
+        const std::vector<RenderObject> &objects,
+        const TextureArray &             textureArray,
+        const u32                        index,
+        const Light &                    light,
+        const Vector3f                   offset,
+        const f32                        range
     ) {
         static Framebuffer framebuffer = Framebuffer::Create().value();
 

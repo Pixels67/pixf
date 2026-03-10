@@ -31,7 +31,7 @@ namespace Flock::Graphics {
     };
 
     struct ShadowConfig {
-        f32      shadowRange         = 3.0F;
+        f32      shadowRange         = 50.0F;
         Vector2u shadowMapResolution = {4096, 4096};
     };
 
@@ -85,7 +85,7 @@ namespace Flock::Graphics {
         );
 
         static bool GenerateShadowMap(
-            std::vector<RenderObject> objects,
+            const std::vector<RenderObject>& objects,
             const TextureArray &      textureArray,
             u32                       index,
             const Light &             light,
