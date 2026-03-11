@@ -5,9 +5,13 @@
 #include "Mesh.hpp"
 
 namespace Flock::Graphics {
+    struct RenderObject {
+        Mesh     mesh;
+        Material material;
+    };
+
     struct Model {
-        std::vector<Mesh>     meshes;
-        std::vector<Material> materials;
+        std::vector<RenderObject> objects;
     };
 }
 

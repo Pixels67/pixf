@@ -1,8 +1,6 @@
 #ifndef FLK_COLLIDER_HPP
 #define FLK_COLLIDER_HPP
 
-#include <vector>
-
 #include <reactphysics3d/reactphysics3d.h>
 
 #include "Common.hpp"
@@ -16,6 +14,7 @@ namespace Flock::Physics {
         virtual ~Collider() = default;
 
         virtual rp3d::CollisionShape *BuildShape(rp3d::PhysicsCommon &common, Vector3f scale) = 0;
+        virtual RigidTransform        GetTransform() = 0;
     };
 
     struct FLK_API BoxCollider : Collider {
@@ -31,6 +30,10 @@ namespace Flock::Physics {
                 halfExtents.x * scale.x, halfExtents.y * scale.y, halfExtents.z * scale.z
             ));
         }
+
+        RigidTransform GetTransform() override {
+            return transform;
+        }
     };
 
     struct FLK_API SphereCollider : Collider {
@@ -44,6 +47,10 @@ namespace Flock::Physics {
         rp3d::CollisionShape *BuildShape(rp3d::PhysicsCommon &common, const Vector3f scale) override {
             const f32 s = std::min({scale.x, scale.y, scale.z});
             return common.createSphereShape(radius * s);
+        }
+
+        RigidTransform GetTransform() override {
+            return transform;
         }
     };
 

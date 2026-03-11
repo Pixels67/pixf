@@ -179,6 +179,10 @@ namespace Flock::Glfw {
         glfwSetWindowSize(m_GlfwWindowPtr, size.x, size.y);
     }
 
+    void Window::SetCursorMode(const Input::CursorMode cursorMode) const {
+        glfwSetInputMode(m_GlfwWindowPtr, GLFW_CURSOR, Input::ToGlfwType(cursorMode));
+    }
+
     void Window::MakeCurrent() {
         if (m_GlfwWindowPtr == nullptr) {
             return;

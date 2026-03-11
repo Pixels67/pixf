@@ -18,6 +18,21 @@ namespace Flock::Serial {
         JsonWriter();
         [[nodiscard]] Json GetOutput() const;
 
+        template<typename T> requires IsReflectable<T>
+        void operator()(const std::string_view key, T &value) {
+            BeginObject(key);
+            Serialize(*this, value);
+            EndObject();
+        }
+
+        template<typename T> requires std::is_enum_v<T>
+        void operator()(std::string_view key, T &value) {
+            auto underlying = static_cast<std::underlying_type_t<T>>(value);
+            (*this)(key, underlying);
+            value = static_cast<T>(underlying);
+        }
+
+
         usize CurrentArraySize() override {
             return 0;
         }
@@ -69,6 +84,20 @@ namespace Flock::Serial {
 
     public:
         explicit JsonReader(const Json &data);
+
+        template<typename T> requires IsReflectable<T>
+        void operator()(const std::string_view key, T &value) {
+            BeginObject(key);
+            Serialize(*this, value);
+            EndObject();
+        }
+
+        template<typename T> requires std::is_enum_v<T>
+        void operator()(std::string_view key, T &value) {
+            auto underlying = static_cast<std::underlying_type_t<T>>(value);
+            (*this)(key, underlying);
+            value = static_cast<T>(underlying);
+        }
 
         usize CurrentArraySize() override {
             return Current().size();

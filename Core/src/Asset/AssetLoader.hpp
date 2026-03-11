@@ -37,33 +37,33 @@ namespace Flock::Asset {
         std::unordered_map<std::string, AssetId> m_AssetIds;
         std::vector<AssetId>                     m_FreeAssetIds;
 
-        std::unordered_map<PipelineType, Handle<Graphics::Pipeline> > m_DefaultPipelines;
+        std::unordered_map<PipelineType, std::filesystem::path> m_DefaultPipelines;
 
     public:
         /**
          * @brief Loads an asset from disk into memory.
          * @tparam T The asset type.
          * @param filePath The file path.
-         * @return A handle to the asset if successful; std::nullopt otherwise.
+         * @return true if successful; false otherwise.
          */
         template<typename T>
-        std::optional<Handle<T> > Load(const std::filesystem::path &filePath) {
-            std::string pathStr = filePath.string();
+        bool Load(const std::filesystem::path &filePath) {
+            const std::string pathStr = filePath.string();
 
             if (m_AssetIds.contains(pathStr)) {
-                AssetId id     = m_AssetIds.at(pathStr);
-                TypeId  typeId = m_Assets.at(id).value().typeId;
+                const AssetId id     = m_AssetIds.at(pathStr);
+                const TypeId  typeId = m_Assets.at(id).value().typeId;
 
                 if (typeId != GetTypeId<T>()) {
-                    return std::nullopt;
+                    return false;
                 }
 
-                return Handle<T>{.id = id, .typeId = typeId};
+                return true;
             }
 
-            auto asset = Loader<T>::Load(*this, filePath, std::nullopt);
+            auto asset = Loader<T>::Load(*this, filePath);
             if (!asset.has_value()) {
-                return std::nullopt;
+                return false;
             }
 
             std::shared_ptr<T> ptr = std::make_shared<T>(std::move(asset.value()));
@@ -86,58 +86,55 @@ namespace Flock::Asset {
             }
 
             m_AssetIds[pathStr] = id;
-            return Handle<T>{.id = id, .typeId = typeId};
+            return true;
         }
 
         /**
-         * @brief Loads an asset from disk into memory with a configuration.
+         * @brief Unloads an asset from memory.
          * @tparam T The asset type.
-         * @tparam C The asset configuration type.
-         * @param filePath The file path.
-         * @param config The configuration for the asset.
-         * @return A handle to the asset if successful; std::nullopt otherwise.
+         * @param filePath The file path of the asset.
+         * @return true if successful; false otherwise.
          */
-        template<typename T, typename C>
-        std::optional<Handle<T> > Load(const std::filesystem::path &filePath, C config) {
-            std::string pathStr = filePath.string();
-
-            if (m_AssetIds.contains(pathStr)) {
-                AssetId id     = m_AssetIds.at(pathStr);
-                TypeId  typeId = m_Assets.at(id).value().typeId;
-
-                if (typeId != GetTypeId<T>()) {
-                    return std::nullopt;
-                }
-
-                return Handle<T>{.id = id, .typeId = typeId};
+        template<typename T>
+        bool Unload(std::filesystem::path filePath) {
+            if (!IsLoaded<T>(filePath)) {
+                return false;
             }
 
-            auto asset = Loader<T>::Load(*this, filePath, config);
-            if (!asset.has_value()) {
-                return std::nullopt;
+            const AssetId assetId = m_AssetIds[filePath.string()];
+
+            m_Assets[assetId] = std::nullopt;
+            m_AssetIds.erase(filePath.string());
+            m_FreeAssetIds.push_back(assetId);
+
+            return true;
+        }
+
+        template<typename T>
+        bool IsLoaded(const std::filesystem::path &filePath) {
+            const std::string str = filePath.string();
+            if (!m_AssetIds.contains(str)) {
+                return false;
             }
 
-            std::shared_ptr<T> ptr = std::make_shared<T>(std::move(asset.value()));
-
-            AssetId id     = 0;
-            TypeId  typeId = 0;
-
-            if (!m_FreeAssetIds.empty()) {
-                id     = m_FreeAssetIds.back();
-                typeId = GetTypeId<T>();
-
-                m_FreeAssetIds.pop_back();
-
-                m_Assets[id] = AssetSlot{.data = ptr, .typeId = typeId};
-            } else {
-                id     = m_Assets.size();
-                typeId = GetTypeId<T>();
-
-                m_Assets.emplace_back(AssetSlot{.data = ptr, .typeId = typeId});
+            if (GetTypeId<T>() != m_Assets[m_AssetIds[str]].value().typeId) {
+                return false;
             }
 
-            m_AssetIds[pathStr] = id;
-            return Handle<T>{.id = id, .typeId = typeId};
+            return true;
+        }
+
+        template<typename T>
+        bool IsLoaded(Handle<T> handle) {
+            if (handle.id >= m_Assets.size() || !m_Assets.at(handle.id).has_value()) {
+                return false;
+            }
+
+            if (GetTypeId<T>() != m_Assets[handle.id].value().typeId) {
+                return false;
+            }
+
+            return true;
         }
 
         /**
@@ -148,11 +145,7 @@ namespace Flock::Asset {
          */
         template<typename T>
         OptionalRef<T> Get(Handle<T> handle) {
-            if (handle.id >= m_Assets.size() || !m_Assets.at(handle.id).has_value()) {
-                return std::nullopt;
-            }
-
-            if (GetTypeId<T>() != m_Assets[handle.id].value().typeId) {
+            if (!IsLoaded(handle)) {
                 return std::nullopt;
             }
 
@@ -160,38 +153,36 @@ namespace Flock::Asset {
         }
 
         /**
-         * @brief Unloads an asset from memory.
+         * @brief Retrieves a reference to an asset.
          * @tparam T The asset type.
-         * @param handle A handle to the asset.
-         * @return true if successful; false otherwise.
+         * @param filePath The file path of the asset.
+         * @return A reference to the asset if successful; std::nullopt otherwise.
          */
         template<typename T>
-        bool Unload(Handle<T> handle) {
-            if (handle.id >= m_Assets.size()) {
-                return false;
-            }
+        OptionalRef<T> Get(const std::filesystem::path filePath) {
+            const std::string str = filePath.string();
 
-            if (!m_Assets.at(handle.id).has_value()) {
-                Debug::LogWrn("Trying to unload an asset that is already unloaded!");
-                return false;
-            }
-
-            if (GetTypeId<T>() != m_Assets[handle.id].value().typeId) {
-                return false;
-            }
-
-            m_Assets[handle.id] = std::nullopt;
-
-            for (auto &[path, id]: m_AssetIds) {
-                if (id == handle.id) {
-                    m_AssetIds.erase(path);
-                    break;
+            if constexpr (std::same_as<T, Graphics::Pipeline>) {
+                if (str == "@PBR" && m_DefaultPipelines.contains(PipelineType::Pbr)) {
+                    return Get<T>(m_DefaultPipelines[PipelineType::Pbr]);
+                }
+                if (str == "@Unlit" && m_DefaultPipelines.contains(PipelineType::Unlit)) {
+                    return Get<T>(m_DefaultPipelines[PipelineType::Unlit]);
+                }
+                if (str[0] == '@') {
+                    return std::nullopt;
                 }
             }
 
-            m_FreeAssetIds.push_back(handle.id);
+            if (!IsLoaded<T>(filePath)) {
+                if (Load<T>(filePath)) {
+                    return Get<T>(filePath);
+                }
 
-            return true;
+                return std::nullopt;
+            }
+
+            return *static_pointer_cast<T>(m_Assets[m_AssetIds[filePath]].value().data);
         }
 
         /**
@@ -216,29 +207,16 @@ namespace Flock::Asset {
         /**
          * @brief Sets a default pipeline.
          * @param type The pipeline type.
-         * @param pipeline The pipeline to set.
+         * @param filePath The pipeline to set.
          * @return true if successful; false otherwise.
          */
-        bool SetDefaultPipeline(const PipelineType type, const Handle<Graphics::Pipeline> pipeline) {
-            if (pipeline.id >= m_Assets.size() || !m_Assets.at(pipeline.id).has_value()) {
+        bool SetDefaultPipeline(const PipelineType type, const std::filesystem::path &filePath) {
+            if (!Load<Graphics::Pipeline>(filePath)) {
                 return false;
             }
 
-            m_DefaultPipelines[type] = pipeline;
+            m_DefaultPipelines[type] = filePath.string();
             return true;
-        }
-
-        /**
-         * @brief Retrieves the default pipeline of a stated type.
-         * @param type The pipeline type.
-         * @return The default pipeline of that type if found; std::nullopt otherwise.
-         */
-        std::optional<Handle<Graphics::Pipeline> > GetDefaultPipeline(const PipelineType type) {
-            if (!m_DefaultPipelines.contains(type)) {
-                return std::nullopt;
-            }
-
-            return m_DefaultPipelines.at(type);
         }
 
         /**
@@ -249,79 +227,57 @@ namespace Flock::Asset {
 
     template<>
     struct Loader<Graphics::Pipeline> {
-        static std::optional<Graphics::Pipeline> Load(
-            AssetLoader &,
-            const std::filesystem::path &filePath,
-            std::optional<bool>) {
+        static std::optional<Graphics::Pipeline> Load(AssetLoader &, const std::filesystem::path &filePath) {
             return FileIo::ReadPipeline(filePath);
         }
     };
 
     template<>
     struct Loader<Graphics::Texture2D> {
-        static std::optional<Graphics::Texture2D> Load(
-            AssetLoader &,
-            const std::filesystem::path &                filePath,
-            const std::optional<Graphics::TextureConfig> config
-        ) {
-            return Graphics::Texture2D::FromImage(FileIo::ReadImage(filePath),
-                                                  config.value_or(Graphics::TextureConfig{}));
+        static std::optional<Graphics::Texture2D> Load(AssetLoader &, const std::filesystem::path &filePath) {
+            return Graphics::Texture2D::FromImage(FileIo::ReadImage(filePath));
         }
     };
 
     template<>
     struct Loader<Audio::AudioClip> {
-        static std::optional<Audio::AudioClip> Load(AssetLoader &, const std::filesystem::path &filePath,
-                                                    const std::optional<bool>) {
+        static std::optional<Audio::AudioClip> Load(AssetLoader &, const std::filesystem::path &filePath) {
             return FileIo::LoadAudioClip(filePath);
         }
     };
 
     template<>
     struct Loader<Graphics::Model> {
-        static std::optional<Graphics::Model> Load(
-            AssetLoader &                                loader,
-            const std::filesystem::path &                filePath,
-            const std::optional<Graphics::TextureConfig> config
-        ) {
+        static std::optional<Graphics::Model> Load(AssetLoader &loader, const std::filesystem::path &filePath) {
             using namespace Graphics;
 
-            std::vector<FileIo::MeshData>     meshes    = FileIo::LoadModelMeshes(filePath);
-            std::vector<FileIo::MaterialData> materials = FileIo::LoadModelMaterials(filePath);
-
-            std::vector<Material> outputMaterials;
-
-            outputMaterials.reserve(materials.size());
-            for (auto &[color, metallic, roughness, colorMapPath, metallicMapPath, roughnessMapPath]: materials) {
-                Material material;
-                material.pipeline = loader.GetDefaultPipeline(PipelineType::Pbr).value();
-
-                if (colorMapPath) {
-                    const auto colorMap = loader.Load<Texture2D>(colorMapPath.value(), config);
-                    material.colorMap   = colorMap;
+            std::vector<FileIo::MeshData> meshes    = FileIo::LoadModelMeshes(filePath);
+            std::vector<Material>         materials = FileIo::LoadModelMaterials(filePath);
+            for (auto &[pipeline, color, metallic, roughness, colorMapPath, metallicMapPath, roughnessMapPath]:
+                 materials) {
+                if (pipeline != "@PBR" && pipeline != "@Unlit") {
+                    loader.Load<Pipeline>(pipeline);
                 }
 
-                if (metallicMapPath) {
-                    const auto metallicMap = loader.Load<Texture2D>(metallicMapPath.value(), config);
-                    material.metallicMap   = metallicMap;
+                if (colorMapPath != "") {
+                    loader.Load<Texture2D>(colorMapPath);
                 }
 
-                if (roughnessMapPath) {
-                    const auto roughnessMap = loader.Load<Texture2D>(roughnessMapPath.value(), config);
-                    material.roughnessMap   = roughnessMap;
+                if (metallicMapPath != "") {
+                    loader.Load<Texture2D>(metallicMapPath);
                 }
 
-                material.color     = color;
-                material.metallic  = metallic;
-                material.roughness = roughness;
-
-                outputMaterials.push_back(material);
+                if (roughnessMapPath != "") {
+                    loader.Load<Texture2D>(roughnessMapPath);
+                }
             }
 
             Model model;
             for (auto &[data, materialIndex]: meshes) {
-                model.meshes.push_back(std::move(Mesh::Create(data).value()));
-                model.materials.push_back(outputMaterials[materialIndex]);
+                model.objects.push_back({
+                    .mesh     = Mesh::Create(data).value(),
+                    .material = materials[materialIndex]
+                });
             }
 
             return model;

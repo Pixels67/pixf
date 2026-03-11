@@ -1,5 +1,7 @@
 #include "InputHandler.hpp"
 
+#include "Glfw/Window.hpp"
+
 namespace Flock::Input {
     void InputHandler::HookEvents(Event::EventHandler &eventHandler) {
         eventHandler.Subscribe<Glfw::KeyEvent>([&](auto &event) {
@@ -45,6 +47,7 @@ namespace Flock::Input {
         });
 
         eventHandler.Subscribe<Glfw::CursorPositionEvent>([&](auto &event) {
+            m_InputState.cursorDelta = Vector2d{event.xPos, event.yPos} - m_InputState.cursorPosition;
             m_InputState.cursorPosition.x = event.xPos;
             m_InputState.cursorPosition.y = event.yPos;
 
@@ -66,6 +69,7 @@ namespace Flock::Input {
         m_InputState.releasedKeys.clear();
         m_InputState.pressedMouseButtons.clear();
         m_InputState.releasedMouseButtons.clear();
+        m_InputState.cursorDelta = {};
     }
 
     InputState InputHandler::GetState() const {

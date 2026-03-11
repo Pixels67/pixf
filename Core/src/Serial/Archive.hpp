@@ -28,6 +28,18 @@ namespace Flock::Serial {
             EndObject();
         }
 
+        template<typename T>
+        void operator()(const std::string_view key, std::vector<T> &value) {
+            usize size = value.size();
+            BeginArray(key, size);
+            value.resize(size);
+            for (T &elem: value) {
+                (*this)("1", elem);
+            }
+
+            EndObject();
+        }
+
         template<typename T> requires std::is_enum_v<T>
         void operator()(std::string_view key, T &value) {
             auto underlying = static_cast<std::underlying_type_t<T>>(value);

@@ -24,6 +24,14 @@ namespace Flock::Graphics {
 
     i32 ToGlType(DepthFunc depthFunc);
 
+    enum class CullMode {
+        None,
+        Front,
+        Back
+    };
+
+    i32 ToGlType(CullMode faceCullMode);
+
     struct SceneData {
         Camera             camera       = {};
         std::vector<Light> lights       = {};
@@ -38,20 +46,16 @@ namespace Flock::Graphics {
     struct RenderPassConfig {
         std::optional<Color3u8> clearColor = Color3u8{10, 20, 25};
         DepthFunc               depthFunc  = DepthFunc::Less;
+        CullMode                cullMode   = CullMode::Back;
         bool                    clearDepth = true;
         bool                    blending   = true;
         Rect2u                  viewport   = {{0, 0}, {800, 600}};
     };
 
-    struct FLK_API RenderObject {
-        Mesh *    mesh = nullptr;
-        Transform transform;
-    };
-
     struct FLK_API RenderCommand {
-        Mesh *    mesh = nullptr;
-        Material  material;
-        Transform transform;
+        RenderObject *object    = nullptr;
+        Transform     transform = {};
+        bool          fill      = true;
     };
 
     using RenderQueue = std::queue<RenderCommand>;
@@ -78,22 +82,23 @@ namespace Flock::Graphics {
         static std::vector<Light> GetNearestLights(std::vector<Light> lights, Vector3f center, usize count);
 
         void GenerateShadowMaps(
-            ShadowConfig                     shadowConfig,
-            const std::vector<RenderObject> &objects,
-            const std::vector<Light> &       lights,
-            Vector3f                         offset
+            ShadowConfig                      shadowConfig,
+            const std::vector<RenderCommand> &commands,
+            const std::vector<Light> &        lights,
+            Vector3f                          offset
         );
 
         static bool GenerateShadowMap(
-            const std::vector<RenderObject>& objects,
-            const TextureArray &      textureArray,
-            u32                       index,
-            const Light &             light,
-            Vector3f                  offset,
-            f32                       range
+            const std::vector<RenderCommand> &commands,
+            const TextureArray &              textureArray,
+            u32                               index,
+            const Light &                     light,
+            Vector3f                          offset,
+            f32                               range
         );
 
         static bool RenderMesh(const Mesh &mesh, const Pipeline &pipeline);
+        static bool RenderMeshLines(const Mesh &mesh, const Pipeline &pipeline);
     };
 }
 

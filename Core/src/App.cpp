@@ -1,5 +1,6 @@
 #include "App.hpp"
 
+#include "Asset/Assets.hpp"
 #include "Audio/AudioSource.hpp"
 #include "Graphics/ModelRenderer.hpp"
 #include "Input/Input.hpp"
@@ -29,14 +30,6 @@ namespace Flock {
         app.m_Services.audioPlayer   = std::move(audioPlayer.value());
         app.m_Services.physicsEngine = std::move(Physics::PhysicsEngine::Create());
 
-        const auto pipeline = app.m_Services.assetLoader.Load<Graphics::Pipeline>("../../../assets/shader.glsl");
-        if (!pipeline) {
-            Debug::LogErr("App::Create: Could not load shader file 'shader.glsl'!");
-            return std::nullopt;
-        }
-
-        app.m_Services.assetLoader.SetDefaultPipeline(Asset::PipelineType::Pbr, pipeline.value());
-
         return app;
     }
 
@@ -65,6 +58,7 @@ namespace Flock {
         m_World.InsertResource<Graphics::Camera>();
         m_World.InsertResource<Graphics::AmbientLight>();
         m_World.InsertResource<Audio::AudioListener>();
+        m_World.InsertResource<Asset::Assets>({m_Services.assetLoader});
 
         m_Schedule.Execute(Ecs::Stage::Startup, m_World);
 
@@ -80,6 +74,7 @@ namespace Flock {
 
             // Render
             Render(m_Config.shadowConfig);
+            RenderGizmos();
 
             // Finish
             m_Services.window.SwapBuffers();
@@ -97,10 +92,15 @@ namespace Flock {
         const f64 deltaTime = Time::GetTime() - m_World.GetResource<Time::TimeState>().time;
 
         m_World.InsertResource(Time::TimeState{.time = Time::GetTime(), .deltaTime = deltaTime});
-        m_World.InsertResource(m_Services.inputHandler.GetState());
+
+        Input::InputState input = m_Services.inputHandler.GetState();
+        input.cursorMode        = m_World.GetResource<Input::InputState>().cursorMode;
+        m_World.InsertResource(input);
     }
 
     void App::Extract() {
+        m_Services.window.SetCursorMode(m_World.GetResource<Input::InputState>().cursorMode);
+
         const auto listener = m_World.GetResource<Audio::AudioListener>();
         m_Services.audioPlayer.SetListener(listener);
 
@@ -112,7 +112,7 @@ namespace Flock {
 
             source.play = false;
 
-            const auto clip = m_Services.assetLoader.Load<Audio::AudioClip>(source.audioClipPath);
+            const auto clip = m_Services.assetLoader.Get<Audio::AudioClip>(source.audioClipPath);
             if (!clip) {
                 Debug::LogErr("App::Extract: Invalid AudioSource clip path '{}'!", source.audioClipPath);
                 return;
@@ -127,7 +127,7 @@ namespace Flock {
                 .spatialize = source.spatialize
             };
 
-            m_Services.audioPlayer.Play(m_Services.assetLoader.Get(clip.value()).value(), config);
+            m_Services.audioPlayer.Play(clip.value(), config);
         });
 
         std::vector<Physics::PhysicsObject> physicsObjects;
@@ -143,8 +143,15 @@ namespace Flock {
             }
         );
 
+        static f32 accumulator = 0.0F;
+        accumulator            += m_World.GetResource<Time::TimeState>().deltaTime;
+
         m_Services.physicsEngine.SetScene(physicsObjects);
-        m_Services.physicsEngine.Update(m_World.GetResource<Time::TimeState>().deltaTime);
+
+        while (accumulator >= 0.02F) {
+            m_Services.physicsEngine.Update(0.02F);
+            accumulator -= 0.02F;
+        }
     }
 
     void App::Render(const Graphics::ShadowConfig shadowConfig) {
@@ -165,27 +172,72 @@ namespace Flock {
             .ambientLight = ambient,
         };
 
-        m_Services.renderer.BeginPass({.viewport = viewport});
+        m_Services.renderer.BeginPass({
+            .viewport = viewport
+        });
 
         m_World.GetRegistry().ForEach<ModelRenderer, Transform>(
             [&](const ModelRenderer &renderer, const Transform &transform) {
-                const auto result = m_Services.assetLoader.Load<Model>(renderer.modelPath);
+                const auto result = m_Services.assetLoader.Get<Model>(renderer.modelPath);
                 if (!result) {
                     Debug::LogErr("App::Render: Invalid model path!");
                     return;
                 }
 
-                Model &model = m_Services.assetLoader.Get(result.value()).value();
-
-                for (usize i = 0; i < model.meshes.size(); i++) {
+                Model &model = result.value();
+                for (auto &obj: model.objects) {
                     m_Services.renderer.Submit({
-                        .mesh      = &model.meshes[i],
-                        .material  = model.materials[i],
+                        .object    = &obj,
                         .transform = transform,
                     });
                 }
             });
 
         m_Services.renderer.Render(scene, shadowConfig, m_Services.assetLoader);
+    }
+
+    void App::RenderGizmos() {
+        using namespace Graphics;
+
+        const Camera       camera   = m_World.GetResource<Camera>();
+        const Rect2u       viewport = {{0, 0}, m_Services.window.GetSize()};
+        const AmbientLight ambient  = {
+            .color     = Color3u8::Green(),
+            .intensity = 1.0F
+        };
+
+        SceneData scene = {
+            .camera       = camera,
+            .ambientLight = ambient,
+        };
+
+        m_Services.renderer.BeginPass({
+            .clearColor = std::nullopt,
+            .cullMode   = CullMode::Front,
+            .clearDepth = false,
+            .viewport   = viewport
+        });
+
+        std::vector<RenderObject> objects;
+        std::vector<Transform>    transforms;
+        m_World.GetRegistry().ForEach<Physics::BoxCollider, Transform>(
+            [&](const Physics::BoxCollider &collider, const Transform &transform) {
+                Transform trans;
+                trans.position = transform.position + collider.transform.position * transform.rotation;
+                trans.rotation = transform.rotation * collider.transform.rotation;
+                trans.scale    = transform.scale;
+
+                objects.push_back({
+                    .mesh = Mesh::Box(collider.halfExtents),
+                });
+
+                transforms.push_back(trans);
+            });
+
+        for (usize i = 0; i < objects.size(); i++) {
+            m_Services.renderer.Submit({.object = &objects[i], .transform = transforms[i], .fill = false});
+        }
+
+        m_Services.renderer.Render(scene, {}, m_Services.assetLoader);
     }
 }

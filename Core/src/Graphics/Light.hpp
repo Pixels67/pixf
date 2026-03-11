@@ -46,8 +46,8 @@ namespace Flock::Graphics {
     }
 
     struct FLK_API AmbientLight {
-        Color3u8 color     = {100, 100, 100};
-        f32      intensity = 0.1F;
+        Color3u8 color     = {40, 80, 100};
+        f32      intensity = 0.05F;
     };
 
     inline auto Reflect(AmbientLight &light) {

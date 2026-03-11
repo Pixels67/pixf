@@ -1,6 +1,24 @@
 #include "PhysicsEngine.hpp"
 
 namespace Flock::Physics {
+    rp3d::Vector3 ToRp3dType(const Vector3f vec) {
+        return rp3d::Vector3(vec.x, vec.y, vec.z);
+    }
+
+    rp3d::Quaternion ToRp3dType(const Quaternion quat) {
+        rp3d::Quaternion out = rp3d::Quaternion(quat.x, quat.y, quat.z, quat.w).getInverse();
+        out.normalize();
+        return out;
+    }
+
+    Vector3f Rp3dVector(const rp3d::Vector3 vec) {
+        return Vector3f(vec.x, vec.y, vec.z);
+    }
+
+    Quaternion Rp3dQuaternion(const rp3d::Quaternion quat) {
+        return Quaternion(quat.x, quat.y, quat.z, quat.w).Inverse().Normalized();
+    }
+
     PhysicsEngine PhysicsEngine::Create() {
         PhysicsEngine engine;
         engine.m_Common = std::make_unique<rp3d::PhysicsCommon>();
@@ -61,10 +79,13 @@ namespace Flock::Physics {
         for (usize i = 0; i < m_Scene.size(); i++) {
             auto &[pos, quat, scale, euler] = *m_Scene[i].transform;
 
-            const Quaternion rot = (quat * Quaternion::Euler(euler)).Normalized();
+            const Quaternion rot = quat * Quaternion::Euler(euler);
 
-            rp3d::Vector3    rbPos(pos.x, pos.y, pos.z);
-            rp3d::Quaternion rbRot(rot.x, rot.y, rot.z, rot.w);
+            auto &collider = *m_Scene[i].collider;
+            const RigidTransform trans = collider.GetTransform();
+
+            rp3d::Vector3    rbPos = ToRp3dType(pos + trans.position * rot);
+            rp3d::Quaternion rbRot = ToRp3dType(trans.rotation * rot);
             rp3d::Transform  rbTrans(rbPos, rbRot);
 
             rp3d::RigidBody *body = m_World->createRigidBody(rbTrans);
@@ -74,16 +95,16 @@ namespace Flock::Physics {
 
             m_Bodies[i] = body;
 
-            body->addCollider(m_Scene[i].collider->BuildShape(*m_Common, scale), rp3d::Transform::identity());
+            body->addCollider(collider.BuildShape(*m_Common, scale), {});
             body->setType(ToRp3dType(m_Scene[i].rigidBody->mode));
             body->enableGravity(m_Scene[i].rigidBody->useGravity);
             body->setMass(m_Scene[i].rigidBody->mass);
 
             const Vector3f linVlc = m_Scene[i].rigidBody->linearVelocity;
-            const Vector3f angVlc = m_Scene[i].rigidBody->linearVelocity;
+            const Vector3f angVlc = m_Scene[i].rigidBody->angularVelocity;
 
-            body->setLinearVelocity(rp3d::Vector3(linVlc.x, linVlc.y, linVlc.z));
-            body->setAngularVelocity(rp3d::Vector3(angVlc.x, angVlc.y, angVlc.z));
+            body->setLinearVelocity(ToRp3dType(linVlc));
+            body->setAngularVelocity(ToRp3dType(angVlc));
         }
     }
 
@@ -102,12 +123,15 @@ namespace Flock::Physics {
             const rp3d::Vector3 linVlc = m_Bodies[i]->getLinearVelocity();
             const rp3d::Vector3 angVlc = m_Bodies[i]->getAngularVelocity();
 
-            m_Scene[i].transform->position    = Vector3f{pos.x, pos.y, pos.z};
-            m_Scene[i].transform->rotation    = Quaternion{rot.x, rot.y, rot.z, rot.w}.Normalized();
+            auto &collider = *m_Scene[i].collider;
+            const RigidTransform colTrans = collider.GetTransform();
+
+            m_Scene[i].transform->position    = Rp3dVector(pos) - colTrans.position * Rp3dQuaternion(rot);
+            m_Scene[i].transform->rotation    = colTrans.rotation.Inverse() * Rp3dQuaternion(rot);
             m_Scene[i].transform->eulerAngles = {};
 
-            m_Scene[i].rigidBody->linearVelocity  = {linVlc.x, linVlc.y, linVlc.z};
-            m_Scene[i].rigidBody->angularVelocity = {angVlc.x, angVlc.y, angVlc.z};
+            m_Scene[i].rigidBody->linearVelocity  = Rp3dVector(linVlc);
+            m_Scene[i].rigidBody->angularVelocity = Rp3dVector(angVlc);
         }
     }
 }

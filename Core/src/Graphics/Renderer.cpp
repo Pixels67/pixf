@@ -11,11 +11,11 @@ layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoords;
 
 uniform mat4 uModel;
-uniform mat4 uVP;
+uniform mat4 uView;
+uniform mat4 uProj;
 
 void main() {
-    vec4 worldPos = vec4(aPosition, 1.0) * uModel;
-    gl_Position = worldPos * uVP;
+    gl_Position = vec4(aPosition, 1.0) * uModel * uView * uProj;
 }
 )";
 
@@ -24,8 +24,10 @@ void main() {
 
 out vec4 FragColor;
 
+uniform vec3 uColor;
+
 void main() {
-    FragColor = vec4(1.0);
+    FragColor = vec4(uColor, 1.0);
 }
 )";
 
@@ -49,6 +51,15 @@ void main() {
                 return GL_GEQUAL;
             default:
                 return 0;
+        }
+    }
+
+    i32 ToGlType(CullMode faceCullMode) {
+        switch (faceCullMode) {
+            case CullMode::None: return GL_NONE;
+            case CullMode::Back: return GL_BACK;
+            case CullMode::Front: return GL_FRONT;
+            default: FLK_ASSERT(false);
         }
     }
 
@@ -81,17 +92,16 @@ void main() {
 
         auto lights = GetNearestLights(scene.lights, scene.camera.transform.position, s_MaxLightsPerObject);
 
-        std::vector<RenderObject> objects;
-        RenderQueue               queue = m_RenderQueue;
+        std::vector<RenderCommand> commands;
+        RenderQueue                queue = m_RenderQueue;
         while (!queue.empty()) {
-            auto obj = queue.front();
+            commands.push_back(queue.front());
             queue.pop();
-            objects.push_back({.mesh = obj.mesh, .transform = obj.transform});
         }
 
-        f32      shadowRange  = shadowConfig.shadowRange;
-        Vector3f shadowCenter = scene.camera.transform.position;
-        GenerateShadowMaps(shadowConfig, objects, lights, shadowCenter);
+        const f32      shadowRange  = shadowConfig.shadowRange;
+        const Vector3f shadowCenter = scene.camera.transform.position;
+        GenerateShadowMaps(shadowConfig, commands, lights, shadowCenter);
 
         if (framebuffer) {
             if (!framebuffer->get().Bind()) {
@@ -106,17 +116,20 @@ void main() {
         ConfigureFrame(m_RenderPass.value());
 
         while (!m_RenderQueue.empty()) {
-            auto [mesh, material, trans] = m_RenderQueue.front();
+            auto  [obj, trans, fill] = m_RenderQueue.front();
+            auto &[mesh, material]   = *obj;
+
             m_RenderQueue.pop();
 
-            Pipeline &pipeline = assetLoader.Get(material.pipeline).value();
+            Pipeline &pipeline = assetLoader.Get<Pipeline>(material.pipelinePath).value();
+            pipeline.ResetUniforms();
 
-            Matrix4f model = trans.GetMatrix();
-            Matrix4f view  = scene.camera.GetViewMatrix();
+            const Matrix4f model = trans.GetMatrix();
+            const Matrix4f view  = scene.camera.GetViewMatrix();
 
-            auto     [origin, aspect] = m_RenderPass->viewport;
-            f32      aspectRatio      = static_cast<f32>(aspect.x - origin.x) / static_cast<f32>(aspect.y - origin.y);
-            Matrix4f proj             = scene.camera.GetProjMatrix(aspectRatio);
+            auto           [origin, aspect] = m_RenderPass->viewport;
+            const f32      aspectRatio = static_cast<f32>(aspect.x - origin.x) / static_cast<f32>(aspect.y - origin.y);
+            const Matrix4f proj = scene.camera.GetProjMatrix(aspectRatio);
 
             pipeline.SetUniform("uModel", model);
             pipeline.SetUniform("uView", view);
@@ -127,23 +140,23 @@ void main() {
             pipeline.SetUniform("uMetallic", material.metallic);
             pipeline.SetUniform("uRoughness", material.roughness);
 
-            if (material.colorMap) {
-                pipeline.SetUniform("uColorMap", assetLoader.Get(material.colorMap.value()).value());
+            if (material.colorMapPath != "") {
+                pipeline.SetUniform("uColorMap", assetLoader.Get<Texture2D>(material.colorMapPath).value());
             }
 
-            if (material.metallicMap) {
-                pipeline.SetUniform("uMetallicMap", assetLoader.Get(material.metallicMap.value()).value());
+            if (material.metallicMapPath != "") {
+                pipeline.SetUniform("uMetallicMap", assetLoader.Get<Texture2D>(material.metallicMapPath).value());
             }
 
-            if (material.roughnessMap) {
-                pipeline.SetUniform("uRoughnessMap", assetLoader.Get(material.roughnessMap.value()).value());
+            if (material.roughnessMapPath != "") {
+                pipeline.SetUniform("uRoughnessMap", assetLoader.Get<Texture2D>(material.roughnessMapPath).value());
             }
 
             pipeline.SetUniform("uAmbientColor", scene.ambientLight.color);
             pipeline.SetUniform("uAmbientIntensity", scene.ambientLight.intensity);
 
             pipeline.SetUniform("uNumLights", static_cast<i32>(lights.size()));
-            for (i32 i = 0; i < lights.size(); i++) {
+            for (usize i = 0; i < lights.size(); i++) {
                 const auto &[lightPosition, color, intensity, radius, hasShadows] = lights[i];
 
                 const f32 shadowAspect = static_cast<f32>(shadowConfig.shadowMapResolution.x) /
@@ -173,7 +186,11 @@ void main() {
                 }
             }
 
-            RenderMesh(*mesh, pipeline);
+            if (fill) {
+                RenderMesh(obj->mesh, pipeline);
+            } else {
+                RenderMeshLines(obj->mesh, pipeline);
+            }
         }
 
         Framebuffer::Unbind();
@@ -201,12 +218,17 @@ void main() {
         auto [origin, aspect] = config.viewport;
 
         // Hardcoded for now
-        FLK_GL_CALL(glEnable(GL_CULL_FACE));
-        FLK_GL_CALL(glCullFace(GL_BACK));
         FLK_GL_CALL(glFrontFace(GL_CCW));
         FLK_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
         FLK_GL_CALL(glViewport(origin.x, origin.y, aspect.x, aspect.y));
+
+        if (config.cullMode != CullMode::None) {
+            FLK_GL_CALL(glEnable(GL_CULL_FACE));
+            FLK_GL_CALL(glCullFace(ToGlType(config.cullMode)));
+        } else {
+            FLK_GL_CALL(glDisable(GL_CULL_FACE));
+        }
 
         if (config.clearColor) {
             const auto vec = config.clearColor->ToVector();
@@ -237,10 +259,10 @@ void main() {
     }
 
     void Renderer::GenerateShadowMaps(
-        const ShadowConfig               shadowConfig,
-        const std::vector<RenderObject> &objects,
-        const std::vector<Light> &       lights,
-        const Vector3f                   offset
+        const ShadowConfig                shadowConfig,
+        const std::vector<RenderCommand> &commands,
+        const std::vector<Light> &        lights,
+        const Vector3f                    offset
     ) {
         m_LightShadowMapIndices.resize(lights.size());
 
@@ -263,17 +285,17 @@ void main() {
         );
 
         for (const usize idx: m_LightShadowMapIndices) {
-            GenerateShadowMap(objects, m_ShadowMaps, idx, lights[idx], offset, shadowConfig.shadowRange);
+            GenerateShadowMap(commands, m_ShadowMaps, idx, lights[idx], offset, shadowConfig.shadowRange);
         }
     }
 
     bool Renderer::GenerateShadowMap(
-        const std::vector<RenderObject> &objects,
-        const TextureArray &             textureArray,
-        const u32                        index,
-        const Light &                    light,
-        const Vector3f                   offset,
-        const f32                        range
+        const std::vector<RenderCommand> &commands,
+        const TextureArray &              textureArray,
+        const u32                         index,
+        const Light &                     light,
+        const Vector3f                    offset,
+        const f32                         range
     ) {
         static Framebuffer framebuffer = Framebuffer::Create().value();
 
@@ -303,16 +325,22 @@ void main() {
         static const Shader frag     = Shader::Create(FragmentShader, s_DefaultFragShader).value();
         static Pipeline     pipeline = Pipeline::Create(vert, frag).value();
 
-        for (auto &[mesh, trans]: objects) {
+        for (auto &[obj, trans, fill]: commands) {
             const Matrix4f model =
                     Matrix4f::Scale(trans.scale) *
                     Matrix4f::Rotate(trans.rotation) *
                     Matrix4f::Translate(trans.position);
 
             pipeline.SetUniform("uModel", model);
-            pipeline.SetUniform("uVP", spaceMat);
+            pipeline.SetUniform("uView", Matrix4f{});
+            pipeline.SetUniform("uProj", spaceMat);
+            pipeline.SetUniform("uColor", Color3u8::White());
 
-            RenderMesh(*mesh, pipeline);
+            if (fill) {
+                RenderMesh(obj->mesh, pipeline);
+            } else {
+                RenderMeshLines(obj->mesh, pipeline);
+            }
         }
 
         Mesh::Unbind();
@@ -333,6 +361,23 @@ void main() {
             return false;
         }
 
+        FLK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+        FLK_GL_CALL(glDrawElements(GL_TRIANGLES, mesh.GetIndexCount(), GL_UNSIGNED_INT, nullptr));
+        return true;
+    }
+
+    bool Renderer::RenderMeshLines(const Mesh &mesh, const Pipeline &pipeline) {
+        if (!pipeline.Bind()) {
+            Debug::LogErr("Render lines failed: Unable to bind pipeline!");
+            return false;
+        }
+
+        if (!mesh.Bind()) {
+            Debug::LogErr("Render lines failed: Unable to bind mesh!");
+            return false;
+        }
+
+        FLK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
         FLK_GL_CALL(glDrawElements(GL_TRIANGLES, mesh.GetIndexCount(), GL_UNSIGNED_INT, nullptr));
         return true;
     }

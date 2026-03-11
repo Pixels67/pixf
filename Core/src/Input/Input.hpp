@@ -5,7 +5,8 @@
 
 #include "Graphics/Gl.hpp"
 #include "Common.hpp"
-#include "Glfw/Window.hpp"
+#include "Event/EventHandler.hpp"
+#include "Math/Math.hpp"
 
 namespace Flock::Input {
     enum class Key {
@@ -489,6 +490,28 @@ namespace Flock::Input {
         }
     };
 
+    enum class CursorMode {
+        Normal,
+        Captured,
+        Disabled,
+        Hidden
+    };
+
+    inline i32 ToGlfwType(const CursorMode cursorMode) {
+        switch (cursorMode) {
+            case CursorMode::Normal:
+                return GLFW_CURSOR_NORMAL;
+            case CursorMode::Captured:
+                return GLFW_CURSOR_CAPTURED;
+            case CursorMode::Disabled:
+                return GLFW_CURSOR_DISABLED;
+            case CursorMode::Hidden:
+                return GLFW_CURSOR_HIDDEN;
+            default:
+                FLK_ASSERT(false);
+        }
+    }
+
     struct FLK_API InputState {
         std::set<Key> heldKeys;
         std::set<Key> pressedKeys;
@@ -498,7 +521,10 @@ namespace Flock::Input {
         std::set<MouseButton> pressedMouseButtons;
         std::set<MouseButton> releasedMouseButtons;
 
+        CursorMode cursorMode = CursorMode::Normal;
+
         Vector2f cursorPosition;
+        Vector2f cursorDelta;
         Vector2f scrollOffset;
 
         bool IsKeyPressed(const Key key) const {
@@ -517,24 +543,28 @@ namespace Flock::Input {
             return !heldKeys.contains(key);;
         }
 
-        bool IsMousePressed(const MouseButton button) const {
+        bool IsMousePressed(const MouseButton button = MouseButton::Left) const {
             return pressedMouseButtons.contains(button);
         }
 
-        bool IsMouseReleased(const MouseButton button) const {
+        bool IsMouseReleased(const MouseButton button = MouseButton::Left) const {
             return releasedMouseButtons.contains(button);
         }
 
-        bool IsMouseDown(const MouseButton button) const {
+        bool IsMouseDown(const MouseButton button = MouseButton::Left) const {
             return heldMouseButtons.contains(button);
         }
 
-        bool IsMouseUp(const MouseButton button) const {
+        bool IsMouseUp(const MouseButton button = MouseButton::Left) const {
             return !heldMouseButtons.contains(button);
         }
 
         Vector2f GetCursorPosition() const {
             return cursorPosition;
+        }
+
+        Vector2f GetCursorDelta() const {
+            return cursorDelta;
         }
 
         Vector2f GetScrollOffset() const {

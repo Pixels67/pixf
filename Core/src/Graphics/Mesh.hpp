@@ -26,6 +26,8 @@ namespace Flock::Graphics {
         usize       m_IndexCount  = 0;
         bool        m_Initialized = false;
 
+        MeshData m_Data;
+
     public:
         /**
          * @brief Static factory method.
@@ -33,6 +35,14 @@ namespace Flock::Graphics {
          * @return The mesh if successful; std::nullopt otherwise.
          */
         static std::optional<Mesh> Create(const MeshData &data);
+
+        /**
+         * @brief Static factory method.
+         * @param halfExtents The half extents of the box.
+         * @param offset The offset to apply to the vertices.
+         * @return The mesh if successful; std::nullopt otherwise.
+         */
+        static Mesh Box(Vector3f halfExtents = Vector3f::One(), Vector3f offset = {});
 
         Mesh() = default;
         ~Mesh();
@@ -63,6 +73,8 @@ namespace Flock::Graphics {
          * @return The index count of the mesh.
          */
         [[nodiscard]] usize GetIndexCount() const;
+
+        [[nodiscard]] const MeshData &GetData() const;
     };
 }
 

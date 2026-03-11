@@ -1,6 +1,4 @@
 #include "Flock.hpp"
-#include "Time/Time.hpp"
-#include "Audio/AudioSource.hpp"
 
 using namespace Flock;
 using namespace Flock::Ecs;
@@ -9,49 +7,66 @@ using namespace Flock::Input;
 using namespace Flock::Audio;
 
 i32 main() {
-    f32 rotation = 0.0F;
-    App app      = App::Create({
-        .windowConfig = {.size = {800, 800}},
+    App app = App::Create({
+        .windowConfig = {.size = {1080, 800}},
     }).value();
 
     app.AddSystem(Stage::Startup, [](World &world) {
+        const auto &assets = world.GetResource<Asset::Assets>();
+
+        assets.SetDefaultPipeline(Asset::PipelineType::Pbr, "../../../assets/shader.glsl");
+        assets.Load<Model>("../../../assets/FlightHelmet.gltf");
+        assets.Load<Model>("../../../assets/cube.glb");
+        assets.Load<Model>("../../../assets/sphere.glb");
+
         auto &reg = world.GetRegistry();
 
-        world.GetResource<Camera>().projection = Projection::Perspective;
-        world.GetResource<Camera>().transform.position = {0.0F, -1.0F, -10.0F};
+        world.GetResource<Camera>().projection         = Projection::Perspective;
+        world.GetResource<Camera>().transform.position = {0.0F, 2.0F, -12.0F};
+        reg.Create(
+            Transform{
+                .position = {0.0F, 10.0F, 0.0F},
+                .rotation = Quaternion::Euler(40.0F, 20.0F, 10.0F),
+                .scale    = Vector3f::One() * 5.0F
+            },
+            ModelRenderer{.modelPath = "../../../assets/FlightHelmet.gltf"},
+            Physics::BoxCollider({.position = {0.0F, 1.5F, 0.0F}}, Vector3f::One() * 0.2F + Vector3f::Up() * 0.1F),
+            Physics::RigidBody{.mass = 1.0F}
+        );
 
-        const Entity sphere = reg.Create();
-        reg.AddComponent(sphere, Transform{.position = {0.0F, 3.0F, 0.0F}});
-        reg.AddComponent(sphere, ModelRenderer{.modelPath = "../../../assets/sphere.glb"});
-        reg.AddComponent(sphere, Physics::SphereCollider{});
-        reg.AddComponent(sphere, Physics::RigidBody{.mass = 1.0F});
+        reg.Create(
+            Transform{
+                .position = {0.0F, -0.5F, 0.0F},
+                .rotation = Quaternion::Euler(0.0F, 0.0F, 0.0F),
+                .scale    = {10.0F, 0.5F, 10.0F}
+            },
+            ModelRenderer{.modelPath = "../../../assets/cube.glb"},
+            Physics::BoxCollider{},
+            Physics::RigidBody{.mode = Physics::SimulationMode::Static}
+        );
 
-        const Entity ground = reg.Create();
-        reg.AddComponent(ground, Transform{.position = {0.0F, -3.0F, 0.0F}, .scale = {10.0F, 0.5F, 10.0F}});
-        reg.AddComponent(ground, ModelRenderer{.modelPath = "../../../assets/cube.glb"});
-        reg.AddComponent(ground, Physics::BoxCollider{});
-        reg.AddComponent(ground, Physics::RigidBody{.mode = Physics::SimulationMode::Static});
+        reg.Create(Light{
+            .position  = {-4.0F, 5.0F, -3.0F},
+            .color     = {255, 255, 220},
+            .intensity = 5.0F,
+        });
 
-        const Entity sun = reg.Create();
-        reg.AddComponent<Light>(sun, {
-                                    .position  = {-5.0F, 5.0F, -5.0F},
-                                    .color     = {255, 255, 220},
-                                    .intensity = 5.0F,
-                                });
-
-        const Entity sky = reg.Create();
-        reg.AddComponent<Light>(sky, {
-                                    .position  = {5.0F, 5.0F, 5.0F},
-                                    .color     = {220, 240, 255},
-                                    .intensity = 1.0F,
-                                });
+        world.GetResource<InputState>().cursorMode = CursorMode::Disabled;
     }).AddSystem(Stage::Update, [&](World &world) {
-        const f64  dt    = world.GetResource<Time::TimeState>().deltaTime;
-        const auto input = world.GetResource<InputState>();
-        auto &     cam   = world.GetResource<Camera>();
+        const f64 dt = world.GetResource<Time::TimeState>().deltaTime;
 
-        const f32 moveSpeed = 5.0F * dt;
-        const f32 rotSpeed  = 60.0F * dt;
+        auto &input = world.GetResource<InputState>();
+        auto &cam   = world.GetResource<Camera>();
+
+        const f32     moveSpeed = 5.0F * dt;
+        constexpr f32 rotSpeed  = 0.4F;
+
+        if (input.IsKeyDown(Key::Escape)) {
+            input.cursorMode = CursorMode::Normal;
+        }
+        if (input.IsMouseDown()) {
+            input.cursorMode = CursorMode::Disabled;
+        }
 
         if (input.IsKeyDown(Key::W)) {
             cam.transform.position += Vector3f::Forward() * moveSpeed * cam.transform.rotation;
@@ -74,33 +89,42 @@ i32 main() {
             cam.transform.position -= Vector3f::Up() * moveSpeed * cam.transform.rotation;
         }
 
-        if (input.IsKeyDown(Key::E)) {
-            rotation += rotSpeed;
-        }
-        if (input.IsKeyDown(Key::Q)) {
-            rotation -= rotSpeed;
-        }
+        const Vector2f mouseDelta = input.GetCursorDelta();
 
-        cam.transform.rotation = Quaternion::Euler(0.0F, rotation, 0.0F);
+        static f32 pitchAngle = 0.0F;
+        static f32 yawAngle   = 0.0F;
+
+        pitchAngle += mouseDelta.y * rotSpeed;
+        pitchAngle = std::clamp(pitchAngle, -89.0f, 89.0f);
+        yawAngle   += mouseDelta.x * rotSpeed;
+
+        cam.transform.rotation = Quaternion::Euler(pitchAngle, 0.0F, 0.0F);
+        cam.transform.rotation *= Quaternion::Euler(0.0F, yawAngle, 0.0F);
     }).AddSystem(Stage::Update, [&](World &world) {
         const f64  dt    = world.GetResource<Time::TimeState>().deltaTime;
         const auto input = world.GetResource<InputState>();
 
         const f32 moveSpeed = 5.0F * dt;
 
-        world.GetRegistry().ForEach<Physics::RigidBody>([&](Physics::RigidBody &rb) {
-            if (input.IsKeyDown(Key::Up)) {
-                rb.linearVelocity.z += moveSpeed;
+        world.GetRegistry().ForEach<Transform, Physics::RigidBody>(
+            [&](Transform &trans, Physics::RigidBody &rb) {
+                if (rb.mode != Physics::SimulationMode::Dynamic) {
+                    return;
+                }
+
+                if (input.IsKeyDown(Key::Up)) {
+                    rb.linearVelocity.z += moveSpeed;
+                }
+                if (input.IsKeyDown(Key::Down)) {
+                    rb.linearVelocity.z -= moveSpeed;
+                }
+                if (input.IsKeyDown(Key::Right)) {
+                    rb.linearVelocity.x += moveSpeed;
+                }
+                if (input.IsKeyDown(Key::Left)) {
+                    rb.linearVelocity.x -= moveSpeed;
+                }
             }
-            if (input.IsKeyDown(Key::Down)) {
-                rb.linearVelocity.z -= moveSpeed;
-            }
-            if (input.IsKeyDown(Key::Right)) {
-                rb.linearVelocity.x += moveSpeed;
-            }
-            if (input.IsKeyDown(Key::Left)) {
-                rb.linearVelocity.x -= moveSpeed;
-            }
-        });
+        );
     }).Run();
 }

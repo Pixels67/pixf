@@ -138,6 +138,11 @@ namespace Flock::Graphics {
         return value.Bind();
     }
 
+    void Pipeline::ResetUniforms() {
+        m_Uniforms.clear();
+        SetDefaultTextures(true);
+    }
+
     u32 Pipeline::LinkShaders(const Shader &vertex, const Shader &fragment) {
         unsigned int program = 0;
 
@@ -266,7 +271,7 @@ namespace Flock::Graphics {
         return true;
     }
 
-    void Pipeline::SetDefaultTextures() const {
+    void Pipeline::SetDefaultTextures(const bool overwrite) const {
         i32 activeUnit;
         FLK_GL_CALL(glGetIntegerv(GL_ACTIVE_TEXTURE, &activeUnit));
 
@@ -279,7 +284,7 @@ namespace Flock::Graphics {
             FLK_GL_CALL(glActiveTexture(GL_TEXTURE0 + info.unit));
             FLK_GL_CALL(glGetIntegerv(GL_TEXTURE_BINDING_2D, &id));
 
-            if (id != 0) {
+            if (id != 0 && !overwrite) {
                 continue;
             }
 

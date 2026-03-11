@@ -31,6 +31,19 @@ namespace Flock::Ecs {
         Entity Create();
 
         /**
+         * @brief Creates an entity; adds the specified components, and returns a handle to it.
+         * @tparam Args The component types.
+         * @param args The components.
+         */
+        template<typename... Args>
+        Entity Create(Args... args) {
+            Entity entity = Create();
+            (AddComponent(entity, args), ...);
+
+            return entity;
+        }
+
+        /**
          * @brief Retrieves the entity with the corresponding ID.
          * @param id The entity's ID.
          * @return A handle to the entity if found; std::nullopt otherwise.

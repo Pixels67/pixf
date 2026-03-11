@@ -123,7 +123,7 @@ namespace Flock {
         FLK_MATH_ASSIGN_OPS(Vector3, T, EXPR)
 #undef EXPR
 
-        Vector3 operator*(const Quaternion &quaternion) { return quaternion * *this; }
+        Vector3 operator*(const Quaternion &quaternion) const { return quaternion * *this; }
 
         T Dot(const Vector3 &other) const {
             return x * other.x + y * other.y + z * other.z;

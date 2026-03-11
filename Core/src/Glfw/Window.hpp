@@ -4,6 +4,7 @@
 #include "Graphics/Gl.hpp"
 #include "Common.hpp"
 #include "Event/EventHandler.hpp"
+#include "Input/Input.hpp"
 #include "Math/Math.hpp"
 
 namespace Flock::Glfw {
@@ -94,6 +95,7 @@ namespace Flock::Glfw {
 
         void SetTitle(const std::string &title) const;
         void SetSize(Vector2u size) const;
+        void SetCursorMode(Input::CursorMode cursorMode) const;
 
         void MakeCurrent();
         void SwapBuffers() const;

@@ -69,6 +69,7 @@ vec3 sRGBToLinear(vec3 c) { return pow(c, vec3(2.2)); }
 vec3 linearToSRGB(vec3 c) { return pow(c, vec3(1.0 / 2.2)); }
 
 vec3 ACESToneMap(vec3 x) {
+    x *= 0.9;
     float a = 2.51, b = 0.03, c = 2.43, d = 0.59, e = 0.14;
     return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
 }
@@ -101,9 +102,9 @@ float calcShadow(int i, vec3 N, vec3 L)
     projCoords = projCoords * 0.5 + 0.5;
 
     if (projCoords.x < 0.0 || projCoords.x > 1.0 ||
-        projCoords.y < 0.0 || projCoords.y > 1.0 ||
-        projCoords.z > 1.0)
-        return 0.0;
+    projCoords.y < 0.0 || projCoords.y > 1.0 ||
+    projCoords.z > 1.0)
+    return 0.0;
 
     float current = projCoords.z;
     float NdotL = max(dot(N, L), 0.0);
@@ -120,7 +121,7 @@ float calcShadow(int i, vec3 N, vec3 L)
         sum += texture(uShadowMaps, vec4(uv, float(i), current - bias));
     }
 
-    float visibility = sum / float((2*r+1)*(2*r+1));
+    float visibility = sum / float((2 * r + 1) * (2 * r + 1));
     return 1.0 - visibility;
 }
 
@@ -186,7 +187,13 @@ void main() {
     }
 
     // --- Ambient ---
-    vec3 ambient = uAmbientColor * uAmbientIntensity * albedo;
+    vec3 F_amb = F_Schlick(NdotV, F0);
+    vec3 kD_amb = (1.0 - F_amb) * (1.0 - metallic);
+
+    vec3 diffuse_ambient = kD_amb * albedo * uAmbientColor * uAmbientIntensity;
+    vec3 specular_ambient = F_amb * uAmbientColor * uAmbientIntensity;
+
+    vec3 ambient = diffuse_ambient + specular_ambient;
 
     // --- Combine, tone-map, gamma correct ---
     vec3 color = ACESToneMap(ambient + Lo);

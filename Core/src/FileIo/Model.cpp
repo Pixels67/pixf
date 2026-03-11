@@ -25,7 +25,7 @@ namespace Flock::FileIo {
         const aiScene *scene = importer.ReadFile(filePath.string(), flags);
 
         if (scene == nullptr) {
-            Debug::LogErr("Failed to load model mesh: {}", importer.GetErrorString());
+            Debug::LogErr("Failed to load model meshes: {}", importer.GetErrorString());
             return {};
         }
 
@@ -38,7 +38,7 @@ namespace Flock::FileIo {
             const aiMesh *mesh = scene->mMeshes[i];
 
             std::vector<Graphics::Vertex> vertices;
-            std::vector<u32>     indices;
+            std::vector<u32>              indices;
 
             for (u32 v = 0; v < mesh->mNumVertices; v++) {
                 Graphics::Vertex vertex{};
@@ -83,41 +83,35 @@ namespace Flock::FileIo {
         return meshes;
     }
 
-    std::vector<MaterialData> LoadModelMaterials(const std::filesystem::path &filePath) {
+    std::vector<Graphics::Material> LoadModelMaterials(const std::filesystem::path &filePath) {
         Assimp::Importer importer;
         const aiScene *  scene = importer.ReadFile(filePath.string().c_str(), 0);
 
         if (scene == nullptr) {
-            Debug::LogErr("Failed to load model 2D texture: {}", importer.GetErrorString());
+            Debug::LogErr("Failed to load model materials: {}", importer.GetErrorString());
             return {};
         }
 
         std::string directory = filePath.string();
         directory.erase(directory.find_last_of('/') + 1);
 
-        std::vector<MaterialData> materials;
+        std::vector<Graphics::Material> materials;
 
         for (i32 i = 0; i < scene->mNumMaterials; i++) {
-            const aiMaterial *material = scene->mMaterials[i];
-            MaterialData      outputMaterial;
-            aiString          path;
+            const aiMaterial * material = scene->mMaterials[i];
+            Graphics::Material outputMaterial;
+            aiString           path;
 
             if (material->GetTexture(aiTextureType_BASE_COLOR, 0, &path) == AI_SUCCESS) {
                 outputMaterial.colorMapPath = directory + path.C_Str();
-            } else {
-                outputMaterial.colorMapPath = std::nullopt;
             }
 
             if (material->GetTexture(aiTextureType_METALNESS, 0, &path) == AI_SUCCESS) {
                 outputMaterial.metallicMapPath = directory + path.C_Str();
-            } else {
-                outputMaterial.metallicMapPath = std::nullopt;
             }
 
             if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path) == AI_SUCCESS) {
                 outputMaterial.roughnessMapPath = directory + path.C_Str();
-            } else {
-                outputMaterial.roughnessMapPath = std::nullopt;
             }
 
             aiColor4D aiColor(1.0F, 1.0F, 1.0F, 1.0F);

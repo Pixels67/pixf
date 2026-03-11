@@ -1,21 +1,35 @@
 #ifndef FLK_MATERIAL_HPP
 #define FLK_MATERIAL_HPP
 
-#include "Pipeline.hpp"
-#include "Asset/Handle.hpp"
+#include "Math/Math.hpp"
 
 namespace Flock::Graphics {
     struct FLK_API Material {
-        Asset::Handle<Pipeline> pipeline;
+        std::string pipelinePath = "@PBR";
 
         Color4u8 color     = Color4u8::White();
-        f32      metallic  = 0.5F;
-        f32      roughness = 0.5F;
+        f32      metallic  = 0.25F;
+        f32      roughness = 0.75F;
 
-        std::optional<Asset::Handle<Texture2D> > colorMap     = std::nullopt;
-        std::optional<Asset::Handle<Texture2D> > metallicMap  = std::nullopt;
-        std::optional<Asset::Handle<Texture2D> > roughnessMap = std::nullopt;
+        std::string colorMapPath;
+        std::string metallicMapPath;
+        std::string roughnessMapPath;
     };
+
+    inline auto Reflect(Material &material) {
+        return Reflectable{
+            "Material",
+            std::make_tuple(
+                Field{"pipelinePath", &material.pipelinePath},
+                Field{"color", &material.color},
+                Field{"metallic", &material.metallic},
+                Field{"roughness", &material.roughness},
+                Field{"colorMapPath", &material.colorMapPath},
+                Field{"metallicMapPath", &material.metallicMapPath},
+                Field{"roughnessMapPath", &material.roughnessMapPath}
+            )
+        };
+    }
 }
 
 #endif //FLK_MATERIAL_HPP

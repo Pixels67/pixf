@@ -43,10 +43,10 @@ namespace Flock::Graphics {
      * @brief A shader pipeline.
      */
     class FLK_API Pipeline {
-        u32                               m_Id = 0;
+        u32                                          m_Id = 0;
         std::unordered_map<std::string, Uniform>     m_Uniforms;
         std::unordered_map<std::string, SamplerInfo> m_Samplers;
-        Texture2D                         m_DefaultTexture;
+        Texture2D                                    m_DefaultTexture;
 
     public:
         /**
@@ -168,13 +168,18 @@ namespace Flock::Graphics {
          */
         bool SetUniform(const std::string &name, const TextureArray &value) const;
 
+        /**
+         * @brief Resets all uniforms;
+         */
+        void ResetUniforms();
+
     private:
         static u32 LinkShaders(const Shader &vertex, const Shader &fragment);
 
         bool SetSamplerUnits();
         bool BindUniform(const std::string &name, const Uniform &uniform) const;
 
-        void SetDefaultTextures() const;
+        void SetDefaultTextures(bool overwrite = false) const;
     };
 }
 
