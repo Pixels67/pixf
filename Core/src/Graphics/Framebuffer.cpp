@@ -61,7 +61,7 @@ namespace Flock::Graphics {
         FLK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
     }
 
-    bool Framebuffer::Attach(const Attachment attachment, const Texture2D &texture) const {
+    bool Framebuffer::Attach(const Attachment attachment, const Texture &texture) const {
         i32 boundFramebuffer;
         i32 boundTexture;
 

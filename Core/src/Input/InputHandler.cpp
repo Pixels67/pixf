@@ -47,7 +47,10 @@ namespace Flock::Input {
         });
 
         eventHandler.Subscribe<Glfw::CursorPositionEvent>([&](auto &event) {
-            m_InputState.cursorDelta = Vector2d{event.xPos, event.yPos} - m_InputState.cursorPosition;
+            if (m_InputState.cursorPosition != Vector2f{}) {
+                m_InputState.cursorDelta = Vector2d{event.xPos, event.yPos} - m_InputState.cursorPosition;
+            }
+
             m_InputState.cursorPosition.x = event.xPos;
             m_InputState.cursorPosition.y = event.yPos;
 

@@ -1,4 +1,4 @@
-#include "Texture2D.hpp"
+#include "Texture.hpp"
 
 #include "Gl.hpp"
 
@@ -76,8 +76,8 @@ namespace Flock::Graphics {
         }
     }
 
-    Texture2D Texture2D::FromImage(const Image &image, const TextureConfig config) {
-        Texture2D texture;
+    Texture Texture::FromImage(const Image &image, const TextureConfig config) {
+        Texture texture;
         texture.m_Config = config;
 
         i32 activeUnit;
@@ -115,8 +115,8 @@ namespace Flock::Graphics {
         return texture;
     }
 
-    Texture2D Texture2D::CreateEmpty(const Vector2u size, TextureConfig config) {
-        Texture2D texture;
+    Texture Texture::CreateEmpty(const Vector2u size, TextureConfig config) {
+        Texture texture;
         texture.m_Config = config;
 
         i32 activeUnit;
@@ -158,17 +158,17 @@ namespace Flock::Graphics {
         return texture;
     }
 
-    Texture2D::~Texture2D() {
+    Texture::~Texture() {
         Clear();
     }
 
-    Texture2D::Texture2D(Texture2D &&other) noexcept {
+    Texture::Texture(Texture &&other) noexcept {
         m_Id       = other.m_Id;
         m_Config   = other.m_Config;
         other.m_Id = 0;
     }
 
-    Texture2D &Texture2D::operator=(Texture2D &&other) noexcept {
+    Texture &Texture::operator=(Texture &&other) noexcept {
         if (this == &other) {
             return *this;
         }
@@ -182,17 +182,17 @@ namespace Flock::Graphics {
         return *this;
     }
 
-    void Texture2D::Clear() const {
+    void Texture::Clear() const {
         if (m_Id != 0) {
             FLK_GL_CALL(glDeleteTextures(1, &m_Id));
         }
     }
 
-    void Texture2D::SetActiveUnit(const u8 unit) {
+    void Texture::SetActiveUnit(const u8 unit) {
         FLK_GL_CALL(glActiveTexture(GL_TEXTURE0 + unit));
     }
 
-    bool Texture2D::Bind() const {
+    bool Texture::Bind() const {
         if (m_Id == 0) {
             return false;
         }
@@ -202,15 +202,33 @@ namespace Flock::Graphics {
         return true;
     }
 
-    void Texture2D::Unbind() {
+    void Texture::Unbind() {
         FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
     }
 
-    TextureConfig Texture2D::GetConfig() const {
+    void Texture::Configure(const TextureConfig config) {
+        m_Config = config;
+
+        i32 activeUnit;
+        i32 boundTexture;
+
+        FLK_GL_CALL(glGetIntegerv(GL_ACTIVE_TEXTURE, &activeUnit));
+        FLK_GL_CALL(glGetIntegerv(GL_TEXTURE_BINDING_2D, &boundTexture));
+
+        FLK_GL_CALL(glActiveTexture(GL_TEXTURE0));
+        FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D, m_Id));
+
+        ConfigureTexture2D(config);
+
+        FLK_GL_CALL(glActiveTexture(activeUnit));
+        FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D, boundTexture));
+    }
+
+    TextureConfig Texture::GetConfig() const {
         return m_Config;
     }
 
-    u32 Texture2D::GetGlId() const {
+    u32 Texture::GetGlId() const {
         return m_Id;
     }
 }

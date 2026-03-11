@@ -13,6 +13,10 @@ namespace Flock {
         [[nodiscard]] Matrix4f GetMatrix() const {
             return Matrix4f::Rotate(rotation) * Matrix4f::Rotate(eulerAngles) * Matrix4f::Translate(position);
         }
+
+        [[nodiscard]] Matrix4f GetViewMatrix() const {
+            return Matrix4f::Translate(-position) * Matrix4f::Rotate(-eulerAngles) * Matrix4f::Rotate(rotation.Inverse());
+        }
     };
 
     inline auto Reflect(RigidTransform &transform) {

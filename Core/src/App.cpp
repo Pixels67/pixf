@@ -74,7 +74,7 @@ namespace Flock {
 
             // Render
             Render(m_Config.shadowConfig);
-            RenderGizmos();
+            //RenderGizmos();
 
             // Finish
             m_Services.window.SwapBuffers();
@@ -157,43 +157,68 @@ namespace Flock {
     void App::Render(const Graphics::ShadowConfig shadowConfig) {
         using namespace Graphics;
 
-        const Camera       camera   = m_World.GetResource<Camera>();
-        const Rect2u       viewport = {{0, 0}, m_Services.window.GetSize()};
+        const Camera       camera = m_World.GetResource<Camera>();
         std::vector<Light> lights;
+
         m_World.GetRegistry().ForEach<Light>([&](auto &light) {
             lights.push_back(light);
         });
 
+        m_World.GetRegistry().ForEach<DirectionalLight>([&](auto &light) {
+            lights.push_back(light.GetLight());
+        });
+
+        m_World.GetRegistry().ForEach<PointLight>([&](auto &light) {
+            lights.push_back(light.GetLight());
+        });
+
         const AmbientLight ambient = m_World.GetResource<AmbientLight>();
 
-        SceneData scene = {
+        const SceneData scene = {
             .camera       = camera,
             .lights       = lights,
             .ambientLight = ambient,
         };
 
-        m_Services.renderer.BeginPass({
-            .viewport = viewport
+        RenderList commands;
+        m_World.GetRegistry().ForEach<ModelRenderer, Transform>([&](const ModelRenderer &renderer, const Transform &transform) {
+            const auto result = m_Services.assetLoader.Get<Model>(renderer.modelPath);
+            if (!result) {
+                Debug::LogErr("App::Render: Invalid model path!");
+                return;
+            }
+
+            Model &model = result.value();
+            for (auto &[mesh, mat]: model.objects) {
+                MaterialProperties props = {
+                    .color     = mat.color,
+                    .metallic  = mat.metallic,
+                    .roughness = mat.roughness,
+                };
+
+                if (mat.colorMapPath != "") {
+                    props.colorMap = m_Services.assetLoader.Get<Texture>(mat.colorMapPath);
+                }
+
+                if (mat.metallicMapPath != "") {
+                    props.metallicMap = m_Services.assetLoader.Get<Texture>(mat.metallicMapPath);
+                }
+
+                if (mat.roughnessMapPath != "") {
+                    props.roughnessMap = m_Services.assetLoader.Get<Texture>(mat.roughnessMapPath);
+                }
+
+                commands.push_back({
+                    .mesh               = mesh,
+                    .pipeline           = m_Services.assetLoader.Get<Pipeline>(mat.pipelinePath).value(),
+                    .materialProperties = props,
+                    .transform          = transform,
+                });
+            }
         });
 
-        m_World.GetRegistry().ForEach<ModelRenderer, Transform>(
-            [&](const ModelRenderer &renderer, const Transform &transform) {
-                const auto result = m_Services.assetLoader.Get<Model>(renderer.modelPath);
-                if (!result) {
-                    Debug::LogErr("App::Render: Invalid model path!");
-                    return;
-                }
-
-                Model &model = result.value();
-                for (auto &obj: model.objects) {
-                    m_Services.renderer.Submit({
-                        .object    = &obj,
-                        .transform = transform,
-                    });
-                }
-            });
-
-        m_Services.renderer.Render(scene, shadowConfig, m_Services.assetLoader);
+        const Rect2u viewport = {{0, 0}, m_Services.window.GetSize()};
+        m_Services.renderer.Render(commands, scene, {.viewport = viewport}, shadowConfig);
     }
 
     void App::RenderGizmos() {
@@ -211,15 +236,9 @@ namespace Flock {
             .ambientLight = ambient,
         };
 
-        m_Services.renderer.BeginPass({
-            .clearColor = std::nullopt,
-            .cullMode   = CullMode::Front,
-            .clearDepth = false,
-            .viewport   = viewport
-        });
-
-        std::vector<RenderObject> objects;
-        std::vector<Transform>    transforms;
+        std::vector<Mesh>      meshes;
+        std::vector<Transform> transforms;
+        RenderList             renderList;
         m_World.GetRegistry().ForEach<Physics::BoxCollider, Transform>(
             [&](const Physics::BoxCollider &collider, const Transform &transform) {
                 Transform trans;
@@ -227,17 +246,31 @@ namespace Flock {
                 trans.rotation = transform.rotation * collider.transform.rotation;
                 trans.scale    = transform.scale;
 
-                objects.push_back({
-                    .mesh = Mesh::Box(collider.halfExtents),
-                });
-
+                meshes.push_back(Mesh::Box(collider.halfExtents));
                 transforms.push_back(trans);
             });
 
-        for (usize i = 0; i < objects.size(); i++) {
-            m_Services.renderer.Submit({.object = &objects[i], .transform = transforms[i], .fill = false});
+        RenderList commands;
+        for (usize i = 0; i < meshes.size(); i++) {
+            commands.push_back({
+                .mesh      = meshes[i],
+                .pipeline  = m_Services.assetLoader.Get<Pipeline>("@PBR").value(),
+                .transform = transforms[i],
+            });
         }
 
-        m_Services.renderer.Render(scene, {}, m_Services.assetLoader);
+        RenderConfig config = {
+            .viewport = viewport,
+            .clear    = {
+                .clearColor = false,
+                .clearDepth = false,
+            },
+            .raster = {
+                .cullMode = CullMode::Front,
+                .fill     = false,
+            }
+        };
+
+        m_Services.renderer.Render(commands, scene, config, {.enabled = false, .resolution = {0, 0}});
     }
 }

@@ -9,7 +9,7 @@ namespace Flock::FileIo {
         i32   width, height, channels;
         void *data = stbi_load(filePath.string().c_str(), &width, &height, &channels, 0);
         if (!data) {
-            Debug::LogErr("Failed to read image: {}", stbi_failure_reason());
+            Debug::LogErr("FileIo::ReadImage: Failed to read image '{}': {}", filePath.string(), stbi_failure_reason());
         }
 
         auto format = Graphics::ImageFormat::Rgba;

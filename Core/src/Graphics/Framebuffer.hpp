@@ -2,7 +2,7 @@
 #define FLK_FRAMEBUFFER_HPP
 
 #include "Common.hpp"
-#include "Texture2D.hpp"
+#include "Texture.hpp"
 #include "TextureArray.hpp"
 
 namespace Flock::Graphics {
@@ -42,7 +42,7 @@ namespace Flock::Graphics {
         bool        Bind() const;
         static void Unbind();
 
-        bool Attach(Attachment attachment, const Texture2D &texture) const;
+        bool Attach(Attachment attachment, const Texture &texture) const;
         bool Attach(Attachment attachment, const TextureArray &textureArray, u32 index) const;
     };
 }

@@ -24,45 +24,45 @@ namespace Flock::Graphics {
         return mesh;
     }
 
-    Mesh Mesh::Box(const Vector3f halfExtents, const Vector3f offset) {
+    Mesh Mesh::Box(const Vector3f halfExtents) {
         const Vector3f h = halfExtents;
 
         const std::vector<Vertex> vertices = {
             // Front face (normal: 0, 0, 1)
-            {Vector3f{-h.x, -h.y, h.z} + offset, {0, 0, 1}, {0, 0}, {1, 0, 0}, {0, 1, 0}},
-            {Vector3f{h.x, -h.y, h.z} + offset, {0, 0, 1}, {1, 0}, {1, 0, 0}, {0, 1, 0}},
-            {Vector3f{h.x, h.y, h.z} + offset, {0, 0, 1}, {1, 1}, {1, 0, 0}, {0, 1, 0}},
-            {Vector3f{-h.x, h.y, h.z} + offset, {0, 0, 1}, {0, 1}, {1, 0, 0}, {0, 1, 0}},
+            {Vector3f{-h.x, -h.y, h.z}, {0, 0, 1}, {0, 0}, {1, 0, 0}, {0, 1, 0}},
+            {Vector3f{h.x, -h.y, h.z}, {0, 0, 1}, {1, 0}, {1, 0, 0}, {0, 1, 0}},
+            {Vector3f{h.x, h.y, h.z}, {0, 0, 1}, {1, 1}, {1, 0, 0}, {0, 1, 0}},
+            {Vector3f{-h.x, h.y, h.z}, {0, 0, 1}, {0, 1}, {1, 0, 0}, {0, 1, 0}},
 
             // Back face (normal: 0, 0, -1)
-            {Vector3f{h.x, -h.y, -h.z} + offset, {0, 0, -1}, {0, 0}, {-1, 0, 0}, {0, 1, 0}},
-            {Vector3f{-h.x, -h.y, -h.z} + offset, {0, 0, -1}, {1, 0}, {-1, 0, 0}, {0, 1, 0}},
-            {Vector3f{-h.x, h.y, -h.z} + offset, {0, 0, -1}, {1, 1}, {-1, 0, 0}, {0, 1, 0}},
-            {Vector3f{h.x, h.y, -h.z} + offset, {0, 0, -1}, {0, 1}, {-1, 0, 0}, {0, 1, 0}},
+            {Vector3f{h.x, -h.y, -h.z}, {0, 0, -1}, {0, 0}, {-1, 0, 0}, {0, 1, 0}},
+            {Vector3f{-h.x, -h.y, -h.z}, {0, 0, -1}, {1, 0}, {-1, 0, 0}, {0, 1, 0}},
+            {Vector3f{-h.x, h.y, -h.z}, {0, 0, -1}, {1, 1}, {-1, 0, 0}, {0, 1, 0}},
+            {Vector3f{h.x, h.y, -h.z}, {0, 0, -1}, {0, 1}, {-1, 0, 0}, {0, 1, 0}},
 
             // Left face (normal: -1, 0, 0)
-            {Vector3f{-h.x, -h.y, -h.z} + offset, {-1, 0, 0}, {0, 0}, {0, 0, 1}, {0, 1, 0}},
-            {Vector3f{-h.x, -h.y, h.z} + offset, {-1, 0, 0}, {1, 0}, {0, 0, 1}, {0, 1, 0}},
-            {Vector3f{-h.x, h.y, h.z} + offset, {-1, 0, 0}, {1, 1}, {0, 0, 1}, {0, 1, 0}},
-            {Vector3f{-h.x, h.y, -h.z} + offset, {-1, 0, 0}, {0, 1}, {0, 0, 1}, {0, 1, 0}},
+            {Vector3f{-h.x, -h.y, -h.z}, {-1, 0, 0}, {0, 0}, {0, 0, 1}, {0, 1, 0}},
+            {Vector3f{-h.x, -h.y, h.z}, {-1, 0, 0}, {1, 0}, {0, 0, 1}, {0, 1, 0}},
+            {Vector3f{-h.x, h.y, h.z}, {-1, 0, 0}, {1, 1}, {0, 0, 1}, {0, 1, 0}},
+            {Vector3f{-h.x, h.y, -h.z}, {-1, 0, 0}, {0, 1}, {0, 0, 1}, {0, 1, 0}},
 
             // Right face (normal: 1, 0, 0)
-            {Vector3f{h.x, -h.y, h.z} + offset, {1, 0, 0}, {0, 0}, {0, 0, -1}, {0, 1, 0}},
-            {Vector3f{h.x, -h.y, -h.z} + offset, {1, 0, 0}, {1, 0}, {0, 0, -1}, {0, 1, 0}},
-            {Vector3f{h.x, h.y, -h.z} + offset, {1, 0, 0}, {1, 1}, {0, 0, -1}, {0, 1, 0}},
-            {Vector3f{h.x, h.y, h.z} + offset, {1, 0, 0}, {0, 1}, {0, 0, -1}, {0, 1, 0}},
+            {Vector3f{h.x, -h.y, h.z}, {1, 0, 0}, {0, 0}, {0, 0, -1}, {0, 1, 0}},
+            {Vector3f{h.x, -h.y, -h.z}, {1, 0, 0}, {1, 0}, {0, 0, -1}, {0, 1, 0}},
+            {Vector3f{h.x, h.y, -h.z}, {1, 0, 0}, {1, 1}, {0, 0, -1}, {0, 1, 0}},
+            {Vector3f{h.x, h.y, h.z}, {1, 0, 0}, {0, 1}, {0, 0, -1}, {0, 1, 0}},
 
             // Top face (normal: 0, 1, 0)
-            {Vector3f{-h.x, h.y, h.z} + offset, {0, 1, 0}, {0, 0}, {1, 0, 0}, {0, 0, -1}},
-            {Vector3f{h.x, h.y, h.z} + offset, {0, 1, 0}, {1, 0}, {1, 0, 0}, {0, 0, -1}},
-            {Vector3f{h.x, h.y, -h.z} + offset, {0, 1, 0}, {1, 1}, {1, 0, 0}, {0, 0, -1}},
-            {Vector3f{-h.x, h.y, -h.z} + offset, {0, 1, 0}, {0, 1}, {1, 0, 0}, {0, 0, -1}},
+            {Vector3f{-h.x, h.y, h.z}, {0, 1, 0}, {0, 0}, {1, 0, 0}, {0, 0, -1}},
+            {Vector3f{h.x, h.y, h.z}, {0, 1, 0}, {1, 0}, {1, 0, 0}, {0, 0, -1}},
+            {Vector3f{h.x, h.y, -h.z}, {0, 1, 0}, {1, 1}, {1, 0, 0}, {0, 0, -1}},
+            {Vector3f{-h.x, h.y, -h.z}, {0, 1, 0}, {0, 1}, {1, 0, 0}, {0, 0, -1}},
 
             // Bottom face (normal: 0, -1, 0)
-            {Vector3f{-h.x, -h.y, -h.z} + offset, {0, -1, 0}, {0, 0}, {1, 0, 0}, {0, 0, 1}},
-            {Vector3f{h.x, -h.y, -h.z} + offset, {0, -1, 0}, {1, 0}, {1, 0, 0}, {0, 0, 1}},
-            {Vector3f{h.x, -h.y, h.z} + offset, {0, -1, 0}, {1, 1}, {1, 0, 0}, {0, 0, 1}},
-            {Vector3f{-h.x, -h.y, h.z} + offset, {0, -1, 0}, {0, 1}, {1, 0, 0}, {0, 0, 1}},
+            {Vector3f{-h.x, -h.y, -h.z}, {0, -1, 0}, {0, 0}, {1, 0, 0}, {0, 0, 1}},
+            {Vector3f{h.x, -h.y, -h.z}, {0, -1, 0}, {1, 0}, {1, 0, 0}, {0, 0, 1}},
+            {Vector3f{h.x, -h.y, h.z}, {0, -1, 0}, {1, 1}, {1, 0, 0}, {0, 0, 1}},
+            {Vector3f{-h.x, -h.y, h.z}, {0, -1, 0}, {0, 1}, {1, 0, 0}, {0, 0, 1}},
         };
 
         const std::vector<uint32_t> indices = {

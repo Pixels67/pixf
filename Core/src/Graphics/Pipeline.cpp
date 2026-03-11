@@ -11,7 +11,7 @@ namespace Flock::Graphics {
             return std::nullopt;
         }
 
-        pipeline.m_DefaultTexture = Texture2D::FromImage(Image::Default());
+        pipeline.m_DefaultTexture = Texture::FromImage(Image::Default());
         pipeline.SetSamplerUnits();
 
         return pipeline;
@@ -110,7 +110,7 @@ namespace Flock::Graphics {
         m_Uniforms[name] = {.type = UniformType::Mat4, .data = value};
     }
 
-    bool Pipeline::SetUniform(const std::string &name, const Texture2D &value) const {
+    bool Pipeline::SetUniform(const std::string &name, const Texture &value) const {
         if (m_Id == 0 || !m_Samplers.contains(name)) {
             return false;
         }
@@ -120,7 +120,7 @@ namespace Flock::Graphics {
             return false;
         }
 
-        Texture2D::SetActiveUnit(m_Samplers.at(name).unit);
+        Texture::SetActiveUnit(m_Samplers.at(name).unit);
         return value.Bind();
     }
 
@@ -134,7 +134,7 @@ namespace Flock::Graphics {
             return false;
         }
 
-        Texture2D::SetActiveUnit(m_Samplers.at(name).unit);
+        Texture::SetActiveUnit(m_Samplers.at(name).unit);
         return value.Bind();
     }
 

@@ -2,7 +2,7 @@
 #define FLK_TEXTUREARRAY_HPP
 
 #include "Common.hpp"
-#include "Texture2D.hpp"
+#include "Texture.hpp"
 #include "Math/Vector.hpp"
 
 namespace Flock::Graphics {

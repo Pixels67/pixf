@@ -3,7 +3,7 @@
 
 #include "Common.hpp"
 #include "Shader.hpp"
-#include "Texture2D.hpp"
+#include "Texture.hpp"
 #include "TextureArray.hpp"
 #include "Math/Math.hpp"
 
@@ -46,7 +46,7 @@ namespace Flock::Graphics {
         u32                                          m_Id = 0;
         std::unordered_map<std::string, Uniform>     m_Uniforms;
         std::unordered_map<std::string, SamplerInfo> m_Samplers;
-        Texture2D                                    m_DefaultTexture;
+        Texture                                    m_DefaultTexture;
 
     public:
         /**
@@ -158,7 +158,7 @@ namespace Flock::Graphics {
          * @param value The uniform value to set.
          * @return true if successful; false otherwise.
          */
-        bool SetUniform(const std::string &name, const Texture2D &value) const;
+        bool SetUniform(const std::string &name, const Texture &value) const;
 
         /**
          * @brief Sets a 2D texture array (sampler2DArray) uniform.

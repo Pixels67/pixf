@@ -8,7 +8,7 @@
 #include "FileIo/Audio.hpp"
 #include "FileIo/Image.hpp"
 #include "Graphics/Pipeline.hpp"
-#include "Graphics/Texture2D.hpp"
+#include "Graphics/Texture.hpp"
 #include "FileIo/Model.hpp"
 #include "FileIo/Pipeline.hpp"
 #include "Graphics/Material.hpp"
@@ -233,9 +233,9 @@ namespace Flock::Asset {
     };
 
     template<>
-    struct Loader<Graphics::Texture2D> {
-        static std::optional<Graphics::Texture2D> Load(AssetLoader &, const std::filesystem::path &filePath) {
-            return Graphics::Texture2D::FromImage(FileIo::ReadImage(filePath));
+    struct Loader<Graphics::Texture> {
+        static std::optional<Graphics::Texture> Load(AssetLoader &, const std::filesystem::path &filePath) {
+            return Graphics::Texture::FromImage(FileIo::ReadImage(filePath));
         }
     };
 
@@ -260,15 +260,15 @@ namespace Flock::Asset {
                 }
 
                 if (colorMapPath != "") {
-                    loader.Load<Texture2D>(colorMapPath);
+                    loader.Load<Texture>(colorMapPath);
                 }
 
                 if (metallicMapPath != "") {
-                    loader.Load<Texture2D>(metallicMapPath);
+                    loader.Load<Texture>(metallicMapPath);
                 }
 
                 if (roughnessMapPath != "") {
-                    loader.Load<Texture2D>(roughnessMapPath);
+                    loader.Load<Texture>(roughnessMapPath);
                 }
             }
 

@@ -39,10 +39,9 @@ namespace Flock::Graphics {
         /**
          * @brief Static factory method.
          * @param halfExtents The half extents of the box.
-         * @param offset The offset to apply to the vertices.
-         * @return The mesh if successful; std::nullopt otherwise.
+         * @return A newly created box mesh.
          */
-        static Mesh Box(Vector3f halfExtents = Vector3f::One(), Vector3f offset = {});
+        static Mesh Box(Vector3f halfExtents = Vector3f::One());
 
         Mesh() = default;
         ~Mesh();

@@ -16,8 +16,16 @@ i32 main() {
 
         assets.SetDefaultPipeline(Asset::PipelineType::Pbr, "../../../assets/shader.glsl");
         assets.Load<Model>("../../../assets/FlightHelmet.gltf");
-        assets.Load<Model>("../../../assets/cube.glb");
+        assets.Load<Model>("../../../assets/box.glb");
         assets.Load<Model>("../../../assets/sphere.glb");
+
+        assets.Get<Model>("../../../assets/box.glb").objects[0].material = {
+            .colorMapPath = "../../../assets/Checkerboard.png"
+        };
+
+        assets.Get<Texture>("../../../assets/Checkerboard.png").Configure({
+            .filterMode = Nearest
+        });
 
         auto &reg = world.GetRegistry();
 
@@ -25,7 +33,7 @@ i32 main() {
         world.GetResource<Camera>().transform.position = {0.0F, 2.0F, -12.0F};
         reg.Create(
             Transform{
-                .position = {0.0F, 10.0F, 0.0F},
+                .position = {0.0F, 5.0F, 0.0F},
                 .rotation = Quaternion::Euler(40.0F, 20.0F, 10.0F),
                 .scale    = Vector3f::One() * 5.0F
             },
@@ -40,12 +48,12 @@ i32 main() {
                 .rotation = Quaternion::Euler(0.0F, 0.0F, 0.0F),
                 .scale    = {10.0F, 0.5F, 10.0F}
             },
-            ModelRenderer{.modelPath = "../../../assets/cube.glb"},
+            ModelRenderer{.modelPath = "../../../assets/box.glb"},
             Physics::BoxCollider{},
             Physics::RigidBody{.mode = Physics::SimulationMode::Static}
         );
 
-        reg.Create(Light{
+        reg.Create(DirectionalLight{
             .position  = {-4.0F, 5.0F, -3.0F},
             .color     = {255, 255, 220},
             .intensity = 5.0F,
@@ -100,31 +108,5 @@ i32 main() {
 
         cam.transform.rotation = Quaternion::Euler(pitchAngle, 0.0F, 0.0F);
         cam.transform.rotation *= Quaternion::Euler(0.0F, yawAngle, 0.0F);
-    }).AddSystem(Stage::Update, [&](World &world) {
-        const f64  dt    = world.GetResource<Time::TimeState>().deltaTime;
-        const auto input = world.GetResource<InputState>();
-
-        const f32 moveSpeed = 5.0F * dt;
-
-        world.GetRegistry().ForEach<Transform, Physics::RigidBody>(
-            [&](Transform &trans, Physics::RigidBody &rb) {
-                if (rb.mode != Physics::SimulationMode::Dynamic) {
-                    return;
-                }
-
-                if (input.IsKeyDown(Key::Up)) {
-                    rb.linearVelocity.z += moveSpeed;
-                }
-                if (input.IsKeyDown(Key::Down)) {
-                    rb.linearVelocity.z -= moveSpeed;
-                }
-                if (input.IsKeyDown(Key::Right)) {
-                    rb.linearVelocity.x += moveSpeed;
-                }
-                if (input.IsKeyDown(Key::Left)) {
-                    rb.linearVelocity.x -= moveSpeed;
-                }
-            }
-        );
     }).Run();
 }

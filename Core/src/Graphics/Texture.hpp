@@ -72,10 +72,10 @@ namespace Flock::Graphics {
     void FLK_API ConfigureTexture2D(TextureConfig config);
 
     /**
-     * @class Texture2D
+     * @class Texture
      * @brief A 2D Texture.
      */
-    class FLK_API Texture2D {
+    class FLK_API Texture {
         u32           m_Id = 0;
         TextureConfig m_Config;
 
@@ -86,7 +86,7 @@ namespace Flock::Graphics {
          * @param config The texture configuration.
          * @return A newly created 2D texture.
          */
-        static Texture2D FromImage(const Image &image, TextureConfig config = {});
+        static Texture FromImage(const Image &image, TextureConfig config = {});
 
         /**
          * @brief Static factory method.
@@ -94,16 +94,16 @@ namespace Flock::Graphics {
          * @param config The texture configuration.
          * @return A newly created empty 2D texture.
          */
-        static Texture2D CreateEmpty(Vector2u size, TextureConfig config = {});
+        static Texture CreateEmpty(Vector2u size, TextureConfig config = {});
 
-        Texture2D() = default;
-        ~Texture2D();
+        Texture() = default;
+        ~Texture();
 
-        Texture2D(const Texture2D &other) = delete;
-        Texture2D(Texture2D &&other) noexcept;
+        Texture(const Texture &other) = delete;
+        Texture(Texture &&other) noexcept;
 
-        Texture2D &operator=(const Texture2D &other) = delete;
-        Texture2D &operator=(Texture2D &&other) noexcept;
+        Texture &operator=(const Texture &other) = delete;
+        Texture &operator=(Texture &&other) noexcept;
 
         /**
          * @brief Clears the texture.
@@ -126,6 +126,8 @@ namespace Flock::Graphics {
          * @brief Unbinds a texture from the active texture unit.
          */
         static void Unbind();
+
+        void Configure(TextureConfig config);
 
         [[nodiscard]] TextureConfig GetConfig() const;
 

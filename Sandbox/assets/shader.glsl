@@ -95,7 +95,7 @@ vec3 F_Schlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
-float calcShadow(int i, vec3 N, vec3 L)
+float calcShadow(int i, int shadowIdx, vec3 N, vec3 L)
 {
     vec4 fragPosLS = vec4(vWorldPos, 1.0) * uLightSpaceMatrices[i];
     vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
@@ -118,7 +118,7 @@ float calcShadow(int i, vec3 N, vec3 L)
     for (int y = -r; y <= r; ++y)
     {
         vec2 uv = projCoords.xy + vec2(x, y) * texelSize;
-        sum += texture(uShadowMaps, vec4(uv, float(i), current - bias));
+        sum += texture(uShadowMaps, vec4(uv, float(shadowIdx), current - bias));
     }
 
     float visibility = sum / float((2 * r + 1) * (2 * r + 1));
@@ -152,10 +152,10 @@ void main() {
             // Directional light — position is treated as direction
             L = normalize(uLightPositions[i]);
             attenuation = 1.0;
-            if (uLightShadowMapIndices[i] < 0) {
+            if (uLightShadowMapIndices[i] == -1) {
                 shadow = 0.0;
             } else {
-                shadow = calcShadow(uLightShadowMapIndices[i], N, L);
+                shadow = calcShadow(i, uLightShadowMapIndices[i], N, L);
             }
         }
         else

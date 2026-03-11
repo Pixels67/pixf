@@ -97,8 +97,8 @@ set(PROJECT_SOURCES
         src/Math/Quaternion.hpp
         src/Math/Vector.hpp
         src/Math/Math.hpp
-        src/Graphics/Texture2D.cpp
-        src/Graphics/Texture2D.hpp
+        src/Graphics/Texture.cpp
+        src/Graphics/Texture.hpp
         src/Graphics/Mesh.cpp
         src/Graphics/Mesh.hpp
         src/Graphics/Vertex.hpp

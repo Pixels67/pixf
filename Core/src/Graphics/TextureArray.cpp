@@ -93,7 +93,7 @@ namespace Flock::Graphics {
     }
 
     void TextureArray::SetActiveUnit(u8 unit) {
-        return Texture2D::SetActiveUnit(unit);
+        return Texture::SetActiveUnit(unit);
     }
 
     bool TextureArray::Bind() const {

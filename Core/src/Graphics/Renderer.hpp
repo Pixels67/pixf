@@ -2,7 +2,6 @@
 #define FLK_RENDERER_HPP
 
 #include "Framebuffer.hpp"
-#include "Material.hpp"
 #include "Mesh.hpp"
 #include "Asset/AssetLoader.hpp"
 #include "Math/Rect.hpp"
@@ -32,6 +31,29 @@ namespace Flock::Graphics {
 
     i32 ToGlType(CullMode faceCullMode);
 
+    struct ClearState {
+        bool     clearColor   = true;
+        bool     clearDepth   = true;
+        bool     clearStencil = false;
+        Color4u8 color        = {40, 80, 100, 255};
+        f32      depth        = 1.0F;
+        u32      stencil      = 0;
+    };
+
+    struct DepthState {
+        bool      enabled = true;
+        DepthFunc func    = DepthFunc::LEqual;
+    };
+
+    struct BlendState {
+        bool enabled = true;
+    };
+
+    struct RasterState {
+        CullMode cullMode = CullMode::Back;
+        bool     fill     = true;
+    };
+
     struct SceneData {
         Camera             camera       = {};
         std::vector<Light> lights       = {};
@@ -39,66 +61,68 @@ namespace Flock::Graphics {
     };
 
     struct ShadowConfig {
-        f32      shadowRange         = 50.0F;
-        Vector2u shadowMapResolution = {4096, 4096};
+        bool     enabled    = true;
+        f32      range      = 50.0F;
+        Vector2u resolution = {4096, 4096};
     };
 
-    struct RenderPassConfig {
-        std::optional<Color3u8> clearColor = Color3u8{10, 20, 25};
-        DepthFunc               depthFunc  = DepthFunc::Less;
-        CullMode                cullMode   = CullMode::Back;
-        bool                    clearDepth = true;
-        bool                    blending   = true;
-        Rect2u                  viewport   = {{0, 0}, {800, 600}};
+    struct RenderConfig {
+        Rect2u                   viewport;
+        ClearState               clear       = {};
+        DepthState               depth       = {};
+        BlendState               blend       = {};
+        RasterState              raster      = {};
+        OptionalRef<Framebuffer> framebuffer = std::nullopt;
     };
 
-    struct FLK_API RenderCommand {
-        RenderObject *object    = nullptr;
-        Transform     transform = {};
-        bool          fill      = true;
+    struct MaterialProperties {
+        Color4u8               color        = Color4u8::White();
+        f32                    metallic     = 0.25F;
+        f32                    roughness    = 0.75F;
+        OptionalRef<Texture> colorMap     = std::nullopt;
+        OptionalRef<Texture> metallicMap  = std::nullopt;
+        OptionalRef<Texture> roughnessMap = std::nullopt;
     };
 
-    using RenderQueue = std::queue<RenderCommand>;
+    struct RenderCommand {
+        Ref<Mesh>          mesh;
+        Ref<Pipeline>      pipeline;
+        MaterialProperties materialProperties = {};
+        Transform          transform          = {};
+    };
+
+    using RenderList = std::vector<RenderCommand>;
 
     class FLK_API Renderer {
-        RenderQueue                     m_RenderQueue;
-        std::optional<RenderPassConfig> m_RenderPass;
-        TextureArray                    m_ShadowMaps;
-        std::vector<u32>                m_LightShadowMapIndices;
-
     public:
-        Renderer &BeginPass(const RenderPassConfig &config);
-        Renderer &Submit(const RenderCommand &command);
-        Renderer &Render(
-            SceneData &              scene,
-            ShadowConfig             shadowConfig,
-            Asset::AssetLoader &     assetLoader,
-            OptionalRef<Framebuffer> framebuffer = std::nullopt
-        );
+        Renderer &Render(const RenderList &commands, const SceneData &scene, RenderConfig config = {}, ShadowConfig shadowConfig = {});
 
     private:
-        static void               ClearFrame(OptionalRef<Framebuffer> framebuffer = std::nullopt);
-        static void               ConfigureFrame(RenderPassConfig config);
+        static bool SetFramebuffer(OptionalRef<Framebuffer> framebuffer = std::nullopt);
+        static void ConfigureFramebuffer(RenderConfig config);
+        static void SetMatrices(Pipeline &pipeline, const Transform &transform, const Camera &camera, f32 aspectRatio);
+        static void SetMaterialUniforms(Pipeline &pipeline, const MaterialProperties &material);
+        static void SetLightUniforms(Pipeline &pipeline, std::vector<Light> lights, ShadowConfig config, Vector3f shadowCenter);
+
         static std::vector<Light> GetNearestLights(std::vector<Light> lights, Vector3f center, usize count);
 
-        void GenerateShadowMaps(
-            ShadowConfig                      shadowConfig,
-            const std::vector<RenderCommand> &commands,
-            const std::vector<Light> &        lights,
-            Vector3f                          offset
+        static TextureArray GenerateShadowMaps(
+            const RenderList &        commands,
+            const std::vector<Light> &lights,
+            ShadowConfig              shadowConfig,
+            Vector3f                  shadowCenter
         );
 
         static bool GenerateShadowMap(
-            const std::vector<RenderCommand> &commands,
-            const TextureArray &              textureArray,
-            u32                               index,
-            const Light &                     light,
-            Vector3f                          offset,
-            f32                               range
+            const RenderList &  commands,
+            const TextureArray &textureArray,
+            u32                 index,
+            const Light &       light,
+            Vector3f            shadowCenter,
+            f32                 range
         );
 
         static bool RenderMesh(const Mesh &mesh, const Pipeline &pipeline);
-        static bool RenderMeshLines(const Mesh &mesh, const Pipeline &pipeline);
     };
 }
 

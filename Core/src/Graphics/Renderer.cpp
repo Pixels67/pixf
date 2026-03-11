@@ -54,7 +54,7 @@ void main() {
         }
     }
 
-    i32 ToGlType(CullMode faceCullMode) {
+    i32 ToGlType(const CullMode faceCullMode) {
         switch (faceCullMode) {
             case CullMode::None: return GL_NONE;
             case CullMode::Back: return GL_BACK;
@@ -63,186 +63,160 @@ void main() {
         }
     }
 
-    Renderer &Renderer::BeginPass(const RenderPassConfig &config) {
-        while (!m_RenderQueue.empty()) {
-            m_RenderQueue.pop();
-        }
-
-        m_RenderPass = config;
-
-        return *this;
-    }
-
-    Renderer &Renderer::Submit(const RenderCommand &command) {
-        m_RenderQueue.push(command);
-
-        return *this;
-    }
-
-    Renderer &Renderer::Render(
-        SceneData &                    scene,
-        ShadowConfig                   shadowConfig,
-        Asset::AssetLoader &           assetLoader,
-        const OptionalRef<Framebuffer> framebuffer
-    ) {
-        if (!m_RenderPass) {
-            ClearFrame();
-            return *this;
-        }
-
-        auto lights = GetNearestLights(scene.lights, scene.camera.transform.position, s_MaxLightsPerObject);
-
-        std::vector<RenderCommand> commands;
-        RenderQueue                queue = m_RenderQueue;
-        while (!queue.empty()) {
-            commands.push_back(queue.front());
-            queue.pop();
-        }
-
-        const f32      shadowRange  = shadowConfig.shadowRange;
+    Renderer &Renderer::Render(const RenderList &commands, const SceneData &scene, RenderConfig config, const ShadowConfig shadowConfig) {
+        const auto     lights       = GetNearestLights(scene.lights, scene.camera.transform.position, s_MaxLightsPerObject);
         const Vector3f shadowCenter = scene.camera.transform.position;
-        GenerateShadowMaps(shadowConfig, commands, lights, shadowCenter);
-
-        if (framebuffer) {
-            if (!framebuffer->get().Bind()) {
-                Debug::LogErr("Render failed: Unable to bind framebuffer!");
-                ClearFrame();
-                return *this;
-            }
-        } else {
-            Framebuffer::Unbind();
+        TextureArray   shadowMaps;
+        if (shadowConfig.enabled) {
+            shadowMaps = GenerateShadowMaps(commands, lights, shadowConfig, shadowCenter);
         }
 
-        ConfigureFrame(m_RenderPass.value());
+        SetFramebuffer(config.framebuffer);
+        ConfigureFramebuffer(config);
 
-        while (!m_RenderQueue.empty()) {
-            auto  [obj, trans, fill] = m_RenderQueue.front();
-            auto &[mesh, material]   = *obj;
+        for (auto &cmd: commands) {
+            auto &[mesh, pipeline, mat, trans] = cmd;
 
-            m_RenderQueue.pop();
+            pipeline.get().ResetUniforms();
 
-            Pipeline &pipeline = assetLoader.Get<Pipeline>(material.pipelinePath).value();
-            pipeline.ResetUniforms();
+            auto      [origin, aspect] = config.viewport;
+            const f32 aspectRatio      = static_cast<f32>(aspect.x - origin.x) /
+                                    static_cast<f32>(aspect.y - origin.y);
 
-            const Matrix4f model = trans.GetMatrix();
-            const Matrix4f view  = scene.camera.GetViewMatrix();
+            SetMatrices(pipeline, trans, scene.camera, aspectRatio);
 
-            auto           [origin, aspect] = m_RenderPass->viewport;
-            const f32      aspectRatio = static_cast<f32>(aspect.x - origin.x) / static_cast<f32>(aspect.y - origin.y);
-            const Matrix4f proj = scene.camera.GetProjMatrix(aspectRatio);
+            pipeline.get().SetUniform("uCameraPosition", scene.camera.transform.position);
+            pipeline.get().SetUniform("uAmbientColor", scene.ambientLight.color);
+            pipeline.get().SetUniform("uAmbientIntensity", scene.ambientLight.intensity);
 
-            pipeline.SetUniform("uModel", model);
-            pipeline.SetUniform("uView", view);
-            pipeline.SetUniform("uProj", proj);
-            pipeline.SetUniform("uCameraPosition", scene.camera.transform.position);
+            SetMaterialUniforms(pipeline, mat);
+            SetLightUniforms(pipeline, lights, shadowConfig, shadowCenter);
 
-            pipeline.SetUniform("uColor", material.color);
-            pipeline.SetUniform("uMetallic", material.metallic);
-            pipeline.SetUniform("uRoughness", material.roughness);
-
-            if (material.colorMapPath != "") {
-                pipeline.SetUniform("uColorMap", assetLoader.Get<Texture2D>(material.colorMapPath).value());
-            }
-
-            if (material.metallicMapPath != "") {
-                pipeline.SetUniform("uMetallicMap", assetLoader.Get<Texture2D>(material.metallicMapPath).value());
-            }
-
-            if (material.roughnessMapPath != "") {
-                pipeline.SetUniform("uRoughnessMap", assetLoader.Get<Texture2D>(material.roughnessMapPath).value());
-            }
-
-            pipeline.SetUniform("uAmbientColor", scene.ambientLight.color);
-            pipeline.SetUniform("uAmbientIntensity", scene.ambientLight.intensity);
-
-            pipeline.SetUniform("uNumLights", static_cast<i32>(lights.size()));
-            for (usize i = 0; i < lights.size(); i++) {
-                const auto &[lightPosition, color, intensity, radius, hasShadows] = lights[i];
-
-                const f32 shadowAspect = static_cast<f32>(shadowConfig.shadowMapResolution.x) /
-                                         static_cast<f32>(shadowConfig.shadowMapResolution.y);
-
-                const Vector3f offset   = scene.camera.transform.position;
-                Matrix4f       spaceMat = lights[i].GetLightSpaceMatrix(shadowRange, shadowAspect, offset);
-
-                pipeline.SetUniform("uLightPositions[" + std::to_string(i) + "]", lightPosition);
-                pipeline.SetUniform("uLightColors[" + std::to_string(i) + "]", color);
-                pipeline.SetUniform("uLightIntensities[" + std::to_string(i) + "]", intensity);
-                pipeline.SetUniform("uLightRadii[" + std::to_string(i) + "]", radius);
-                pipeline.SetUniform("uLightSpaceMatrices[" + std::to_string(i) + "]", spaceMat);
-
-                if (m_LightShadowMapIndices[i] == ~0u) {
-                    pipeline.SetUniform("uLightShadowMapIndices[" + std::to_string(i) + "]", -1);
-                } else {
-                    pipeline.SetUniform("uLightShadowMapIndices[" + std::to_string(i) + "]",
-                                        static_cast<i32>(m_LightShadowMapIndices[i]));
-                }
-            }
-
-            if (m_ShadowMaps.GetLayerCount() > 0) {
-                if (!pipeline.SetUniform("uShadowMaps", m_ShadowMaps)) {
+            if (shadowMaps.GetLayerCount() > 0) {
+                if (!pipeline.get().SetUniform("uShadowMaps", shadowMaps)) {
                     Debug::LogErr("Render: Failed to upload shadow maps!");
                     return *this;
                 }
             }
 
-            if (fill) {
-                RenderMesh(obj->mesh, pipeline);
-            } else {
-                RenderMeshLines(obj->mesh, pipeline);
-            }
+            RenderMesh(mesh, pipeline);
         }
 
         Framebuffer::Unbind();
         Mesh::Unbind();
         Pipeline::Unbind();
 
-        m_RenderPass = std::nullopt;
-
         return *this;
     }
 
-    void Renderer::ClearFrame(const OptionalRef<Framebuffer> framebuffer) {
+    bool Renderer::SetFramebuffer(const OptionalRef<Framebuffer> framebuffer) {
         if (framebuffer) {
             if (!framebuffer->get().Bind()) {
-                return;
+                Debug::LogErr("Renderer::SetFramebuffer: Unable to bind framebuffer!");
+                return false;
             }
         } else {
             Framebuffer::Unbind();
         }
 
-        FLK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        return true;
     }
 
-    void Renderer::ConfigureFrame(RenderPassConfig config) {
+    void Renderer::ConfigureFramebuffer(RenderConfig config) {
         auto [origin, aspect] = config.viewport;
 
-        // Hardcoded for now
         FLK_GL_CALL(glFrontFace(GL_CCW));
-        FLK_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
         FLK_GL_CALL(glViewport(origin.x, origin.y, aspect.x, aspect.y));
 
-        if (config.cullMode != CullMode::None) {
+        if (config.blend.enabled) {
+            FLK_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+        }
+
+        if (config.raster.cullMode != CullMode::None) {
             FLK_GL_CALL(glEnable(GL_CULL_FACE));
-            FLK_GL_CALL(glCullFace(ToGlType(config.cullMode)));
+            FLK_GL_CALL(glCullFace(ToGlType(config.raster.cullMode)));
         } else {
             FLK_GL_CALL(glDisable(GL_CULL_FACE));
         }
 
-        if (config.clearColor) {
-            const auto vec = config.clearColor->ToVector();
+        if (config.depth.enabled) {
+            FLK_GL_CALL(glEnable(GL_DEPTH_TEST));
+            FLK_GL_CALL(glDepthFunc(ToGlType(config.depth.func)));
+        } else {
+            FLK_GL_CALL(glDisable(GL_DEPTH_TEST));
+        }
+
+        if (config.clear.clearColor) {
+            const auto vec = config.clear.color.ToVector();
             FLK_GL_CALL(glClearColor(vec.x, vec.y, vec.z, 1.0F));
             FLK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
         }
 
-        FLK_GL_CALL(glDepthFunc(ToGlType(config.depthFunc)));
-
-        if (config.clearDepth) {
-            FLK_GL_CALL(glEnable(GL_DEPTH_TEST));
+        if (config.clear.clearDepth) {
+            FLK_GL_CALL(glClearDepth(config.clear.depth));
             FLK_GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
         } else {
             FLK_GL_CALL(glDisable(GL_DEPTH_TEST));
+        }
+
+        if (config.raster.fill) {
+            FLK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+        } else {
+            FLK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
+        }
+    }
+
+    void Renderer::SetMatrices(Pipeline &pipeline, const Transform &transform, const Camera &camera, const f32 aspectRatio) {
+        const Matrix4f model = transform.GetMatrix();
+        const Matrix4f view  = camera.GetViewMatrix();
+        const Matrix4f proj  = camera.GetProjMatrix(aspectRatio);
+
+        pipeline.SetUniform("uModel", model);
+        pipeline.SetUniform("uView", view);
+        pipeline.SetUniform("uProj", proj);
+    }
+
+    void Renderer::SetMaterialUniforms(Pipeline &pipeline, const MaterialProperties &material) {
+        pipeline.SetUniform("uColor", material.color);
+        pipeline.SetUniform("uMetallic", material.metallic);
+        pipeline.SetUniform("uRoughness", material.roughness);
+
+        if (material.colorMap) {
+            pipeline.SetUniform("uColorMap", material.colorMap.value());
+        }
+        if (material.metallicMap) {
+            pipeline.SetUniform("uMetallicMap", material.metallicMap.value());
+        }
+        if (material.roughnessMap) {
+            pipeline.SetUniform("uRoughnessMap", material.roughnessMap.value());
+        }
+    }
+
+    void Renderer::SetLightUniforms(Pipeline &pipeline, std::vector<Light> lights, const ShadowConfig config, const Vector3f shadowCenter) {
+        pipeline.SetUniform("uNumLights", static_cast<i32>(lights.size()));
+        i32 shadowIdx = 0;
+        for (usize i = 0; i < lights.size(); i++) {
+            const auto &[lightPosition, color, intensity, radius, hasShadows] = lights[i];
+
+            const f32 shadowAspect = static_cast<f32>(config.resolution.x) /
+                                     static_cast<f32>(config.resolution.y);
+
+            const Vector3f offset   = shadowCenter;
+            const Matrix4f spaceMat = lights[i].GetLightSpaceMatrix(config.range, shadowAspect, offset);
+
+            std::string idx = "[" + std::to_string(i) + "]";
+            pipeline.SetUniform("uLightPositions" + idx, lightPosition);
+            pipeline.SetUniform("uLightColors" + idx, color);
+            pipeline.SetUniform("uLightIntensities" + idx, intensity);
+            pipeline.SetUniform("uLightRadii" + idx, radius);
+            pipeline.SetUniform("uLightSpaceMatrices" + idx, spaceMat);
+
+            if (hasShadows) {
+                pipeline.SetUniform("uLightShadowMapIndices" + idx, shadowIdx);
+                shadowIdx++;
+            } else {
+                pipeline.SetUniform("uLightShadowMapIndices" + idx, -1);
+            }
         }
     }
 
@@ -258,89 +232,76 @@ void main() {
         return lights;
     }
 
-    void Renderer::GenerateShadowMaps(
-        const ShadowConfig                shadowConfig,
-        const std::vector<RenderCommand> &commands,
-        const std::vector<Light> &        lights,
-        const Vector3f                    offset
+    TextureArray Renderer::GenerateShadowMaps(
+        const RenderList &        commands,
+        const std::vector<Light> &lights,
+        const ShadowConfig        shadowConfig,
+        const Vector3f            shadowCenter
     ) {
-        m_LightShadowMapIndices.resize(lights.size());
-
-        std::vector<usize> lightIndices;
-        u32                counter = 0;
-        for (usize i = 0; i < lights.size(); i++) {
-            if (lights[i].hasShadows && lights[i].radius == 0.0F) {
-                m_LightShadowMapIndices[i] = counter;
-                lightIndices.push_back(i);
-                counter++;
-            } else {
-                m_LightShadowMapIndices[i] = ~0u;
+        std::vector<Light> shadowLights;
+        for (const auto &light: lights) {
+            if (light.hasShadows && light.radius == 0.0F) {
+                shadowLights.push_back(light);
             }
         }
 
-        m_ShadowMaps = TextureArray::Create(
-            counter,
-            shadowConfig.shadowMapResolution,
+        TextureArray shadowMaps = TextureArray::Create(
+            shadowLights.size(),
+            shadowConfig.resolution,
             {.format = TextureFormat::Depth}
         );
 
-        for (const usize idx: m_LightShadowMapIndices) {
-            GenerateShadowMap(commands, m_ShadowMaps, idx, lights[idx], offset, shadowConfig.shadowRange);
+        for (usize i = 0; i < shadowLights.size(); i++) {
+            GenerateShadowMap(commands, shadowMaps, i, shadowLights[i], shadowCenter, shadowConfig.range);
         }
+
+        return shadowMaps;
     }
 
     bool Renderer::GenerateShadowMap(
-        const std::vector<RenderCommand> &commands,
-        const TextureArray &              textureArray,
-        const u32                         index,
-        const Light &                     light,
-        const Vector3f                    offset,
-        const f32                         range
+        const RenderList &  commands,
+        const TextureArray &textureArray,
+        const u32           index,
+        const Light &       light,
+        const Vector3f      shadowCenter,
+        const f32           range
     ) {
         static Framebuffer framebuffer = Framebuffer::Create().value();
 
         if (!framebuffer.Attach(Attachment::Depth, textureArray, index)) {
-            Debug::LogErr("Shadow map: Failed to attach depth texture!");
+            Debug::LogErr("Renderer::GenerateShadowMap: Failed to attach depth texture!");
             return false;
         }
 
-        if (!framebuffer.Bind()) {
-            Debug::LogErr("Shadow map: Failed to bind framebuffer!");
+        if (!SetFramebuffer(framebuffer)) {
+            Debug::LogErr("Renderer::GenerateShadowMap: Failed to bind framebuffer!");
             return false;
         }
 
-        FLK_GL_CALL(glEnable(GL_CULL_FACE));
-        FLK_GL_CALL(glCullFace(GL_BACK));
-        FLK_GL_CALL(glFrontFace(GL_CCW));
+        const RenderConfig config = {
+            .viewport = {{0, 0}, {textureArray.GetSize().x, textureArray.GetSize().y}},
+            .clear    = {
+                .clearColor = false
+            }
+        };
 
-        FLK_GL_CALL(glEnable(GL_DEPTH_TEST));
-        FLK_GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
-        FLK_GL_CALL(glViewport(0, 0, textureArray.GetSize().x, textureArray.GetSize().y));
+        ConfigureFramebuffer(config);
 
-        const f32 aspectRatio = static_cast<f32>(textureArray.GetSize().x) / static_cast<f32>(textureArray.GetSize().y);
-
-        const Matrix4f spaceMat = light.GetLightSpaceMatrix(range, aspectRatio, offset);
+        const f32      aspectRatio = static_cast<f32>(textureArray.GetSize().x) / static_cast<f32>(textureArray.GetSize().y);
+        const Matrix4f spaceMat    = light.GetLightSpaceMatrix(range, aspectRatio, shadowCenter);
 
         static const Shader vert     = Shader::Create(VertexShader, s_DefaultVertShader).value();
         static const Shader frag     = Shader::Create(FragmentShader, s_DefaultFragShader).value();
         static Pipeline     pipeline = Pipeline::Create(vert, frag).value();
 
-        for (auto &[obj, trans, fill]: commands) {
-            const Matrix4f model =
-                    Matrix4f::Scale(trans.scale) *
-                    Matrix4f::Rotate(trans.rotation) *
-                    Matrix4f::Translate(trans.position);
+        for (auto &cmd: commands) {
+            const Matrix4f model = cmd.transform.GetMatrix();
 
             pipeline.SetUniform("uModel", model);
             pipeline.SetUniform("uView", Matrix4f{});
             pipeline.SetUniform("uProj", spaceMat);
-            pipeline.SetUniform("uColor", Color3u8::White());
 
-            if (fill) {
-                RenderMesh(obj->mesh, pipeline);
-            } else {
-                RenderMeshLines(obj->mesh, pipeline);
-            }
+            RenderMesh(cmd.mesh, pipeline);
         }
 
         Mesh::Unbind();
@@ -361,23 +322,6 @@ void main() {
             return false;
         }
 
-        FLK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
-        FLK_GL_CALL(glDrawElements(GL_TRIANGLES, mesh.GetIndexCount(), GL_UNSIGNED_INT, nullptr));
-        return true;
-    }
-
-    bool Renderer::RenderMeshLines(const Mesh &mesh, const Pipeline &pipeline) {
-        if (!pipeline.Bind()) {
-            Debug::LogErr("Render lines failed: Unable to bind pipeline!");
-            return false;
-        }
-
-        if (!mesh.Bind()) {
-            Debug::LogErr("Render lines failed: Unable to bind mesh!");
-            return false;
-        }
-
-        FLK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
         FLK_GL_CALL(glDrawElements(GL_TRIANGLES, mesh.GetIndexCount(), GL_UNSIGNED_INT, nullptr));
         return true;
     }
