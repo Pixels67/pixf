@@ -113,7 +113,7 @@ float calcShadow(int i, int shadowIdx, vec3 N, vec3 L)
     vec2 texelSize = 1.0 / vec2(textureSize(uShadowMaps, 0).xy);
 
     float sum = 0.0;
-    int r = 1;
+    int r = 3;
     for (int x = -r; x <= r; ++x)
     for (int y = -r; y <= r; ++y)
     {

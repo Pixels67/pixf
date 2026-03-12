@@ -35,7 +35,7 @@ namespace Flock::Graphics {
         bool     clearColor   = true;
         bool     clearDepth   = true;
         bool     clearStencil = false;
-        Color4u8 color        = {40, 80, 100, 255};
+        Color4u8 color        = {20, 20, 20, 255};
         f32      depth        = 1.0F;
         u32      stencil      = 0;
     };
@@ -62,7 +62,7 @@ namespace Flock::Graphics {
 
     struct ShadowConfig {
         bool     enabled    = true;
-        f32      range      = 50.0F;
+        f32      range      = 200.0F;
         Vector2u resolution = {4096, 4096};
     };
 

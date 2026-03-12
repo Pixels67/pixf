@@ -15,38 +15,39 @@ i32 main() {
         const auto &assets = world.GetResource<Asset::Assets>();
 
         assets.SetDefaultPipeline(Asset::PipelineType::Pbr, "../../../assets/shader.glsl");
-        assets.Load<Model>("../../../assets/FlightHelmet.gltf");
-        assets.Load<Model>("../../../assets/box.glb");
-        assets.Load<Model>("../../../assets/sphere.glb");
-
         assets.Get<Model>("../../../assets/box.glb").objects[0].material = {
             .colorMapPath = "../../../assets/Checkerboard.png"
         };
 
         assets.Get<Texture>("../../../assets/Checkerboard.png").Configure({
-            .filterMode = Nearest
+            //.filterMode = Nearest,
+            .wrapMode   = Clamp,
         });
 
         auto &reg = world.GetRegistry();
 
         world.GetResource<Camera>().projection         = Projection::Perspective;
-        world.GetResource<Camera>().transform.position = {0.0F, 2.0F, -12.0F};
-        reg.Create(
-            Transform{
-                .position = {0.0F, 5.0F, 0.0F},
-                .rotation = Quaternion::Euler(40.0F, 20.0F, 10.0F),
-                .scale    = Vector3f::One() * 5.0F
-            },
-            ModelRenderer{.modelPath = "../../../assets/FlightHelmet.gltf"},
-            Physics::BoxCollider({.position = {0.0F, 1.5F, 0.0F}}, Vector3f::One() * 0.2F + Vector3f::Up() * 0.1F),
-            Physics::RigidBody{.mass = 1.0F}
-        );
+        world.GetResource<Camera>().transform.position = {0.0F, -8.0F, -32.0F};
+
+        for (f32 i = -12.0F; i <= 12.0F; i += 4.0F) {
+            for (f32 j = -12.0F; j <= 12.0F; j += 4.0F) {
+                for (f32 k = -12.0F; k <= 12.0F; k += 4.0F) {
+                    reg.Create(
+                        Transform{
+                            .position = {i, j, k}
+                        },
+                        ModelRenderer{.modelPath = "../../../assets/box.glb"},
+                        Physics::BoxCollider{},
+                        Physics::RigidBody{.linearVelocity = {-i / 2, -j / 2, -k / 2}}
+                    );
+                }
+            }
+        }
 
         reg.Create(
             Transform{
-                .position = {0.0F, -0.5F, 0.0F},
-                .rotation = Quaternion::Euler(0.0F, 0.0F, 0.0F),
-                .scale    = {10.0F, 0.5F, 10.0F}
+                .position = {0.0F, -20.0F, 0.0F},
+                .scale    = {100.0F, 0.5F, 100.0F}
             },
             ModelRenderer{.modelPath = "../../../assets/box.glb"},
             Physics::BoxCollider{},
@@ -60,7 +61,9 @@ i32 main() {
         });
 
         world.GetResource<InputState>().cursorMode = CursorMode::Disabled;
-    }).AddSystem(Stage::Update, [&](World &world) {
+    });
+
+    app.AddSystem(Stage::Update, [&](World &world) {
         const f64 dt = world.GetResource<Time::TimeState>().deltaTime;
 
         auto &input = world.GetResource<InputState>();
@@ -108,5 +111,7 @@ i32 main() {
 
         cam.transform.rotation = Quaternion::Euler(pitchAngle, 0.0F, 0.0F);
         cam.transform.rotation *= Quaternion::Euler(0.0F, yawAngle, 0.0F);
-    }).Run();
+    });
+
+    app.Run();
 }
