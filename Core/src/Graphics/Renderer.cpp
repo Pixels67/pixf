@@ -66,9 +66,9 @@ void main() {
     Renderer &Renderer::Render(const RenderList &commands, const SceneData &scene, RenderConfig config, const ShadowConfig shadowConfig) {
         const auto     lights       = GetNearestLights(scene.lights, scene.camera.transform.position, s_MaxLightsPerObject);
         const Vector3f shadowCenter = scene.camera.transform.position;
-        TextureArray   shadowMaps;
+        ShadowData  shadowData;
         if (shadowConfig.enabled) {
-            shadowMaps = GenerateShadowMaps(commands, lights, shadowConfig, shadowCenter);
+            shadowData = GenerateShadowMaps(commands, lights, shadowConfig, shadowCenter);
         }
 
         SetFramebuffer(config.framebuffer);
@@ -90,12 +90,23 @@ void main() {
             pipeline.get().SetUniform("uAmbientIntensity", scene.ambientLight.intensity);
 
             SetMaterialUniforms(pipeline, mat);
-            SetLightUniforms(pipeline, lights, shadowConfig, shadowCenter);
+            SetLightUniforms(pipeline, lights);
 
-            if (shadowMaps.GetLayerCount() > 0) {
-                if (!pipeline.get().SetUniform("uShadowMaps", shadowMaps)) {
+            if (shadowData.shadowMaps.GetLayerCount() > 0) {
+                if (!pipeline.get().SetUniform("uShadowMaps", shadowData.shadowMaps)) {
                     Debug::LogErr("Render: Failed to upload shadow maps!");
                     return *this;
+                }
+
+                for (usize i = 0; i < shadowData.spaceMatrices.size(); i++) {
+                    std::string idx = "[" + std::to_string(i) + "]";
+                    pipeline.get().SetUniform("uLightSpaceMatrices" + idx, shadowData.spaceMatrices[i]);
+                }
+
+                pipeline.get().SetUniform("uShadowCascadeCount", static_cast<i32>(shadowConfig.cascadeRanges.size()));
+                for (usize i = 0; i < shadowConfig.cascadeRanges.size(); i++) {
+                    std::string idx = "[" + std::to_string(i) + "]";
+                    pipeline.get().SetUniform("uShadowCascadeRanges" + idx, shadowConfig.cascadeRanges[i]);
                 }
             }
 
@@ -192,24 +203,17 @@ void main() {
         }
     }
 
-    void Renderer::SetLightUniforms(Pipeline &pipeline, std::vector<Light> lights, const ShadowConfig config, const Vector3f shadowCenter) {
+    void Renderer::SetLightUniforms(Pipeline &pipeline, std::vector<Light> lights) {
         pipeline.SetUniform("uNumLights", static_cast<i32>(lights.size()));
         i32 shadowIdx = 0;
         for (usize i = 0; i < lights.size(); i++) {
             const auto &[lightPosition, color, intensity, radius, hasShadows] = lights[i];
-
-            const f32 shadowAspect = static_cast<f32>(config.resolution.x) /
-                                     static_cast<f32>(config.resolution.y);
-
-            const Vector3f offset   = shadowCenter;
-            const Matrix4f spaceMat = lights[i].GetLightSpaceMatrix(config.range, shadowAspect, offset);
 
             std::string idx = "[" + std::to_string(i) + "]";
             pipeline.SetUniform("uLightPositions" + idx, lightPosition);
             pipeline.SetUniform("uLightColors" + idx, color);
             pipeline.SetUniform("uLightIntensities" + idx, intensity);
             pipeline.SetUniform("uLightRadii" + idx, radius);
-            pipeline.SetUniform("uLightSpaceMatrices" + idx, spaceMat);
 
             if (hasShadows) {
                 pipeline.SetUniform("uLightShadowMapIndices" + idx, shadowIdx);
@@ -232,7 +236,7 @@ void main() {
         return lights;
     }
 
-    TextureArray Renderer::GenerateShadowMaps(
+    ShadowData Renderer::GenerateShadowMaps(
         const RenderList &        commands,
         const std::vector<Light> &lights,
         const ShadowConfig        shadowConfig,
@@ -245,17 +249,28 @@ void main() {
             }
         }
 
-        TextureArray shadowMaps = TextureArray::Create(
-            shadowLights.size(),
+        ShadowData data;
+
+        data.shadowMaps = TextureArray::Create(
+            shadowLights.size() * shadowConfig.cascadeRanges.size(),
             shadowConfig.resolution,
             {.format = TextureFormat::Depth}
         );
 
+        data.spaceMatrices.resize(shadowLights.size() * shadowConfig.cascadeRanges.size());
+
+        const f32 aspectRatio = static_cast<f32>(shadowConfig.resolution.x) / static_cast<f32>(shadowConfig.resolution.y);
         for (usize i = 0; i < shadowLights.size(); i++) {
-            GenerateShadowMap(commands, shadowMaps, i, shadowLights[i], shadowCenter, shadowConfig.range);
+            for (usize r = 0; r < shadowConfig.cascadeRanges.size(); r++) {
+                const f32 range = shadowConfig.cascadeRanges[r];
+                i32 idx = i * shadowConfig.cascadeRanges.size() + r;
+
+                GenerateShadowMap(commands, data.shadowMaps, idx, shadowLights[i], shadowCenter, range);
+                data.spaceMatrices[idx] = shadowLights[i].GetLightSpaceMatrix(range, aspectRatio, shadowCenter);
+            }
         }
 
-        return shadowMaps;
+        return data;
     }
 
     bool Renderer::GenerateShadowMap(

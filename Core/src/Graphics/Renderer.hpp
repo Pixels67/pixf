@@ -61,9 +61,14 @@ namespace Flock::Graphics {
     };
 
     struct ShadowConfig {
-        bool     enabled    = true;
-        f32      range      = 200.0F;
-        Vector2u resolution = {4096, 4096};
+        bool             enabled       = true;
+        Vector2u         resolution    = {2048, 2048};
+        std::vector<f32> cascadeRanges = {20.0F, 100.0F, 500.0F};
+    };
+
+    struct ShadowData {
+        TextureArray          shadowMaps;
+        std::vector<Matrix4f> spaceMatrices;
     };
 
     struct RenderConfig {
@@ -76,9 +81,9 @@ namespace Flock::Graphics {
     };
 
     struct MaterialProperties {
-        Color4u8               color        = Color4u8::White();
-        f32                    metallic     = 0.25F;
-        f32                    roughness    = 0.75F;
+        Color4u8             color        = Color4u8::White();
+        f32                  metallic     = 0.25F;
+        f32                  roughness    = 0.75F;
         OptionalRef<Texture> colorMap     = std::nullopt;
         OptionalRef<Texture> metallicMap  = std::nullopt;
         OptionalRef<Texture> roughnessMap = std::nullopt;
@@ -102,11 +107,11 @@ namespace Flock::Graphics {
         static void ConfigureFramebuffer(RenderConfig config);
         static void SetMatrices(Pipeline &pipeline, const Transform &transform, const Camera &camera, f32 aspectRatio);
         static void SetMaterialUniforms(Pipeline &pipeline, const MaterialProperties &material);
-        static void SetLightUniforms(Pipeline &pipeline, std::vector<Light> lights, ShadowConfig config, Vector3f shadowCenter);
+        static void SetLightUniforms(Pipeline &pipeline, std::vector<Light> lights);
 
         static std::vector<Light> GetNearestLights(std::vector<Light> lights, Vector3f center, usize count);
 
-        static TextureArray GenerateShadowMaps(
+        static ShadowData GenerateShadowMaps(
             const RenderList &        commands,
             const std::vector<Light> &lights,
             ShadowConfig              shadowConfig,

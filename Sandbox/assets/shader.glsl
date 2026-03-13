@@ -49,13 +49,19 @@ uniform float uAmbientIntensity;
 
 // --- Lights ---
 #define MAX_LIGHTS 16
+#define MAX_SHADOW_CASCADES 16
+
 uniform int uNumLights;
 uniform vec3 uLightPositions[MAX_LIGHTS];   // world-space pos, or direction if directional
 uniform vec3 uLightColors[MAX_LIGHTS];      // RGB color
 uniform float uLightIntensities[MAX_LIGHTS]; // scalar intensity
 uniform float uLightRadii[MAX_LIGHTS];       // 0 = directional, >0 = point light radius
+
 uniform mat4 uLightSpaceMatrices[MAX_LIGHTS];
 uniform int uLightShadowMapIndices[MAX_LIGHTS];
+
+uniform int uShadowCascadeCount;
+uniform float uShadowCascadeRanges[MAX_SHADOW_CASCADES];
 
 uniform sampler2DArrayShadow uShadowMaps;
 
@@ -95,9 +101,8 @@ vec3 F_Schlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
-float calcShadow(int i, int shadowIdx, vec3 N, vec3 L)
-{
-    vec4 fragPosLS = vec4(vWorldPos, 1.0) * uLightSpaceMatrices[i];
+float calcShadow(int layerIndex, vec3 N, vec3 L, int kernelScale) {
+    vec4 fragPosLS = vec4(vWorldPos, 1.0) * uLightSpaceMatrices[layerIndex];
     vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
     projCoords = projCoords * 0.5 + 0.5;
 
@@ -108,21 +113,20 @@ float calcShadow(int i, int shadowIdx, vec3 N, vec3 L)
 
     float current = projCoords.z;
     float NdotL = max(dot(N, L), 0.0);
-    float bias = max(0.005 * (1.0 - NdotL), 0.0005);
+    float bias = max(0.003 * (1.0 - NdotL), 0.0003);
 
     vec2 texelSize = 1.0 / vec2(textureSize(uShadowMaps, 0).xy);
 
+    int r = min(5, kernelScale);
+
     float sum = 0.0;
-    int r = 3;
     for (int x = -r; x <= r; ++x)
-    for (int y = -r; y <= r; ++y)
-    {
+    for (int y = -r; y <= r; ++y) {
         vec2 uv = projCoords.xy + vec2(x, y) * texelSize;
-        sum += texture(uShadowMaps, vec4(uv, float(shadowIdx), current - bias));
+        sum += texture(uShadowMaps, vec4(uv, float(layerIndex), current - bias));
     }
 
-    float visibility = sum / float((2 * r + 1) * (2 * r + 1));
-    return 1.0 - visibility;
+    return 1.0 - sum / float((2 * r + 1) * (2 * r + 1));
 }
 
 void main() {
@@ -155,7 +159,23 @@ void main() {
             if (uLightShadowMapIndices[i] == -1) {
                 shadow = 0.0;
             } else {
-                shadow = calcShadow(i, uLightShadowMapIndices[i], N, L);
+                int idx = uLightShadowMapIndices[i] * min(uShadowCascadeCount, MAX_SHADOW_CASCADES);
+                float dist = length(uCameraPosition - vWorldPos);
+                float maxDist = uShadowCascadeRanges[min(uShadowCascadeCount, MAX_SHADOW_CASCADES) - 1];
+
+                if (dist > maxDist) {
+                    shadow = 0.0;
+                } else {
+                    for (int j = 0; j < min(uShadowCascadeCount, MAX_SHADOW_CASCADES); j++) {
+                        if (dist <= uShadowCascadeRanges[j]) {
+                            break;
+                        }
+
+                        idx++;
+                    }
+
+                    shadow = calcShadow(idx, N, L, 1);
+                }
             }
         }
         else
