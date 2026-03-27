@@ -84,7 +84,7 @@ namespace Flock {
         void Prepare();
         void Extract();
 
-        void Render(Graphics::ShadowConfig shadowConfig);
+        void Render(const Graphics::ShadowConfig &shadowConfig);
         void RenderGizmos();
     };
 }

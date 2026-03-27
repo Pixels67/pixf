@@ -6,8 +6,6 @@
 #include "Math/Vector.hpp"
 
 namespace Flock::Graphics {
-    void FLK_API ConfigureTextureArray(TextureConfig config);
-
     class FLK_API TextureArray {
         u32           m_Id     = 0;
         u32           m_Layers = 0;

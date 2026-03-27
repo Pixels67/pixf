@@ -3,7 +3,7 @@
 namespace Flock::Graphics {
     static constexpr usize s_MaxLightsPerObject = 16;
 
-    static constexpr auto s_DefaultVertShader = R"(
+    static constexpr auto s_ShadowVertShader = R"(
 #version 330 core
 
 layout(location = 0) in vec3 aPosition;
@@ -19,7 +19,7 @@ void main() {
 }
 )";
 
-    static constexpr auto s_DefaultFragShader = R"(
+    static constexpr auto s_ShadowFragShader = R"(
 #version 330 core
 
 out vec4 FragColor;
@@ -28,6 +28,36 @@ uniform vec3 uColor;
 
 void main() {
     FragColor = vec4(uColor, 1.0);
+}
+)";
+
+    static constexpr auto s_SkyboxVertShader = R"(
+#version 330 core
+
+layout(location = 0) in vec3 aPosition;
+
+out vec3 vTexCoords;
+
+uniform mat4 uView;
+uniform mat4 uProj;
+
+void main() {
+    gl_Position = vec4(aPosition, 1.0) * uView * uProj;
+    vTexCoords = -aPosition;
+}
+)";
+
+    static constexpr auto s_SkyboxFragShader = R"(
+#version 330 core
+
+in vec3 vTexCoords;
+
+out vec4 FragColor;
+
+uniform samplerCube uSkybox;
+
+void main() {
+    FragColor = vec4(texture(uSkybox, vTexCoords));
 }
 )";
 
@@ -66,22 +96,27 @@ void main() {
     Renderer &Renderer::Render(const RenderList &commands, const SceneData &scene, RenderConfig config, const ShadowConfig shadowConfig) {
         const auto     lights       = GetNearestLights(scene.lights, scene.camera.transform.position, s_MaxLightsPerObject);
         const Vector3f shadowCenter = scene.camera.transform.position;
-        ShadowData  shadowData;
+        ShadowData     shadowData;
         if (shadowConfig.enabled) {
             shadowData = GenerateShadowMaps(commands, lights, shadowConfig, shadowCenter);
         }
 
+        auto      [origin, aspect] = config.viewport;
+        const f32 aspectRatio      = static_cast<f32>(aspect.x - origin.x) /
+                                static_cast<f32>(aspect.y - origin.y);
+
         SetFramebuffer(config.framebuffer);
+        ConfigureFramebuffer(config);
+
+        RenderSkybox(scene.skybox, scene.camera.transform.rotation.Inverse().ToMatrix(), scene.camera.GetProjMatrix(aspectRatio));
+
+        config.clear.clearColor = false;
         ConfigureFramebuffer(config);
 
         for (auto &cmd: commands) {
             auto &[mesh, pipeline, mat, trans] = cmd;
 
             pipeline.get().ResetUniforms();
-
-            auto      [origin, aspect] = config.viewport;
-            const f32 aspectRatio      = static_cast<f32>(aspect.x - origin.x) /
-                                    static_cast<f32>(aspect.y - origin.y);
 
             SetMatrices(pipeline, trans, scene.camera, aspectRatio);
 
@@ -109,6 +144,8 @@ void main() {
                     pipeline.get().SetUniform("uShadowCascadeRanges" + idx, shadowConfig.cascadeRanges[i]);
                 }
             }
+
+            pipeline.get().SetUniform("uSkybox", scene.skybox);
 
             RenderMesh(mesh, pipeline);
         }
@@ -263,7 +300,7 @@ void main() {
         for (usize i = 0; i < shadowLights.size(); i++) {
             for (usize r = 0; r < shadowConfig.cascadeRanges.size(); r++) {
                 const f32 range = shadowConfig.cascadeRanges[r];
-                i32 idx = i * shadowConfig.cascadeRanges.size() + r;
+                i32       idx   = i * shadowConfig.cascadeRanges.size() + r;
 
                 GenerateShadowMap(commands, data.shadowMaps, idx, shadowLights[i], shadowCenter, range);
                 data.spaceMatrices[idx] = shadowLights[i].GetLightSpaceMatrix(range, aspectRatio, shadowCenter);
@@ -305,8 +342,8 @@ void main() {
         const f32      aspectRatio = static_cast<f32>(textureArray.GetSize().x) / static_cast<f32>(textureArray.GetSize().y);
         const Matrix4f spaceMat    = light.GetLightSpaceMatrix(range, aspectRatio, shadowCenter);
 
-        static const Shader vert     = Shader::Create(VertexShader, s_DefaultVertShader).value();
-        static const Shader frag     = Shader::Create(FragmentShader, s_DefaultFragShader).value();
+        static const Shader vert     = Shader::Create(VertexShader, s_ShadowVertShader).value();
+        static const Shader frag     = Shader::Create(FragmentShader, s_ShadowFragShader).value();
         static Pipeline     pipeline = Pipeline::Create(vert, frag).value();
 
         for (auto &cmd: commands) {
@@ -339,5 +376,19 @@ void main() {
 
         FLK_GL_CALL(glDrawElements(GL_TRIANGLES, mesh.GetIndexCount(), GL_UNSIGNED_INT, nullptr));
         return true;
+    }
+
+    bool Renderer::RenderSkybox(const CubeMap &cubeMap, const Matrix4f &view, const Matrix4f &proj) {
+        const Mesh cube = Mesh::Box(Vector3f::One());
+
+        static const Shader vert     = Shader::Create(VertexShader, s_SkyboxVertShader).value();
+        static const Shader frag     = Shader::Create(FragmentShader, s_SkyboxFragShader).value();
+        static Pipeline     pipeline = Pipeline::Create(vert, frag).value();
+
+        pipeline.SetUniform("uSkybox", cubeMap);
+        pipeline.SetUniform("uView", view);
+        pipeline.SetUniform("uProj", proj);
+
+        return RenderMesh(cube, pipeline);
     }
 }

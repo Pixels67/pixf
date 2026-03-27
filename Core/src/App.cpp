@@ -3,6 +3,7 @@
 #include "Asset/Assets.hpp"
 #include "Audio/AudioSource.hpp"
 #include "Graphics/ModelRenderer.hpp"
+#include "Graphics/Skybox.hpp"
 #include "Input/Input.hpp"
 #include "Math/Transform.hpp"
 #include "Serial/JsonArchive.hpp"
@@ -57,6 +58,7 @@ namespace Flock {
         m_World.InsertResource<Input::InputState>();
         m_World.InsertResource<Graphics::Camera>();
         m_World.InsertResource<Graphics::AmbientLight>();
+        m_World.InsertResource<Graphics::Skybox>();
         m_World.InsertResource<Audio::AudioListener>();
         m_World.InsertResource<Asset::Assets>({m_Services.assetLoader});
 
@@ -154,7 +156,7 @@ namespace Flock {
         }
     }
 
-    void App::Render(const Graphics::ShadowConfig shadowConfig) {
+    void App::Render(const Graphics::ShadowConfig &shadowConfig) {
         using namespace Graphics;
 
         const Camera       camera = m_World.GetResource<Camera>();
@@ -173,11 +175,19 @@ namespace Flock {
         });
 
         const AmbientLight ambient = m_World.GetResource<AmbientLight>();
+        const Skybox       skybox  = m_World.GetResource<Skybox>();
+
+        CubeMap      ambientSkybox = CubeMap::SingleColor(Color4u8{ambient.color});
+        Ref<CubeMap> cubeMap       = ambientSkybox;
+        if (skybox.filePath != "" && m_Services.assetLoader.Get<CubeMap>(skybox.filePath)) {
+            cubeMap = m_Services.assetLoader.Get<CubeMap>(skybox.filePath)->get();
+        }
 
         const SceneData scene = {
             .camera       = camera,
             .lights       = lights,
             .ambientLight = ambient,
+            .skybox       = cubeMap
         };
 
         RenderList commands;
@@ -219,58 +229,5 @@ namespace Flock {
 
         const Rect2u viewport = {{0, 0}, m_Services.window.GetSize()};
         m_Services.renderer.Render(commands, scene, {.viewport = viewport}, shadowConfig);
-    }
-
-    void App::RenderGizmos() {
-        using namespace Graphics;
-
-        const Camera       camera   = m_World.GetResource<Camera>();
-        const Rect2u       viewport = {{0, 0}, m_Services.window.GetSize()};
-        const AmbientLight ambient  = {
-            .color     = Color3u8::Green(),
-            .intensity = 1.0F
-        };
-
-        SceneData scene = {
-            .camera       = camera,
-            .ambientLight = ambient,
-        };
-
-        std::vector<Mesh>      meshes;
-        std::vector<Transform> transforms;
-        RenderList             renderList;
-        m_World.GetRegistry().ForEach<Physics::BoxCollider, Transform>(
-            [&](const Physics::BoxCollider &collider, const Transform &transform) {
-                Transform trans;
-                trans.position = transform.position + collider.transform.position * transform.rotation;
-                trans.rotation = transform.rotation * collider.transform.rotation;
-                trans.scale    = transform.scale;
-
-                meshes.push_back(Mesh::Box(collider.halfExtents));
-                transforms.push_back(trans);
-            });
-
-        RenderList commands;
-        for (usize i = 0; i < meshes.size(); i++) {
-            commands.push_back({
-                .mesh      = meshes[i],
-                .pipeline  = m_Services.assetLoader.Get<Pipeline>("@PBR").value(),
-                .transform = transforms[i],
-            });
-        }
-
-        RenderConfig config = {
-            .viewport = viewport,
-            .clear    = {
-                .clearColor = false,
-                .clearDepth = false,
-            },
-            .raster = {
-                .cullMode = CullMode::Front,
-                .fill     = false,
-            }
-        };
-
-        m_Services.renderer.Render(commands, scene, config, {.enabled = false, .resolution = {0, 0}});
     }
 }

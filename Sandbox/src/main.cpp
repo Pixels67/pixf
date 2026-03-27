@@ -1,4 +1,5 @@
 #include "Flock.hpp"
+#include "Graphics/Skybox.hpp"
 
 using namespace Flock;
 using namespace Flock::Ecs;
@@ -28,13 +29,23 @@ i32 main() {
         world.GetResource<Camera>().projection         = Projection::Perspective;
         world.GetResource<Camera>().transform.position = {0.0F, -8.0F, -32.0F};
 
-        reg.Create(
-            Transform{
-                .position = {0.0F, -20.0F, 0.0F},
-                .scale = Vector3f::One() * 20.0F
-            },
-            ModelRenderer{.modelPath = "../../../assets/dragon1.ply"}
-        );
+        world.GetResource<AmbientLight>().color = {20, 20, 20};
+        world.GetResource<Skybox>().filePath = "../../../assets/sky.png";
+
+        for (f32 i = -12.0F; i <= 12.0F; i += 4.0F) {
+            for (f32 j = -12.0F; j <= 12.0F; j += 4.0F) {
+                for (f32 k = -12.0F; k <= 12.0F; k += 4.0F) {
+                    reg.Create(
+                        Transform{
+                            .position = {i, j, k}
+                        },
+                        ModelRenderer{.modelPath = "../../../assets/box.glb"},
+                        Physics::BoxCollider{},
+                        Physics::RigidBody{.linearVelocity = {-i / 2, -j / 2, -k / 2}}
+                    );
+                }
+            }
+        }
 
         reg.Create(
             Transform{

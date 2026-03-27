@@ -46,7 +46,7 @@ namespace Flock::Graphics {
     }
 
     struct FLK_API AmbientLight {
-        Color3u8 color     = {20, 20, 20};
+        Color3u8 color     = {150, 180, 210};
         f32      intensity = 0.05F;
     };
 

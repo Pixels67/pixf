@@ -57,22 +57,22 @@ namespace Flock::Graphics {
         }
     }
 
-    void ConfigureTexture2D(const TextureConfig config) {
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, config.GetGlWrap()));
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, config.GetGlWrap()));
+    void ConfigureTexture(const u32 glTexture, const TextureConfig config) {
+        FLK_GL_CALL(glTexParameteri(glTexture, GL_TEXTURE_WRAP_S, config.GetGlWrap()));
+        FLK_GL_CALL(glTexParameteri(glTexture, GL_TEXTURE_WRAP_T, config.GetGlWrap()));
 
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, config.GetGlMinFilter()));
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, config.GetGlMagFilter()));
+        FLK_GL_CALL(glTexParameteri(glTexture, GL_TEXTURE_MIN_FILTER, config.GetGlMinFilter()));
+        FLK_GL_CALL(glTexParameteri(glTexture, GL_TEXTURE_MAG_FILTER, config.GetGlMagFilter()));
 
         if (config.generateMipmaps && (!config.format || config.format.value() != TextureFormat::Depth)) {
-            FLK_GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
+            FLK_GL_CALL(glGenerateMipmap(glTexture));
         }
 
         if (config.format && config.format.value() == TextureFormat::Depth) {
-            FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-            FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-            FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE));
-            FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL));
+            FLK_GL_CALL(glTexParameteri(glTexture, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+            FLK_GL_CALL(glTexParameteri(glTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+            FLK_GL_CALL(glTexParameteri(glTexture, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE));
+            FLK_GL_CALL(glTexParameteri(glTexture, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL));
         }
     }
 
@@ -106,7 +106,7 @@ namespace Flock::Graphics {
                 image.data.Get())
         );
 
-        ConfigureTexture2D(config);
+        ConfigureTexture(GL_TEXTURE_2D, config);
 
         FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
         FLK_GL_CALL(glActiveTexture(activeUnit));
@@ -149,7 +149,7 @@ namespace Flock::Graphics {
                 nullptr)
         );
 
-        ConfigureTexture2D(config);
+        ConfigureTexture(GL_TEXTURE_2D, config);
 
         FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
         FLK_GL_CALL(glActiveTexture(activeUnit));
@@ -218,7 +218,7 @@ namespace Flock::Graphics {
         FLK_GL_CALL(glActiveTexture(GL_TEXTURE0));
         FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D, m_Id));
 
-        ConfigureTexture2D(config);
+        ConfigureTexture(GL_TEXTURE_2D, config);
 
         FLK_GL_CALL(glActiveTexture(activeUnit));
         FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D, boundTexture));

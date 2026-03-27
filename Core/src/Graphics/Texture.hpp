@@ -69,7 +69,7 @@ namespace Flock::Graphics {
         [[nodiscard]] u32 GetGlMagFilter() const;
     };
 
-    void FLK_API ConfigureTexture2D(TextureConfig config);
+    void ConfigureTexture(u32 glTexture, TextureConfig config);
 
     /**
      * @class Texture

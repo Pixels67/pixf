@@ -2,6 +2,7 @@
 #define FLK_PIPELINE_HPP
 
 #include "Common.hpp"
+#include "CubeMap.hpp"
 #include "Shader.hpp"
 #include "Texture.hpp"
 #include "TextureArray.hpp"
@@ -159,6 +160,14 @@ namespace Flock::Graphics {
          * @return true if successful; false otherwise.
          */
         bool SetUniform(const std::string &name, const Texture &value) const;
+
+        /**
+         * @brief Sets a cube map (samplerCube) uniform.
+         * @param name The uniform name.
+         * @param value The uniform value to set.
+         * @return true if successful; false otherwise.
+         */
+        bool SetUniform(const std::string &name, const CubeMap &value) const;
 
         /**
          * @brief Sets a 2D texture array (sampler2DArray) uniform.

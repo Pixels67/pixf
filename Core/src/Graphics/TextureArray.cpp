@@ -1,33 +1,14 @@
 #include "TextureArray.hpp"
 
 namespace Flock::Graphics {
-    void ConfigureTextureArray(TextureConfig config) {
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, config.GetGlWrap()));
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, config.GetGlWrap()));
-
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, config.GetGlMinFilter()));
-        FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, config.GetGlMagFilter()));
-
-        if (config.generateMipmaps && (!config.format || config.format.value() != TextureFormat::Depth)) {
-            FLK_GL_CALL(glGenerateMipmap(GL_TEXTURE_2D_ARRAY));
-        }
-
-        if (config.format && config.format.value() == TextureFormat::Depth) {
-            FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-            FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-            FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE));
-            FLK_GL_CALL(glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL));
-        }
-    }
-
     TextureArray TextureArray::Create(const usize layers, const Vector2u size, const TextureConfig config) {
         TextureArray texArr;
         texArr.m_Layers = layers;
         texArr.m_Config = config;
         texArr.m_Size   = size;
 
-        glGenTextures(1, &texArr.m_Id);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, texArr.m_Id);
+        FLK_GL_CALL(glGenTextures(1, &texArr.m_Id));
+        FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, texArr.m_Id));
 
         u32 varType = GL_UNSIGNED_BYTE;
         u32 format  = GL_RGBA;
@@ -38,20 +19,20 @@ namespace Flock::Graphics {
             }
         }
 
-        glTexImage3D(
+        FLK_GL_CALL(glTexImage3D(
             GL_TEXTURE_2D_ARRAY,
             0,
-            GL_DEPTH_COMPONENT32F,
+            format,
             size.x,
             size.y,
             layers,
             0,
-            GL_DEPTH_COMPONENT,
-            GL_FLOAT,
+            format,
+            varType,
             nullptr
-        );
+        ));
 
-        ConfigureTextureArray(config);
+        ConfigureTexture(GL_TEXTURE_2D_ARRAY, config);
 
         return texArr;
     }

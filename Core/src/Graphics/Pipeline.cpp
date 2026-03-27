@@ -124,6 +124,20 @@ namespace Flock::Graphics {
         return value.Bind();
     }
 
+    bool Pipeline::SetUniform(const std::string &name, const CubeMap &value) const {
+        if (m_Id == 0 || !m_Samplers.contains(name)) {
+            return false;
+        }
+
+        if (m_Samplers.at(name).glType != GL_SAMPLER_CUBE &&
+            m_Samplers.at(name).glType != GL_SAMPLER_CUBE_SHADOW) {
+            return false;
+            }
+
+        Texture::SetActiveUnit(m_Samplers.at(name).unit);
+        return value.Bind();
+    }
+
     bool Pipeline::SetUniform(const std::string &name, const TextureArray &value) const {
         if (m_Id == 0 || !m_Samplers.contains(name)) {
             return false;
@@ -190,7 +204,7 @@ namespace Flock::Graphics {
             FLK_GL_CALL(glGetActiveUniform(m_Id, i, sizeof(name), &length, &size, &type, name));
 
             if (type == GL_SAMPLER_2D || type == GL_SAMPLER_2D_SHADOW || type == GL_SAMPLER_2D_ARRAY || type ==
-                GL_SAMPLER_2D_ARRAY_SHADOW) {
+                GL_SAMPLER_2D_ARRAY_SHADOW || type == GL_SAMPLER_CUBE || type == GL_SAMPLER_CUBE_SHADOW) {
                 std::string uniformName = name;
 
                 if (uniformName.ends_with("[0]")) {

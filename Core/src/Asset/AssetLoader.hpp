@@ -240,6 +240,24 @@ namespace Flock::Asset {
     };
 
     template<>
+    struct Loader<Graphics::CubeMap> {
+        static std::optional<Graphics::CubeMap> Load(AssetLoader &, const std::filesystem::path &filePath) {
+            const std::string str = filePath.string();
+            const std::string ext = str.substr(str.find_last_of('.'));
+            const std::string name = str.substr(0, str.find_last_of('.'));
+
+            return Graphics::CubeMap::FromImages(
+                FileIo::ReadImage(name + "_right" + ext),
+                FileIo::ReadImage(name + "_left" + ext),
+                FileIo::ReadImage(name + "_up" + ext),
+                FileIo::ReadImage(name + "_down" + ext),
+                FileIo::ReadImage(name + "_forward" + ext),
+                FileIo::ReadImage(name + "_back" + ext)
+            );
+        }
+    };
+
+    template<>
     struct Loader<Audio::AudioClip> {
         static std::optional<Audio::AudioClip> Load(AssetLoader &, const std::filesystem::path &filePath) {
             return FileIo::LoadAudioClip(filePath);

@@ -161,6 +161,9 @@ set(PROJECT_SOURCES
         src/Physics/PhysicsEngine.cpp
         src/Physics/PhysicsEngine.hpp
         src/Asset/Assets.hpp
+        src/Graphics/CubeMap.cpp
+        src/Graphics/CubeMap.hpp
+        src/Graphics/Skybox.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

@@ -47,6 +47,21 @@ namespace Flock::Graphics {
                 .format = ImageFormat::Rgba,
             };
         }
+
+        static Image SingleColor(const Vector2u size, const Color4u8 color) {
+            const u32 packed = (static_cast<u32>(color.a) << 24 |
+                                static_cast<u32>(color.b) << 16 |
+                                static_cast<u32>(color.g) << 8 |
+                                static_cast<u32>(color.r));
+
+            const std::vector bytes(size.x * size.y, packed);
+
+            return {
+                .data   = Memory::Buffer(bytes.data(), bytes.size() * 4),
+                .size   = size,
+                .format = ImageFormat::Rgba,
+            };
+        }
     };
 }
 

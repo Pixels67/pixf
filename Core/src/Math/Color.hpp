@@ -78,6 +78,12 @@ namespace Flock {
         explicit Color4(T s) : r(s), g(s), b(s), a(s) {
         }
 
+        explicit Color4(Color3<T> c) : r(c.r), g(c.g), b(c.b), a(1) {
+        }
+
+        explicit Color4(Color3<T> c, T a) : r(c.r), g(c.g), b(c.b), a(a) {
+        }
+
         template<typename U>
         Color4(const Color4<U> &other) : r(static_cast<T>(other.r)), g(static_cast<T>(other.g)),
                                          b(static_cast<T>(other.b)),

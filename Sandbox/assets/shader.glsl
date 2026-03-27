@@ -68,6 +68,8 @@ uniform sampler2DArrayShadow uShadowMaps;
 // --- Camera ---
 uniform vec3 uCameraPosition;
 
+uniform samplerCube uSkybox;
+
 // -------------------------------------------------------
 const float PI = 3.14159265359;
 
@@ -106,14 +108,13 @@ float calcShadow(int layerIndex, vec3 N, vec3 L, int kernelScale) {
     vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
     projCoords = projCoords * 0.5 + 0.5;
 
-    if (projCoords.x < 0.0 || projCoords.x > 1.0 ||
-    projCoords.y < 0.0 || projCoords.y > 1.0 ||
-    projCoords.z > 1.0)
-    return 0.0;
+    if (projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0 || projCoords.z > 1.0) {
+        return 0.0;
+    }
 
     float current = projCoords.z;
     float NdotL = max(dot(N, L), 0.0);
-    float bias = max(0.003 * (1.0 - NdotL), 0.0003);
+    float bias = max(0.005 * (1.0 - NdotL), 0.0005);
 
     vec2 texelSize = 1.0 / vec2(textureSize(uShadowMaps, 0).xy);
 

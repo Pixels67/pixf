@@ -35,7 +35,7 @@ namespace Flock::Graphics {
         bool     clearColor   = true;
         bool     clearDepth   = true;
         bool     clearStencil = false;
-        Color4u8 color        = {20, 20, 20, 255};
+        Color4u8 color        = {20, 40, 100, 255};
         f32      depth        = 1.0F;
         u32      stencil      = 0;
     };
@@ -58,6 +58,7 @@ namespace Flock::Graphics {
         Camera             camera       = {};
         std::vector<Light> lights       = {};
         AmbientLight       ambientLight = {};
+        Ref<CubeMap>       skybox;
     };
 
     struct ShadowConfig {
@@ -128,6 +129,7 @@ namespace Flock::Graphics {
         );
 
         static bool RenderMesh(const Mesh &mesh, const Pipeline &pipeline);
+        static bool RenderSkybox(const CubeMap &cubeMap, const Matrix4f &view, const Matrix4f &proj);
     };
 }
 
