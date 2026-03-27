@@ -12,9 +12,9 @@ namespace Flock::Graphics {
     };
 
     struct FLK_API Camera {
-        RigidTransform transform;
+        RigidTransform transform  = {};
         Projection     projection = Projection::Orthographic;
-        f32            size       = 1.0F;
+        f32            size       = 5.0F;
         f32            fovY       = 60.0F;
         f32            nearZ      = 0.1F;
         f32            farZ       = 1000.0F;

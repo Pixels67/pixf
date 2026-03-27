@@ -24,6 +24,24 @@ namespace Flock::Graphics {
         return mesh;
     }
 
+    Mesh Mesh::Square(const Vector2f halfExtents) {
+        const Vector2f h = halfExtents;
+
+        const std::vector<Vertex> vertices = {
+            {Vector3f{-h.x, -h.y, 0}, {0, 0, 1}, {0, 0}, {1, 0, 0}, {0, 1, 0}},
+            {Vector3f{h.x, -h.y, 0}, {0, 0, 1}, {1, 0}, {1, 0, 0}, {0, 1, 0}},
+            {Vector3f{h.x, h.y, 0}, {0, 0, 1}, {1, 1}, {1, 0, 0}, {0, 1, 0}},
+            {Vector3f{-h.x, h.y, 0}, {0, 0, 1}, {0, 1}, {1, 0, 0}, {0, 1, 0}},
+        };
+
+
+        const std::vector<uint32_t> indices = {
+            0, 1, 2, 2, 3, 0
+        };
+
+        return Create({.vertices = vertices, .indices = indices}).value();
+    }
+
     Mesh Mesh::Box(const Vector3f halfExtents) {
         const Vector3f h = halfExtents;
 

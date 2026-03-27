@@ -242,6 +242,10 @@ namespace Flock::Asset {
     template<>
     struct Loader<Graphics::CubeMap> {
         static std::optional<Graphics::CubeMap> Load(AssetLoader &, const std::filesystem::path &filePath) {
+            if (filePath.empty()) {
+                return std::nullopt;
+            }
+
             const std::string str = filePath.string();
             const std::string ext = str.substr(str.find_last_of('.'));
             const std::string name = str.substr(0, str.find_last_of('.'));

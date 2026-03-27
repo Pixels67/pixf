@@ -4,6 +4,7 @@
 #include "Audio/AudioSource.hpp"
 #include "Graphics/ModelRenderer.hpp"
 #include "Graphics/Skybox.hpp"
+#include "Graphics/SpriteRenderer.hpp"
 #include "Input/Input.hpp"
 #include "Math/Transform.hpp"
 #include "Serial/JsonArchive.hpp"
@@ -177,13 +178,12 @@ namespace Flock {
         const AmbientLight ambient = m_World.GetResource<AmbientLight>();
         const Skybox       skybox  = m_World.GetResource<Skybox>();
 
-        CubeMap      ambientSkybox = CubeMap::SingleColor(Color4u8{ambient.color});
-        Ref<CubeMap> cubeMap       = ambientSkybox;
-        if (skybox.filePath != "" && m_Services.assetLoader.Get<CubeMap>(skybox.filePath)) {
+        OptionalRef<CubeMap> cubeMap = std::nullopt;
+        if (m_Services.assetLoader.Get<CubeMap>(skybox.filePath) && camera.projection == Projection::Perspective) {
             cubeMap = m_Services.assetLoader.Get<CubeMap>(skybox.filePath)->get();
         }
 
-        const SceneData scene = {
+        SceneData scene = {
             .camera       = camera,
             .lights       = lights,
             .ambientLight = ambient,
@@ -228,6 +228,53 @@ namespace Flock {
         });
 
         const Rect2u viewport = {{0, 0}, m_Services.window.GetSize()};
-        m_Services.renderer.Render(commands, scene, {.viewport = viewport}, shadowConfig);
+        m_Services.renderer.Render(
+            commands,
+            scene,
+            {
+                .viewport = viewport,
+                .clear    = ClearState{.color = Color4u8{ambient.color}}
+            },
+            shadowConfig
+        );
+
+        commands.clear();
+
+        Mesh square = Mesh::Square();
+        auto unlit  = m_Services.assetLoader.Get<Pipeline>("@Unlit");
+        if (!unlit) {
+            Debug::LogWrn("App::Render: Unlit pipeline not assigned, 2D objects won't be rendered.");
+        } else {
+            m_World.GetRegistry().ForEach<SpriteRenderer, Transform>([&](const SpriteRenderer &renderer, const Transform &transform) {
+                MaterialProperties props = {
+                    .color     = Color4u8::White(),
+                    .metallic  = 0.0F,
+                    .roughness = 1.0F,
+                };
+
+                const auto result = m_Services.assetLoader.Get<Texture>(renderer.spritePath);
+                if (result.has_value()) {
+                    Texture &sprite = result.value();
+                    props.colorMap  = sprite;
+                }
+
+                commands.push_back({
+                    .mesh               = square,
+                    .pipeline           = unlit->get(),
+                    .materialProperties = props,
+                    .transform          = transform,
+                });
+            });
+        }
+
+        scene.skybox = std::nullopt;
+        m_Services.renderer.Render(
+            commands,
+            scene,
+            {
+                .viewport = viewport, .clear = ClearState{.clearColor = false, .clearDepth = false}
+            },
+            {.enabled = false}
+        );
     }
 }

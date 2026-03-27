@@ -38,6 +38,13 @@ namespace Flock::Graphics {
 
         /**
          * @brief Static factory method.
+         * @param halfExtents The half extents of the square.
+         * @return A newly created square mesh.
+         */
+        static Mesh Square(Vector2f halfExtents = Vector2f::One());
+
+        /**
+         * @brief Static factory method.
          * @param halfExtents The half extents of the box.
          * @return A newly created box mesh.
          */

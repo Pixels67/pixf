@@ -68,8 +68,6 @@ uniform sampler2DArrayShadow uShadowMaps;
 // --- Camera ---
 uniform vec3 uCameraPosition;
 
-uniform samplerCube uSkybox;
-
 // -------------------------------------------------------
 const float PI = 3.14159265359;
 

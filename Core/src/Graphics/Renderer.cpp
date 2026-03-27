@@ -102,13 +102,18 @@ void main() {
         }
 
         auto      [origin, aspect] = config.viewport;
-        const f32 aspectRatio      = static_cast<f32>(aspect.x - origin.x) /
-                                static_cast<f32>(aspect.y - origin.y);
+        const f32 aspectRatio      = static_cast<f32>(aspect.x - origin.x) / static_cast<f32>(aspect.y - origin.y);
 
         SetFramebuffer(config.framebuffer);
         ConfigureFramebuffer(config);
 
-        RenderSkybox(scene.skybox, scene.camera.transform.rotation.Inverse().ToMatrix(), scene.camera.GetProjMatrix(aspectRatio));
+        if (scene.skybox) {
+            RenderSkybox(
+                scene.skybox->get(),
+                scene.camera.transform.rotation.Inverse().ToMatrix(),
+                scene.camera.GetProjMatrix(aspectRatio)
+            );
+        }
 
         config.clear.clearColor = false;
         ConfigureFramebuffer(config);
@@ -125,7 +130,7 @@ void main() {
             pipeline.get().SetUniform("uAmbientIntensity", scene.ambientLight.intensity);
 
             SetMaterialUniforms(pipeline, mat);
-            SetLightUniforms(pipeline, lights);
+            SetLightUniforms(pipeline, lights, shadowConfig.enabled);
 
             if (shadowData.shadowMaps.GetLayerCount() > 0) {
                 if (!pipeline.get().SetUniform("uShadowMaps", shadowData.shadowMaps)) {
@@ -145,7 +150,9 @@ void main() {
                 }
             }
 
-            pipeline.get().SetUniform("uSkybox", scene.skybox);
+            if (scene.skybox) {
+                pipeline.get().SetUniform("uSkybox", scene.skybox->get());
+            }
 
             RenderMesh(mesh, pipeline);
         }
@@ -240,7 +247,7 @@ void main() {
         }
     }
 
-    void Renderer::SetLightUniforms(Pipeline &pipeline, std::vector<Light> lights) {
+    void Renderer::SetLightUniforms(Pipeline &pipeline, std::vector<Light> lights, bool shadowsEnabled) {
         pipeline.SetUniform("uNumLights", static_cast<i32>(lights.size()));
         i32 shadowIdx = 0;
         for (usize i = 0; i < lights.size(); i++) {
@@ -252,7 +259,7 @@ void main() {
             pipeline.SetUniform("uLightIntensities" + idx, intensity);
             pipeline.SetUniform("uLightRadii" + idx, radius);
 
-            if (hasShadows) {
+            if (hasShadows && shadowsEnabled) {
                 pipeline.SetUniform("uLightShadowMapIndices" + idx, shadowIdx);
                 shadowIdx++;
             } else {

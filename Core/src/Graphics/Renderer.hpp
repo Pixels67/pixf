@@ -35,7 +35,7 @@ namespace Flock::Graphics {
         bool     clearColor   = true;
         bool     clearDepth   = true;
         bool     clearStencil = false;
-        Color4u8 color        = {20, 40, 100, 255};
+        Color4u8 color        = {20, 20, 20, 255};
         f32      depth        = 1.0F;
         u32      stencil      = 0;
     };
@@ -55,10 +55,10 @@ namespace Flock::Graphics {
     };
 
     struct SceneData {
-        Camera             camera       = {};
-        std::vector<Light> lights       = {};
-        AmbientLight       ambientLight = {};
-        Ref<CubeMap>       skybox;
+        Camera               camera       = {};
+        std::vector<Light>   lights       = {};
+        AmbientLight         ambientLight = {};
+        OptionalRef<CubeMap> skybox       = std::nullopt;
     };
 
     struct ShadowConfig {
@@ -108,7 +108,7 @@ namespace Flock::Graphics {
         static void ConfigureFramebuffer(RenderConfig config);
         static void SetMatrices(Pipeline &pipeline, const Transform &transform, const Camera &camera, f32 aspectRatio);
         static void SetMaterialUniforms(Pipeline &pipeline, const MaterialProperties &material);
-        static void SetLightUniforms(Pipeline &pipeline, std::vector<Light> lights);
+        static void SetLightUniforms(Pipeline &pipeline, std::vector<Light> lights, bool shadowsEnabled);
 
         static std::vector<Light> GetNearestLights(std::vector<Light> lights, Vector3f center, usize count);
 
