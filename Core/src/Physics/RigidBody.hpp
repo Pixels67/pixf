@@ -5,7 +5,7 @@
 #include "Reflect.hpp"
 
 namespace Flock::Physics {
-    namespace rp3d = reactphysics3d;
+    namespace rp = reactphysics3d;
 
     enum class SimulationMode {
         None,
@@ -14,14 +14,14 @@ namespace Flock::Physics {
         Static
     };
 
-    inline rp3d::BodyType ToRp3dType(const SimulationMode mode) {
+    inline rp::BodyType ToRp3dType(const SimulationMode mode) {
         switch (mode) {
             case SimulationMode::Dynamic:
-                return rp3d::BodyType::DYNAMIC;
+                return rp::BodyType::DYNAMIC;
             case SimulationMode::Kinematic:
-                return rp3d::BodyType::KINEMATIC;
+                return rp::BodyType::KINEMATIC;
             case SimulationMode::Static:
-                return rp3d::BodyType::STATIC;
+                return rp::BodyType::STATIC;
             default:
                 FLK_ASSERT(false);
         }

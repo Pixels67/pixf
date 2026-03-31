@@ -76,8 +76,7 @@ namespace Flock {
             Extract();
 
             // Render
-            Render(m_Config.shadowConfig);
-            //RenderGizmos();
+            Render();
 
             // Finish
             m_Services.window.SwapBuffers();
@@ -157,7 +156,7 @@ namespace Flock {
         }
     }
 
-    void App::Render(const Graphics::ShadowConfig &shadowConfig) {
+    void App::Render() {
         using namespace Graphics;
 
         const Camera       camera = m_World.GetResource<Camera>();
@@ -235,7 +234,7 @@ namespace Flock {
                 .viewport = viewport,
                 .clear    = ClearState{.color = Color4u8{ambient.color}}
             },
-            shadowConfig
+            m_Config.shadowConfig
         );
 
         commands.clear();

@@ -9,7 +9,7 @@
 #include "Math/Transform.hpp"
 
 namespace Flock::Physics {
-    namespace rp3d = reactphysics3d;
+    namespace rp = reactphysics3d;
 
     struct FLK_API PhysicsObject {
         Transform *transform = nullptr;
@@ -18,10 +18,10 @@ namespace Flock::Physics {
     };
 
     class FLK_API PhysicsEngine {
-        std::unique_ptr<rp3d::PhysicsCommon> m_Common = nullptr;
-        rp3d::PhysicsWorld *                 m_World  = nullptr;
+        std::unique_ptr<rp::PhysicsCommon> m_Common = nullptr;
+        rp::PhysicsWorld *                 m_World  = nullptr;
 
-        std::vector<rp3d::RigidBody *> m_Bodies;
+        std::vector<rp::RigidBody *> m_Bodies;
         std::vector<PhysicsObject>     m_Scene;
 
     public:

@@ -8,12 +8,12 @@
 #include "Math/RigidTransform.hpp"
 
 namespace Flock::Physics {
-    namespace rp3d = reactphysics3d;
+    namespace rp = reactphysics3d;
 
     struct FLK_API Collider {
         virtual ~Collider() = default;
 
-        virtual rp3d::CollisionShape *BuildShape(rp3d::PhysicsCommon &common, Vector3f scale) = 0;
+        virtual rp::CollisionShape *BuildShape(rp::PhysicsCommon &common, Vector3f scale) = 0;
         virtual RigidTransform        GetTransform() = 0;
     };
 
@@ -25,7 +25,7 @@ namespace Flock::Physics {
             : transform(transform), halfExtents(halfExtents) {
         }
 
-        rp3d::CollisionShape *BuildShape(rp3d::PhysicsCommon &common, const Vector3f scale) override {
+        rp::CollisionShape *BuildShape(rp::PhysicsCommon &common, const Vector3f scale) override {
             return common.createBoxShape(reactphysics3d::Vector3(
                 halfExtents.x * scale.x, halfExtents.y * scale.y, halfExtents.z * scale.z
             ));
@@ -44,7 +44,7 @@ namespace Flock::Physics {
             : transform(transform), radius(radius) {
         }
 
-        rp3d::CollisionShape *BuildShape(rp3d::PhysicsCommon &common, const Vector3f scale) override {
+        rp::CollisionShape *BuildShape(rp::PhysicsCommon &common, const Vector3f scale) override {
             const f32 s = std::min({scale.x, scale.y, scale.z});
             return common.createSphereShape(radius * s);
         }

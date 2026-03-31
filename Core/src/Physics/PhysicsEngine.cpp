@@ -1,27 +1,27 @@
 #include "PhysicsEngine.hpp"
 
 namespace Flock::Physics {
-    rp3d::Vector3 ToRp3dType(const Vector3f vec) {
-        return rp3d::Vector3(vec.x, vec.y, vec.z);
+    rp::Vector3 ToRp3dType(const Vector3f vec) {
+        return rp::Vector3(vec.x, vec.y, vec.z);
     }
 
-    rp3d::Quaternion ToRp3dType(const Quaternion quat) {
-        rp3d::Quaternion out = rp3d::Quaternion(quat.x, quat.y, quat.z, quat.w).getInverse();
+    rp::Quaternion ToRp3dType(const Quaternion quat) {
+        rp::Quaternion out = rp::Quaternion(quat.x, quat.y, quat.z, quat.w).getInverse();
         out.normalize();
         return out;
     }
 
-    Vector3f Rp3dVector(const rp3d::Vector3 vec) {
+    Vector3f Rp3dVector(const rp::Vector3 vec) {
         return Vector3f(vec.x, vec.y, vec.z);
     }
 
-    Quaternion Rp3dQuaternion(const rp3d::Quaternion quat) {
+    Quaternion Rp3dQuaternion(const rp::Quaternion quat) {
         return Quaternion(quat.x, quat.y, quat.z, quat.w).Inverse().Normalized();
     }
 
     PhysicsEngine PhysicsEngine::Create() {
         PhysicsEngine engine;
-        engine.m_Common = std::make_unique<rp3d::PhysicsCommon>();
+        engine.m_Common = std::make_unique<rp::PhysicsCommon>();
         engine.m_World  = engine.m_Common->createPhysicsWorld();
 
         return engine;
@@ -84,11 +84,11 @@ namespace Flock::Physics {
             auto &collider = *m_Scene[i].collider;
             const RigidTransform trans = collider.GetTransform();
 
-            rp3d::Vector3    rbPos = ToRp3dType(pos + trans.position * rot);
-            rp3d::Quaternion rbRot = ToRp3dType(trans.rotation * rot);
-            rp3d::Transform  rbTrans(rbPos, rbRot);
+            rp::Vector3    rbPos = ToRp3dType(pos + trans.position * rot);
+            rp::Quaternion rbRot = ToRp3dType(trans.rotation * rot);
+            rp::Transform  rbTrans(rbPos, rbRot);
 
-            rp3d::RigidBody *body = m_World->createRigidBody(rbTrans);
+            rp::RigidBody *body = m_World->createRigidBody(rbTrans);
             if (m_Bodies[i]) {
                 m_World->destroyRigidBody(m_Bodies[i]);
             }
@@ -116,12 +116,12 @@ namespace Flock::Physics {
         m_World->update(timeStep);
 
         for (usize i = 0; i < m_Scene.size(); i++) {
-            rp3d::Transform        trans = m_Bodies[i]->getTransform();
-            const rp3d::Vector3    pos   = trans.getPosition();
-            const rp3d::Quaternion rot   = trans.getOrientation();
+            rp::Transform        trans = m_Bodies[i]->getTransform();
+            const rp::Vector3    pos   = trans.getPosition();
+            const rp::Quaternion rot   = trans.getOrientation();
 
-            const rp3d::Vector3 linVlc = m_Bodies[i]->getLinearVelocity();
-            const rp3d::Vector3 angVlc = m_Bodies[i]->getAngularVelocity();
+            const rp::Vector3 linVlc = m_Bodies[i]->getLinearVelocity();
+            const rp::Vector3 angVlc = m_Bodies[i]->getAngularVelocity();
 
             auto &collider = *m_Scene[i].collider;
             const RigidTransform colTrans = collider.GetTransform();

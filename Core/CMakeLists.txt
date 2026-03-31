@@ -59,6 +59,15 @@ CPMAddPackage(
 
 add_library(stbi STATIC vendor/stbi/stbi.h vendor/stbi/stbi.c)
 add_library(stbv STATIC vendor/stbv/stbv.c)
+add_library(nanovg STATIC
+        vendor/nanovg/src/nanovg.h
+        vendor/nanovg/src/nanovg.c
+        vendor/nanovg/src/nanovg_gl.h
+        vendor/nanovg/src/nanovg_gl_utils.h
+        vendor/nanovg/src/fontstash.h
+        vendor/nanovg/src/stb_image.h
+        vendor/nanovg/src/stb_truetype.h
+)
 
 set(SOLOUD_BACKEND_OGGVORBIS OFF)
 file(GLOB_RECURSE SOLOUD_SOURCES CONFIGURE_DEPENDS "vendor/soloud/src/*.cpp" "vendor/soloud/src/*.h")
@@ -170,7 +179,7 @@ set(PROJECT_SOURCES
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC Pch.hpp)
-target_include_directories(${PROJECT_NAME} PUBLIC include src PRIVATE vendor/stbi)
+target_include_directories(${PROJECT_NAME} PUBLIC include src PRIVATE vendor/stbi vendor/nanovg/src)
 target_compile_definitions(${PROJECT_NAME} PRIVATE FLK_DYLIB_BUILD)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
@@ -184,6 +193,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         assimp
         nlohmann_json
         reactphysics3d
+        nanovg
 )
 
 if (UNIX AND NOT APPLE)
