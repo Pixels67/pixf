@@ -39,8 +39,8 @@ CPMAddPackage(
 
 CPMAddPackage(
         NAME reactphysics3d
-        GITHUB_REPOSITORY DanielChappuis/reactphysics3d
-        GIT_TAG v0.10.2
+        GITHUB_REPOSITORY Pixels67/reactphysics3d
+        GIT_TAG master
         GIT_SHALLOW TRUE
 )
 
