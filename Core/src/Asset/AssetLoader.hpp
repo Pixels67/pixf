@@ -182,7 +182,7 @@ namespace Flock::Asset {
                 return std::nullopt;
             }
 
-            return *static_pointer_cast<T>(m_Assets[m_AssetIds[filePath]].value().data);
+            return *static_pointer_cast<T>(m_Assets[m_AssetIds[filePath.string()]].value().data);
         }
 
         /**
