@@ -32,6 +32,8 @@ namespace Flock::Graphics {
                 format = ToGlType(config.format.value());
             }
 
+            FLK_GL_CALL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+
             FLK_GL_CALL(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                     0,
                     format,

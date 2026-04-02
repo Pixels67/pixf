@@ -246,8 +246,8 @@ namespace Flock::Asset {
                 return std::nullopt;
             }
 
-            const std::string str = filePath.string();
-            const std::string ext = str.substr(str.find_last_of('.'));
+            const std::string str  = filePath.string();
+            const std::string ext  = str.substr(str.find_last_of('.'));
             const std::string name = str.substr(0, str.find_last_of('.'));
 
             return Graphics::CubeMap::FromImages(

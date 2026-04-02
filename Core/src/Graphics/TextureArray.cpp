@@ -19,6 +19,8 @@ namespace Flock::Graphics {
             }
         }
 
+        FLK_GL_CALL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+
         FLK_GL_CALL(glTexImage3D(
             GL_TEXTURE_2D_ARRAY,
             0,

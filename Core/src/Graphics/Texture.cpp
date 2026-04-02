@@ -95,6 +95,8 @@ namespace Flock::Graphics {
             format = ToGlType(config.format.value());
         }
 
+        FLK_GL_CALL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+
         FLK_GL_CALL(glTexImage2D(GL_TEXTURE_2D,
                 0,
                 format,
@@ -137,6 +139,8 @@ namespace Flock::Graphics {
                 varType                = GL_FLOAT;
             }
         }
+
+        FLK_GL_CALL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 
         FLK_GL_CALL(glTexImage2D(GL_TEXTURE_2D,
                 0,
