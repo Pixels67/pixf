@@ -1,6 +1,15 @@
 #include "Registry.hpp"
 
 namespace Flock::Ecs {
+    void Registry::Clear() {
+        for (auto &[_, storage]: m_Storages) {
+            storage->Clear();
+        }
+
+        m_EntityData.clear();
+        m_DeadEntities.clear();
+    }
+
     Entity Registry::Create() {
         if (!m_DeadEntities.empty()) {
             const EntityId id = m_DeadEntities.back();

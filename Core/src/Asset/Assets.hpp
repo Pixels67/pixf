@@ -2,6 +2,7 @@
 #define FLK_ASSETS_HPP
 
 #include "Common.hpp"
+#include "AssetLoader.hpp"
 
 namespace Flock::Asset {
     struct FLK_API Assets {

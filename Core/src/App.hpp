@@ -39,6 +39,7 @@ namespace Flock {
         Ecs::Schedule m_Schedule;
         Services      m_Services;
         AppConfig     m_Config;
+        bool          m_ShouldClose = false;
 
     public:
         /**
@@ -85,6 +86,14 @@ namespace Flock {
         void Extract();
 
         void Render();
+    };
+
+    struct FLK_API Application {
+        bool shouldClose = false;
+
+        void Close() {
+            shouldClose = true;
+        }
     };
 }
 

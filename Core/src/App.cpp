@@ -55,17 +55,11 @@ namespace Flock {
         m_Services.window.MakeCurrent();
         m_Services.inputHandler.HookEvents(m_Services.eventHandler);
 
-        m_World.InsertResource<Time::TimeState>();
-        m_World.InsertResource<Input::InputState>();
-        m_World.InsertResource<Graphics::Camera>();
-        m_World.InsertResource<Graphics::AmbientLight>();
-        m_World.InsertResource<Graphics::Skybox>();
-        m_World.InsertResource<Audio::AudioListener>();
-        m_World.InsertResource<Asset::Assets>({m_Services.assetLoader});
-
+        m_World = Ecs::World::Default();
+        m_World.InsertResource<Asset::Assets>(Asset::Assets{m_Services.assetLoader});
         m_Schedule.Execute(Ecs::Stage::Startup, m_World);
 
-        while (!m_Services.window.ShouldClose()) {
+        while (!m_Services.window.ShouldClose() && !m_ShouldClose) {
             // Begin
             m_Services.window.PollEvents(m_Services.eventHandler);
             m_Services.eventHandler.Update();
@@ -154,6 +148,8 @@ namespace Flock {
             m_Services.physicsEngine.Update(0.02F);
             accumulator -= 0.02F;
         }
+
+        m_ShouldClose = m_World.GetResource<Application>().shouldClose;
     }
 
     void App::Render() {

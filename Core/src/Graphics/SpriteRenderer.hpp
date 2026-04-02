@@ -5,7 +5,7 @@
 
 #include "Common.hpp"
 
-namespace Flock {
+namespace Flock::Graphics {
     struct FLK_API SpriteRenderer {
         std::string spritePath = "";
     };

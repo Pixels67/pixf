@@ -25,6 +25,11 @@ namespace Flock::Ecs {
 
     public:
         /**
+         * @brief Clears the registry.
+         */
+        void Clear();
+
+        /**
          * @brief Creates an entity and returns a handle to it.
          * @return A newly created entity.
          */
@@ -79,10 +84,12 @@ namespace Flock::Ecs {
         void RegisterComponent() {
             m_Storages.emplace(GetTypeId<T>(), std::make_shared<Storage<T> >());
 
-            m_ArchiveFns[GetTypeId<T>()] = [](IStorage &storage, Serial::IArchive &archive) {
-                Storage<T> &store = static_cast<Storage<T> &>(storage);
-                store.Archive(archive);
-            };
+            if constexpr (IsReflectable<T>) {
+                m_ArchiveFns[GetTypeId<T>()] = [](IStorage &storage, Serial::IArchive &archive) {
+                    Storage<T> &store = static_cast<Storage<T> &>(storage);
+                    store.Archive(archive);
+                };
+            }
         }
 
         /**

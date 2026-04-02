@@ -14,7 +14,7 @@ namespace Flock::FileIo {
     std::optional<Graphics::Pipeline> ReadPipeline(const std::filesystem::path &filePath) {
         using namespace Flock::Graphics;
 
-        std::optional<std::string> result = ReadTextFile(filePath);
+        std::optional<std::string> result = ReadText(filePath);
         if (!result.has_value()) {
             return std::nullopt;
         }

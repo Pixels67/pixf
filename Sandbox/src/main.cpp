@@ -14,6 +14,8 @@ i32 main() {
     }).value();
 
     app.AddSystem(Stage::Startup, [](World &world) {
+        world.Load("../../../assets/world.wrld");
+
         const auto &assets = world.GetResource<Asset::Assets>();
 
         assets.SetDefaultPipeline(Asset::PipelineType::Pbr, "../../../assets/shader.glsl");
@@ -22,21 +24,6 @@ i32 main() {
         assets.Get<Texture>("../../../assets/Checkerboard.png").Configure({
             .wrapMode = Clamp,
         });
-
-        auto &reg = world.GetRegistry();
-
-        world.GetResource<Camera>().projection         = Projection::Orthographic;
-        world.GetResource<Camera>().transform.position = {0.0F, 0.0F, -10.0F};
-        world.GetResource<Camera>().size               = 5.0F;
-
-        world.GetResource<AmbientLight>().color = {20, 20, 20};
-
-        reg.Create(
-            Transform{
-                .position = {0.0F, 0.0F, 0.0F}
-            },
-            SpriteRenderer{.spritePath = "../../../assets/checkerboard.png"}
-        );
 
         world.GetResource<InputState>().cursorMode = CursorMode::Disabled;
     });
@@ -49,6 +36,10 @@ i32 main() {
 
         const f32     moveSpeed = 5.0F * dt;
         constexpr f32 rotSpeed  = 0.4F;
+
+        if (input.IsKeyDown(Key::Backspace)) {
+            world.GetResource<Application>().Close();
+        }
 
         if (input.IsKeyDown(Key::Escape)) {
             input.cursorMode = CursorMode::Normal;

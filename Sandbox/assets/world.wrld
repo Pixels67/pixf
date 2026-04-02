@@ -1,0 +1,106 @@
+{
+  "registry": {
+    "entities": [
+      {
+        "id": 0,
+        "alive": true,
+        "version": 0
+      }
+    ],
+    "components": {
+      "AudioSource": [],
+      "RigidBody": [],
+      "SphereCollider": [],
+      "BoxCollider": [],
+      "ModelRenderer": [],
+      "SpriteRenderer": [
+        {
+          "id": 0,
+          "data": {
+            "spritePath": "../../../assets/Checkerboard.png"
+          }
+        }
+      ],
+      "RigidTransform": [],
+      "Transform": [
+        {
+          "id": 0,
+          "data": {
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "rotation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0,
+              "z": 1.0
+            },
+            "eulerAngles": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            }
+          }
+        }
+      ]
+    }
+  },
+  "resources": {
+    "AudioListener": {
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 1.0
+      }
+    },
+    "Skybox": {
+      "filePath": ""
+    },
+    "AmbientLight": {
+      "color": {
+        "r": 20,
+        "g": 20,
+        "b": 20
+      },
+      "intensity": 0.05000000074505806
+    },
+    "Camera": {
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": -10.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "eulerAngles": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      },
+      "projection": 0,
+      "size": 5.0,
+      "fovY": 60.0,
+      "nearZ": 0.10000000149011612,
+      "farZ": 1000.0
+    }
+  }
+}

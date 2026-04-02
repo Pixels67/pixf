@@ -4,11 +4,11 @@
 #include <sstream>
 
 namespace Flock::FileIo {
-    std::optional<std::string> ReadTextFile(const std::filesystem::path &filePath) {
+    std::optional<std::string> ReadText(const std::filesystem::path &filePath) {
         std::ifstream file(filePath);
 
         if (!file.is_open()) {
-            Debug::LogErr("FileIo::ReadTextFile: Error opening file!");
+            Debug::LogErr("FileIo::ReadText: Error opening file!");
             return std::nullopt;
         }
 
@@ -21,5 +21,17 @@ namespace Flock::FileIo {
         file.close();
 
         return content.str();
+    }
+
+    bool WriteText(const std::filesystem::path &filePath, const std::string &text) {
+        std::ofstream file(filePath);
+
+        if (!file.is_open()) {
+            Debug::LogErr("FileIo::WriteText: Error creating file!");
+            return false;
+        }
+
+        file << text;
+        return true;
     }
 }

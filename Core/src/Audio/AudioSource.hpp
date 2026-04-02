@@ -19,6 +19,22 @@ namespace Flock::Audio {
             play = true;
         }
     };
+
+    inline auto Reflect(AudioSource &source) {
+        return Reflectable{
+            "AudioSource",
+            std::make_tuple(
+                Field{"path", &source.audioClipPath},
+                Field{"play", &source.play},
+                Field{"position", &source.position},
+                Field{"volume", &source.volume},
+                Field{"pitch", &source.pitch},
+                Field{"pan", &source.pan},
+                Field{"looping", &source.looping},
+                Field{"spatialize", &source.spatialize}
+            )
+        };
+    }
 }
 
 #endif //FLK_AUDIOSOURCE_HPP

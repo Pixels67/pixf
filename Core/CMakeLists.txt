@@ -174,6 +174,8 @@ set(PROJECT_SOURCES
         src/Graphics/CubeMap.hpp
         src/Graphics/Skybox.hpp
         src/Graphics/SpriteRenderer.hpp
+        src/FileIo/World.hpp
+        src/FileIo/World.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
