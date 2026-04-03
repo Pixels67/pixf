@@ -5,6 +5,11 @@
         "id": 0,
         "alive": true,
         "version": 0
+      },
+      {
+        "id": 1,
+        "alive": true,
+        "version": 0
       }
     ],
     "components": {
@@ -13,6 +18,24 @@
       "SphereCollider": [],
       "BoxCollider": [],
       "ModelRenderer": [],
+      "Text" : [
+        {
+          "id": 1,
+          "data": {
+            "content": "Hello, World!",
+            "fontSize": 20,
+            "font": "../../../assets/font.ttf",
+            "color": {
+              "r": 120,
+              "g": 255,
+              "b": 80,
+              "a": 255
+            },
+            "horizontalAlignment": 1,
+            "verticalAlignment": 0
+          }
+        }
+      ],
       "SpriteRenderer": [
         {
           "id": 0,
@@ -22,6 +45,23 @@
         }
       ],
       "RigidTransform": [],
+      "RectTransform": [
+        {
+          "id": 1,
+          "data": {
+            "rect": {
+              "origin": {
+                "x": 0,
+                "y": 0
+              },
+              "aspect": {
+                "x": 1080,
+                "y": 800
+              }
+            }
+          }
+        }
+      ],
       "Transform": [
         {
           "id": 0,

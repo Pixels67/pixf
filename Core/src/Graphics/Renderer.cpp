@@ -130,7 +130,7 @@ void main() {
             pipeline.get().SetUniform("uAmbientIntensity", scene.ambientLight.intensity);
 
             SetMaterialUniforms(pipeline, mat);
-            SetLightUniforms(pipeline, lights, shadowConfig.enabled);
+            SetLightUniforms(pipeline, lights, shadowConfig);
 
             if (shadowData.shadowMaps.GetLayerCount() > 0) {
                 if (!pipeline.get().SetUniform("uShadowMaps", shadowData.shadowMaps)) {
@@ -247,7 +247,7 @@ void main() {
         }
     }
 
-    void Renderer::SetLightUniforms(Pipeline &pipeline, std::vector<Light> lights, bool shadowsEnabled) {
+    void Renderer::SetLightUniforms(Pipeline &pipeline, std::vector<Light> lights, ShadowConfig shadowConfig) {
         pipeline.SetUniform("uNumLights", static_cast<i32>(lights.size()));
         i32 shadowIdx = 0;
         for (usize i = 0; i < lights.size(); i++) {
@@ -259,7 +259,7 @@ void main() {
             pipeline.SetUniform("uLightIntensities" + idx, intensity);
             pipeline.SetUniform("uLightRadii" + idx, radius);
 
-            if (hasShadows && shadowsEnabled) {
+            if (hasShadows && shadowConfig.enabled) {
                 pipeline.SetUniform("uLightShadowMapIndices" + idx, shadowIdx);
                 shadowIdx++;
             } else {
@@ -307,7 +307,7 @@ void main() {
         for (usize i = 0; i < shadowLights.size(); i++) {
             for (usize r = 0; r < shadowConfig.cascadeRanges.size(); r++) {
                 const f32 range = shadowConfig.cascadeRanges[r];
-                i32       idx   = i * shadowConfig.cascadeRanges.size() + r;
+                const i32 idx   = i * shadowConfig.cascadeRanges.size() + r;
 
                 GenerateShadowMap(commands, data.shadowMaps, idx, shadowLights[i], shadowCenter, range);
                 data.spaceMatrices[idx] = shadowLights[i].GetLightSpaceMatrix(range, aspectRatio, shadowCenter);

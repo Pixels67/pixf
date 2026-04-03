@@ -65,9 +65,10 @@ add_library(nanovg STATIC
         vendor/nanovg/src/nanovg_gl.h
         vendor/nanovg/src/nanovg_gl_utils.h
         vendor/nanovg/src/fontstash.h
-        vendor/nanovg/src/stb_image.h
         vendor/nanovg/src/stb_truetype.h
 )
+
+target_compile_definitions(nanovg PRIVATE NVG_NO_STB)
 
 set(SOLOUD_BACKEND_OGGVORBIS OFF)
 file(GLOB_RECURSE SOLOUD_SOURCES CONFIGURE_DEPENDS "vendor/soloud/src/*.cpp" "vendor/soloud/src/*.h")
@@ -176,6 +177,14 @@ set(PROJECT_SOURCES
         src/Graphics/SpriteRenderer.hpp
         src/FileIo/World.hpp
         src/FileIo/World.cpp
+        src/Gui/Text.hpp
+        src/Gui/RectTransform.hpp
+        src/Gui/GuiRenderer.cpp
+        src/Gui/GuiRenderer.hpp
+        src/Gui/Nvg.hpp
+        src/Gui/Font.hpp
+        src/FileIo/Font.hpp
+        src/FileIo/Font.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

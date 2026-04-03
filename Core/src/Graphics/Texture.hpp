@@ -60,7 +60,7 @@ namespace Flock::Graphics {
     struct FLK_API TextureConfig {
         FilterMode                   filterMode       = Linear;
         FilterMode                   mipmapFilterMode = Linear;
-        WrapMode                     wrapMode         = Repeat;
+        WrapMode                     wrapMode         = Clamp;
         std::optional<TextureFormat> format           = std::nullopt;
         bool                         generateMipmaps  = true;
 

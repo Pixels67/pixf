@@ -10,213 +10,246 @@ uniform mat4 uModel;
 uniform mat4 uView;
 uniform mat4 uProj;
 
-out vec3 vWorldPos;
-out vec3 vNormal;
-out vec2 vTexCoords;
+out VS_OUT {
+    vec3 worldPos;
+    vec3 worldNormal;
+    vec2 uv;
+    float viewDepth;
+} vs_out;
 
-void main() {
-    vec4 worldPos = vec4(aPosition, 1.0) * uModel;
-    mat3 normalMatrix = transpose(inverse(mat3(uModel)));
+void main()
+{
+    vec4 localPos  = vec4(aPosition, 1.0);
+    vec4 worldPos4 = localPos * uModel;
+    vec4 viewPos   = worldPos4 * uView;
 
-    vWorldPos = worldPos.xyz;
-    vNormal = normalize(aNormal * normalMatrix);
-    vTexCoords = aTexCoords;
+    vec3 worldNormal = normalize((vec4(aNormal, 0.0) * transpose(inverse(uModel))).xyz);
 
-    gl_Position = worldPos * uView * uProj;
+    vs_out.worldPos    = worldPos4.xyz;
+    vs_out.worldNormal = worldNormal;
+    vs_out.uv          = aTexCoords;
+    vs_out.viewDepth   = viewPos.z;
+
+    gl_Position = viewPos * uProj;
 }
 
 #pragma fragment
 
-in vec3 vWorldPos;
-in vec3 vNormal;
-in vec2 vTexCoords;
-
 out vec4 FragColor;
 
-// --- Textures (bind 1x1 white if unused) ---
+in VS_OUT {
+    vec3 worldPos;
+    vec3 worldNormal;
+    vec2 uv;
+    float viewDepth;
+} fs_in;
+
 uniform sampler2D uColorMap;
 uniform sampler2D uMetallicMap;
 uniform sampler2D uRoughnessMap;
-
-// --- Material factors ---
-uniform vec4 uColor;       // multiplied with uColorMap (rgb = color, a = alpha)
-uniform float uMetallic;    // multiplied with uMetallicMap
-uniform float uRoughness;   // multiplied with uRoughnessMap
-
-// --- Ambient ---
+uniform vec4 uColor;
+uniform float uMetallic;
+uniform float uRoughness;
 uniform vec3 uAmbientColor;
 uniform float uAmbientIntensity;
 
-// --- Lights ---
 #define MAX_LIGHTS 16
-#define MAX_SHADOW_CASCADES 16
+#define MAX_SHADOW_CASCADES 8
 
 uniform int uNumLights;
-uniform vec3 uLightPositions[MAX_LIGHTS];   // world-space pos, or direction if directional
-uniform vec3 uLightColors[MAX_LIGHTS];      // RGB color
-uniform float uLightIntensities[MAX_LIGHTS]; // scalar intensity
-uniform float uLightRadii[MAX_LIGHTS];       // 0 = directional, >0 = point light radius
+uniform vec3 uLightPositions[MAX_LIGHTS];
+uniform vec3 uLightColors[MAX_LIGHTS];
+uniform float uLightIntensities[MAX_LIGHTS];
+uniform float uLightRadii[MAX_LIGHTS];
 
-uniform mat4 uLightSpaceMatrices[MAX_LIGHTS];
+uniform mat4 uLightSpaceMatrices[MAX_LIGHTS * MAX_SHADOW_CASCADES];
+
 uniform int uLightShadowMapIndices[MAX_LIGHTS];
-
 uniform int uShadowCascadeCount;
 uniform float uShadowCascadeRanges[MAX_SHADOW_CASCADES];
-
 uniform sampler2DArrayShadow uShadowMaps;
 
-// --- Camera ---
 uniform vec3 uCameraPosition;
 
-// -------------------------------------------------------
 const float PI = 3.14159265359;
+const float EPSILON = 1e-4;
 
-vec3 sRGBToLinear(vec3 c) { return pow(c, vec3(2.2)); }
-vec3 linearToSRGB(vec3 c) { return pow(c, vec3(1.0 / 2.2)); }
-
-vec3 ACESToneMap(vec3 x) {
-    x *= 0.9;
-    float a = 2.51, b = 0.03, c = 2.43, d = 0.59, e = 0.14;
-    return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+float saturate(float x)
+{
+    return clamp(x, 0.0, 1.0);
 }
 
-float D_GGX(float NdotH, float roughness) {
-    float a = roughness * roughness;
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow(1.0 - saturate(cosTheta), 5.0);
+}
+
+float distributionGGX(vec3 N, vec3 H, float roughness)
+{
+    float a  = roughness * roughness;
     float a2 = a * a;
-    float d = NdotH * NdotH * (a2 - 1.0) + 1.0;
-    return a2 / (PI * d * d);
+
+    float NdotH  = saturate(dot(N, H));
+    float NdotH2 = NdotH * NdotH;
+
+    float denom = NdotH2 * (a2 - 1.0) + 1.0;
+    return a2 / max(PI * denom * denom, EPSILON);
 }
 
-float G_SchlickGGX(float NdotV, float roughness) {
+float geometrySchlickGGX(float NdotV, float roughness)
+{
     float r = roughness + 1.0;
     float k = (r * r) / 8.0;
-    return NdotV / (NdotV * (1.0 - k) + k);
+    return NdotV / max(NdotV * (1.0 - k) + k, EPSILON);
 }
 
-float G_Smith(float NdotV, float NdotL, float roughness) {
-    return G_SchlickGGX(NdotV, roughness) * G_SchlickGGX(NdotL, roughness);
+float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+{
+    float NdotV = saturate(dot(N, V));
+    float NdotL = saturate(dot(N, L));
+    float ggxV = geometrySchlickGGX(NdotV, roughness);
+    float ggxL = geometrySchlickGGX(NdotL, roughness);
+    return ggxV * ggxL;
 }
 
-vec3 F_Schlick(float cosTheta, vec3 F0) {
-    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
-}
-
-float calcShadow(int layerIndex, vec3 N, vec3 L, int kernelScale) {
-    vec4 fragPosLS = vec4(vWorldPos, 1.0) * uLightSpaceMatrices[layerIndex];
-    vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
-    projCoords = projCoords * 0.5 + 0.5;
-
-    if (projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0 || projCoords.z > 1.0) {
-        return 0.0;
+int selectCascade(float viewDepth)
+{
+    for (int i = 0; i < uShadowCascadeCount; i++)
+    {
+        if (viewDepth <= uShadowCascadeRanges[i])
+        return i;
     }
 
-    float current = projCoords.z;
-    float NdotL = max(dot(N, L), 0.0);
-    float bias = max(0.005 * (1.0 - NdotL), 0.0005);
+    return max(uShadowCascadeCount - 1, 0);
+}
+
+float sampleDirectionalShadow(int lightIndex, vec3 N, vec3 L)
+{
+    int shadowMapSet = uLightShadowMapIndices[lightIndex];
+    if (shadowMapSet < 0 || uShadowCascadeCount <= 0) return 1.0;
+
+    int cascade = selectCascade(length(fs_in.worldPos - uCameraPosition));
+    int layerIndex = shadowMapSet * uShadowCascadeCount + cascade;
+
+    vec4 lightClip = vec4(fs_in.worldPos, 1.0) * uLightSpaceMatrices[layerIndex];
+    vec3 projCoords = lightClip.xyz / max(lightClip.w, EPSILON);
+    projCoords = projCoords * 0.5 + 0.5;
+
+    if (projCoords.z > 1.0 || projCoords.z < 0.0)
+    return 1.0;
+    if (projCoords.x < 0.0 || projCoords.x > 1.0 ||
+    projCoords.y < 0.0 || projCoords.y > 1.0)
+    return 1.0;
+
+    float ndotl = saturate(dot(N, L));
+    float bias = max(0.0005, 0.005 * (1.0 - ndotl));
 
     vec2 texelSize = 1.0 / vec2(textureSize(uShadowMaps, 0).xy);
 
-    int r = min(5, kernelScale);
+    float shadow = 0.0;
+    int kernelSize = 2;
 
-    float sum = 0.0;
-    for (int x = -r; x <= r; ++x)
-    for (int y = -r; y <= r; ++y) {
-        vec2 uv = projCoords.xy + vec2(x, y) * texelSize;
-        sum += texture(uShadowMaps, vec4(uv, float(layerIndex), current - bias));
+    for (int y = -kernelSize; y <= kernelSize; ++y)
+    {
+        for (int x = -kernelSize; x <= kernelSize; ++x)
+        {
+            vec2 offset = vec2(x, y) * texelSize;
+            shadow += texture(
+                uShadowMaps,
+                vec4(projCoords.xy + offset, float(layerIndex), projCoords.z - bias)
+            );
+        }
     }
 
-    return 1.0 - sum / float((2 * r + 1) * (2 * r + 1));
+    return shadow / pow(kernelSize * 2 + 1, 2);
 }
 
-void main() {
-    // --- Sample material ---
-    vec3 albedo = sRGBToLinear(texture(uColorMap, vTexCoords).rgb) * uColor.rgb;
-    float alpha = texture(uColorMap, vTexCoords).a * uColor.a;
-    float metallic = texture(uMetallicMap, vTexCoords).r * uMetallic;
-    float roughness = clamp(texture(uRoughnessMap, vTexCoords).r * uRoughness, 0.04, 1.0);
+vec3 evaluateLight(
+    vec3 N,
+    vec3 V,
+    vec3 albedo,
+    float metallic,
+    float roughness,
+    vec3 F0,
+    int lightIndex
+)
+{
+    vec3 L;
+    vec3 radiance;
+    float shadow = 1.0;
 
-    vec3 N = normalize(vNormal);
-    vec3 V = normalize(uCameraPosition - vWorldPos);
-    float NdotV = max(dot(N, V), 0.0);
+    if (uLightRadii[lightIndex] == 0.0)
+    {
+        L = normalize(uLightPositions[lightIndex]);
+        radiance = uLightColors[lightIndex] * uLightIntensities[lightIndex];
+        shadow = sampleDirectionalShadow(lightIndex, N, L);
+    }
+    else
+    {
+        vec3 toLight = uLightPositions[lightIndex] - fs_in.worldPos;
+        float dist = length(toLight);
+        if (dist <= EPSILON)
+        return vec3(0.0);
+
+        L = toLight / dist;
+
+        float radius = uLightRadii[lightIndex];
+        float falloff = clamp(1.0 - (dist * dist) / max(radius * radius, EPSILON), 0.0, 1.0);
+        falloff *= falloff;
+
+        float attenuation = falloff / max(dist * dist, 1.0);
+        radiance = uLightColors[lightIndex] * uLightIntensities[lightIndex] * attenuation;
+    }
+
+    vec3 H = normalize(V + L);
+
+    float NdotL = saturate(dot(N, L));
+    float NdotV = saturate(dot(N, V));
+    float HdotV = saturate(dot(H, V));
+
+    if (NdotL <= 0.0 || NdotV <= 0.0)
+    return vec3(0.0);
+
+    float D = distributionGGX(N, H, roughness);
+    float G = geometrySmith(N, V, L, roughness);
+    vec3  F = fresnelSchlick(HdotV, F0);
+
+    vec3 numerator = D * G * F;
+    float denom = max(4.0 * NdotV * NdotL, EPSILON);
+    vec3 specular = numerator / denom;
+
+    vec3 kS = F;
+    vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
+    vec3 diffuse = kD * albedo / PI;
+
+    return (diffuse + specular) * radiance * NdotL * shadow;
+}
+
+void main()
+{
+    vec3 N = normalize(fs_in.worldNormal);
+    vec3 V = normalize(uCameraPosition - fs_in.worldPos);
+
+    vec4 baseSample = texture(uColorMap, fs_in.uv) * uColor;
+    vec3 albedo = pow(baseSample.rgb, vec3(2.2));
+
+    float metallic  = clamp(texture(uMetallicMap, fs_in.uv).r * uMetallic, 0.0, 1.0);
+    float roughness = clamp(texture(uRoughnessMap, fs_in.uv).r * uRoughness, 0.045, 1.0);
 
     vec3 F0 = mix(vec3(0.04), albedo, metallic);
 
-    // --- Punctual lights ---
+    vec3 ambient = albedo * uAmbientColor * uAmbientIntensity;
+
     vec3 Lo = vec3(0.0);
-
-    for (int i = 0; i < uNumLights && i < MAX_LIGHTS; i++)
+    for (int i = 0; i < uNumLights && i < MAX_LIGHTS; ++i)
     {
-        vec3 L;
-        float attenuation;
-        float shadow = 0.0;
-
-        if (uLightRadii[i] <= 0.0)
-        {
-            // Directional light — position is treated as direction
-            L = normalize(uLightPositions[i]);
-            attenuation = 1.0;
-            if (uLightShadowMapIndices[i] == -1) {
-                shadow = 0.0;
-            } else {
-                int idx = uLightShadowMapIndices[i] * min(uShadowCascadeCount, MAX_SHADOW_CASCADES);
-                float dist = length(uCameraPosition - vWorldPos);
-                float maxDist = uShadowCascadeRanges[min(uShadowCascadeCount, MAX_SHADOW_CASCADES) - 1];
-
-                if (dist > maxDist) {
-                    shadow = 0.0;
-                } else {
-                    for (int j = 0; j < min(uShadowCascadeCount, MAX_SHADOW_CASCADES); j++) {
-                        if (dist <= uShadowCascadeRanges[j]) {
-                            break;
-                        }
-
-                        idx++;
-                    }
-
-                    shadow = calcShadow(idx, N, L, 1);
-                }
-            }
-        }
-        else
-        {
-            // Point light
-            vec3 toLight = uLightPositions[i] - vWorldPos;
-            float dist = length(toLight);
-            L = toLight / dist;
-            attenuation = 1.0 / (dist * dist);
-            // Smooth falloff at radius boundary
-            float s = clamp(1.0 - pow(dist / uLightRadii[i], 4.0), 0.0, 1.0);
-            attenuation *= s * s;
-        }
-
-        vec3 H = normalize(V + L);
-        float NdotL = max(dot(N, L), 0.0);
-        float NdotH = max(dot(N, H), 0.0);
-        float HdotV = max(dot(H, V), 0.0);
-
-        float D = D_GGX(NdotH, roughness);
-        float G = G_Smith(NdotV, NdotL, roughness);
-        vec3 F = F_Schlick(HdotV, F0);
-
-        vec3 specular = (D * G * F) / (4.0 * NdotV * NdotL + 0.0001);
-        vec3 kD = (1.0 - F) * (1.0 - metallic);
-
-        vec3 radiance = uLightColors[i] * uLightIntensities[i] * attenuation;
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1.0 - shadow);
+        Lo += evaluateLight(N, V, albedo, metallic, roughness, F0, i);
     }
 
-    // --- Ambient ---
-    vec3 F_amb = F_Schlick(NdotV, F0);
-    vec3 kD_amb = (1.0 - F_amb) * (1.0 - metallic);
+    vec3 color = ambient + Lo;
 
-    vec3 diffuse_ambient = kD_amb * albedo * uAmbientColor * uAmbientIntensity;
-    vec3 specular_ambient = F_amb * uAmbientColor * uAmbientIntensity;
+    color = color / (color + vec3(1.0));
+    color = pow(color, vec3(1.0 / 2.2));
 
-    vec3 ambient = diffuse_ambient + specular_ambient;
-
-    // --- Combine, tone-map, gamma correct ---
-    vec3 color = ACESToneMap(ambient + Lo);
-    color = linearToSRGB(color);
-
-    FragColor = vec4(color, alpha);
+    FragColor = vec4(color, baseSample.a);
 }

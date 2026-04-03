@@ -10,6 +10,7 @@
 #include "Graphics/ModelRenderer.hpp"
 #include "Graphics/Skybox.hpp"
 #include "Graphics/SpriteRenderer.hpp"
+#include "Gui/Text.hpp"
 #include "Input/Input.hpp"
 #include "Math/Transform.hpp"
 #include "Physics/Collider.hpp"
@@ -38,12 +39,14 @@ namespace Flock::Ecs {
 
         GetRegistry().RegisterComponent<Transform>();
         GetRegistry().RegisterComponent<RigidTransform>();
+        GetRegistry().RegisterComponent<Gui::RectTransform>();
         GetRegistry().RegisterComponent<Graphics::SpriteRenderer>();
         GetRegistry().RegisterComponent<Graphics::ModelRenderer>();
         GetRegistry().RegisterComponent<Physics::BoxCollider>();
         GetRegistry().RegisterComponent<Physics::SphereCollider>();
         GetRegistry().RegisterComponent<Physics::RigidBody>();
         GetRegistry().RegisterComponent<Audio::AudioSource>();
+        GetRegistry().RegisterComponent<Gui::Text>();
     }
 
     Registry &World::GetRegistry() {

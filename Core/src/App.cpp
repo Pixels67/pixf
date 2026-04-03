@@ -5,6 +5,7 @@
 #include "Graphics/ModelRenderer.hpp"
 #include "Graphics/Skybox.hpp"
 #include "Graphics/SpriteRenderer.hpp"
+#include "Gui/Text.hpp"
 #include "Input/Input.hpp"
 #include "Math/Transform.hpp"
 #include "Serial/JsonArchive.hpp"
@@ -31,6 +32,7 @@ namespace Flock {
 
         app.m_Services.audioPlayer   = std::move(audioPlayer.value());
         app.m_Services.physicsEngine = std::move(Physics::PhysicsEngine::Create());
+        app.m_Services.guiRenderer   = std::move(Gui::GuiRenderer::Create());
 
         return app;
     }
@@ -71,6 +73,7 @@ namespace Flock {
 
             // Render
             Render();
+            RenderGui();
 
             // Finish
             m_Services.window.SwapBuffers();
@@ -271,5 +274,30 @@ namespace Flock {
             },
             {.enabled = false}
         );
+    }
+
+    void App::RenderGui() {
+        using namespace Gui;
+
+        m_Services.guiRenderer.BeginFrame(m_Services.window.GetSize());
+
+        m_World.GetRegistry().ForEach<RectTransform, Text>([&](const RectTransform &trans, const Text &text) {
+            const auto font = m_Services.assetLoader.Get<Font>(text.fontPath);
+            if (!font) {
+                Debug::LogErr("App::RenderGui: Invalid font path '{}'", text.fontPath);
+            }
+
+            m_Services.guiRenderer.RenderText(
+                text.content,
+                text.fontSize,
+                font.value(),
+                trans,
+                text.color,
+                text.horizontalAlignment,
+                text.verticalAlignment
+            );
+        });
+
+        m_Services.guiRenderer.EndFrame();
     }
 }

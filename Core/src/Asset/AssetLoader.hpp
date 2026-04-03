@@ -6,6 +6,7 @@
 #include "TypeId.hpp"
 #include "Audio/AudioClip.hpp"
 #include "FileIo/Audio.hpp"
+#include "FileIo/Font.hpp"
 #include "FileIo/Image.hpp"
 #include "Graphics/Pipeline.hpp"
 #include "Graphics/Texture.hpp"
@@ -13,6 +14,7 @@
 #include "FileIo/Pipeline.hpp"
 #include "Graphics/Material.hpp"
 #include "Graphics/Model.hpp"
+#include "Gui/Font.hpp"
 
 namespace Flock::Asset {
     template<typename T>
@@ -264,7 +266,7 @@ namespace Flock::Asset {
     template<>
     struct Loader<Audio::AudioClip> {
         static std::optional<Audio::AudioClip> Load(AssetLoader &, const std::filesystem::path &filePath) {
-            return FileIo::LoadAudioClip(filePath);
+            return FileIo::ReadAudioClip(filePath);
         }
     };
 
@@ -273,8 +275,8 @@ namespace Flock::Asset {
         static std::optional<Graphics::Model> Load(AssetLoader &loader, const std::filesystem::path &filePath) {
             using namespace Graphics;
 
-            std::vector<FileIo::MeshData> meshes    = FileIo::LoadModelMeshes(filePath);
-            std::vector<Material>         materials = FileIo::LoadModelMaterials(filePath);
+            std::vector<FileIo::MeshData> meshes    = FileIo::ReadModelMeshes(filePath);
+            std::vector<Material>         materials = FileIo::ReadModelMaterials(filePath);
             for (auto &[pipeline, color, metallic, roughness, colorMapPath, metallicMapPath, roughnessMapPath]:
                  materials) {
                 if (pipeline != "@PBR" && pipeline != "@Unlit") {
@@ -303,6 +305,13 @@ namespace Flock::Asset {
             }
 
             return model;
+        }
+    };
+
+    template<>
+    struct Loader<Gui::Font> {
+        static std::optional<Gui::Font> Load(AssetLoader &, const std::filesystem::path &filePath) {
+            return FileIo::ReadFont(filePath);
         }
     };
 }

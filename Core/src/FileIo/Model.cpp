@@ -9,7 +9,7 @@
 namespace Flock::FileIo {
     static constexpr f32 s_ImportScale = 1.0F;
 
-    std::vector<MeshData> LoadModelMeshes(const std::filesystem::path &filePath) {
+    std::vector<MeshData> ReadModelMeshes(const std::filesystem::path &filePath) {
         Assimp::Importer importer;
 
         u32 flags = aiProcess_Triangulate |
@@ -83,7 +83,7 @@ namespace Flock::FileIo {
         return meshes;
     }
 
-    std::vector<Graphics::Material> LoadModelMaterials(const std::filesystem::path &filePath) {
+    std::vector<Graphics::Material> ReadModelMaterials(const std::filesystem::path &filePath) {
         Assimp::Importer importer;
         const aiScene *  scene = importer.ReadFile(filePath.string().c_str(), 0);
 

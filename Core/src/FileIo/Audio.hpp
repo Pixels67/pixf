@@ -6,7 +6,7 @@
 #include "Audio/AudioClip.hpp"
 
 namespace Flock::FileIo {
-    std::optional<Audio::AudioClip> LoadAudioClip(const std::filesystem::path &filePath);
+    std::optional<Audio::AudioClip> ReadAudioClip(const std::filesystem::path &filePath);
 }
 
 #endif //FLK_FILEIO_AUDIO_HPP

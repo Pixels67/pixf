@@ -108,7 +108,7 @@ namespace Flock::Graphics {
         static void ConfigureFramebuffer(RenderConfig config);
         static void SetMatrices(Pipeline &pipeline, const Transform &transform, const Camera &camera, f32 aspectRatio);
         static void SetMaterialUniforms(Pipeline &pipeline, const MaterialProperties &material);
-        static void SetLightUniforms(Pipeline &pipeline, std::vector<Light> lights, bool shadowsEnabled);
+        static void SetLightUniforms(Pipeline &pipeline, std::vector<Light> lights, ShadowConfig shadowConfig);
 
         static std::vector<Light> GetNearestLights(std::vector<Light> lights, Vector3f center, usize count);
 

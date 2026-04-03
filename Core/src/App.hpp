@@ -9,6 +9,7 @@
 #include "Event/EventHandler.hpp"
 #include "Glfw/Window.hpp"
 #include "Graphics/Renderer.hpp"
+#include "Gui/GuiRenderer.hpp"
 #include "Input/InputHandler.hpp"
 #include "Physics/PhysicsEngine.hpp"
 
@@ -21,6 +22,7 @@ namespace Flock {
         Glfw::Window           window;
         Asset::AssetLoader     assetLoader;
         Graphics::Renderer     renderer;
+        Gui::GuiRenderer       guiRenderer;
         Input::InputHandler    inputHandler;
         Audio::AudioPlayer     audioPlayer;
         Physics::PhysicsEngine physicsEngine;
@@ -86,6 +88,7 @@ namespace Flock {
         void Extract();
 
         void Render();
+        void RenderGui();
     };
 
     struct FLK_API Application {
