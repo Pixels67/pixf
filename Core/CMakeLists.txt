@@ -59,6 +59,7 @@ CPMAddPackage(
 
 add_library(stbi STATIC vendor/stbi/stbi.h vendor/stbi/stbi.c)
 add_library(stbv STATIC vendor/stbv/stbv.c)
+
 add_library(nanovg STATIC
         vendor/nanovg/src/nanovg.h
         vendor/nanovg/src/nanovg.c
