@@ -79,6 +79,7 @@ namespace Flock::Graphics {
     Texture Texture::FromImage(const Image &image, const TextureConfig config) {
         Texture texture;
         texture.m_Config = config;
+        texture.m_Size   = image.size;
 
         i32 activeUnit;
         i32 boundTexture;
@@ -117,9 +118,10 @@ namespace Flock::Graphics {
         return texture;
     }
 
-    Texture Texture::CreateEmpty(const Vector2u size, TextureConfig config) {
+    Texture Texture::CreateEmpty(const Vector2u size, const TextureConfig config) {
         Texture texture;
         texture.m_Config = config;
+        texture.m_Size   = size;
 
         i32 activeUnit;
         i32 boundTexture;
@@ -136,7 +138,7 @@ namespace Flock::Graphics {
         if (config.format) {
             format = ToGlType(config.format.value());
             if (config.format.value() == TextureFormat::Depth) {
-                varType                = GL_FLOAT;
+                varType = GL_FLOAT;
             }
         }
 
@@ -230,6 +232,18 @@ namespace Flock::Graphics {
 
     TextureConfig Texture::GetConfig() const {
         return m_Config;
+    }
+
+    Vector2u Texture::GetSize() const {
+        return m_Size;
+    }
+
+    u32 Texture::GetWidth() const {
+        return GetSize().x;
+    }
+
+    u32 Texture::GetHeight() const {
+        return GetSize().y;
     }
 
     u32 Texture::GetGlId() const {

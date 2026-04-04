@@ -19,7 +19,7 @@ or build it with the *Editor* and *Runtime* and use it like an engine.
 - [x] Serialization
 - [x] Physics
 - [ ] Editor GUI
-- [ ] In-game GUI
+- [x] In-game GUI
 - [ ] Editor 
 
 ## Building from Source

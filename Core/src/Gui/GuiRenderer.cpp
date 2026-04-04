@@ -1,6 +1,7 @@
 #include "GuiRenderer.hpp"
 
 #include "Nvg.hpp"
+#include "Graphics/Texture.hpp"
 
 namespace Flock::Gui {
     GuiRenderer GuiRenderer::Create() {
@@ -118,6 +119,36 @@ namespace Flock::Gui {
 
         nvgTextAlign(m_Ctx, align);
         nvgTextBox(m_Ctx, x, y, width, text.c_str(), nullptr);
+
+        return true;
+    }
+
+    bool GuiRenderer::RenderButton(RectTransform transform, const Color4u8 color, const OptionalRef<Graphics::Texture> texture) const {
+        if (!m_Ctx) {
+            return false;
+        }
+
+        auto [x, y] = transform.rect.origin;
+        auto [w, h] = transform.rect.aspect;
+
+        if (texture) {
+            auto [tw, th] = texture->get().GetSize();
+
+            const i32      img = nvglCreateImageFromHandleGL3(m_Ctx, texture->get().GetGlId(), tw, th, 0);
+            const NVGpaint p   = nvgImagePattern(m_Ctx, x, y, w, h, 0, img, 1.0F);
+
+            nvgBeginPath(m_Ctx);
+            nvgRect(m_Ctx, x, y, w, h);
+            nvgFillPaint(m_Ctx, p);
+            nvgFill(m_Ctx);
+
+            return true;
+        }
+
+        nvgBeginPath(m_Ctx);
+        nvgRect(m_Ctx, x, y, w, h);
+        nvgFillColor(m_Ctx, nvgRGBA(color.r, color.g, color.b, color.a));
+        nvgFill(m_Ctx);
 
         return true;
     }

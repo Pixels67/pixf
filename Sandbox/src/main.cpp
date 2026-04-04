@@ -1,6 +1,7 @@
 #include "Flock.hpp"
 #include "Graphics/Skybox.hpp"
 #include "Graphics/SpriteRenderer.hpp"
+#include "Gui/Button.hpp"
 
 using namespace Flock;
 using namespace Flock::Ecs;
@@ -21,11 +22,10 @@ i32 main() {
         assets.SetDefaultPipeline(Asset::PipelineType::Pbr, "../../../assets/shader.glsl");
         assets.SetDefaultPipeline(Asset::PipelineType::Unlit, "../../../assets/unlit.glsl");
 
-        assets.Get<Texture>("../../../assets/Checkerboard.png").Configure({
-            .wrapMode = Clamp,
+        world.GetRegistry().ForEach<Gui::Button>([&](Gui::Button &button) {
+            button.onPress   = [] { Debug::LogInf("Button pressed"); };
+            button.onRelease = [] { Debug::LogInf("Button released"); };
         });
-
-        world.GetResource<InputState>().cursorMode = CursorMode::Disabled;
     });
 
     app.AddSystem(Stage::Update, [&](World &world) {
@@ -34,25 +34,17 @@ i32 main() {
         auto &input = world.GetResource<InputState>();
         auto &cam   = world.GetResource<Camera>();
 
-        const f32     moveSpeed = 5.0F * dt;
-        constexpr f32 rotSpeed  = 0.4F;
+        const f32 moveSpeed = 5.0F * dt;
 
         if (input.IsKeyDown(Key::Backspace)) {
             world.GetResource<Application>().Close();
         }
 
-        if (input.IsKeyDown(Key::Escape)) {
-            input.cursorMode = CursorMode::Normal;
-        }
-        if (input.IsMouseDown()) {
-            input.cursorMode = CursorMode::Disabled;
-        }
-
         if (input.IsKeyDown(Key::W)) {
-            cam.transform.position += Vector3f::Forward() * moveSpeed * cam.transform.rotation;
+            cam.transform.position += Vector3f::Up() * moveSpeed * cam.transform.rotation;
         }
         if (input.IsKeyDown(Key::S)) {
-            cam.transform.position -= Vector3f::Forward() * moveSpeed * cam.transform.rotation;
+            cam.transform.position -= Vector3f::Up() * moveSpeed * cam.transform.rotation;
         }
 
         if (input.IsKeyDown(Key::D)) {
@@ -61,25 +53,6 @@ i32 main() {
         if (input.IsKeyDown(Key::A)) {
             cam.transform.position -= Vector3f::Right() * moveSpeed * cam.transform.rotation;
         }
-
-        if (input.IsKeyDown(Key::LShift)) {
-            cam.transform.position += Vector3f::Up() * moveSpeed * cam.transform.rotation;
-        }
-        if (input.IsKeyDown(Key::LControl)) {
-            cam.transform.position -= Vector3f::Up() * moveSpeed * cam.transform.rotation;
-        }
-
-        const Vector2f mouseDelta = input.GetCursorDelta();
-
-        static f32 pitchAngle = 0.0F;
-        static f32 yawAngle   = 0.0F;
-
-        pitchAngle += mouseDelta.y * rotSpeed;
-        pitchAngle = std::clamp(pitchAngle, -89.0f, 89.0f);
-        yawAngle   += mouseDelta.x * rotSpeed;
-
-        cam.transform.rotation = Quaternion::Euler(pitchAngle, 0.0F, 0.0F);
-        cam.transform.rotation *= Quaternion::Euler(0.0F, yawAngle, 0.0F);
     });
 
     app.Run();

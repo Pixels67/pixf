@@ -78,6 +78,7 @@ namespace Flock::Graphics {
     class FLK_API Texture {
         u32           m_Id = 0;
         TextureConfig m_Config;
+        Vector2u      m_Size = {};
 
     public:
         /**
@@ -130,6 +131,10 @@ namespace Flock::Graphics {
         void Configure(TextureConfig config);
 
         [[nodiscard]] TextureConfig GetConfig() const;
+
+        [[nodiscard]] Vector2u GetSize() const;
+        [[nodiscard]] u32      GetWidth() const;
+        [[nodiscard]] u32      GetHeight() const;
 
         [[nodiscard]] u32 GetGlId() const;
     };

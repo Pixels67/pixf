@@ -10,6 +10,7 @@
 #include "Graphics/ModelRenderer.hpp"
 #include "Graphics/Skybox.hpp"
 #include "Graphics/SpriteRenderer.hpp"
+#include "Gui/Button.hpp"
 #include "Gui/Text.hpp"
 #include "Input/Input.hpp"
 #include "Math/Transform.hpp"
@@ -47,6 +48,7 @@ namespace Flock::Ecs {
         GetRegistry().RegisterComponent<Physics::RigidBody>();
         GetRegistry().RegisterComponent<Audio::AudioSource>();
         GetRegistry().RegisterComponent<Gui::Text>();
+        GetRegistry().RegisterComponent<Gui::Button>();
     }
 
     Registry &World::GetRegistry() {

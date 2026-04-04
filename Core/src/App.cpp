@@ -5,6 +5,7 @@
 #include "Graphics/ModelRenderer.hpp"
 #include "Graphics/Skybox.hpp"
 #include "Graphics/SpriteRenderer.hpp"
+#include "Gui/Button.hpp"
 #include "Gui/Text.hpp"
 #include "Input/Input.hpp"
 #include "Math/Transform.hpp"
@@ -279,7 +280,42 @@ namespace Flock {
     void App::RenderGui() {
         using namespace Gui;
 
+        const auto input = m_World.GetResource<Input::InputState>();
+
+        bool mouseDown     = input.IsMouseDown();
+        bool mouseReleased = input.IsMouseReleased();
+        bool mousePressed  = input.IsMousePressed();
+
         m_Services.guiRenderer.BeginFrame(m_Services.window.GetSize());
+
+        m_World.GetRegistry().ForEach<RectTransform, Button>([&](const RectTransform &trans, const Button &button) {
+            Color4u8 color = button.defaultColor;
+            if (input.IsCursorInRect(trans.rect) && mouseDown) {
+                color = button.pressColor;
+            } else if (input.IsCursorInRect(trans.rect)) {
+                color = button.highlightColor;
+            }
+
+            if (input.IsCursorInRect(trans.rect) && mousePressed && button.onPress) {
+                button.onPress();
+            }
+
+            if (input.IsCursorInRect(trans.rect) && mouseReleased && button.onRelease) {
+                button.onRelease();
+            }
+
+            OptionalRef<Graphics::Texture> tex = std::nullopt;
+
+            if (m_Services.assetLoader.Get<Graphics::Texture>(button.imagePath)) {
+                tex = m_Services.assetLoader.Get<Graphics::Texture>(button.imagePath).value();
+            }
+
+            m_Services.guiRenderer.RenderButton(
+                trans,
+                color,
+                tex
+            );
+        });
 
         m_World.GetRegistry().ForEach<RectTransform, Text>([&](const RectTransform &trans, const Text &text) {
             const auto font = m_Services.assetLoader.Get<Font>(text.fontPath);

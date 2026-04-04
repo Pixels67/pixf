@@ -7,6 +7,7 @@
 #include "Common.hpp"
 #include "Event/EventHandler.hpp"
 #include "Math/Math.hpp"
+#include "Math/Rect.hpp"
 
 namespace Flock::Input {
     enum class Key {
@@ -557,6 +558,13 @@ namespace Flock::Input {
 
         bool IsMouseUp(const MouseButton button = MouseButton::Left) const {
             return !heldMouseButtons.contains(button);
+        }
+
+        bool IsCursorInRect(Rect2f rect) const {
+            auto [x, y] = rect.origin;
+            auto [w, h] = rect.aspect;
+
+            return cursorPosition.x >= x && cursorPosition.x < x + w && cursorPosition.y >= y && cursorPosition.y < y + h;
         }
 
         Vector2f GetCursorPosition() const {

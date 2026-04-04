@@ -186,6 +186,7 @@ set(PROJECT_SOURCES
         src/Gui/Font.hpp
         src/FileIo/Font.hpp
         src/FileIo/Font.cpp
+        src/Gui/Button.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

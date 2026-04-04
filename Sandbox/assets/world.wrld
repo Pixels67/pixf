@@ -10,15 +10,41 @@
         "id": 1,
         "alive": true,
         "version": 0
+      },
+      {
+        "id": 2,
+        "alive": true,
+        "version": 0
       }
     ],
     "components": {
-      "AudioSource": [],
-      "RigidBody": [],
-      "SphereCollider": [],
-      "BoxCollider": [],
-      "ModelRenderer": [],
-      "Text" : [
+      "Button": [
+        {
+          "id": 2,
+          "data": {
+            "image": "../../../assets/Checkerboard.png",
+            "defaultColor": {
+              "r": 0,
+              "g": 0,
+              "b": 0,
+              "a": 255
+            },
+            "highlightColor": {
+              "r": 50,
+              "g": 50,
+              "b": 50,
+              "a": 255
+            },
+            "pressColor": {
+              "r": 20,
+              "g": 20,
+              "b": 20,
+              "a": 255
+            }
+          }
+        }
+      ],
+      "Text": [
         {
           "id": 1,
           "data": {
@@ -34,8 +60,29 @@
             "horizontalAlignment": 1,
             "verticalAlignment": 0
           }
+        },
+        {
+          "id": 2,
+          "data": {
+            "content": "Button",
+            "fontSize": 20,
+            "font": "../../../assets/font.ttf",
+            "color": {
+              "r": 255,
+              "g": 255,
+              "b": 255,
+              "a": 255
+            },
+            "horizontalAlignment": 1,
+            "verticalAlignment": 1
+          }
         }
       ],
+      "AudioSource": [],
+      "RigidBody": [],
+      "SphereCollider": [],
+      "BoxCollider": [],
+      "ModelRenderer": [],
       "SpriteRenderer": [
         {
           "id": 0,
@@ -44,7 +91,6 @@
           }
         }
       ],
-      "RigidTransform": [],
       "RectTransform": [
         {
           "id": 1,
@@ -60,8 +106,24 @@
               }
             }
           }
+        },
+        {
+          "id": 2,
+          "data": {
+            "rect": {
+              "origin": {
+                "x": 400,
+                "y": 300
+              },
+              "aspect": {
+                "x": 200,
+                "y": 100
+              }
+            }
+          }
         }
       ],
+      "RigidTransform": [],
       "Transform": [
         {
           "id": 0,
