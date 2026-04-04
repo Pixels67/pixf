@@ -1,9 +1,4 @@
 #include "Flock.hpp"
-#include "Event/EventRegistry.hpp"
-#include "Graphics/Skybox.hpp"
-#include "Graphics/SpriteRenderer.hpp"
-#include "Gui/Button.hpp"
-#include "Gui/Image.hpp"
 
 using namespace Flock;
 using namespace Flock::Ecs;
