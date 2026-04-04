@@ -95,7 +95,7 @@ $(function(){initNavTree('_file_io_2_model_8hpp_source.html','',''); });
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define FLK_FILE_MODEL_HPP</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;Graphics/Mesh.hpp&quot;</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;Math/Color.hpp&quot;</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;Graphics/Material.hpp&quot;</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="keyword">namespace </span>Flock::FileIo {</div>
 <div class="foldopen" id="foldopen00008" data-start="{" data-end="};">
@@ -105,24 +105,11 @@ $(function(){initNavTree('_file_io_2_model_8hpp_source.html','',''); });
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>    };</div>
 </div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
-<div class="foldopen" id="foldopen00013" data-start="{" data-end="};">
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno"><a class="line" href="struct_flock_1_1_file_io_1_1_material_data.html">   13</a></span>    <span class="keyword">struct </span>FLK_API <a class="code hl_struct" href="struct_flock_1_1_file_io_1_1_material_data.html">MaterialData</a> {</div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>        Color4u8 color     = Color4u8::White();</div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>        f32      metallic  = 0.5F;</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>        f32      roughness = 0.5F;</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>        std::optional&lt;std::string&gt; colorMapPath     = std::nullopt;</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>        std::optional&lt;std::string&gt; metallicMapPath  = std::nullopt;</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>        std::optional&lt;std::string&gt; roughnessMapPath = std::nullopt;</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    };</div>
-</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    FLK_API std::vector&lt;MeshData&gt;     LoadModelMeshes(<span class="keyword">const</span> std::filesystem::path &amp;filePath);</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    FLK_API std::vector&lt;MaterialData&gt; LoadModelMaterials(<span class="keyword">const</span> std::filesystem::path &amp;filePath);</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>}</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="preprocessor">#endif </span><span class="comment">//FLK_MODEL_HPP</span></div>
-<div class="ttc" id="astruct_flock_1_1_file_io_1_1_material_data_html"><div class="ttname"><a href="struct_flock_1_1_file_io_1_1_material_data.html">Flock::FileIo::MaterialData</a></div><div class="ttdef"><b>Definition</b> Model.hpp:13</div></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>    FLK_API std::vector&lt;MeshData&gt;           ReadModelMeshes(<span class="keyword">const</span> std::filesystem::path &amp;filePath);</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>    FLK_API std::vector&lt;Graphics::Material&gt; ReadModelMaterials(<span class="keyword">const</span> std::filesystem::path &amp;filePath);</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>}</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#endif </span><span class="comment">//FLK_MODEL_HPP</span></div>
 <div class="ttc" id="astruct_flock_1_1_file_io_1_1_mesh_data_html"><div class="ttname"><a href="struct_flock_1_1_file_io_1_1_mesh_data.html">Flock::FileIo::MeshData</a></div><div class="ttdef"><b>Definition</b> Model.hpp:8</div></div>
 <div class="ttc" id="astruct_flock_1_1_graphics_1_1_mesh_data_html"><div class="ttname"><a href="struct_flock_1_1_graphics_1_1_mesh_data.html">Flock::Graphics::MeshData</a></div><div class="ttdoc">The data required for constructing a Mesh.</div><div class="ttdef"><b>Definition</b> Mesh.hpp:13</div></div>
 </div><!-- fragment --></div><!-- contents -->

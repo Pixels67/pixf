@@ -99,8 +99,14 @@ $(function(){initNavTree('class_flock_1_1_ecs_1_1_registry.html','','class_flock
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a0fbe1aa82b3452fe5cf063965c5af4f3" id="r_a0fbe1aa82b3452fe5cf063965c5af4f3"><td class="memItemLeft" align="right" valign="top"><a id="a0fbe1aa82b3452fe5cf063965c5af4f3" name="a0fbe1aa82b3452fe5cf063965c5af4f3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Clear</b> ()</td></tr>
+<tr class="memdesc:a0fbe1aa82b3452fe5cf063965c5af4f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears the registry. <br /></td></tr>
 <tr class="memitem:a689bdc343a3da811002f4738f03440f5" id="r_a689bdc343a3da811002f4738f03440f5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_flock_1_1_ecs_1_1_entity.html">Entity</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a689bdc343a3da811002f4738f03440f5">Create</a> ()</td></tr>
 <tr class="memdesc:a689bdc343a3da811002f4738f03440f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an entity and returns a handle to it.  <br /></td></tr>
+<tr class="memitem:a2612667953a10c473526c03d62481b26" id="r_a2612667953a10c473526c03d62481b26"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; </td></tr>
+<tr class="memitem:a2612667953a10c473526c03d62481b26 template"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_flock_1_1_ecs_1_1_entity.html">Entity</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2612667953a10c473526c03d62481b26">Create</a> (Args... args)</td></tr>
+<tr class="memdesc:a2612667953a10c473526c03d62481b26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an entity; adds the specified components, and returns a handle to it.  <br /></td></tr>
 <tr class="memitem:ab997668e8cdab1d30a405dfba45b72ca" id="r_ab997668e8cdab1d30a405dfba45b72ca"><td class="memItemLeft" align="right" valign="top">std::optional&lt; <a class="el" href="struct_flock_1_1_ecs_1_1_entity.html">Entity</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab997668e8cdab1d30a405dfba45b72ca">Get</a> (EntityId id) const</td></tr>
 <tr class="memdesc:ab997668e8cdab1d30a405dfba45b72ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the entity with the corresponding ID.  <br /></td></tr>
 <tr class="memitem:a44a69de74aabdd7fa47d7d947b045d1a" id="r_a44a69de74aabdd7fa47d7d947b045d1a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a44a69de74aabdd7fa47d7d947b045d1a">Destroy</a> (<a class="el" href="struct_flock_1_1_ecs_1_1_entity.html">Entity</a> entity)</td></tr>
@@ -226,7 +232,7 @@ template&lt;typename T&gt; </div>
 </div>
 </div>
 <a id="a689bdc343a3da811002f4738f03440f5" name="a689bdc343a3da811002f4738f03440f5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a689bdc343a3da811002f4738f03440f5">&#9670;&#160;</a></span>Create()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a689bdc343a3da811002f4738f03440f5">&#9670;&#160;</a></span>Create() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -242,6 +248,47 @@ template&lt;typename T&gt; </div>
 
 <p>Creates an entity and returns a handle to it. </p>
 <dl class="section return"><dt>Returns</dt><dd>A newly created entity. </dd></dl>
+
+</div>
+</div>
+<a id="a2612667953a10c473526c03d62481b26" name="a2612667953a10c473526c03d62481b26"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2612667953a10c473526c03d62481b26">&#9670;&#160;</a></span>Create() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename... Args&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="struct_flock_1_1_ecs_1_1_entity.html">Entity</a> Flock::Ecs::Registry::Create </td>
+          <td>(</td>
+          <td class="paramtype">Args...</td>          <td class="paramname"><span class="paramname"><em>args</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Creates an entity; adds the specified components, and returns a handle to it. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Args</td><td>The component types. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">args</td><td>The components. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

@@ -113,11 +113,17 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Clear</b> ()</td></tr
 <tr class="memitem:ab7526e8f7f449a7d1816f9c275a9881b" id="r_ab7526e8f7f449a7d1816f9c275a9881b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab7526e8f7f449a7d1816f9c275a9881b">Bind</a> () const</td></tr>
 <tr class="memdesc:ab7526e8f7f449a7d1816f9c275a9881b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Binds the mesh.  <br /></td></tr>
 <tr class="memitem:ae022b1dca56181fba85bea66a8c8e859" id="r_ae022b1dca56181fba85bea66a8c8e859"><td class="memItemLeft" align="right" valign="top">usize&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae022b1dca56181fba85bea66a8c8e859">GetIndexCount</a> () const</td></tr>
+<tr class="memitem:a6dbc72a94eba269d909fac8e3885e5eb" id="r_a6dbc72a94eba269d909fac8e3885e5eb"><td class="memItemLeft" align="right" valign="top"><a id="a6dbc72a94eba269d909fac8e3885e5eb" name="a6dbc72a94eba269d909fac8e3885e5eb"></a>
+const <a class="el" href="struct_flock_1_1_graphics_1_1_mesh_data.html">MeshData</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetData</b> () const</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-static-methods" class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a9c8494b4e1602f15e96784ceafff2fd0" id="r_a9c8494b4e1602f15e96784ceafff2fd0"><td class="memItemLeft" align="right" valign="top">static std::optional&lt; <a class="el" href="class_flock_1_1_graphics_1_1_mesh.html">Mesh</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9c8494b4e1602f15e96784ceafff2fd0">Create</a> (const <a class="el" href="struct_flock_1_1_graphics_1_1_mesh_data.html">MeshData</a> &amp;data)</td></tr>
 <tr class="memdesc:a9c8494b4e1602f15e96784ceafff2fd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Static factory method.  <br /></td></tr>
+<tr class="memitem:a7890aa3bb4fce76b6d8b39c098b347b7" id="r_a7890aa3bb4fce76b6d8b39c098b347b7"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="class_flock_1_1_graphics_1_1_mesh.html">Mesh</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7890aa3bb4fce76b6d8b39c098b347b7">Square</a> (<a class="el" href="struct_flock_1_1_vector2.html">Vector2f</a> halfExtents=Vector2f::One())</td></tr>
+<tr class="memdesc:a7890aa3bb4fce76b6d8b39c098b347b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Static factory method.  <br /></td></tr>
+<tr class="memitem:a81d059f392b2c45022f0db7062743723" id="r_a81d059f392b2c45022f0db7062743723"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="class_flock_1_1_graphics_1_1_mesh.html">Mesh</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a81d059f392b2c45022f0db7062743723">Box</a> (<a class="el" href="struct_flock_1_1_vector3.html">Vector3f</a> halfExtents=Vector3f::One())</td></tr>
+<tr class="memdesc:a81d059f392b2c45022f0db7062743723"><td class="mdescLeft">&#160;</td><td class="mdescRight">Static factory method.  <br /></td></tr>
 <tr class="memitem:a77d3cffee1a4de3c6af3b3f64ef94afe" id="r_a77d3cffee1a4de3c6af3b3f64ef94afe"><td class="memItemLeft" align="right" valign="top"><a id="a77d3cffee1a4de3c6af3b3f64ef94afe" name="a77d3cffee1a4de3c6af3b3f64ef94afe"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>Unbind</b> ()</td></tr>
 <tr class="memdesc:a77d3cffee1a4de3c6af3b3f64ef94afe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unbinds the currently bound mesh. <br /></td></tr>
@@ -142,6 +148,40 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>Unbind</b> ()<
 
 <p>Binds the mesh. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if successful; false otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="a81d059f392b2c45022f0db7062743723" name="a81d059f392b2c45022f0db7062743723"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81d059f392b2c45022f0db7062743723">&#9670;&#160;</a></span>Box()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_flock_1_1_graphics_1_1_mesh.html">Mesh</a> Flock::Graphics::Mesh::Box </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_flock_1_1_vector3.html">Vector3f</a></td>          <td class="paramname"><span class="paramname"><em>halfExtents</em></span><span class="paramdefsep"> = </span><span class="paramdefval">Vector3f::One()</span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Static factory method. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">halfExtents</td><td>The half extents of the box. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A newly created box mesh. </dd></dl>
 
 </div>
 </div>
@@ -202,6 +242,40 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>Unbind</b> ()<
 </table>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>The index count of the mesh. </dd></dl>
+
+</div>
+</div>
+<a id="a7890aa3bb4fce76b6d8b39c098b347b7" name="a7890aa3bb4fce76b6d8b39c098b347b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7890aa3bb4fce76b6d8b39c098b347b7">&#9670;&#160;</a></span>Square()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_flock_1_1_graphics_1_1_mesh.html">Mesh</a> Flock::Graphics::Mesh::Square </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_flock_1_1_vector2.html">Vector2f</a></td>          <td class="paramname"><span class="paramname"><em>halfExtents</em></span><span class="paramdefsep"> = </span><span class="paramdefval">Vector2f::One()</span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Static factory method. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">halfExtents</td><td>The half extents of the square. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A newly created square mesh. </dd></dl>
 
 </div>
 </div>

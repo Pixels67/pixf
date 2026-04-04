@@ -1,7 +1,7 @@
 var searchData=
 [
   ['material_0',['Material',['../struct_flock_1_1_graphics_1_1_material.html',1,'Flock::Graphics']]],
-  ['materialdata_1',['MaterialData',['../struct_flock_1_1_file_io_1_1_material_data.html',1,'Flock::FileIo']]],
+  ['materialproperties_1',['MaterialProperties',['../struct_flock_1_1_graphics_1_1_material_properties.html',1,'Flock::Graphics']]],
   ['matrix4_2',['Matrix4',['../class_flock_1_1_matrix4.html',1,'Flock']]],
   ['matrix4_3c_20f32_20_3e_3',['Matrix4&lt; f32 &gt;',['../class_flock_1_1_matrix4.html',1,'Flock']]],
   ['matrix4_3c_20f64_20_3e_4',['Matrix4&lt; f64 &gt;',['../class_flock_1_1_matrix4.html',1,'Flock']]],

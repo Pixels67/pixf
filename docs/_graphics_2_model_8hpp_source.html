@@ -99,15 +99,24 @@ $(function(){initNavTree('_graphics_2_model_8hpp_source.html','',''); });
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="keyword">namespace </span>Flock::Graphics {</div>
 <div class="foldopen" id="foldopen00008" data-start="{" data-end="};">
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno"><a class="line" href="struct_flock_1_1_graphics_1_1_model.html">    8</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="struct_flock_1_1_graphics_1_1_model.html">Model</a> {</div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>        std::vector&lt;Mesh&gt;     meshes;</div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>        std::vector&lt;Material&gt; materials;</div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno"><a class="line" href="struct_flock_1_1_graphics_1_1_render_object.html">    8</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="struct_flock_1_1_graphics_1_1_render_object.html">RenderObject</a> {</div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>        <a class="code hl_class" href="class_flock_1_1_graphics_1_1_mesh.html">Mesh</a>     mesh;</div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>        <a class="code hl_struct" href="struct_flock_1_1_graphics_1_1_material.html">Material</a> material;</div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>    };</div>
 </div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>}</div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#endif </span><span class="comment">//FLK_MODEL_HPP</span></div>
-<div class="ttc" id="astruct_flock_1_1_graphics_1_1_model_html"><div class="ttname"><a href="struct_flock_1_1_graphics_1_1_model.html">Flock::Graphics::Model</a></div><div class="ttdef"><b>Definition</b> Model.hpp:8</div></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
+<div class="foldopen" id="foldopen00013" data-start="{" data-end="};">
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno"><a class="line" href="struct_flock_1_1_graphics_1_1_model.html">   13</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="struct_flock_1_1_graphics_1_1_model.html">Model</a> {</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>        std::vector&lt;RenderObject&gt; objects;</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>    };</div>
+</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>}</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#endif </span><span class="comment">//FLK_MODEL_HPP</span></div>
+<div class="ttc" id="aclass_flock_1_1_graphics_1_1_mesh_html"><div class="ttname"><a href="class_flock_1_1_graphics_1_1_mesh.html">Flock::Graphics::Mesh</a></div><div class="ttdoc">If you don&#39;t know what a mesh is then you shouldn&#39;t be here.</div><div class="ttdef"><b>Definition</b> Mesh.hpp:22</div></div>
+<div class="ttc" id="astruct_flock_1_1_graphics_1_1_material_html"><div class="ttname"><a href="struct_flock_1_1_graphics_1_1_material.html">Flock::Graphics::Material</a></div><div class="ttdef"><b>Definition</b> Material.hpp:7</div></div>
+<div class="ttc" id="astruct_flock_1_1_graphics_1_1_model_html"><div class="ttname"><a href="struct_flock_1_1_graphics_1_1_model.html">Flock::Graphics::Model</a></div><div class="ttdef"><b>Definition</b> Model.hpp:13</div></div>
+<div class="ttc" id="astruct_flock_1_1_graphics_1_1_render_object_html"><div class="ttname"><a href="struct_flock_1_1_graphics_1_1_render_object.html">Flock::Graphics::RenderObject</a></div><div class="ttdef"><b>Definition</b> Model.hpp:8</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->

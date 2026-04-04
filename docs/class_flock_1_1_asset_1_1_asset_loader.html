@@ -99,25 +99,29 @@ $(function(){initNavTree('class_flock_1_1_asset_1_1_asset_loader.html','','class
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a0cd6453836064d27a41396e54fd7b0bb" id="r_a0cd6453836064d27a41396e54fd7b0bb"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
-<tr class="memitem:a0cd6453836064d27a41396e54fd7b0bb template"><td class="memItemLeft" align="right" valign="top">std::optional&lt; <a class="el" href="struct_flock_1_1_asset_1_1_handle.html">Handle</a>&lt; T &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0cd6453836064d27a41396e54fd7b0bb">Load</a> (const std::filesystem::path &amp;filePath)</td></tr>
-<tr class="memdesc:a0cd6453836064d27a41396e54fd7b0bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads an asset from disk into memory.  <br /></td></tr>
-<tr class="memitem:a8057228f735cbe942d6b66afc487ba88" id="r_a8057228f735cbe942d6b66afc487ba88"><td class="memTemplParams" colspan="2">template&lt;typename T, typename C&gt; </td></tr>
-<tr class="memitem:a8057228f735cbe942d6b66afc487ba88 template"><td class="memItemLeft" align="right" valign="top">std::optional&lt; <a class="el" href="struct_flock_1_1_asset_1_1_handle.html">Handle</a>&lt; T &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8057228f735cbe942d6b66afc487ba88">Load</a> (const std::filesystem::path &amp;filePath, C config)</td></tr>
-<tr class="memdesc:a8057228f735cbe942d6b66afc487ba88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads an asset from disk into memory with a configuration.  <br /></td></tr>
+<tr class="memitem:ae9efd77192b3766a46b38ae54c565f55" id="r_ae9efd77192b3766a46b38ae54c565f55"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
+<tr class="memitem:ae9efd77192b3766a46b38ae54c565f55 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae9efd77192b3766a46b38ae54c565f55">Load</a> (const std::filesystem::path &amp;filePath)</td></tr>
+<tr class="memdesc:ae9efd77192b3766a46b38ae54c565f55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads an asset from disk into memory.  <br /></td></tr>
+<tr class="memitem:a108f6ca1f1366489a9fc9aefd397af8d" id="r_a108f6ca1f1366489a9fc9aefd397af8d"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
+<tr class="memitem:a108f6ca1f1366489a9fc9aefd397af8d template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a108f6ca1f1366489a9fc9aefd397af8d">Unload</a> (std::filesystem::path filePath)</td></tr>
+<tr class="memdesc:a108f6ca1f1366489a9fc9aefd397af8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unloads an asset from memory.  <br /></td></tr>
+<tr class="memitem:a453cc23e2d3679664fe5d6dcb6e38669" id="r_a453cc23e2d3679664fe5d6dcb6e38669"><td class="memTemplParams" colspan="2"><a id="a453cc23e2d3679664fe5d6dcb6e38669" name="a453cc23e2d3679664fe5d6dcb6e38669"></a>
+template&lt;typename T&gt; </td></tr>
+<tr class="memitem:a453cc23e2d3679664fe5d6dcb6e38669 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsLoaded</b> (const std::filesystem::path &amp;filePath)</td></tr>
+<tr class="memitem:ad71fa8d078034956ecba69ad2da8e18f" id="r_ad71fa8d078034956ecba69ad2da8e18f"><td class="memTemplParams" colspan="2"><a id="ad71fa8d078034956ecba69ad2da8e18f" name="ad71fa8d078034956ecba69ad2da8e18f"></a>
+template&lt;typename T&gt; </td></tr>
+<tr class="memitem:ad71fa8d078034956ecba69ad2da8e18f template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsLoaded</b> (<a class="el" href="struct_flock_1_1_asset_1_1_handle.html">Handle</a>&lt; T &gt; handle)</td></tr>
 <tr class="memitem:ab813001271ff084e5458888c242dc981" id="r_ab813001271ff084e5458888c242dc981"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
 <tr class="memitem:ab813001271ff084e5458888c242dc981 template"><td class="memItemLeft" align="right" valign="top">OptionalRef&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab813001271ff084e5458888c242dc981">Get</a> (<a class="el" href="struct_flock_1_1_asset_1_1_handle.html">Handle</a>&lt; T &gt; handle)</td></tr>
 <tr class="memdesc:ab813001271ff084e5458888c242dc981"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a reference to an asset.  <br /></td></tr>
-<tr class="memitem:a03642973db2af2cc373043181ac7158a" id="r_a03642973db2af2cc373043181ac7158a"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
-<tr class="memitem:a03642973db2af2cc373043181ac7158a template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a03642973db2af2cc373043181ac7158a">Unload</a> (<a class="el" href="struct_flock_1_1_asset_1_1_handle.html">Handle</a>&lt; T &gt; handle)</td></tr>
-<tr class="memdesc:a03642973db2af2cc373043181ac7158a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unloads an asset from memory.  <br /></td></tr>
+<tr class="memitem:a2874b855c08e55292dd9cb5ef21de0cd" id="r_a2874b855c08e55292dd9cb5ef21de0cd"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
+<tr class="memitem:a2874b855c08e55292dd9cb5ef21de0cd template"><td class="memItemLeft" align="right" valign="top">OptionalRef&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2874b855c08e55292dd9cb5ef21de0cd">Get</a> (const std::filesystem::path filePath)</td></tr>
+<tr class="memdesc:a2874b855c08e55292dd9cb5ef21de0cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a reference to an asset.  <br /></td></tr>
 <tr class="memitem:a2da994d1bb8729fa3dc5aa6500f1e255" id="r_a2da994d1bb8729fa3dc5aa6500f1e255"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
 <tr class="memitem:a2da994d1bb8729fa3dc5aa6500f1e255 template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2da994d1bb8729fa3dc5aa6500f1e255">UnloadAll</a> ()</td></tr>
 <tr class="memdesc:a2da994d1bb8729fa3dc5aa6500f1e255"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unloads all assets of a specified type.  <br /></td></tr>
-<tr class="memitem:a7215ae79ad7970b0e49637576f801e8e" id="r_a7215ae79ad7970b0e49637576f801e8e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7215ae79ad7970b0e49637576f801e8e">SetDefaultPipeline</a> (const PipelineType type, const <a class="el" href="struct_flock_1_1_asset_1_1_handle.html">Handle</a>&lt; <a class="el" href="class_flock_1_1_graphics_1_1_pipeline.html">Graphics::Pipeline</a> &gt; pipeline)</td></tr>
-<tr class="memdesc:a7215ae79ad7970b0e49637576f801e8e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a default pipeline.  <br /></td></tr>
-<tr class="memitem:a06174256f8dfb149c7e0bf9a8c7d8d2c" id="r_a06174256f8dfb149c7e0bf9a8c7d8d2c"><td class="memItemLeft" align="right" valign="top">std::optional&lt; <a class="el" href="struct_flock_1_1_asset_1_1_handle.html">Handle</a>&lt; <a class="el" href="class_flock_1_1_graphics_1_1_pipeline.html">Graphics::Pipeline</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a06174256f8dfb149c7e0bf9a8c7d8d2c">GetDefaultPipeline</a> (const PipelineType type)</td></tr>
-<tr class="memdesc:a06174256f8dfb149c7e0bf9a8c7d8d2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the default pipeline of a stated type.  <br /></td></tr>
+<tr class="memitem:a56db939d4c2ef0a43ad49fe81a0e194a" id="r_a56db939d4c2ef0a43ad49fe81a0e194a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a56db939d4c2ef0a43ad49fe81a0e194a">SetDefaultPipeline</a> (const PipelineType type, const std::filesystem::path &amp;filePath)</td></tr>
+<tr class="memdesc:a56db939d4c2ef0a43ad49fe81a0e194a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a default pipeline.  <br /></td></tr>
 <tr class="memitem:a48e370b39dc9d70f28d47272a577a77e" id="r_a48e370b39dc9d70f28d47272a577a77e"><td class="memItemLeft" align="right" valign="top"><a id="a48e370b39dc9d70f28d47272a577a77e" name="a48e370b39dc9d70f28d47272a577a77e"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>UnloadAll</b> ()</td></tr>
 <tr class="memdesc:a48e370b39dc9d70f28d47272a577a77e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unloads all assets. <br /></td></tr>
@@ -125,8 +129,50 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>UnloadAll</b> ()</td>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Loads, unloads, and stores all the in-game assets. </p>
 </div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
+<a id="a2874b855c08e55292dd9cb5ef21de0cd" name="a2874b855c08e55292dd9cb5ef21de0cd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2874b855c08e55292dd9cb5ef21de0cd">&#9670;&#160;</a></span>Get() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">OptionalRef&lt; T &gt; Flock::Asset::AssetLoader::Get </td>
+          <td>(</td>
+          <td class="paramtype">const std::filesystem::path</td>          <td class="paramname"><span class="paramname"><em>filePath</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves a reference to an asset. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>The asset type. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">filePath</td><td>The file path of the asset. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A reference to the asset if successful; std::nullopt otherwise. </dd></dl>
+
+</div>
+</div>
 <a id="ab813001271ff084e5458888c242dc981" name="ab813001271ff084e5458888c242dc981"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab813001271ff084e5458888c242dc981">&#9670;&#160;</a></span>Get()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ab813001271ff084e5458888c242dc981">&#9670;&#160;</a></span>Get() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -167,42 +213,8 @@ template&lt;typename T&gt; </div>
 
 </div>
 </div>
-<a id="a06174256f8dfb149c7e0bf9a8c7d8d2c" name="a06174256f8dfb149c7e0bf9a8c7d8d2c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a06174256f8dfb149c7e0bf9a8c7d8d2c">&#9670;&#160;</a></span>GetDefaultPipeline()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::optional&lt; <a class="el" href="struct_flock_1_1_asset_1_1_handle.html">Handle</a>&lt; <a class="el" href="class_flock_1_1_graphics_1_1_pipeline.html">Graphics::Pipeline</a> &gt; &gt; Flock::Asset::AssetLoader::GetDefaultPipeline </td>
-          <td>(</td>
-          <td class="paramtype">const PipelineType</td>          <td class="paramname"><span class="paramname"><em>type</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Retrieves the default pipeline of a stated type. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">type</td><td>The pipeline type. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>The default pipeline of that type if found; std::nullopt otherwise. </dd></dl>
-
-</div>
-</div>
-<a id="a0cd6453836064d27a41396e54fd7b0bb" name="a0cd6453836064d27a41396e54fd7b0bb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0cd6453836064d27a41396e54fd7b0bb">&#9670;&#160;</a></span>Load() <span class="overload">[1/2]</span></h2>
+<a id="ae9efd77192b3766a46b38ae54c565f55" name="ae9efd77192b3766a46b38ae54c565f55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae9efd77192b3766a46b38ae54c565f55">&#9670;&#160;</a></span>Load()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -213,7 +225,7 @@ template&lt;typename T&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::optional&lt; <a class="el" href="struct_flock_1_1_asset_1_1_handle.html">Handle</a>&lt; T &gt; &gt; Flock::Asset::AssetLoader::Load </td>
+          <td class="memname">bool Flock::Asset::AssetLoader::Load </td>
           <td>(</td>
           <td class="paramtype">const std::filesystem::path &amp;</td>          <td class="paramname"><span class="paramname"><em>filePath</em></span></td><td>)</td>
           <td></td>
@@ -239,60 +251,12 @@ template&lt;typename T&gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A handle to the asset if successful; std::nullopt otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>true if successful; false otherwise. </dd></dl>
 
 </div>
 </div>
-<a id="a8057228f735cbe942d6b66afc487ba88" name="a8057228f735cbe942d6b66afc487ba88"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8057228f735cbe942d6b66afc487ba88">&#9670;&#160;</a></span>Load() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename T, typename C&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::optional&lt; <a class="el" href="struct_flock_1_1_asset_1_1_handle.html">Handle</a>&lt; T &gt; &gt; Flock::Asset::AssetLoader::Load </td>
-          <td>(</td>
-          <td class="paramtype">const std::filesystem::path &amp;</td>          <td class="paramname"><span class="paramname"><em>filePath</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">C</td>          <td class="paramname"><span class="paramname"><em>config</em></span>&#160;)</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Loads an asset from disk into memory with a configuration. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">T</td><td>The asset type. </td></tr>
-    <tr><td class="paramname">C</td><td>The asset configuration type. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">filePath</td><td>The file path. </td></tr>
-    <tr><td class="paramname">config</td><td>The configuration for the asset. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A handle to the asset if successful; std::nullopt otherwise. </dd></dl>
-
-</div>
-</div>
-<a id="a7215ae79ad7970b0e49637576f801e8e" name="a7215ae79ad7970b0e49637576f801e8e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7215ae79ad7970b0e49637576f801e8e">&#9670;&#160;</a></span>SetDefaultPipeline()</h2>
+<a id="a56db939d4c2ef0a43ad49fe81a0e194a" name="a56db939d4c2ef0a43ad49fe81a0e194a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a56db939d4c2ef0a43ad49fe81a0e194a">&#9670;&#160;</a></span>SetDefaultPipeline()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -308,7 +272,7 @@ template&lt;typename T, typename C&gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="struct_flock_1_1_asset_1_1_handle.html">Handle</a>&lt; <a class="el" href="class_flock_1_1_graphics_1_1_pipeline.html">Graphics::Pipeline</a> &gt;</td>          <td class="paramname"><span class="paramname"><em>pipeline</em></span>&#160;)</td>
+          <td class="paramtype">const std::filesystem::path &amp;</td>          <td class="paramname"><span class="paramname"><em>filePath</em></span>&#160;)</td>
         </tr>
       </table>
   </td>
@@ -322,7 +286,7 @@ template&lt;typename T, typename C&gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">type</td><td>The pipeline type. </td></tr>
-    <tr><td class="paramname">pipeline</td><td>The pipeline to set. </td></tr>
+    <tr><td class="paramname">filePath</td><td>The pipeline to set. </td></tr>
   </table>
   </dd>
 </dl>
@@ -330,8 +294,8 @@ template&lt;typename T, typename C&gt; </div>
 
 </div>
 </div>
-<a id="a03642973db2af2cc373043181ac7158a" name="a03642973db2af2cc373043181ac7158a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a03642973db2af2cc373043181ac7158a">&#9670;&#160;</a></span>Unload()</h2>
+<a id="a108f6ca1f1366489a9fc9aefd397af8d" name="a108f6ca1f1366489a9fc9aefd397af8d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a108f6ca1f1366489a9fc9aefd397af8d">&#9670;&#160;</a></span>Unload()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -344,7 +308,7 @@ template&lt;typename T&gt; </div>
         <tr>
           <td class="memname">bool Flock::Asset::AssetLoader::Unload </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="struct_flock_1_1_asset_1_1_handle.html">Handle</a>&lt; T &gt;</td>          <td class="paramname"><span class="paramname"><em>handle</em></span></td><td>)</td>
+          <td class="paramtype">std::filesystem::path</td>          <td class="paramname"><span class="paramname"><em>filePath</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -364,7 +328,7 @@ template&lt;typename T&gt; </div>
 </dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">handle</td><td>A handle to the asset. </td></tr>
+    <tr><td class="paramname">filePath</td><td>The file path of the asset. </td></tr>
   </table>
   </dd>
 </dl>

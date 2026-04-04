@@ -2,6 +2,7 @@ var dir_8d1265a571d617c498c32376c582c246 =
 [
     [ "Buffer.hpp", "_graphics_2_buffer_8hpp_source.html", null ],
     [ "Camera.hpp", "_camera_8hpp_source.html", null ],
+    [ "CubeMap.hpp", "_cube_map_8hpp_source.html", null ],
     [ "Framebuffer.hpp", "_framebuffer_8hpp_source.html", null ],
     [ "Gl.hpp", "_gl_8hpp_source.html", null ],
     [ "Image.hpp", "_graphics_2_image_8hpp_source.html", null ],
@@ -13,7 +14,9 @@ var dir_8d1265a571d617c498c32376c582c246 =
     [ "Pipeline.hpp", "_graphics_2_pipeline_8hpp_source.html", null ],
     [ "Renderer.hpp", "_renderer_8hpp_source.html", null ],
     [ "Shader.hpp", "_shader_8hpp_source.html", null ],
-    [ "Texture2D.hpp", "_texture2_d_8hpp_source.html", null ],
+    [ "Skybox.hpp", "_skybox_8hpp_source.html", null ],
+    [ "SpriteRenderer.hpp", "_sprite_renderer_8hpp_source.html", null ],
+    [ "Texture.hpp", "_texture_8hpp_source.html", null ],
     [ "TextureArray.hpp", "_texture_array_8hpp_source.html", null ],
     [ "Vertex.hpp", "_vertex_8hpp_source.html", null ],
     [ "VertexArray.hpp", "_vertex_array_8hpp_source.html", null ],

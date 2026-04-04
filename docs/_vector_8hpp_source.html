@@ -219,7 +219,7 @@ $(function(){initNavTree('_vector_8hpp_source.html','',''); });
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>        FLK_MATH_ASSIGN_OPS(Vector3, T, EXPR)</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span><span class="preprocessor">#undef EXPR</span></div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span> </div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>        Vector3 operator*(<span class="keyword">const</span> <a class="code hl_class" href="class_flock_1_1_quaternion.html">Quaternion</a> &amp;quaternion) { <span class="keywordflow">return</span> quaternion * *<span class="keyword">this</span>; }</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>        Vector3 operator*(<span class="keyword">const</span> <a class="code hl_class" href="class_flock_1_1_quaternion.html">Quaternion</a> &amp;quaternion)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> quaternion * *<span class="keyword">this</span>; }</div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span> </div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>        T Dot(<span class="keyword">const</span> Vector3 &amp;other)<span class="keyword"> const </span>{</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>            <span class="keywordflow">return</span> x * other.x + y * other.y + z * other.z;</div>

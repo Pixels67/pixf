@@ -95,110 +95,117 @@ $(function(){initNavTree('_graphics_2_pipeline_8hpp_source.html','',''); });
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define FLK_PIPELINE_HPP</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;Common.hpp&quot;</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;Shader.hpp&quot;</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;Texture2D.hpp&quot;</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &quot;TextureArray.hpp&quot;</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;Math/Math.hpp&quot;</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="keyword">namespace </span>Flock::Graphics {</div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>    <span class="keyword">enum class</span> UniformType : u16 {</div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>        U8,</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>        U32,</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>        I32,</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>        F32,</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>        Vec3,</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>        Vec2,</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        Vec4,</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        Col3,</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>        Col4,</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        Mat4</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    };</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span></div>
-<div class="foldopen" id="foldopen00031" data-start="{" data-end="};">
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno"><a class="line" href="struct_flock_1_1_graphics_1_1_uniform.html">   31</a></span>    <span class="keyword">struct </span>FLK_API <a class="code hl_struct" href="struct_flock_1_1_graphics_1_1_uniform.html">Uniform</a> {</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>        UniformType type;</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>        std::any    data;</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    };</div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;CubeMap.hpp&quot;</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;Shader.hpp&quot;</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &quot;Texture.hpp&quot;</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;TextureArray.hpp&quot;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;Math/Math.hpp&quot;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="keyword">namespace </span>Flock::Graphics {</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>    <span class="keyword">enum class</span> UniformType : u16 {</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>        U8,</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>        U32,</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>        I32,</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>        F32,</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>        Vec3,</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        Vec2,</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        Vec4,</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>        Col3,</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        Col4,</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>        Mat4</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    };</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span></div>
+<div class="foldopen" id="foldopen00032" data-start="{" data-end="};">
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno"><a class="line" href="struct_flock_1_1_graphics_1_1_uniform.html">   32</a></span>    <span class="keyword">struct </span>FLK_API <a class="code hl_struct" href="struct_flock_1_1_graphics_1_1_uniform.html">Uniform</a> {</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>        UniformType type;</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>        std::any    data;</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    };</div>
 </div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="foldopen" id="foldopen00036" data-start="{" data-end="};">
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno"><a class="line" href="struct_flock_1_1_graphics_1_1_sampler_info.html">   36</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="struct_flock_1_1_graphics_1_1_sampler_info.html">SamplerInfo</a> {</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        i32 unit;</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>        u32 glType;</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    };</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
+<div class="foldopen" id="foldopen00037" data-start="{" data-end="};">
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno"><a class="line" href="struct_flock_1_1_graphics_1_1_sampler_info.html">   37</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="struct_flock_1_1_graphics_1_1_sampler_info.html">SamplerInfo</a> {</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>        i32 unit;</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        u32 glType;</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    };</div>
 </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span></div>
-<div class="foldopen" id="foldopen00045" data-start="{" data-end="};">
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="class_flock_1_1_graphics_1_1_pipeline.html">   45</a></span>    <span class="keyword">class </span>FLK_API Pipeline {</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        u32                               m_Id = 0;</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        std::unordered_map&lt;std::string, Uniform&gt;     m_Uniforms;</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>        std::unordered_map&lt;std::string, SamplerInfo&gt; m_Samplers;</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        <a class="code hl_class" href="class_flock_1_1_graphics_1_1_texture2_d.html">Texture2D</a>                         m_DefaultTexture;</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        <span class="keyword">static</span> std::optional&lt;Pipeline&gt; <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#aa57d0970ad941f756636ec791359c9b6">Create</a>(<span class="keyword">const</span> <a class="code hl_class" href="class_flock_1_1_graphics_1_1_shader.html">Shader</a> &amp;vertex, <span class="keyword">const</span> <a class="code hl_class" href="class_flock_1_1_graphics_1_1_shader.html">Shader</a> &amp;fragment);</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>        Pipeline() = <span class="keywordflow">default</span>;</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        ~Pipeline();</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        Pipeline(<span class="keyword">const</span> Pipeline &amp;other) = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>        Pipeline(Pipeline &amp;&amp;other) <span class="keyword">noexcept</span>;</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        Pipeline &amp;operator=(<span class="keyword">const</span> Pipeline &amp;other) = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>        Pipeline &amp;operator=(Pipeline &amp;&amp;other) <span class="keyword">noexcept</span>;</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span></div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a1999828fd3e3bc9879b88089966d3f34">Clear</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span></div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>        <span class="keywordtype">bool</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#abd4746ba85082e1d966c8a8cd1dd1d33">Bind</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span></div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>        <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#aa3ae69fc8ffa4b85eb6dae184886fb54">Unbind</a>();</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span></div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, u8 value);</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span></div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, u32 value);</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span></div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, i32 value);</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span></div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, f32 value);</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span></div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, Vector2f value);</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span></div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, Vector3f value);</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span></div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, Vector4f value);</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span></div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, Color3u8 value);</div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span></div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, Color4u8 value);</div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span></div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, Matrix4f value);</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span></div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>        <span class="keywordtype">bool</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, <span class="keyword">const</span> <a class="code hl_class" href="class_flock_1_1_graphics_1_1_texture2_d.html">Texture2D</a> &amp;value) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span></div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>        <span class="keywordtype">bool</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, <span class="keyword">const</span> <a class="code hl_class" href="class_flock_1_1_graphics_1_1_texture_array.html">TextureArray</a> &amp;value) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <span class="keyword">private</span>:</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>        <span class="keyword">static</span> u32 LinkShaders(<span class="keyword">const</span> <a class="code hl_class" href="class_flock_1_1_graphics_1_1_shader.html">Shader</a> &amp;vertex, <span class="keyword">const</span> <a class="code hl_class" href="class_flock_1_1_graphics_1_1_shader.html">Shader</a> &amp;fragment);</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span> </div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>        <span class="keywordtype">bool</span> SetSamplerUnits();</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>        <span class="keywordtype">bool</span> BindUniform(<span class="keyword">const</span> std::string &amp;name, <span class="keyword">const</span> <a class="code hl_struct" href="struct_flock_1_1_graphics_1_1_uniform.html">Uniform</a> &amp;uniform) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span> </div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>        <span class="keywordtype">void</span> SetDefaultTextures() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    };</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span></div>
+<div class="foldopen" id="foldopen00046" data-start="{" data-end="};">
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="class_flock_1_1_graphics_1_1_pipeline.html">   46</a></span>    <span class="keyword">class </span>FLK_API Pipeline {</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        u32                                          m_Id = 0;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>        std::unordered_map&lt;std::string, Uniform&gt;     m_Uniforms;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        std::unordered_map&lt;std::string, SamplerInfo&gt; m_Samplers;</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>        <a class="code hl_class" href="class_flock_1_1_graphics_1_1_texture.html">Texture</a>                                    m_DefaultTexture;</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        <span class="keyword">static</span> std::optional&lt;Pipeline&gt; <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#aa57d0970ad941f756636ec791359c9b6">Create</a>(<span class="keyword">const</span> <a class="code hl_class" href="class_flock_1_1_graphics_1_1_shader.html">Shader</a> &amp;vertex, <span class="keyword">const</span> <a class="code hl_class" href="class_flock_1_1_graphics_1_1_shader.html">Shader</a> &amp;fragment);</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        Pipeline() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        ~Pipeline();</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>        Pipeline(<span class="keyword">const</span> Pipeline &amp;other) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        Pipeline(Pipeline &amp;&amp;other) <span class="keyword">noexcept</span>;</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>        Pipeline &amp;operator=(<span class="keyword">const</span> Pipeline &amp;other) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>        Pipeline &amp;operator=(Pipeline &amp;&amp;other) <span class="keyword">noexcept</span>;</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a1999828fd3e3bc9879b88089966d3f34">Clear</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span></div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>        <span class="keywordtype">bool</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#abd4746ba85082e1d966c8a8cd1dd1d33">Bind</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span></div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>        <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#aa3ae69fc8ffa4b85eb6dae184886fb54">Unbind</a>();</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span></div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, u8 value);</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span></div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, u32 value);</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span></div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, i32 value);</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span></div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, f32 value);</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span></div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, Vector2f value);</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span></div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, Vector3f value);</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span></div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, Vector4f value);</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span></div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, Color3u8 value);</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span></div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, Color4u8 value);</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span></div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, Matrix4f value);</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span></div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>        <span class="keywordtype">bool</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, <span class="keyword">const</span> <a class="code hl_class" href="class_flock_1_1_graphics_1_1_texture.html">Texture</a> &amp;value) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span></div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>        <span class="keywordtype">bool</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, <span class="keyword">const</span> <a class="code hl_class" href="class_flock_1_1_graphics_1_1_cube_map.html">CubeMap</a> &amp;value) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span></div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>        <span class="keywordtype">bool</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">SetUniform</a>(<span class="keyword">const</span> std::string &amp;name, <span class="keyword">const</span> <a class="code hl_class" href="class_flock_1_1_graphics_1_1_texture_array.html">TextureArray</a> &amp;value) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span></div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="class_flock_1_1_graphics_1_1_pipeline.html#a9326aa16d94f4c33d8825cb420e92d49">ResetUniforms</a>();</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span> </div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>        <span class="keyword">static</span> u32 LinkShaders(<span class="keyword">const</span> <a class="code hl_class" href="class_flock_1_1_graphics_1_1_shader.html">Shader</a> &amp;vertex, <span class="keyword">const</span> <a class="code hl_class" href="class_flock_1_1_graphics_1_1_shader.html">Shader</a> &amp;fragment);</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span> </div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>        <span class="keywordtype">bool</span> SetSamplerUnits();</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>        <span class="keywordtype">bool</span> BindUniform(<span class="keyword">const</span> std::string &amp;name, <span class="keyword">const</span> <a class="code hl_struct" href="struct_flock_1_1_graphics_1_1_uniform.html">Uniform</a> &amp;uniform) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>        <span class="keywordtype">void</span> SetDefaultTextures(<span class="keywordtype">bool</span> overwrite = <span class="keyword">false</span>) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    };</div>
 </div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>}</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span><span class="preprocessor">#endif </span><span class="comment">//FLK_PIPELINE_HPP</span></div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>}</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span> </div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span><span class="preprocessor">#endif </span><span class="comment">//FLK_PIPELINE_HPP</span></div>
+<div class="ttc" id="aclass_flock_1_1_graphics_1_1_cube_map_html"><div class="ttname"><a href="class_flock_1_1_graphics_1_1_cube_map.html">Flock::Graphics::CubeMap</a></div><div class="ttdef"><b>Definition</b> CubeMap.hpp:8</div></div>
 <div class="ttc" id="aclass_flock_1_1_graphics_1_1_pipeline_html_a1999828fd3e3bc9879b88089966d3f34"><div class="ttname"><a href="class_flock_1_1_graphics_1_1_pipeline.html#a1999828fd3e3bc9879b88089966d3f34">Flock::Graphics::Pipeline::Clear</a></div><div class="ttdeci">void Clear() const</div><div class="ttdoc">Clears the shader.</div><div class="ttdef"><b>Definition</b> Pipeline.cpp:48</div></div>
 <div class="ttc" id="aclass_flock_1_1_graphics_1_1_pipeline_html_a4fcd5a0325d04d11e362da393439d174"><div class="ttname"><a href="class_flock_1_1_graphics_1_1_pipeline.html#a4fcd5a0325d04d11e362da393439d174">Flock::Graphics::Pipeline::SetUniform</a></div><div class="ttdeci">void SetUniform(const std::string &amp;name, u8 value)</div><div class="ttdoc">Sets a byte uniform.</div><div class="ttdef"><b>Definition</b> Pipeline.cpp:73</div></div>
+<div class="ttc" id="aclass_flock_1_1_graphics_1_1_pipeline_html_a9326aa16d94f4c33d8825cb420e92d49"><div class="ttname"><a href="class_flock_1_1_graphics_1_1_pipeline.html#a9326aa16d94f4c33d8825cb420e92d49">Flock::Graphics::Pipeline::ResetUniforms</a></div><div class="ttdeci">void ResetUniforms()</div><div class="ttdoc">Resets all uniforms;.</div><div class="ttdef"><b>Definition</b> Pipeline.cpp:155</div></div>
 <div class="ttc" id="aclass_flock_1_1_graphics_1_1_pipeline_html_aa3ae69fc8ffa4b85eb6dae184886fb54"><div class="ttname"><a href="class_flock_1_1_graphics_1_1_pipeline.html#aa3ae69fc8ffa4b85eb6dae184886fb54">Flock::Graphics::Pipeline::Unbind</a></div><div class="ttdeci">static void Unbind()</div><div class="ttdoc">Unbinds the shader pipeline.</div><div class="ttdef"><b>Definition</b> Pipeline.cpp:69</div></div>
 <div class="ttc" id="aclass_flock_1_1_graphics_1_1_pipeline_html_aa57d0970ad941f756636ec791359c9b6"><div class="ttname"><a href="class_flock_1_1_graphics_1_1_pipeline.html#aa57d0970ad941f756636ec791359c9b6">Flock::Graphics::Pipeline::Create</a></div><div class="ttdeci">static std::optional&lt; Pipeline &gt; Create(const Shader &amp;vertex, const Shader &amp;fragment)</div><div class="ttdoc">Static factory method.</div><div class="ttdef"><b>Definition</b> Pipeline.cpp:6</div></div>
 <div class="ttc" id="aclass_flock_1_1_graphics_1_1_pipeline_html_abd4746ba85082e1d966c8a8cd1dd1d33"><div class="ttname"><a href="class_flock_1_1_graphics_1_1_pipeline.html#abd4746ba85082e1d966c8a8cd1dd1d33">Flock::Graphics::Pipeline::Bind</a></div><div class="ttdeci">bool Bind() const</div><div class="ttdoc">Binds the shader pipeline.</div><div class="ttdef"><b>Definition</b> Pipeline.cpp:52</div></div>
 <div class="ttc" id="aclass_flock_1_1_graphics_1_1_shader_html"><div class="ttname"><a href="class_flock_1_1_graphics_1_1_shader.html">Flock::Graphics::Shader</a></div><div class="ttdoc">An OpenGL shader.</div><div class="ttdef"><b>Definition</b> Shader.hpp:18</div></div>
-<div class="ttc" id="aclass_flock_1_1_graphics_1_1_texture2_d_html"><div class="ttname"><a href="class_flock_1_1_graphics_1_1_texture2_d.html">Flock::Graphics::Texture2D</a></div><div class="ttdoc">A 2D Texture.</div><div class="ttdef"><b>Definition</b> Texture2D.hpp:78</div></div>
-<div class="ttc" id="aclass_flock_1_1_graphics_1_1_texture_array_html"><div class="ttname"><a href="class_flock_1_1_graphics_1_1_texture_array.html">Flock::Graphics::TextureArray</a></div><div class="ttdef"><b>Definition</b> TextureArray.hpp:11</div></div>
-<div class="ttc" id="astruct_flock_1_1_graphics_1_1_sampler_info_html"><div class="ttname"><a href="struct_flock_1_1_graphics_1_1_sampler_info.html">Flock::Graphics::SamplerInfo</a></div><div class="ttdef"><b>Definition</b> Pipeline.hpp:36</div></div>
-<div class="ttc" id="astruct_flock_1_1_graphics_1_1_uniform_html"><div class="ttname"><a href="struct_flock_1_1_graphics_1_1_uniform.html">Flock::Graphics::Uniform</a></div><div class="ttdoc">A Pipeline uniform.</div><div class="ttdef"><b>Definition</b> Pipeline.hpp:31</div></div>
+<div class="ttc" id="aclass_flock_1_1_graphics_1_1_texture_array_html"><div class="ttname"><a href="class_flock_1_1_graphics_1_1_texture_array.html">Flock::Graphics::TextureArray</a></div><div class="ttdef"><b>Definition</b> TextureArray.hpp:9</div></div>
+<div class="ttc" id="aclass_flock_1_1_graphics_1_1_texture_html"><div class="ttname"><a href="class_flock_1_1_graphics_1_1_texture.html">Flock::Graphics::Texture</a></div><div class="ttdoc">A 2D Texture.</div><div class="ttdef"><b>Definition</b> Texture.hpp:78</div></div>
+<div class="ttc" id="astruct_flock_1_1_graphics_1_1_sampler_info_html"><div class="ttname"><a href="struct_flock_1_1_graphics_1_1_sampler_info.html">Flock::Graphics::SamplerInfo</a></div><div class="ttdef"><b>Definition</b> Pipeline.hpp:37</div></div>
+<div class="ttc" id="astruct_flock_1_1_graphics_1_1_uniform_html"><div class="ttname"><a href="struct_flock_1_1_graphics_1_1_uniform.html">Flock::Graphics::Uniform</a></div><div class="ttdoc">A Pipeline uniform.</div><div class="ttdef"><b>Definition</b> Pipeline.hpp:32</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->

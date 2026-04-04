@@ -1,8 +1,10 @@
 var class_flock_1_1_ecs_1_1_registry =
 [
     [ "AddComponent", "class_flock_1_1_ecs_1_1_registry.html#aef6ba2cad31885dfa155b5edf3036d0c", null ],
+    [ "Clear", "class_flock_1_1_ecs_1_1_registry.html#a0fbe1aa82b3452fe5cf063965c5af4f3", null ],
     [ "ClearComponents", "class_flock_1_1_ecs_1_1_registry.html#a264c2e05de5ca3bb283c02eaaa1680a2", null ],
     [ "Create", "class_flock_1_1_ecs_1_1_registry.html#a689bdc343a3da811002f4738f03440f5", null ],
+    [ "Create", "class_flock_1_1_ecs_1_1_registry.html#a2612667953a10c473526c03d62481b26", null ],
     [ "Destroy", "class_flock_1_1_ecs_1_1_registry.html#a44a69de74aabdd7fa47d7d947b045d1a", null ],
     [ "ForEach", "class_flock_1_1_ecs_1_1_registry.html#a5f77e37b4ebe4e175f08a80e8edfd739", null ],
     [ "ForEachEntity", "class_flock_1_1_ecs_1_1_registry.html#a6bdedfb5115aaa3b1a8fc9599b682b77", null ],

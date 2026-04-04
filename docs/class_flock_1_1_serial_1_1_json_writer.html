@@ -105,6 +105,14 @@ Inheritance diagram for Flock::Serial::JsonWriter:</div>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a13cff53b29123209abe86ccaf2b87216" id="r_a13cff53b29123209abe86ccaf2b87216"><td class="memItemLeft" align="right" valign="top"><a id="a13cff53b29123209abe86ccaf2b87216" name="a13cff53b29123209abe86ccaf2b87216"></a>
 <a class="el" href="class_flock_1_1_serial_1_1_json.html">Json</a>&#160;</td><td class="memItemRight" valign="bottom"><b>GetOutput</b> () const</td></tr>
+<tr class="memitem:ac59b404b402398a043d1ec003963f82e" id="r_ac59b404b402398a043d1ec003963f82e"><td class="memTemplParams" colspan="2"><a id="ac59b404b402398a043d1ec003963f82e" name="ac59b404b402398a043d1ec003963f82e"></a>
+template&lt;typename T&gt; <br />
+requires IsReflectable&lt;T&gt;</td></tr>
+<tr class="memitem:ac59b404b402398a043d1ec003963f82e template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><b>operator()</b> (const std::string_view key, T &amp;value)</td></tr>
+<tr class="memitem:a25ee85931f952dba1b3b46de0381b850" id="r_a25ee85931f952dba1b3b46de0381b850"><td class="memTemplParams" colspan="2"><a id="a25ee85931f952dba1b3b46de0381b850" name="a25ee85931f952dba1b3b46de0381b850"></a>
+template&lt;typename T&gt; <br />
+requires std::is_enum_v&lt;T&gt;</td></tr>
+<tr class="memitem:a25ee85931f952dba1b3b46de0381b850 template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><b>operator()</b> (std::string_view key, T &amp;value)</td></tr>
 <tr class="memitem:a957e696f803019a8ff0aef45aa85a43f" id="r_a957e696f803019a8ff0aef45aa85a43f"><td class="memItemLeft" align="right" valign="top">usize&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a957e696f803019a8ff0aef45aa85a43f">CurrentArraySize</a> () override</td></tr>
 <tr class="memitem:a0ac2eb87b647fd6fb41e3a3a757aaf17" id="r_a0ac2eb87b647fd6fb41e3a3a757aaf17"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0ac2eb87b647fd6fb41e3a3a757aaf17">operator()</a> (std::string_view key, bool &amp;value) override</td></tr>
 <tr class="memitem:ab5734c7811e7e254080a891b6cb91e17" id="r_ab5734c7811e7e254080a891b6cb91e17"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab5734c7811e7e254080a891b6cb91e17">operator()</a> (std::string_view key, u32 &amp;value) override</td></tr>
@@ -134,6 +142,9 @@ Public Member Functions</h2></td></tr>
 template&lt;typename T&gt; <br />
 requires IsReflectable&lt;T&gt;</td></tr>
 <tr class="memitem:a458ca793cea50c266de9a31e5d9d2335 inherit pub_methods_class_flock_1_1_serial_1_1_i_archive template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><b>operator()</b> (const std::string_view key, T &amp;value)</td></tr>
+<tr class="memitem:ae105a050e93312e1ec318cf0b5c1246c inherit pub_methods_class_flock_1_1_serial_1_1_i_archive" id="r_ae105a050e93312e1ec318cf0b5c1246c"><td class="memTemplParams" colspan="2">
+template&lt;typename T&gt; </td></tr>
+<tr class="memitem:ae105a050e93312e1ec318cf0b5c1246c inherit pub_methods_class_flock_1_1_serial_1_1_i_archive template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><b>operator()</b> (const std::string_view key, std::vector&lt; T &gt; &amp;value)</td></tr>
 <tr class="memitem:ab4687b9b0adaf1ddd79a8b0e0d2cf9c4 inherit pub_methods_class_flock_1_1_serial_1_1_i_archive" id="r_ab4687b9b0adaf1ddd79a8b0e0d2cf9c4"><td class="memTemplParams" colspan="2">
 template&lt;typename T&gt; <br />
 requires std::is_enum_v&lt;T&gt;</td></tr>

@@ -154,7 +154,7 @@ $(function(){initNavTree('_matrix_8hpp_source.html','',''); });
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        <span class="keyword">static</span> Matrix4 RotateX(<span class="keyword">const</span> T &amp;angleDegrees) {</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>            Matrix4 mat;</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>            T       radians = DegreesToRadians(angleDegrees);</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>            T       radians = DegreesToRadians(-angleDegrees);</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>            f64 sinTheta = std::sin(radians);</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>            f64 cosTheta = std::cos(radians);</div>
@@ -171,7 +171,7 @@ $(function(){initNavTree('_matrix_8hpp_source.html','',''); });
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>        <span class="keyword">static</span> Matrix4 RotateY(<span class="keyword">const</span> T &amp;angleDegrees) {</div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>            Matrix4 mat;</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>            T       radians = DegreesToRadians(angleDegrees);</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>            T       radians = DegreesToRadians(-angleDegrees);</div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>            f64 sinTheta = std::sin(radians);</div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>            f64 cosTheta = std::cos(radians);</div>
@@ -188,15 +188,15 @@ $(function(){initNavTree('_matrix_8hpp_source.html','',''); });
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>        <span class="keyword">static</span> Matrix4 RotateZ(<span class="keyword">const</span> T &amp;angleDegrees) {</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>            Matrix4 mat;</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>            T       radians = DegreesToRadians(angleDegrees);</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>            T       radians = DegreesToRadians(-angleDegrees);</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>            f64 sinTheta = std::sin(radians);</div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>            f64 cosTheta = std::cos(radians);</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>            mat.At(0, 0) = cosTheta;</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>            mat.At(1, 1) = cosTheta;</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>            mat.At(0, 1) = sinTheta;</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>            mat.At(1, 0) = -sinTheta;</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>            mat.At(0, 1) = -sinTheta;</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>            mat.At(1, 0) = sinTheta;</div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>            mat.At(2, 2) = 1;</div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>            mat.At(3, 3) = 1;</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
@@ -229,13 +229,13 @@ $(function(){initNavTree('_matrix_8hpp_source.html','',''); });
 <div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>            T wz = q.w * q.z;</div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
 <div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>            mat.At(0, 0) = 2 * (ww + xx) - 1;</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>            mat.At(1, 0) = 2 * (xy - wz);</div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>            mat.At(2, 0) = 2 * (xz + wy);</div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>            mat.At(0, 1) = 2 * (xy + wz);</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>            mat.At(0, 1) = 2 * (xy - wz);</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>            mat.At(0, 2) = 2 * (xz + wy);</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>            mat.At(1, 0) = 2 * (xy + wz);</div>
 <div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>            mat.At(1, 1) = 2 * (ww + yy) - 1;</div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>            mat.At(2, 1) = 2 * (xz - wx);</div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>            mat.At(0, 2) = 2 * (xz - wy);</div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>            mat.At(1, 2) = 2 * (yz + wx);</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>            mat.At(1, 2) = 2 * (yz - wx);</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>            mat.At(2, 0) = 2 * (xz - wy);</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>            mat.At(2, 1) = 2 * (yz + wx);</div>
 <div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>            mat.At(2, 2) = 2 * (ww + zz) - 1;</div>
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span> </div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>            <span class="keywordflow">return</span> mat;</div>
