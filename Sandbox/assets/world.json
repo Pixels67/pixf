@@ -15,32 +15,47 @@
         "id": 2,
         "alive": true,
         "version": 0
+      },
+      {
+        "id": 3,
+        "alive": true,
+        "version": 0
       }
     ],
     "components": {
+      "Image": [
+        {
+          "id": 3,
+          "data": {
+            "image": "../../../assets/Checkerboard.png"
+          }
+        }
+      ],
       "Button": [
         {
           "id": 2,
           "data": {
             "image": "../../../assets/Checkerboard.png",
             "defaultColor": {
+              "r": 120,
+              "g": 120,
+              "b": 120,
+              "a": 255
+            },
+            "hoverTint": {
               "r": 0,
               "g": 0,
               "b": 0,
-              "a": 255
+              "a": 50
             },
-            "highlightColor": {
-              "r": 50,
-              "g": 50,
-              "b": 50,
-              "a": 255
+            "pressTint": {
+              "r": 0,
+              "g": 0,
+              "b": 0,
+              "a": 80
             },
-            "pressColor": {
-              "r": 20,
-              "g": 20,
-              "b": 20,
-              "a": 255
-            }
+            "onPressEvent": "logPress",
+            "onReleaseEvent": "logRelease"
           }
         }
       ],
@@ -117,6 +132,21 @@
               },
               "aspect": {
                 "x": 200,
+                "y": 100
+              }
+            }
+          }
+        },
+        {
+          "id": 3,
+          "data": {
+            "rect": {
+              "origin": {
+                "x": 0,
+                "y": 0
+              },
+              "aspect": {
+                "x": 100,
                 "y": 100
               }
             }

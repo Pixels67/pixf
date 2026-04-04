@@ -5,12 +5,14 @@
 #include "Asset/Assets.hpp"
 #include "Audio/AudioListener.hpp"
 #include "Audio/AudioSource.hpp"
+#include "Event/EventRegistry.hpp"
 #include "Graphics/Camera.hpp"
 #include "Graphics/Light.hpp"
 #include "Graphics/ModelRenderer.hpp"
 #include "Graphics/Skybox.hpp"
 #include "Graphics/SpriteRenderer.hpp"
 #include "Gui/Button.hpp"
+#include "Gui/Image.hpp"
 #include "Gui/Text.hpp"
 #include "Input/Input.hpp"
 #include "Math/Transform.hpp"
@@ -37,6 +39,7 @@ namespace Flock::Ecs {
         InsertResource<Graphics::Skybox>();
         InsertResource<Audio::AudioListener>();
         InsertResource<Application>();
+        InsertResource<Event::EventRegistry>();
 
         GetRegistry().RegisterComponent<Transform>();
         GetRegistry().RegisterComponent<RigidTransform>();
@@ -49,6 +52,7 @@ namespace Flock::Ecs {
         GetRegistry().RegisterComponent<Audio::AudioSource>();
         GetRegistry().RegisterComponent<Gui::Text>();
         GetRegistry().RegisterComponent<Gui::Button>();
+        GetRegistry().RegisterComponent<Gui::Image>();
     }
 
     Registry &World::GetRegistry() {

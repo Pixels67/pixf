@@ -187,6 +187,9 @@ set(PROJECT_SOURCES
         src/FileIo/Font.hpp
         src/FileIo/Font.cpp
         src/Gui/Button.hpp
+        src/Event/EventRegistry.cpp
+        src/Event/EventRegistry.hpp
+        src/Gui/Image.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

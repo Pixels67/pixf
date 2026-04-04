@@ -1,8 +1,6 @@
 #ifndef FLK_EVENTHANDLER_HPP
 #define FLK_EVENTHANDLER_HPP
 
-#include <queue>
-
 #include "Common.hpp"
 
 namespace Flock::Event {
@@ -39,7 +37,7 @@ namespace Flock::Event {
 
         template<typename T>
         void QueueEvent(T &&event = {}) {
-            auto ptr = std::make_unique<T>(std::move(event));
+            auto ptr = std::make_unique<T>(std::forward<T>(event));
             m_Queue.push(std::move(ptr));
         }
 

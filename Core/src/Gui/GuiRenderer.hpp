@@ -43,9 +43,15 @@ namespace Flock::Gui {
         ) const;
 
         bool RenderButton(
-            RectTransform                transform,
-            Color4u8                     color = Color4u8::Black(),
+            RectTransform                  transform,
+            Color4u8                       color   = Color4u8::Black(),
+            Color4u8                       tint    = Color4u8::Transparent(),
             OptionalRef<Graphics::Texture> texture = std::nullopt
+        ) const;
+
+        bool RenderImage(
+            RectTransform      transform,
+            const Graphics::Texture &texture
         ) const;
     };
 }

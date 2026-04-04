@@ -2,10 +2,12 @@
 
 #include "Asset/Assets.hpp"
 #include "Audio/AudioSource.hpp"
+#include "Event/EventRegistry.hpp"
 #include "Graphics/ModelRenderer.hpp"
 #include "Graphics/Skybox.hpp"
 #include "Graphics/SpriteRenderer.hpp"
 #include "Gui/Button.hpp"
+#include "Gui/Image.hpp"
 #include "Gui/Text.hpp"
 #include "Input/Input.hpp"
 #include "Math/Transform.hpp"
@@ -288,31 +290,43 @@ namespace Flock {
 
         m_Services.guiRenderer.BeginFrame(m_Services.window.GetSize());
 
+        m_World.GetRegistry().ForEach<RectTransform, Image>([&](const RectTransform &trans, const Image &img) {
+            if (img.imagePath == "" || !m_Services.assetLoader.Get<Graphics::Texture>(img.imagePath)) {
+                return;
+            }
+
+            m_Services.guiRenderer.RenderImage(trans, m_Services.assetLoader.Get<Graphics::Texture>(img.imagePath).value());
+        });
+
         m_World.GetRegistry().ForEach<RectTransform, Button>([&](const RectTransform &trans, const Button &button) {
-            Color4u8 color = button.defaultColor;
+            Color4u8 tint = Color4u8::Transparent();
+
             if (input.IsCursorInRect(trans.rect) && mouseDown) {
-                color = button.pressColor;
+                tint = button.pressTint;
             } else if (input.IsCursorInRect(trans.rect)) {
-                color = button.highlightColor;
+                tint = button.hoverTint;
             }
 
-            if (input.IsCursorInRect(trans.rect) && mousePressed && button.onPress) {
-                button.onPress();
+            const auto events = m_World.GetResource<Event::EventRegistry>();
+
+            if (input.IsCursorInRect(trans.rect) && mousePressed) {
+                events.Invoke(button.onPressEvent);
             }
 
-            if (input.IsCursorInRect(trans.rect) && mouseReleased && button.onRelease) {
-                button.onRelease();
+            if (input.IsCursorInRect(trans.rect) && mouseReleased) {
+                events.Invoke(button.onReleaseEvent);
             }
 
             OptionalRef<Graphics::Texture> tex = std::nullopt;
 
-            if (m_Services.assetLoader.Get<Graphics::Texture>(button.imagePath)) {
+            if (button.imagePath != "" && m_Services.assetLoader.Get<Graphics::Texture>(button.imagePath)) {
                 tex = m_Services.assetLoader.Get<Graphics::Texture>(button.imagePath).value();
             }
 
             m_Services.guiRenderer.RenderButton(
                 trans,
-                color,
+                button.defaultColor,
+                tint,
                 tex
             );
         });

@@ -1,7 +1,9 @@
 #include "Flock.hpp"
+#include "Event/EventRegistry.hpp"
 #include "Graphics/Skybox.hpp"
 #include "Graphics/SpriteRenderer.hpp"
 #include "Gui/Button.hpp"
+#include "Gui/Image.hpp"
 
 using namespace Flock;
 using namespace Flock::Ecs;
@@ -15,17 +17,15 @@ i32 main() {
     }).value();
 
     app.AddSystem(Stage::Startup, [](World &world) {
-        world.Load("../../../assets/world.wrld");
+        world.Load("../../../assets/world.json");
 
         const auto &assets = world.GetResource<Asset::Assets>();
 
         assets.SetDefaultPipeline(Asset::PipelineType::Pbr, "../../../assets/shader.glsl");
         assets.SetDefaultPipeline(Asset::PipelineType::Unlit, "../../../assets/unlit.glsl");
 
-        world.GetRegistry().ForEach<Gui::Button>([&](Gui::Button &button) {
-            button.onPress   = [] { Debug::LogInf("Button pressed"); };
-            button.onRelease = [] { Debug::LogInf("Button released"); };
-        });
+        world.GetResource<Event::EventRegistry>().Add("logPress", [] { Debug::LogInf("Button pressed"); });
+        world.GetResource<Event::EventRegistry>().Add("logRelease", [] { Debug::LogInf("Button released"); });
     });
 
     app.AddSystem(Stage::Update, [&](World &world) {
