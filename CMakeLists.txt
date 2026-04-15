@@ -12,6 +12,10 @@ if (MSVC)
             /DNOMINMAX
             /DWIN32_LEAN_AND_MEAN
     )
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
+    add_link_options(-fuse-ld=lld)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(-Wno-changes-meaning)
 endif ()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")

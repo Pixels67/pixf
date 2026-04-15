@@ -379,6 +379,7 @@ namespace Flock {
             const auto font = m_Services.assetLoader.Get<Font>(text.fontPath);
             if (!font) {
                 Debug::LogErr("App::RenderGui: Invalid font path '{}'", text.fontPath);
+                return;
             }
 
             m_Services.guiRenderer.RenderText(
