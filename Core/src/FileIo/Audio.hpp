@@ -2,6 +2,7 @@
 #define FLK_FILEIO_AUDIO_HPP
 
 #include <filesystem>
+#include <optional>
 
 #include "Audio/AudioClip.hpp"
 

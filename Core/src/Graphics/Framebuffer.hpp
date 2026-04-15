@@ -1,9 +1,19 @@
 #ifndef FLK_FRAMEBUFFER_HPP
 #define FLK_FRAMEBUFFER_HPP
 
+#include <optional>
+
 #include "Common.hpp"
 #include "Texture.hpp"
 #include "TextureArray.hpp"
+#include "glad/glad.h"
+
+namespace Flock {
+namespace Graphics {
+class Texture;
+class TextureArray;
+}  // namespace Graphics
+}  // namespace Flock
 
 namespace Flock::Graphics {
     enum class Attachment {

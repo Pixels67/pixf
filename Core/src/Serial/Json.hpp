@@ -2,8 +2,13 @@
 #define FLK_JSON_HPP
 
 #include <nlohmann/json.hpp>
+#include <optional>
+#include <string>
+#include <string_view>
 
 #include "Common.hpp"
+#include "Debug/Log.hpp"
+#include "nlohmann/json_fwd.hpp"
 
 namespace Flock::Serial {
     class Json {

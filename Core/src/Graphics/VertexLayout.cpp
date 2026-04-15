@@ -1,9 +1,12 @@
 #include "VertexLayout.hpp"
 
+#include <algorithm>
+
 #include "Gl.hpp"
+#include "glad/glad.h"
 
 namespace Flock::Graphics {
-    usize GetSize(const AttribType type) {
+    usize Size(const AttribType type) {
         usize size = 0;
 
         switch (type) {
@@ -61,7 +64,7 @@ namespace Flock::Graphics {
         const VertexLayoutElement element{m_Stride, elementCount, count, type, normalized};
         m_Elements.push_back(element);
 
-        m_Stride += count * GetSize(type);
+        m_Stride += count * Size(type);
 
         return *this;
     }
@@ -74,7 +77,7 @@ namespace Flock::Graphics {
         const VertexLayoutElement element{offset, index, count, type, normalized};
         m_Elements.push_back(element);
 
-        const usize required = offset + (count * GetSize(type));
+        const usize required = offset + (count * Size(type));
         m_Stride             = std::max(m_Stride, required);
 
         return *this;

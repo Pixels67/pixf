@@ -1,6 +1,11 @@
 #include "InputHandler.hpp"
 
+#include <set>
+
 #include "Glfw/Window.hpp"
+#include "Event/EventHandler.hpp"
+#include "Input/Input.hpp"
+#include "Math/Vector.hpp"
 
 namespace Flock::Input {
     void InputHandler::HookEvents(Event::EventHandler &eventHandler) {
@@ -75,7 +80,7 @@ namespace Flock::Input {
         m_InputState.cursorDelta = {};
     }
 
-    InputState InputHandler::GetState() const {
+    InputState InputHandler::State() const {
         return m_InputState;
     }
 }

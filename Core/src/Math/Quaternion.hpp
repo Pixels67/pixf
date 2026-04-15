@@ -5,17 +5,15 @@
 
 #include "Common.hpp"
 #include "Utils.hpp"
-#include "Reflect.hpp"
 #include "Vector.hpp"
 
 namespace Flock {
     template<typename T>
-    class Matrix4;
+    struct Matrix4;
 
     using Matrix4f = Matrix4<f32>;
 
-    class FLK_API Quaternion {
-    public:
+    struct FLK_API Quaternion {
         f32 x, y, z, w;
 
         Quaternion() : x(0), y(0), z(0), w(1) {
@@ -69,7 +67,7 @@ namespace Flock {
         }
 
         Vector3f operator*(const Vector3f &o) const {
-            Quaternion quat(o.x, o.y, o.z, 0);
+            const Quaternion quat(o.x, o.y, o.z, 0);
             Quaternion result = Conjugate() * quat * *this;
 
             return {result.x, result.y, result.z};
@@ -147,7 +145,7 @@ namespace Flock {
             const f32 sp = 2.0F * (w * x - y * z);
 
             if (constexpr f32 epsilon = 0.9999F; std::abs(sp) >= epsilon) {
-                angles.x = (sp > 0) ? (GetPi() / 2.0F) : (-GetPi() / 2.0F);
+                angles.x = (sp > 0) ? (Pi() / 2.0F) : (-Pi() / 2.0F);
 
                 angles.y = 2.0F * std::atan2(y, w);
                 angles.z = 0.0F;
@@ -172,18 +170,6 @@ namespace Flock {
 
         [[nodiscard]] Matrix4f ToMatrix() const;
     };
-
-    inline auto Reflect(Quaternion &quaternion) {
-        return Reflectable{
-            "Quaternion",
-            std::make_tuple(
-                Field("x", &quaternion.x),
-                Field("y", &quaternion.y),
-                Field("z", &quaternion.z),
-                Field("w", &quaternion.w)
-            )
-        };
-    }
 }
 
 #endif // FLK_QUATERNION_HPP

@@ -1,8 +1,17 @@
 #ifndef FLK_WORLD_HPP
 #define FLK_WORLD_HPP
 
+#include <any>
+#include <filesystem>
+#include <functional>
+#include <unordered_map>
+#include <utility>
+
 #include "Common.hpp"
 #include "Registry.hpp"
+#include "Serial/Archive.hpp"
+#include "TypeId.hpp"
+#include "Ecs/Storage.hpp"
 
 namespace Flock::Ecs {
     class FLK_API World {
@@ -19,10 +28,11 @@ namespace Flock::Ecs {
         template<typename T>
         World &InsertResource(T &&resource = {}) {
             m_Resources[GetTypeId<T>()] = std::forward<T>(resource);
-            if constexpr (IsReflectable<T>) {
-                m_ArchiveFns[GetTypeId<T>()] = [](Serial::IArchive &archive, std::any &any) {
+
+            if constexpr (Serial::Serializable<T>) {
+                m_ArchiveFns[GetTypeId<T>()] = [resource](Serial::IArchive &archive, std::any &any) {
                     T &res = std::any_cast<T &>(any);
-                    archive(GetTypeName<T>(), res);
+                    archive(NameOf(resource), res);
                 };
             }
 
@@ -30,17 +40,17 @@ namespace Flock::Ecs {
         }
 
         template<typename T>
-        bool HasResource() const {
+        [[nodiscard]] bool HasResource() const {
             return m_Resources.contains(GetTypeId<T>());
         }
 
         template<typename T>
-        T &GetResource() {
+        T &Resource() {
             FLK_EXPECT(HasResource<T>(), "Resource does not exist!");
             return std::any_cast<T &>(m_Resources.at(GetTypeId<T>()));
         }
 
-        [[nodiscard]] Registry &GetRegistry();
+        [[nodiscard]] Registry &Registry();
 
         void Archive(Serial::IArchive &archive);
 

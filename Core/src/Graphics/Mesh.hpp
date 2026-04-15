@@ -1,9 +1,14 @@
 #ifndef FLK_MESH_HPP
 #define FLK_MESH_HPP
 
+#include <optional>
+#include <vector>
+
 #include "Common.hpp"
 #include "Vertex.hpp"
 #include "VertexArray.hpp"
+#include "Graphics/Buffer.hpp"
+#include "Math/Vector.hpp"
 
 namespace Flock::Graphics {
     /**
@@ -41,14 +46,14 @@ namespace Flock::Graphics {
          * @param halfExtents The half extents of the square.
          * @return A newly created square mesh.
          */
-        static Mesh Square(Vector2f halfExtents = Vector2f::One());
+        static Mesh Square(Vector2f halfExtents = Vector2f::One() * 0.5F);
 
         /**
          * @brief Static factory method.
          * @param halfExtents The half extents of the box.
          * @return A newly created box mesh.
          */
-        static Mesh Box(Vector3f halfExtents = Vector3f::One());
+        static Mesh Box(Vector3f halfExtents = Vector3f::One() * 0.5F);
 
         Mesh() = default;
         ~Mesh();
@@ -78,9 +83,9 @@ namespace Flock::Graphics {
         /**
          * @return The index count of the mesh.
          */
-        [[nodiscard]] usize GetIndexCount() const;
+        [[nodiscard]] usize IndexCount() const;
 
-        [[nodiscard]] const MeshData &GetData() const;
+        [[nodiscard]] const MeshData &Data() const;
     };
 }
 

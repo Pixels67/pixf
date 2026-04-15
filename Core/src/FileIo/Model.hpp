@@ -1,8 +1,13 @@
 #ifndef FLK_FILE_MODEL_HPP
 #define FLK_FILE_MODEL_HPP
 
+#include <filesystem>
+#include <vector>
+
 #include "Graphics/Mesh.hpp"
 #include "Graphics/Material.hpp"
+#include "Common.hpp"
+#include "Graphics/Vertex.hpp"
 
 namespace Flock::FileIo {
     struct FLK_API MeshData {

@@ -1,6 +1,9 @@
 #ifndef FLK_APP_HPP
 #define FLK_APP_HPP
 
+#include <optional>
+#include <vector>
+
 #include "Common.hpp"
 #include "Asset/AssetLoader.hpp"
 #include "Audio/AudioPlayer.hpp"
@@ -69,6 +72,20 @@ namespace Flock {
         App &AddSystem(Ecs::Stage stage, const Ecs::System &system);
 
         /**
+         * @brief Adds multiple systems to a stage; executed in order.
+         * @tparam Args The system types.
+         * @param stage The stage.
+         * @param args The systems.
+         * @return A reference to the app.
+         */
+        template<typename... Args>
+        App &AddSystems(Ecs::Stage stage, const Args &... args) {
+            m_Schedule.AddSystems(stage, args...);
+
+            return *this;
+        }
+
+        /**
          * @brief Pops the last added system from a stage.
          * @param stage The stage.
          * @return A reference to the app.
@@ -81,7 +98,7 @@ namespace Flock {
          */
         App &Run();
 
-        [[nodiscard]] Services &GetServices();
+        [[nodiscard]] Services &Services();
 
     private:
         void Prepare();

@@ -46,9 +46,9 @@ namespace Flock::Graphics {
          */
         static void Unbind();
 
-        [[nodiscard]] Vector2u GetSize() const;
-        [[nodiscard]] u32      GetGlId() const;
-        [[nodiscard]] u32      GetLayerCount() const;
+        [[nodiscard]] Vector2u Size() const;
+        [[nodiscard]] u32      GlId() const;
+        [[nodiscard]] u32      LayerCount() const;
     };
 }
 

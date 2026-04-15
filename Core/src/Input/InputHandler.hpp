@@ -4,6 +4,12 @@
 #include "Input.hpp"
 #include "Event/EventHandler.hpp"
 
+namespace Flock {
+namespace Event {
+class EventHandler;
+}  // namespace Event
+}  // namespace Flock
+
 namespace Flock::Input {
     class InputHandler {
         InputState m_InputState;
@@ -12,7 +18,7 @@ namespace Flock::Input {
         void HookEvents(Event::EventHandler &eventHandler);
         void ResetState();
 
-        [[nodiscard]] InputState GetState() const;
+        [[nodiscard]] InputState State() const;
     };
 }
 

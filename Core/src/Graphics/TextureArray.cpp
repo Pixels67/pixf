@@ -1,5 +1,11 @@
 #include "TextureArray.hpp"
 
+#include <optional>
+
+#include "Graphics/Gl.hpp"
+#include "Graphics/Texture.hpp"
+#include "glad/glad.h"
+
 namespace Flock::Graphics {
     TextureArray TextureArray::Create(const usize layers, const Vector2u size, const TextureConfig config) {
         TextureArray texArr;
@@ -93,15 +99,15 @@ namespace Flock::Graphics {
         FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, 0));
     }
 
-    Vector2u TextureArray::GetSize() const {
+    Vector2u TextureArray::Size() const {
         return m_Size;
     }
 
-    u32 TextureArray::GetGlId() const {
+    u32 TextureArray::GlId() const {
         return m_Id;
     }
 
-    u32 TextureArray::GetLayerCount() const {
+    u32 TextureArray::LayerCount() const {
         return m_Layers;
     }
 }

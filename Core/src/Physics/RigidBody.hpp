@@ -2,7 +2,7 @@
 #define FLK_RIGIDBODY_HPP
 
 #include "Common.hpp"
-#include "Reflect.hpp"
+#include "Serial/Archive.hpp"
 
 namespace Flock::Physics {
     namespace rp = reactphysics3d;
@@ -35,18 +35,7 @@ namespace Flock::Physics {
         bool           useGravity      = true;
     };
 
-    inline auto Reflect(RigidBody &rigidBody) {
-        return Reflectable{
-            "RigidBody",
-            std::make_tuple(
-                Field{"linearVelocity", &rigidBody.linearVelocity},
-                Field{"angularVelocity", &rigidBody.angularVelocity},
-                Field{"mass", &rigidBody.mass},
-                Field{"mode", &rigidBody.mode},
-                Field{"useGravity", &rigidBody.useGravity}
-            )
-        };
-    }
+    FLK_ARCHIVE(RigidBody, linearVelocity, angularVelocity, mass, mode, useGravity)
 }
 
 #endif //FLK_RIGIDBODY_HPP

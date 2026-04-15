@@ -3,7 +3,7 @@
 
 #include "Common.hpp"
 #include "Math/Math.hpp"
-#include "Reflect.hpp"
+#include "Serial/Archive.hpp"
 
 namespace Flock::Graphics {
     struct FLK_API Light {
@@ -14,7 +14,7 @@ namespace Flock::Graphics {
         bool     hasShadows = true; // Only works for directional lights.
 
         [[nodiscard]] Matrix4f
-        GetLightSpaceMatrix(const f32 range, const f32 aspectRatio, const Vector3f center) const {
+        LightSpaceMatrix(const f32 range, const f32 aspectRatio, const Vector3f center) const {
             const Vector3f lightDir = -position.Normalized();
             const Vector3f up       = std::abs(lightDir.Dot(Vector3f::Up())) < 0.99F ? Vector3f::Up() : Vector3f::Forward();
             Matrix4f       view     = Matrix4f::LookAt(center - lightDir * range, center, up);
@@ -32,33 +32,10 @@ namespace Flock::Graphics {
         }
     };
 
-    inline auto Reflect(Light &light) {
-        return Reflectable{
-            "Light",
-            std::make_tuple(
-                Field{"position", &light.position},
-                Field{"color", &light.color},
-                Field{"intensity", &light.intensity},
-                Field{"radius", &light.radius},
-                Field{"hasShadows", &light.hasShadows}
-            )
-        };
-    }
-
     struct FLK_API AmbientLight {
         Color3u8 color     = {150, 180, 210};
         f32      intensity = 0.05F;
     };
-
-    inline auto Reflect(AmbientLight &light) {
-        return Reflectable{
-            "AmbientLight",
-            std::make_tuple(
-                Field{"color", &light.color},
-                Field{"intensity", &light.intensity}
-            )
-        };
-    }
 
     struct FLK_API PointLight {
         Vector3f position  = {};
@@ -66,7 +43,7 @@ namespace Flock::Graphics {
         f32      intensity = 1.0F;
         f32      radius    = 10.0F;
 
-        [[nodiscard]] Light GetLight() const {
+        [[nodiscard]] Light Light() const {
             return {
                 .position   = position,
                 .color      = color,
@@ -77,25 +54,13 @@ namespace Flock::Graphics {
         }
     };
 
-    inline auto Reflect(PointLight &light) {
-        return Reflectable{
-            "PointLight",
-            std::make_tuple(
-                Field{"position", &light.position},
-                Field{"color", &light.color},
-                Field{"intensity", &light.intensity},
-                Field{"radius", &light.radius}
-            )
-        };
-    }
-
     struct FLK_API DirectionalLight {
         Vector3f position   = {};
         Color3u8 color      = Color3u8::White();
         f32      intensity  = 1.0F;
         bool     hasShadows = true;
 
-        [[nodiscard]] Light GetLight() const {
+        [[nodiscard]] Light Light() const {
             return {
                 .position   = position,
                 .color      = color,
@@ -106,17 +71,10 @@ namespace Flock::Graphics {
         }
     };
 
-    inline auto Reflect(DirectionalLight &light) {
-        return Reflectable{
-            "DirectionalLight",
-            std::make_tuple(
-                Field{"position", &light.position},
-                Field{"color", &light.color},
-                Field{"intensity", &light.intensity},
-                Field{"hasShadows", &light.hasShadows}
-            )
-        };
-    }
+    FLK_ARCHIVE(Light, position, color, intensity, radius, hasShadows)
+    FLK_ARCHIVE(AmbientLight, color, intensity)
+    FLK_ARCHIVE(PointLight, position, color, intensity, radius)
+    FLK_ARCHIVE(DirectionalLight, position, color, intensity, hasShadows)
 }
 
 #endif //FLK_LIGHT_HPP

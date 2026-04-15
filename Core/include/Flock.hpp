@@ -29,7 +29,6 @@
 #include "FileIo/Audio.hpp"
 #include "Audio/AudioSource.hpp"
 #include "Audio/AudioListener.hpp"
-#include "Reflect.hpp"
 #include "Serial/Json.hpp"
 #include "Serial/Archive.hpp"
 #include "Serial/JsonArchive.hpp"
@@ -50,5 +49,6 @@
 #include "Gui/Button.hpp"
 #include "Event/EventRegistry.hpp"
 #include "Gui/Image.hpp"
+#include "Gui/Box.hpp"
 
 #endif //FLK_FLOCK_HPP

@@ -2,11 +2,25 @@
 #define FLK_PHYSICSENGINE_HPP
 
 #include <reactphysics3d/engine/PhysicsCommon.h>
+#include <memory>
+#include <vector>
 
 #include "Collider.hpp"
 #include "Common.hpp"
 #include "RigidBody.hpp"
 #include "Math/Transform.hpp"
+
+namespace Flock {
+namespace Physics {
+struct Collider;
+struct RigidBody;
+}  // namespace Physics
+struct Transform;
+}  // namespace Flock
+namespace reactphysics3d {
+class PhysicsWorld;
+class RigidBody;
+}  // namespace reactphysics3d
 
 namespace Flock::Physics {
     namespace rp = reactphysics3d;

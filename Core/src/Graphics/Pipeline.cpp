@@ -1,6 +1,14 @@
 #include "Pipeline.hpp"
 
+#include <utility>
+
 #include "Gl.hpp"
+#include "Debug/Log.hpp"
+#include "Graphics/CubeMap.hpp"
+#include "Graphics/Shader.hpp"
+#include "Graphics/Texture.hpp"
+#include "Graphics/TextureArray.hpp"
+#include "glad/glad.h"
 
 namespace Flock::Graphics {
     std::optional<Pipeline> Pipeline::Create(const Shader &vertex, const Shader &fragment) {
@@ -11,7 +19,7 @@ namespace Flock::Graphics {
             return std::nullopt;
         }
 
-        pipeline.m_DefaultTexture = Texture::FromImage(Image::Default());
+        pipeline.m_DefaultTexture = Texture::Default();
         pipeline.SetSamplerUnits();
 
         return pipeline;
@@ -161,8 +169,8 @@ namespace Flock::Graphics {
         unsigned int program = 0;
 
         FLK_GL_CALL(program = glCreateProgram());
-        FLK_GL_CALL(glAttachShader(program, vertex.GetGlId()));
-        FLK_GL_CALL(glAttachShader(program, fragment.GetGlId()));
+        FLK_GL_CALL(glAttachShader(program, vertex.GlId()));
+        FLK_GL_CALL(glAttachShader(program, fragment.GlId()));
         FLK_GL_CALL(glLinkProgram(program));
 
         int success = 0;

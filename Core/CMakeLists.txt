@@ -1,7 +1,7 @@
 project(FlockCore)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/lib/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/out/lib/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/out/lib/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/out/lib/${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE})
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(OpenGL REQUIRED)
@@ -77,8 +77,10 @@ add_library(soloud STATIC ${SOLOUD_SOURCES})
 target_include_directories(soloud PUBLIC vendor/soloud/include vendor/soloud/src)
 target_compile_definitions(soloud PUBLIC WITH_MINIAUDIO)
 
+target_include_directories(soloud PRIVATE vendor/stbv)
+target_link_libraries(soloud PRIVATE stbv)
+
 set(PROJECT_SOURCES
-        Pch.hpp
         include/Flock.hpp
         src/Ecs/Storage.hpp
         src/Common.hpp
@@ -158,7 +160,6 @@ set(PROJECT_SOURCES
         src/Asset/AssetLoader.cpp
         src/Audio/AudioSource.hpp
         src/Audio/AudioListener.hpp
-        src/Reflect.hpp
         src/Serial/Json.cpp
         src/Serial/Json.hpp
         src/Serial/Archive.hpp
@@ -190,11 +191,13 @@ set(PROJECT_SOURCES
         src/Event/EventRegistry.cpp
         src/Event/EventRegistry.hpp
         src/Gui/Image.hpp
+        src/Gui/Box.hpp
+        src/Graphics/TextureAtlas.cpp
+        src/Graphics/TextureAtlas.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
 
-target_precompile_headers(${PROJECT_NAME} PUBLIC Pch.hpp)
 target_include_directories(${PROJECT_NAME} PUBLIC include src PRIVATE vendor/stbi vendor/nanovg/src)
 target_compile_definitions(${PROJECT_NAME} PRIVATE FLK_DYLIB_BUILD)
 

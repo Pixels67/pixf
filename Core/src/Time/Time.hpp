@@ -9,7 +9,7 @@ namespace Flock::Time {
         f64 deltaTime;
     };
 
-    inline f64 GetTime() {
+    inline f64 Time() {
         return glfwGetTime();
     }
 }

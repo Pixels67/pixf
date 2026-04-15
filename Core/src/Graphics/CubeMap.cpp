@@ -1,5 +1,13 @@
 #include "CubeMap.hpp"
 
+#include <vector>
+
+#include "Graphics/Gl.hpp"
+#include "Graphics/Image.hpp"
+#include "Graphics/Texture.hpp"
+#include "Memory/Buffer.hpp"
+#include "glad/glad.h"
+
 namespace Flock::Graphics {
     std::optional<CubeMap> CubeMap::FromImages(
         const Image &       right,

@@ -1,7 +1,10 @@
 #include "Audio.hpp"
 
-#include <soloud.h>
 #include <soloud_wav.h>
+#include <memory>
+#include <string>
+
+#include "soloud_error.h"
 
 namespace Flock::FileIo {
     std::optional<Audio::AudioClip> ReadAudioClip(const std::filesystem::path &filePath) {

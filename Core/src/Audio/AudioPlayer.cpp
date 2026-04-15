@@ -1,5 +1,11 @@
 #include "AudioPlayer.hpp"
 
+#include "Audio/AudioClip.hpp"
+#include "Audio/AudioListener.hpp"
+#include "soloud.h"
+#include "soloud_error.h"
+#include "soloud_wav.h"
+
 namespace Flock::Audio {
     std::optional<AudioPlayer> AudioPlayer::Create() {
         AudioPlayer player;
@@ -47,8 +53,23 @@ namespace Flock::Audio {
         return true;
     }
 
+    bool AudioPlayer::Configure(const AudioClip &clip, const AudioConfig &config) const {
+        if (!m_Player) {
+            return false;
+        }
+
+        const usize handle = clip.playbackHandle;
+
+        m_Player->setVolume(handle, config.volume);
+        m_Player->setPan(handle, config.pan);
+        m_Player->setRelativePlaySpeed(handle, config.pitch);
+        m_Player->setLooping(handle, config.looping);
+
+        return true;
+    }
+
     bool AudioPlayer::Stop(const AudioClip &clip) const {
-        if (!m_Player || clip.playbackHandle == ~0u) {
+        if (!m_Player || clip.playbackHandle == FLK_INVALID) {
             return false;
         }
 

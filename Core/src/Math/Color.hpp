@@ -139,31 +139,6 @@ namespace Flock {
 #undef EXPR
     };
 
-    template<typename T>
-    auto Reflect(Color3<T> &color) {
-        return Reflectable{
-            "Color3",
-            std::make_tuple(
-                Field("r", &color.r),
-                Field("g", &color.g),
-                Field("b", &color.b)
-            )
-        };
-    }
-
-    template<typename T>
-    auto Reflect(Color4<T> &color) {
-        return Reflectable{
-            "Color4",
-            std::make_tuple(
-                Field("r", &color.r),
-                Field("g", &color.g),
-                Field("b", &color.b),
-                Field("a", &color.a)
-            )
-        };
-    }
-
     using Color3u8 = Color3<u8>;
     using Color4u8 = Color4<u8>;
 } // namespace Flock

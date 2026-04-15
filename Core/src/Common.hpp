@@ -39,7 +39,7 @@ do {                                                                            
 
 #ifdef _WIN32
 
-using ssize_t = int32_t;
+using ssize_t = int64_t;
 
 #endif
 
@@ -60,13 +60,15 @@ using i32   = int32_t;
 using i64   = int64_t;
 using f32   = float;
 using f64   = double;
-using byte  = char;
-using ubyte = unsigned char;
+using byte  = i8;
+using ubyte = u8;
 
 template<typename T>
 using Ref = std::reference_wrapper<T>;
 
 template<typename T>
 using OptionalRef = std::optional<Ref<T> >;
+
+#define FLK_INVALID 0xFFFFFF
 
 #endif //FLK_COMMON_HPP

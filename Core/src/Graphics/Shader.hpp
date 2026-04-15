@@ -1,6 +1,9 @@
 #ifndef FLK_SHADER_HPP
 #define FLK_SHADER_HPP
 
+#include <optional>
+#include <string>
+
 #include "Common.hpp"
 
 namespace Flock::Graphics {
@@ -41,7 +44,7 @@ namespace Flock::Graphics {
          */
         void Clear() const;
 
-        [[nodiscard]] u32 GetGlId() const;
+        [[nodiscard]] u32 GlId() const;
     };
 }
 

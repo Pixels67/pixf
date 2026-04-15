@@ -13,7 +13,7 @@ namespace Flock::Graphics {
         Vector3f tangent   = {};
         Vector3f bitangent = {};
 
-        static VertexLayout GetLayout() {
+        static VertexLayout Layout() {
             return VertexLayout{}
                     .Add(3, AttribType::F32)
                     .Add(3, AttribType::F32)

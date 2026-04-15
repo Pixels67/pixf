@@ -1,6 +1,8 @@
 #ifndef FLK_TYPEID_HPP
 #define FLK_TYPEID_HPP
 
+#include <typeinfo>
+
 #include "Common.hpp"
 
 namespace Flock {

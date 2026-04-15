@@ -1,11 +1,21 @@
 #ifndef FLK_ASSETLOADER_HPP
 #define FLK_ASSETLOADER_HPP
 
+#include <concepts>
+#include <filesystem>
+#include <memory>
+#include <optional>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
 #include "Handle.hpp"
 #include "Common.hpp"
 #include "TypeId.hpp"
 #include "Audio/AudioClip.hpp"
 #include "FileIo/Audio.hpp"
+#include "FileIo/File.hpp"
 #include "FileIo/Font.hpp"
 #include "FileIo/Image.hpp"
 #include "Graphics/Pipeline.hpp"
@@ -14,11 +24,14 @@
 #include "FileIo/Pipeline.hpp"
 #include "Graphics/Material.hpp"
 #include "Graphics/Model.hpp"
+#include "Graphics/TextureAtlas.hpp"
 #include "Gui/Font.hpp"
+#include "Graphics/CubeMap.hpp"
+#include "Graphics/Mesh.hpp"
 
 namespace Flock::Asset {
     template<typename T>
-    struct Loader;
+    struct FLK_API Loader;
 
     enum class PipelineType : u8 {
         Pbr,
@@ -52,7 +65,11 @@ namespace Flock::Asset {
         bool Load(const std::filesystem::path &filePath) {
             const std::string pathStr = filePath.string();
 
-            if (m_AssetIds.contains(pathStr)) {
+            if (pathStr.empty()) {
+                return false;
+            }
+
+            if (IsLoaded<T>(filePath)) {
                 const AssetId id     = m_AssetIds.at(pathStr);
                 const TypeId  typeId = m_Assets.at(id).value().typeId;
 
@@ -164,6 +181,10 @@ namespace Flock::Asset {
         OptionalRef<T> Get(const std::filesystem::path filePath) {
             const std::string str = filePath.string();
 
+            if (str.empty()) {
+                return std::nullopt;
+            }
+
             if constexpr (std::same_as<T, Graphics::Pipeline>) {
                 if (str == "@PBR" && m_DefaultPipelines.contains(PipelineType::Pbr)) {
                     return Get<T>(m_DefaultPipelines[PipelineType::Pbr]);
@@ -242,6 +263,27 @@ namespace Flock::Asset {
     };
 
     template<>
+    struct Loader<Graphics::TextureAtlas> {
+        static std::optional<Graphics::TextureAtlas> Load(AssetLoader &, const std::filesystem::path &filePath) {
+            const auto maybeText = FileIo::ReadText(filePath.string() + ".atlas");
+            if (!maybeText) {
+                return std::nullopt;
+            }
+
+            std::string text = maybeText.value();
+            if (!text.find(',')) {
+                return std::nullopt;
+            }
+
+            text.replace(text.find('\n'), std::string::npos, "");
+
+            u32 x = std::stoul(text.substr(0, text.find_first_of(',')));
+            u32 y = std::stoul(text.substr(text.find_first_of(',') + 1));
+            return Graphics::TextureAtlas::FromImage(FileIo::ReadImage(filePath), {x, y});
+        }
+    };
+
+    template<>
     struct Loader<Graphics::CubeMap> {
         static std::optional<Graphics::CubeMap> Load(AssetLoader &, const std::filesystem::path &filePath) {
             if (filePath.empty()) {
@@ -283,15 +325,15 @@ namespace Flock::Asset {
                     loader.Load<Pipeline>(pipeline);
                 }
 
-                if (colorMapPath != "") {
+                if (!colorMapPath.empty()) {
                     loader.Load<Texture>(colorMapPath);
                 }
 
-                if (metallicMapPath != "") {
+                if (!metallicMapPath.empty()) {
                     loader.Load<Texture>(metallicMapPath);
                 }
 
-                if (roughnessMapPath != "") {
+                if (!roughnessMapPath.empty()) {
                     loader.Load<Texture>(roughnessMapPath);
                 }
             }

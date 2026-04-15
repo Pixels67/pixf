@@ -2,6 +2,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include "Common.hpp"
+
 namespace Flock::Serial {
     static constexpr u32 s_IndentLevel = 2;
 
@@ -9,7 +11,9 @@ namespace Flock::Serial {
         try {
             return Json(nlohmann::ordered_json::parse(json));
         } catch (nlohmann::ordered_json::exception &e) {
-            Debug::LogErr("Json::Parse: {}", e.what());
+            std::string str = e.what();
+            str             = str.substr(str.find_first_of(']') + 2);
+            Debug::LogErr("Json::Parse: {}", str);
             return std::nullopt;
         }
     }

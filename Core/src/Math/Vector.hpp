@@ -1,38 +1,35 @@
 #ifndef FLK_VECTOR_HPP
 #define FLK_VECTOR_HPP
 
-#include <cmath>
-
 #include "Common.hpp"
-#include "Reflect.hpp"
+#include "Serial/Archive.hpp"
 #include "Utils.hpp"
 
 namespace Flock {
-    class Quaternion;
+    struct Quaternion;
 
     template<typename T>
-    struct FLK_API Vector2 {
-        T x, y;
+    struct Vector2 {
+        T x, y = 0;
 
-        Vector2() : x(0), y(0) {
+        constexpr Vector2() = default;
+
+        constexpr Vector2(T x, T y) : x(x), y(y) {
         }
 
-        Vector2(T x, T y) : x(x), y(y) {
-        }
-
-        explicit Vector2(T s) : x(s), y(s) {
+        constexpr explicit Vector2(T s) : x(s), y(s) {
         }
 
         template<typename U>
-        Vector2(const Vector2<U> &other) : x(static_cast<T>(other.x)), y(static_cast<T>(other.y)) {
+        constexpr Vector2(const Vector2<U> &other) : x(static_cast<T>(other.x)), y(static_cast<T>(other.y)) {
         }
 
-        static Vector2 Zero() { return Vector2(0, 0); }
-        static Vector2 One() { return Vector2(1, 1); }
-        static Vector2 Up() { return Vector2(0, 1); }
-        static Vector2 Down() { return Vector2(0, -1); }
-        static Vector2 Right() { return Vector2(1, 0); }
-        static Vector2 Left() { return Vector2(-1, 0); }
+        static constexpr Vector2 Zero() { return Vector2(0, 0); }
+        static constexpr Vector2 One() { return Vector2(1, 1); }
+        static constexpr Vector2 Up() { return Vector2(0, 1); }
+        static constexpr Vector2 Down() { return Vector2(0, -1); }
+        static constexpr Vector2 Right() { return Vector2(1, 0); }
+        static constexpr Vector2 Left() { return Vector2(-1, 0); }
 
         Vector2 operator-() const {
             return {-x, -y};
@@ -70,15 +67,15 @@ namespace Flock {
             return *this;
         }
 
-        bool operator==(const Vector2 &vector2) const = default;
+        bool operator==(const Vector2 &vec) const = default;
+        bool operator!=(const Vector2 &vec) const = default;
     };
 
     template<typename T>
     struct Vector3 {
-        T x, y, z;
+        T x, y, z = 0;
 
-        Vector3() : x(0), y(0), z(0) {
-        }
+        Vector3() = default;
 
         Vector3(T x, T y, T z) : x(x), y(y), z(z) {
         }
@@ -89,6 +86,9 @@ namespace Flock {
         template<typename U>
         Vector3(const Vector3<U> &other) : x(static_cast<T>(other.x)), y(static_cast<T>(other.y)),
                                            z(static_cast<T>(other.z)) {
+        }
+
+        explicit Vector3(Vector2<T> other) : x(other.x), y(other.y), z(0) {
         }
 
         static Vector3 Zero() { return Vector3(0, 0, 0); }
@@ -137,9 +137,25 @@ namespace Flock {
             };
         }
 
-        f64     SqrMagnitude() const { return x * x + y * y + z * z; }
-        f64     Magnitude() const { return sqrt(SqrMagnitude()); }
-        Vector3 Normalized() const { return *this / Magnitude(); }
+        f64 SqrMagnitude() const {
+            return x * x + y * y + z * z;
+        }
+
+        f64 Magnitude() const {
+            if (SqrMagnitude() == 0.0F) {
+                return 0.0F;
+            }
+
+            return sqrt(SqrMagnitude());
+        }
+
+        Vector3 Normalized() const {
+            if (Magnitude() == 0.0F) {
+                return Vector3{};
+            }
+
+            return *this / Magnitude();
+        }
 
         Vector3 &Normalize() {
             auto mag = Magnitude();
@@ -148,14 +164,16 @@ namespace Flock {
             z        /= mag;
             return *this;
         }
+
+        bool operator==(const Vector3 &vec) const = default;
+        bool operator!=(const Vector3 &vec) const = default;
     };
 
     template<typename T>
     struct Vector4 {
-        T x, y, z, w;
+        T x, y, z, w = 0;
 
-        Vector4() : x(0), y(0), z(0), w(0) {
-        }
+        Vector4() = default;
 
         Vector4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {
         }
@@ -213,43 +231,10 @@ namespace Flock {
             w        /= mag;
             return *this;
         }
+
+        bool operator==(const Vector4 &vec) const = default;
+        bool operator!=(const Vector4 &vec) const = default;
     };
-
-    template<typename T>
-    auto Reflect(Vector2<T> &vector) {
-        return Reflectable{
-            "Vector2",
-            std::make_tuple(
-                Field("x", &vector.x),
-                Field("y", &vector.y)
-            )
-        };
-    }
-
-    template<typename T>
-    auto Reflect(Vector3<T> &vector) {
-        return Reflectable{
-            "Vector3",
-            std::make_tuple(
-                Field("x", &vector.x),
-                Field("y", &vector.y),
-                Field("z", &vector.z)
-            )
-        };
-    }
-
-    template<typename T>
-    auto Reflect(Vector4<T> &vector) {
-        return Reflectable{
-            "Vector4",
-            std::make_tuple(
-                Field("x", &vector.x),
-                Field("y", &vector.y),
-                Field("z", &vector.z),
-                Field("w", &vector.w)
-            )
-        };
-    }
 
     using Vector2i = Vector2<i32>;
     using Vector3i = Vector3<i32>;
@@ -266,5 +251,13 @@ namespace Flock {
     using Vector2d = Vector2<f64>;
     using Vector3d = Vector3<f64>;
     using Vector4d = Vector4<f64>;
+
+    FLK_ARCHIVE(Vector2u, x, y)
+    FLK_ARCHIVE(Vector3u, x, y, z)
+    FLK_ARCHIVE(Vector4u, x, y, z, w)
+
+    FLK_ARCHIVE(Vector2d, x, y)
+    FLK_ARCHIVE(Vector3d, x, y, z)
+    FLK_ARCHIVE(Vector4d, x, y, z, w)
 } // namespace Flock
 #endif // FLK_VECTOR_HPP

@@ -1,5 +1,9 @@
 #include "Framebuffer.hpp"
 
+#include "Graphics/Gl.hpp"
+#include "Graphics/Texture.hpp"
+#include "Graphics/TextureArray.hpp"
+
 namespace Flock::Graphics {
     std::optional<Framebuffer> Framebuffer::Create() {
         Framebuffer frameBuf;
@@ -69,8 +73,8 @@ namespace Flock::Graphics {
         FLK_GL_CALL(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &boundFramebuffer));
 
         FLK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, m_Id));
-        FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D, texture.GetGlId()));
-        FLK_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, ToGlType(attachment), GL_TEXTURE_2D, texture.GetGlId(), 0));
+        FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D, texture.GlId()));
+        FLK_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, ToGlType(attachment), GL_TEXTURE_2D, texture.GlId(), 0));
 
         FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D, boundTexture));
         FLK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, boundFramebuffer));
@@ -79,7 +83,7 @@ namespace Flock::Graphics {
     }
 
     bool Framebuffer::Attach(const Attachment attachment, const TextureArray &textureArray, u32 index) const {
-        if (index >= textureArray.GetLayerCount()) {
+        if (index >= textureArray.LayerCount()) {
             return false;
         }
 
@@ -90,12 +94,12 @@ namespace Flock::Graphics {
         FLK_GL_CALL(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &boundFramebuffer));
 
         FLK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, m_Id));
-        FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, textureArray.GetGlId()));
+        FLK_GL_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, textureArray.GlId()));
         FLK_GL_CALL(
             glFramebufferTextureLayer(
                 GL_FRAMEBUFFER,
                 ToGlType(attachment),
-                textureArray.GetGlId(),
+                textureArray.GlId(),
                 0,
                 index
             )

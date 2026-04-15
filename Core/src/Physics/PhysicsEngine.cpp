@@ -1,5 +1,20 @@
 #include "PhysicsEngine.hpp"
 
+#include <utility>
+
+#include "Math/Quaternion.hpp"
+#include "Math/RigidTransform.hpp"
+#include "Math/Transform.hpp"
+#include "Math/Vector.hpp"
+#include "Physics/Collider.hpp"
+#include "Physics/RigidBody.hpp"
+#include "reactphysics3d/body/RigidBody.h"
+#include "reactphysics3d/engine/PhysicsCommon.h"
+#include "reactphysics3d/engine/PhysicsWorld.h"
+#include "reactphysics3d/mathematics/Quaternion.h"
+#include "reactphysics3d/mathematics/Transform.h"
+#include "reactphysics3d/mathematics/Vector3.h"
+
 namespace Flock::Physics {
     rp::Vector3 ToRp3dType(const Vector3f vec) {
         return rp::Vector3(vec.x, vec.y, vec.z);
@@ -82,7 +97,7 @@ namespace Flock::Physics {
             const Quaternion rot = quat * Quaternion::Euler(euler);
 
             auto &collider = *m_Scene[i].collider;
-            const RigidTransform trans = collider.GetTransform();
+            const RigidTransform trans = collider.Transform();
 
             rp::Vector3    rbPos = ToRp3dType(pos + trans.position * rot);
             rp::Quaternion rbRot = ToRp3dType(trans.rotation * rot);
@@ -124,7 +139,7 @@ namespace Flock::Physics {
             const rp::Vector3 angVlc = m_Bodies[i]->getAngularVelocity();
 
             auto &collider = *m_Scene[i].collider;
-            const RigidTransform colTrans = collider.GetTransform();
+            const RigidTransform colTrans = collider.Transform();
 
             m_Scene[i].transform->position    = Rp3dVector(pos) - colTrans.position * Rp3dQuaternion(rot);
             m_Scene[i].transform->rotation    = colTrans.rotation.Inverse() * Rp3dQuaternion(rot);

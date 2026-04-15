@@ -1,5 +1,8 @@
 #include "Window.hpp"
 
+#include "Input/Input.hpp"
+#include "glad/glad.h"
+
 namespace Flock::Glfw {
     static constexpr i32 s_OpenGlVersionMajor = 3;
     static constexpr i32 s_OpenGlVersionMinor = 3;
@@ -27,6 +30,7 @@ namespace Flock::Glfw {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, s_OpenGlVersionMinor);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_SAMPLES, static_cast<i32>(config.samplesPerPixel));
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 #ifdef __APPLE__
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -74,7 +78,7 @@ namespace Flock::Glfw {
         return window;
     }
 
-    OptionalRef<Window> Window::GetCurrentWindow() {
+    OptionalRef<Window> Window::CurrentWindow() {
         if (s_CurrentWindow) {
             return *s_CurrentWindow;
         }
@@ -126,7 +130,7 @@ namespace Flock::Glfw {
         }
     }
 
-    std::string Window::GetTitle() const {
+    std::string Window::Title() const {
         if (m_GlfwWindowPtr == nullptr) {
             return "";
         }
@@ -134,7 +138,7 @@ namespace Flock::Glfw {
         return glfwGetWindowTitle(m_GlfwWindowPtr);
     }
 
-    Vector2u Window::GetSize() const {
+    Vector2u Window::Size() const {
         if (m_GlfwWindowPtr == nullptr) {
             return {};
         }
@@ -146,12 +150,12 @@ namespace Flock::Glfw {
         return Vector2u{static_cast<u32>(width), static_cast<u32>(height)};
     }
 
-    f32 Window::GetAspectRatio() const {
+    f32 Window::AspectRatio() const {
         if (m_GlfwWindowPtr == nullptr) {
             return 0.0F;
         }
 
-        const Vector2f size = GetSize();
+        const Vector2f size = Size();
         return size.x / size.y;
     }
 

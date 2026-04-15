@@ -6,7 +6,7 @@ namespace Flock {
     f64 RadiansToDegrees(const f64 angleRadians) { return angleRadians * 180.0 / s_Pi; }
     f64 DegreesToRadians(const f64 angleDegrees) { return angleDegrees * s_Pi / 180.0; }
 
-    f64 GetPi() {
+    f64 Pi() {
         return s_Pi;
     }
 } // namespace Flock

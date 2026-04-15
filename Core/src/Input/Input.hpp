@@ -528,54 +528,54 @@ namespace Flock::Input {
         Vector2f cursorDelta;
         Vector2f scrollOffset;
 
-        bool IsKeyPressed(const Key key) const {
+        [[nodiscard]] bool IsKeyPressed(const Key key) const {
             return pressedKeys.contains(key);
         }
 
-        bool IsKeyReleased(const Key key) const {
+        [[nodiscard]] bool IsKeyReleased(const Key key) const {
             return releasedKeys.contains(key);;
         }
 
-        bool IsKeyDown(const Key key) const {
+        [[nodiscard]] bool IsKeyDown(const Key key) const {
             return heldKeys.contains(key);;
         }
 
-        bool IsKeyUp(const Key key) const {
+        [[nodiscard]] bool IsKeyUp(const Key key) const {
             return !heldKeys.contains(key);;
         }
 
-        bool IsMousePressed(const MouseButton button = MouseButton::Left) const {
+        [[nodiscard]] bool IsMousePressed(const MouseButton button = MouseButton::Left) const {
             return pressedMouseButtons.contains(button);
         }
 
-        bool IsMouseReleased(const MouseButton button = MouseButton::Left) const {
+        [[nodiscard]] bool IsMouseReleased(const MouseButton button = MouseButton::Left) const {
             return releasedMouseButtons.contains(button);
         }
 
-        bool IsMouseDown(const MouseButton button = MouseButton::Left) const {
+        [[nodiscard]] bool IsMouseDown(const MouseButton button = MouseButton::Left) const {
             return heldMouseButtons.contains(button);
         }
 
-        bool IsMouseUp(const MouseButton button = MouseButton::Left) const {
+        [[nodiscard]] bool IsMouseUp(const MouseButton button = MouseButton::Left) const {
             return !heldMouseButtons.contains(button);
         }
 
-        bool IsCursorInRect(Rect2f rect) const {
+        [[nodiscard]] bool IsCursorInRect(Rect2f rect) const {
             auto [x, y] = rect.origin;
             auto [w, h] = rect.aspect;
 
             return cursorPosition.x >= x && cursorPosition.x < x + w && cursorPosition.y >= y && cursorPosition.y < y + h;
         }
 
-        Vector2f GetCursorPosition() const {
+        [[nodiscard]] Vector2f CursorPosition() const {
             return cursorPosition;
         }
 
-        Vector2f GetCursorDelta() const {
+        [[nodiscard]] Vector2f CursorDelta() const {
             return cursorDelta;
         }
 
-        Vector2f GetScrollOffset() const {
+        [[nodiscard]] Vector2f ScrollOffset() const {
             return scrollOffset;
         }
     };

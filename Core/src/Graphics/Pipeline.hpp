@@ -1,12 +1,23 @@
 #ifndef FLK_PIPELINE_HPP
 #define FLK_PIPELINE_HPP
 
+#include <any>
+#include <optional>
+#include <string>
+#include <unordered_map>
+
 #include "Common.hpp"
 #include "CubeMap.hpp"
 #include "Shader.hpp"
 #include "Texture.hpp"
 #include "TextureArray.hpp"
 #include "Math/Math.hpp"
+
+namespace Flock::Graphics {
+    class CubeMap;
+    class Shader;
+    class TextureArray;
+}
 
 namespace Flock::Graphics {
     /**

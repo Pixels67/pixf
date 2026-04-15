@@ -10,10 +10,11 @@
 
 namespace Flock {
     template<typename T>
-    class FLK_API Matrix4 {
-    public:
+    struct FLK_API Matrix4 {
+    private:
         std::array<T, 4 * 4> m;
 
+    public:
         Matrix4() { m = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1}; }
 
         Matrix4(std::array<T, 16> array) {
@@ -23,6 +24,8 @@ namespace Flock {
         static Matrix4 Identity() { return Matrix4(); }
 
         T &At(const u32 row, const u32 col) { return m[(row * 4) + col]; }
+
+        T &operator[](const u32 idx) { return m[idx]; }
 
         const T &At(const u32 row, const u32 col) const { return m[(row * 4) + col]; }
 

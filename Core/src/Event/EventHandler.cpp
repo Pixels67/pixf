@@ -12,7 +12,7 @@ namespace Flock::Event {
         return ptr;
     }
 
-    usize EventQueue::GetSize() const {
+    usize EventQueue::Size() const {
         return m_Queue.size();
     }
 

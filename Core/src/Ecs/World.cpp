@@ -1,16 +1,20 @@
 #include "World.hpp"
-#include "FileIo/World.hpp"
+
+#include <optional>
+#include <string>
+#include <string_view>
 
 #include "App.hpp"
-#include "Asset/Assets.hpp"
 #include "Audio/AudioListener.hpp"
 #include "Audio/AudioSource.hpp"
 #include "Event/EventRegistry.hpp"
+#include "FileIo/File.hpp"
 #include "Graphics/Camera.hpp"
 #include "Graphics/Light.hpp"
 #include "Graphics/ModelRenderer.hpp"
 #include "Graphics/Skybox.hpp"
 #include "Graphics/SpriteRenderer.hpp"
+#include "Gui/Box.hpp"
 #include "Gui/Button.hpp"
 #include "Gui/Image.hpp"
 #include "Gui/Text.hpp"
@@ -18,7 +22,12 @@
 #include "Math/Transform.hpp"
 #include "Physics/Collider.hpp"
 #include "Physics/RigidBody.hpp"
+#include "Serial/JsonArchive.hpp"
 #include "Time/Time.hpp"
+#include "Ecs/Registry.hpp"
+#include "Gui/RectTransform.hpp"
+#include "Math/RigidTransform.hpp"
+#include "Serial/Json.hpp"
 
 namespace Flock::Ecs {
     World World::Default() {
@@ -29,9 +38,6 @@ namespace Flock::Ecs {
     }
 
     void World::SetDefaults() {
-        m_Resources.clear();
-        m_Registry.Clear();
-
         InsertResource<Time::TimeState>();
         InsertResource<Input::InputState>();
         InsertResource<Graphics::Camera>();
@@ -41,21 +47,22 @@ namespace Flock::Ecs {
         InsertResource<Application>();
         InsertResource<Event::EventRegistry>();
 
-        GetRegistry().RegisterComponent<Transform>();
-        GetRegistry().RegisterComponent<RigidTransform>();
-        GetRegistry().RegisterComponent<Gui::RectTransform>();
-        GetRegistry().RegisterComponent<Graphics::SpriteRenderer>();
-        GetRegistry().RegisterComponent<Graphics::ModelRenderer>();
-        GetRegistry().RegisterComponent<Physics::BoxCollider>();
-        GetRegistry().RegisterComponent<Physics::SphereCollider>();
-        GetRegistry().RegisterComponent<Physics::RigidBody>();
-        GetRegistry().RegisterComponent<Audio::AudioSource>();
-        GetRegistry().RegisterComponent<Gui::Text>();
-        GetRegistry().RegisterComponent<Gui::Button>();
-        GetRegistry().RegisterComponent<Gui::Image>();
+        Registry().Register<Transform>();
+        Registry().Register<RigidTransform>();
+        Registry().Register<Gui::RectTransform>();
+        Registry().Register<Graphics::SpriteRenderer>();
+        Registry().Register<Graphics::ModelRenderer>();
+        Registry().Register<Physics::BoxCollider>();
+        Registry().Register<Physics::SphereCollider>();
+        Registry().Register<Physics::RigidBody>();
+        Registry().Register<Audio::AudioSource>();
+        Registry().Register<Gui::Text>();
+        Registry().Register<Gui::Button>();
+        Registry().Register<Gui::Image>();
+        Registry().Register<Gui::Box>();
     }
 
-    Registry &World::GetRegistry() {
+    Registry &World::Registry() {
         return m_Registry;
     }
 
@@ -77,25 +84,29 @@ namespace Flock::Ecs {
     }
 
     bool World::Load(const std::filesystem::path &filePath) {
-        if (!FileIo::ReadWorld(filePath)) {
+        const auto result = FileIo::ReadText(filePath);
+        if (!result) {
             return false;
         }
 
-        Asset::AssetLoader *loader = nullptr;
-        if (HasResource<Asset::Assets>()) {
-            loader = &GetResource<Asset::Assets>().loader;
+        const std::string file = result.value();
+        if (!Serial::Json::Parse(file)) {
+            return false;
         }
 
-        *this = FileIo::ReadWorld(filePath).value();
+        const Serial::Json json = Serial::Json::Parse(file).value();
+        Serial::JsonReader reader(json);
 
-        if (loader) {
-            InsertResource(Asset::Assets{*loader});
-        }
-
+        Archive(reader);
         return true;
     }
 
     bool World::Save(const std::filesystem::path &filePath) {
-        return FileIo::WriteWorld(filePath, *this);
+        Serial::JsonWriter writer;
+        Archive(writer);
+
+        const Serial::Json json = writer.Output();
+
+        return FileIo::WriteText(filePath, json.ToString());
     }
 }

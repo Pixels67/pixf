@@ -1,7 +1,10 @@
 #include "World.hpp"
 
+#include <string>
+
 #include "File.hpp"
 #include "Serial/JsonArchive.hpp"
+#include "Serial/Json.hpp"
 
 namespace Flock::FileIo {
     std::optional<Ecs::World> ReadWorld(const std::filesystem::path &filePath) {
@@ -30,7 +33,7 @@ namespace Flock::FileIo {
         Serial::JsonWriter writer;
         world.Archive(writer);
 
-        const Serial::Json json = writer.GetOutput();
+        const Serial::Json json = writer.Output();
 
         return WriteText(filePath, json.ToString());
     }

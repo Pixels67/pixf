@@ -3,8 +3,15 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include <string>
 
 #include "Math/Color.hpp"
+#include "Debug/Log.hpp"
+#include "assimp/color4.h"
+#include "assimp/material.h"
+#include "assimp/material.inl"
+#include "assimp/mesh.h"
+#include "assimp/types.h"
 
 namespace Flock::FileIo {
     static constexpr f32 s_ImportScale = 1.0F;

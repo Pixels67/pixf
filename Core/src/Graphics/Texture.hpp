@@ -1,8 +1,16 @@
 #ifndef FLK_TEXTURE2D_HPP
 #define FLK_TEXTURE2D_HPP
 
+#include <optional>
+
 #include "Common.hpp"
 #include "Graphics/Image.hpp"
+#include "Math/Vector.hpp"
+#include "glad/glad.h"
+
+namespace Flock::Graphics {
+    struct Image;
+}
 
 namespace Flock::Graphics {
     /**
@@ -58,15 +66,15 @@ namespace Flock::Graphics {
      * @brief Texture configuration.
      */
     struct FLK_API TextureConfig {
-        FilterMode                   filterMode       = Linear;
+        FilterMode                   filterMode       = Nearest;
         FilterMode                   mipmapFilterMode = Linear;
         WrapMode                     wrapMode         = Clamp;
-        std::optional<TextureFormat> format           = std::nullopt;
+        std::optional<TextureFormat> format           = TextureFormat::Rgba;
         bool                         generateMipmaps  = true;
 
-        [[nodiscard]] u32 GetGlWrap() const;
-        [[nodiscard]] u32 GetGlMinFilter() const;
-        [[nodiscard]] u32 GetGlMagFilter() const;
+        [[nodiscard]] u32 GlWrap() const;
+        [[nodiscard]] u32 GlMinFilter() const;
+        [[nodiscard]] u32 GlMagFilter() const;
     };
 
     void ConfigureTexture(u32 glTexture, TextureConfig config);
@@ -96,6 +104,13 @@ namespace Flock::Graphics {
          * @return A newly created empty 2D texture.
          */
         static Texture CreateEmpty(Vector2u size, TextureConfig config = {});
+
+        /**
+         * @brief Static factory method.
+         * @param config The texture configuration.
+         * @return A newly created single-pixel white texture.
+         */
+        static Texture Default(TextureConfig config = {});
 
         Texture() = default;
         ~Texture();
@@ -130,13 +145,13 @@ namespace Flock::Graphics {
 
         void Configure(TextureConfig config);
 
-        [[nodiscard]] TextureConfig GetConfig() const;
+        [[nodiscard]] TextureConfig Config() const;
 
-        [[nodiscard]] Vector2u GetSize() const;
-        [[nodiscard]] u32      GetWidth() const;
-        [[nodiscard]] u32      GetHeight() const;
+        [[nodiscard]] Vector2u Size() const;
+        [[nodiscard]] u32      Width() const;
+        [[nodiscard]] u32      Height() const;
 
-        [[nodiscard]] u32 GetGlId() const;
+        [[nodiscard]] u32 GlId() const;
     };
 }
 

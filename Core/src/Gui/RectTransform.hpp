@@ -3,20 +3,14 @@
 
 #include "Common.hpp"
 #include "Math/Rect.hpp"
+#include "Serial/Archive.hpp"
 
 namespace Flock::Gui {
     struct FLK_API RectTransform {
         Rect2i rect;
     };
 
-    inline auto Reflect(RectTransform &trans) {
-        return Reflectable{
-            "RectTransform",
-            std::make_tuple(
-                Field{"rect", &trans.rect}
-            )
-        };
-    }
+    FLK_ARCHIVE(RectTransform, rect)
 }
 
 #endif //FLK_RECTTRANSFORM_HPP

@@ -1,7 +1,9 @@
 #include "Gl.hpp"
 
+#include "glad/glad.h"
+
 namespace Flock::Graphics {
-    const char *GetGlErrorString(const GLenum err) {
+    const char *GlErrorString(const GLenum err) {
         switch (err) {
             case GL_INVALID_ENUM:
                 return "GL_INVALID_ENUM";

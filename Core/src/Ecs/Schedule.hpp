@@ -1,6 +1,10 @@
 #ifndef FLK_SCHEDULE_HPP
 #define FLK_SCHEDULE_HPP
 
+#include <functional>
+#include <unordered_map>
+#include <vector>
+
 #include "Common.hpp"
 #include "World.hpp"
 
@@ -39,6 +43,17 @@ namespace Flock::Ecs {
         void AddSystem(Stage stage, const System &system);
 
         /**
+         * Adds multiple systems to a stage; executed in order.
+         * @tparam Args The system types.
+         * @param stage The stage.
+         * @param args The systems.
+         */
+        template<typename... Args>
+        void AddSystems(Stage stage, const Args &... args) {
+            (AddSystem(stage, args), ...);
+        }
+
+        /**
          * @brief Pops the last added system from a stage.
          * @param stage The stage.
          */
@@ -49,7 +64,7 @@ namespace Flock::Ecs {
          * @param stage The stage.
          * @return All the systems in the stage.
          */
-        std::vector<System> GetSystems(Stage stage);
+        std::vector<System> Systems(Stage stage);
 
         /**
          * @brief Clears the schedule.

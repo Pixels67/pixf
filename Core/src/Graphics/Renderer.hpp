@@ -1,6 +1,10 @@
 #ifndef FLK_RENDERER_HPP
 #define FLK_RENDERER_HPP
 
+#include <functional>
+#include <optional>
+#include <vector>
+
 #include "Framebuffer.hpp"
 #include "Mesh.hpp"
 #include "Asset/AssetLoader.hpp"
@@ -8,6 +12,21 @@
 #include "Math/Transform.hpp"
 #include "Camera.hpp"
 #include "Light.hpp"
+#include "Common.hpp"
+#include "Graphics/TextureArray.hpp"
+#include "Math/Color.hpp"
+#include "Math/Matrix.hpp"
+#include "Math/Vector.hpp"
+
+namespace Flock {
+namespace Graphics {
+class CubeMap;
+class Framebuffer;
+class Mesh;
+class Pipeline;
+class Texture;
+}  // namespace Graphics
+}  // namespace Flock
 
 namespace Flock::Graphics {
     enum class DepthFunc {
@@ -101,7 +120,7 @@ namespace Flock::Graphics {
 
     class FLK_API Renderer {
     public:
-        Renderer &Render(const RenderList &commands, const SceneData &scene, RenderConfig config = {}, ShadowConfig shadowConfig = {});
+        Renderer &Render(const RenderList &commands, const SceneData &scene, RenderConfig config = {}, const ShadowConfig &shadowConfig = {});
 
     private:
         static bool SetFramebuffer(OptionalRef<Framebuffer> framebuffer = std::nullopt);
@@ -110,7 +129,7 @@ namespace Flock::Graphics {
         static void SetMaterialUniforms(Pipeline &pipeline, const MaterialProperties &material);
         static void SetLightUniforms(Pipeline &pipeline, std::vector<Light> lights, ShadowConfig shadowConfig);
 
-        static std::vector<Light> GetNearestLights(std::vector<Light> lights, Vector3f center, usize count);
+        static std::vector<Light> NearestLights(std::vector<Light> lights, Vector3f center, usize count);
 
         static ShadowData GenerateShadowMaps(
             const RenderList &        commands,

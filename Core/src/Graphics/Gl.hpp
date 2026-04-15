@@ -7,7 +7,7 @@
 #include "Debug/Log.hpp"
 
 namespace Flock::Graphics {
-    const char *GetGlErrorString(GLenum err);
+    const char *GlErrorString(GLenum err);
 }
 
 #ifndef NDEBUG
@@ -19,7 +19,7 @@ do {                                                                            
     GLenum err = glGetError();                                                                                         \
     if (err == GL_NO_ERROR) { break; }                                                                                 \
     Flock::Debug::LogErr("OpenGL error: {} occurred while running {} ({}:{})",                                         \
-        Flock::Graphics::GetGlErrorString(err),                                                                    \
+        Flock::Graphics::GlErrorString(err),                                                                           \
         #x,                                                                                                            \
         __FILE__,                                                                                                      \
         __LINE__);                                                                                                     \

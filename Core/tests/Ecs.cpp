@@ -42,10 +42,10 @@ TEST(Entities, Registry) {
 
     registry.AddComponent<int>(e2, 1);
     registry.AddComponent<char>(e2, 'B');
-    registry.GetComponent<int>(e2)->get() = 2;
+    registry.Get<int>(e2)->get() = 2;
 
-    bool hasAllComps = registry.HasAllComponents<int, char>(e2);
-    bool hasAnyComps = registry.HasAnyComponents<int, char>(e1);
+    bool hasAllComps = registry.HasAll<int, char>(e2);
+    bool hasAnyComps = registry.HasAny<int, char>(e1);
 
     // Assert
     ASSERT_FALSE(registry.IsAlive(dead));
@@ -55,18 +55,18 @@ TEST(Entities, Registry) {
     ASSERT_EQ(e1.id, dead.id);
     ASSERT_EQ(e1.version, 1);
 
-    ASSERT_TRUE(registry.HasComponent<int>(e1));
-    ASSERT_FALSE(registry.HasComponent<char>(e1));
-    ASSERT_TRUE(registry.HasComponent<int>(e2));
-    ASSERT_TRUE(registry.HasComponent<char>(e2));
+    ASSERT_TRUE(registry.Has<int>(e1));
+    ASSERT_FALSE(registry.Has<char>(e1));
+    ASSERT_TRUE(registry.Has<int>(e2));
+    ASSERT_TRUE(registry.Has<char>(e2));
 
     ASSERT_TRUE(hasAllComps);
     ASSERT_TRUE(hasAnyComps);
 
-    ASSERT_EQ(registry.GetComponent<int>(e1).value(), 1);
-    ASSERT_EQ(registry.GetComponent<char>(e1), std::nullopt);
-    ASSERT_EQ(registry.GetComponent<int>(e2).value(), 2);
-    ASSERT_EQ(registry.GetComponent<char>(e2).value(), 'B');
+    ASSERT_EQ(registry.Get<int>(e1).value(), 1);
+    ASSERT_EQ(registry.Get<char>(e1), std::nullopt);
+    ASSERT_EQ(registry.Get<int>(e2).value(), 2);
+    ASSERT_EQ(registry.Get<char>(e2).value(), 'B');
 }
 
 TEST(Entities, RegistryForEach) {
@@ -86,7 +86,7 @@ TEST(Entities, RegistryForEach) {
     // Assert
     for (EntityId i = 0; i < 100; i++) {
         const auto e = Entity{.id = i, .version = 0};
-        ASSERT_EQ(registry.GetComponent<int>(e), i + 1);
+        ASSERT_EQ(registry.Get<int>(e), i + 1);
     }
 }
 
@@ -95,16 +95,16 @@ TEST(Entities, Schedule) {
     World    world{};
     Schedule schedule{};
 
-    const Entity entity = world.GetRegistry().Create();
-    world.GetRegistry().AddComponent<int>(entity, 1);
+    const Entity entity = world.Registry().Create();
+    world.Registry().AddComponent<int>(entity, 1);
 
     // Act
     schedule.AddSystem(Stage::Startup, [&](World &world) {
-        world.GetRegistry().GetComponent<int>(entity)->get()--;
+        world.Registry().Get<int>(entity)->get()--;
     });
 
     schedule.AddSystem(Stage::Update, [&](World &world) {
-        world.GetRegistry().GetComponent<int>(entity)->get()++;
+        world.Registry().Get<int>(entity)->get()++;
     });
 
     schedule.Execute(Stage::Update, world);
@@ -112,5 +112,5 @@ TEST(Entities, Schedule) {
     schedule.Execute(Stage::Update, world);
 
     // Assert
-    ASSERT_EQ(world.GetRegistry().GetComponent<int>(entity)->get(), 2);
+    ASSERT_EQ(world.Registry().Get<int>(entity)->get(), 2);
 }

@@ -1,6 +1,13 @@
 #ifndef FLK_EVENTHANDLER_HPP
 #define FLK_EVENTHANDLER_HPP
 
+#include <functional>
+#include <memory>
+#include <optional>
+#include <queue>
+#include <utility>
+#include <vector>
+
 #include "Common.hpp"
 
 namespace Flock::Event {
@@ -54,7 +61,7 @@ namespace Flock::Event {
         void            QueueEvent(std::unique_ptr<Event> &&event = {});
         std::unique_ptr<Event> PopEvent();
 
-        [[nodiscard]] usize GetSize() const;
+        [[nodiscard]] usize Size() const;
         [[nodiscard]] bool  IsEmpty() const;
     };
 

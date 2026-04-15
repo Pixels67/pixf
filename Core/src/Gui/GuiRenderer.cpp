@@ -1,7 +1,15 @@
 #include "GuiRenderer.hpp"
 
+#include <functional>
+
 #include "Nvg.hpp"
 #include "Graphics/Texture.hpp"
+#include "Debug/Log.hpp"
+#include "Gui/Font.hpp"
+#include "Gui/RectTransform.hpp"
+#include "Gui/Text.hpp"
+#include "Memory/Buffer.hpp"
+#include "nanovg.h"
 
 namespace Flock::Gui {
     GuiRenderer GuiRenderer::Create() {
@@ -73,7 +81,7 @@ namespace Flock::Gui {
         }
 
         if (nvgFindFont(m_Ctx, font.filePath.c_str()) == -1) {
-            i32 fontId = nvgCreateFontMem(m_Ctx, font.filePath.c_str(), static_cast<ubyte *>(font.buffer.Get()), font.buffer.GetSize(), 0);
+            i32 fontId = nvgCreateFontMem(m_Ctx, font.filePath.c_str(), static_cast<ubyte *>(font.buffer.Get()), font.buffer.Size(), 0);
             if (fontId == -1) {
                 Debug::LogErr("GuiRenderer::RenderText: Invalid font data");
                 return false;
@@ -133,21 +141,28 @@ namespace Flock::Gui {
             return false;
         }
 
-        auto [x, y] = transform.rect.origin;
-        auto [w, h] = transform.rect.aspect;
-
         if (texture) {
             RenderImage(transform, texture->get());
         } else {
-            nvgBeginPath(m_Ctx);
-            nvgRect(m_Ctx, x, y, w, h);
-            nvgFillColor(m_Ctx, nvgRGBA(color.r, color.g, color.b, color.a));
-            nvgFill(m_Ctx);
+            RenderRect(transform, color);
         }
+
+        RenderRect(transform, tint);
+
+        return true;
+    }
+
+    bool GuiRenderer::RenderRect(RectTransform transform, const Color4u8 color) const {
+        if (!m_Ctx) {
+            return false;
+        }
+
+        auto [x, y] = transform.rect.origin;
+        auto [w, h] = transform.rect.aspect;
 
         nvgBeginPath(m_Ctx);
         nvgRect(m_Ctx, x, y, w, h);
-        nvgFillColor(m_Ctx, nvgRGBA(tint.r, tint.g, tint.b, tint.a));
+        nvgFillColor(m_Ctx, nvgRGBA(color.r, color.g, color.b, color.a));
         nvgFill(m_Ctx);
 
         return true;
@@ -161,10 +176,10 @@ namespace Flock::Gui {
         auto [x, y] = transform.rect.origin;
         auto [w, h] = transform.rect.aspect;
 
-        auto [tw, th] = texture.GetSize();
+        auto [tw, th] = texture.Size();
 
-        const i32      img = nvglCreateImageFromHandleGL3(m_Ctx, texture.GetGlId(), tw, th, 0);
-        const NVGpaint p   = nvgImagePattern(m_Ctx, x, y, w, h, 0, img, 1.0F);
+        const i32      img = nvglCreateImageFromHandleGL3(m_Ctx, texture.GlId(), tw, th, 0);
+        const NVGpaint p   = nvgImagePattern(m_Ctx, x, y + h, w, -h, 0, img, 1.0F);
 
         nvgBeginPath(m_Ctx);
         nvgRect(m_Ctx, x, y, w, h);

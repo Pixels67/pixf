@@ -1,8 +1,8 @@
 #include "Shader.hpp"
 
 #include "Gl.hpp"
-#include "Math/Math.hpp"
-#include "Memory/Buffer.hpp"
+#include "Debug/Log.hpp"
+#include "glad/glad.h"
 
 namespace Flock::Graphics {
     u32 ToGlType(const ShaderType shaderType) {
@@ -69,10 +69,10 @@ namespace Flock::Graphics {
             return;
         }
 
-        FLK_GL_CALL(glDeleteProgram(m_Id));
+        FLK_GL_CALL(glDeleteShader(m_Id));
     }
 
-    u32 Shader::GetGlId() const {
+    u32 Shader::GlId() const {
         return m_Id;
     }
 }

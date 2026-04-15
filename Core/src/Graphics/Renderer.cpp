@@ -1,5 +1,27 @@
 #include "Renderer.hpp"
 
+#include <algorithm>
+#include <string>
+
+#include "Debug/Log.hpp"
+#include "Graphics/Camera.hpp"
+#include "Graphics/Framebuffer.hpp"
+#include "Graphics/Gl.hpp"
+#include "Graphics/Light.hpp"
+#include "Graphics/Mesh.hpp"
+#include "Graphics/Pipeline.hpp"
+#include "Graphics/Shader.hpp"
+#include "Graphics/Texture.hpp"
+#include "Math/Quaternion.hpp"
+#include "Math/RigidTransform.hpp"
+#include "glad/glad.h"
+
+namespace Flock {
+namespace Graphics {
+class CubeMap;
+}  // namespace Graphics
+}  // namespace Flock
+
 namespace Flock::Graphics {
     static constexpr usize s_MaxLightsPerObject = 16;
 
@@ -93,12 +115,21 @@ void main() {
         }
     }
 
-    Renderer &Renderer::Render(const RenderList &commands, const SceneData &scene, RenderConfig config, const ShadowConfig shadowConfig) {
-        const auto     lights       = GetNearestLights(scene.lights, scene.camera.transform.position, s_MaxLightsPerObject);
+    Renderer &Renderer::Render(const RenderList &commands, const SceneData &scene, RenderConfig config, const ShadowConfig &shadowConfig) {
+        const auto     lights       = NearestLights(scene.lights, scene.camera.transform.position, s_MaxLightsPerObject);
         const Vector3f shadowCenter = scene.camera.transform.position;
-        ShadowData     shadowData;
+
+        RenderList sortedCmds = commands;
+        std::sort(sortedCmds.begin(), sortedCmds.end(), [&](RenderCommand &lhs, RenderCommand &rhs) {
+            const f32 lhsZ = ((lhs.transform.position - scene.camera.transform.position) * scene.camera.transform.rotation.Inverse()).z;
+            const f32 rhsZ = ((rhs.transform.position - scene.camera.transform.position) * scene.camera.transform.rotation.Inverse()).z;
+
+            return lhsZ > rhsZ;
+        });
+
+        ShadowData shadowData;
         if (shadowConfig.enabled) {
-            shadowData = GenerateShadowMaps(commands, lights, shadowConfig, shadowCenter);
+            shadowData = GenerateShadowMaps(sortedCmds, lights, shadowConfig, shadowCenter);
         }
 
         auto      [origin, aspect] = config.viewport;
@@ -111,14 +142,14 @@ void main() {
             RenderSkybox(
                 scene.skybox->get(),
                 scene.camera.transform.rotation.Inverse().ToMatrix(),
-                scene.camera.GetProjMatrix(aspectRatio)
+                scene.camera.ProjMatrix(aspectRatio)
             );
         }
 
         config.clear.clearColor = false;
         ConfigureFramebuffer(config);
 
-        for (auto &cmd: commands) {
+        for (auto &cmd: sortedCmds) {
             auto &[mesh, pipeline, mat, trans] = cmd;
 
             pipeline.get().ResetUniforms();
@@ -132,7 +163,7 @@ void main() {
             SetMaterialUniforms(pipeline, mat);
             SetLightUniforms(pipeline, lights, shadowConfig);
 
-            if (shadowData.shadowMaps.GetLayerCount() > 0) {
+            if (shadowData.shadowMaps.LayerCount() > 0) {
                 if (!pipeline.get().SetUniform("uShadowMaps", shadowData.shadowMaps)) {
                     Debug::LogErr("Render: Failed to upload shadow maps!");
                     return *this;
@@ -184,7 +215,10 @@ void main() {
         FLK_GL_CALL(glViewport(origin.x, origin.y, aspect.x, aspect.y));
 
         if (config.blend.enabled) {
+            FLK_GL_CALL(glEnable(GL_BLEND));
             FLK_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+        } else {
+            FLK_GL_CALL(glDisable(GL_BLEND));
         }
 
         if (config.raster.cullMode != CullMode::None) {
@@ -222,9 +256,9 @@ void main() {
     }
 
     void Renderer::SetMatrices(Pipeline &pipeline, const Transform &transform, const Camera &camera, const f32 aspectRatio) {
-        const Matrix4f model = transform.GetMatrix();
-        const Matrix4f view  = camera.GetViewMatrix();
-        const Matrix4f proj  = camera.GetProjMatrix(aspectRatio);
+        const Matrix4f model = transform.Matrix();
+        const Matrix4f view  = camera.ViewMatrix();
+        const Matrix4f proj  = camera.ProjMatrix(aspectRatio);
 
         pipeline.SetUniform("uModel", model);
         pipeline.SetUniform("uView", view);
@@ -268,7 +302,7 @@ void main() {
         }
     }
 
-    std::vector<Light> Renderer::GetNearestLights(std::vector<Light> lights, const Vector3f center, const usize count) {
+    std::vector<Light> Renderer::NearestLights(std::vector<Light> lights, const Vector3f center, const usize count) {
         std::sort(lights.begin(), lights.end(), [&](const Light &lhs, const Light &rhs) -> bool {
             return (center - lhs.position).Magnitude() < (center - rhs.position).Magnitude();
         });
@@ -310,7 +344,7 @@ void main() {
                 const i32 idx   = i * shadowConfig.cascadeRanges.size() + r;
 
                 GenerateShadowMap(commands, data.shadowMaps, idx, shadowLights[i], shadowCenter, range);
-                data.spaceMatrices[idx] = shadowLights[i].GetLightSpaceMatrix(range, aspectRatio, shadowCenter);
+                data.spaceMatrices[idx] = shadowLights[i].LightSpaceMatrix(range, aspectRatio, shadowCenter);
             }
         }
 
@@ -338,7 +372,7 @@ void main() {
         }
 
         const RenderConfig config = {
-            .viewport = {{0, 0}, {textureArray.GetSize().x, textureArray.GetSize().y}},
+            .viewport = {{0, 0}, {textureArray.Size().x, textureArray.Size().y}},
             .clear    = {
                 .clearColor = false
             }
@@ -346,15 +380,15 @@ void main() {
 
         ConfigureFramebuffer(config);
 
-        const f32      aspectRatio = static_cast<f32>(textureArray.GetSize().x) / static_cast<f32>(textureArray.GetSize().y);
-        const Matrix4f spaceMat    = light.GetLightSpaceMatrix(range, aspectRatio, shadowCenter);
+        const f32      aspectRatio = static_cast<f32>(textureArray.Size().x) / static_cast<f32>(textureArray.Size().y);
+        const Matrix4f spaceMat    = light.LightSpaceMatrix(range, aspectRatio, shadowCenter);
 
         static const Shader vert     = Shader::Create(VertexShader, s_ShadowVertShader).value();
         static const Shader frag     = Shader::Create(FragmentShader, s_ShadowFragShader).value();
         static Pipeline     pipeline = Pipeline::Create(vert, frag).value();
 
         for (auto &cmd: commands) {
-            const Matrix4f model = cmd.transform.GetMatrix();
+            const Matrix4f model = cmd.transform.Matrix();
 
             pipeline.SetUniform("uModel", model);
             pipeline.SetUniform("uView", Matrix4f{});
@@ -381,7 +415,7 @@ void main() {
             return false;
         }
 
-        FLK_GL_CALL(glDrawElements(GL_TRIANGLES, mesh.GetIndexCount(), GL_UNSIGNED_INT, nullptr));
+        FLK_GL_CALL(glDrawElements(GL_TRIANGLES, mesh.IndexCount(), GL_UNSIGNED_INT, nullptr));
         return true;
     }
 

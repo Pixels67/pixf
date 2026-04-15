@@ -12,22 +12,12 @@ namespace Flock {
         Vector3f   scale       = Vector3f::One();
         Vector3f   eulerAngles = {};
 
-        [[nodiscard]] Matrix4f GetMatrix() const {
+        [[nodiscard]] Matrix4f Matrix() const {
             return Matrix4f::Scale(scale) * Matrix4f::Rotate(rotation) * Matrix4f::Translate(position);
         }
     };
 
-    inline auto Reflect(Transform &transform) {
-        return Reflectable{
-            "Transform",
-            std::make_tuple(
-                Field("position", &transform.position),
-                Field("rotation", &transform.rotation),
-                Field("scale", &transform.scale),
-                Field("eulerAngles", &transform.eulerAngles)
-            )
-        };
-    }
+    FLK_ARCHIVE(Transform, position, rotation, scale, eulerAngles)
 }
 
 #endif //FLK_TRANSFORM_HPP

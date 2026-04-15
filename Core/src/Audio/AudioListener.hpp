@@ -3,6 +3,7 @@
 
 #include "Common.hpp"
 #include "Math/Math.hpp"
+#include "Serial/Archive.hpp"
 
 namespace Flock::Audio {
     struct FLK_API AudioListener {
@@ -10,15 +11,7 @@ namespace Flock::Audio {
         Quaternion rotation = {};
     };
 
-    inline auto Reflect(AudioListener &listener) {
-        return Reflectable{
-            "AudioListener",
-            std::make_tuple(
-                Field{"position", &listener.position},
-                Field{"rotation", &listener.rotation}
-            )
-        };
-    }
+    FLK_ARCHIVE(AudioListener, position, rotation)
 }
 
 #endif //FLK_AUDIOLISTENER_HPP

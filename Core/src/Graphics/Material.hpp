@@ -2,6 +2,7 @@
 #define FLK_MATERIAL_HPP
 
 #include "Math/Math.hpp"
+#include "Serial/Archive.hpp"
 
 namespace Flock::Graphics {
     struct FLK_API Material {
@@ -16,20 +17,7 @@ namespace Flock::Graphics {
         std::string roughnessMapPath;
     };
 
-    inline auto Reflect(Material &material) {
-        return Reflectable{
-            "Material",
-            std::make_tuple(
-                Field{"pipelinePath", &material.pipelinePath},
-                Field{"color", &material.color},
-                Field{"metallic", &material.metallic},
-                Field{"roughness", &material.roughness},
-                Field{"colorMapPath", &material.colorMapPath},
-                Field{"metallicMapPath", &material.metallicMapPath},
-                Field{"roughnessMapPath", &material.roughnessMapPath}
-            )
-        };
-    }
+    FLK_ARCHIVE(Material, pipelinePath, color, metallic, roughness, colorMapPath, metallicMapPath, roughnessMapPath)
 }
 
 #endif //FLK_MATERIAL_HPP

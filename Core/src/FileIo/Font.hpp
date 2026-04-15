@@ -2,6 +2,7 @@
 #define FLK_FILEIO_FONT_HPP
 
 #include <filesystem>
+#include <optional>
 
 #include "Gui/Font.hpp"
 

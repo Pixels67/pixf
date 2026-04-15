@@ -1,8 +1,14 @@
 #ifndef FLK_CUBEMAP_HPP
 #define FLK_CUBEMAP_HPP
 
+#include <optional>
+
 #include "Common.hpp"
 #include "Texture.hpp"
+
+namespace Flock::Graphics {
+struct Image;
+}
 
 namespace Flock::Graphics {
     class FLK_API CubeMap {

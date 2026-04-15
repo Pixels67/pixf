@@ -30,7 +30,7 @@ namespace Flock {
 
     f64 FLK_API RadiansToDegrees(f64 angleRadians);
     f64 FLK_API DegreesToRadians(f64 angleDegrees);
-    f64 FLK_API GetPi();
+    f64 FLK_API Pi();
 } // namespace Flock
 
 #endif // FLK_UTILS_HPP

@@ -77,7 +77,7 @@ namespace Flock::Graphics {
          * @brief Retrieves the type of the buffer.
          * @return The type of the buffer.
          */
-        [[nodiscard]] BufferType GetType() const;
+        [[nodiscard]] BufferType Type() const;
     };
 }
 

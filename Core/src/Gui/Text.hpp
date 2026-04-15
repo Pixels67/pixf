@@ -3,6 +3,7 @@
 
 #include "Common.hpp"
 #include "Math/Color.hpp"
+#include "Serial/Archive.hpp"
 
 namespace Flock::Gui {
     enum AlignmentH {
@@ -26,19 +27,7 @@ namespace Flock::Gui {
         AlignmentV  verticalAlignment;
     };
 
-    inline auto Reflect(Text &text) {
-        return Reflectable{
-            "Text",
-            std::make_tuple(
-                Field{"content", &text.content},
-                Field{"fontSize", &text.fontSize},
-                Field{"font", &text.fontPath},
-                Field{"color", &text.color},
-                Field{"horizontalAlignment", &text.horizontalAlignment},
-                Field{"verticalAlignment", &text.verticalAlignment}
-            )
-        };
-    }
+    FLK_ARCHIVE(Text, content, fontSize, fontPath, color, horizontalAlignment, verticalAlignment)
 }
 
 #endif //FLK_TEXT_HPP

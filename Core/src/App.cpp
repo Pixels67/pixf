@@ -1,18 +1,43 @@
 #include "App.hpp"
 
+#include <filesystem>
+#include <functional>
+#include <initializer_list>
+#include <string>
+#include <utility>
+
 #include "Asset/Assets.hpp"
 #include "Audio/AudioSource.hpp"
 #include "Event/EventRegistry.hpp"
 #include "Graphics/ModelRenderer.hpp"
 #include "Graphics/Skybox.hpp"
 #include "Graphics/SpriteRenderer.hpp"
+#include "Gui/Box.hpp"
 #include "Gui/Button.hpp"
 #include "Gui/Image.hpp"
 #include "Gui/Text.hpp"
 #include "Input/Input.hpp"
 #include "Math/Transform.hpp"
-#include "Serial/JsonArchive.hpp"
 #include "Time/Time.hpp"
+#include "Audio/AudioClip.hpp"
+#include "Audio/AudioListener.hpp"
+#include "Debug/Log.hpp"
+#include "Ecs/Registry.hpp"
+#include "Graphics/Camera.hpp"
+#include "Graphics/CubeMap.hpp"
+#include "Graphics/Light.hpp"
+#include "Graphics/Material.hpp"
+#include "Graphics/Mesh.hpp"
+#include "Graphics/Model.hpp"
+#include "Graphics/Pipeline.hpp"
+#include "Graphics/Texture.hpp"
+#include "Gui/Font.hpp"
+#include "Gui/RectTransform.hpp"
+#include "Math/Color.hpp"
+#include "Math/Rect.hpp"
+#include "Math/Vector.hpp"
+#include "Physics/Collider.hpp"
+#include "Physics/RigidBody.hpp"
 
 namespace Flock {
     std::optional<App> App::Create(const AppConfig &config) {
@@ -86,33 +111,31 @@ namespace Flock {
         return *this;
     }
 
-    Services &App::GetServices() {
+    Services &App::Services() {
         return m_Services;
     }
 
     void App::Prepare() {
-        const f64 deltaTime = Time::GetTime() - m_World.GetResource<Time::TimeState>().time;
+        const f64 deltaTime = Time::Time() - m_World.Resource<Time::TimeState>().time;
 
-        m_World.InsertResource(Time::TimeState{.time = Time::GetTime(), .deltaTime = deltaTime});
+        m_World.InsertResource(Time::TimeState{.time = Time::Time(), .deltaTime = deltaTime});
 
-        Input::InputState input = m_Services.inputHandler.GetState();
-        input.cursorMode        = m_World.GetResource<Input::InputState>().cursorMode;
+        Input::InputState input = m_Services.inputHandler.State();
+        input.cursorMode        = m_World.Resource<Input::InputState>().cursorMode;
         m_World.InsertResource(input);
     }
 
     void App::Extract() {
-        m_Services.window.SetCursorMode(m_World.GetResource<Input::InputState>().cursorMode);
+        m_Services.window.SetCursorMode(m_World.Resource<Input::InputState>().cursorMode);
 
-        const auto listener = m_World.GetResource<Audio::AudioListener>();
+        const auto listener = m_World.Resource<Audio::AudioListener>();
         m_Services.audioPlayer.SetListener(listener);
 
         std::vector<Audio::AudioSource> sources;
-        m_World.GetRegistry().ForEach<Audio::AudioSource>([&](Audio::AudioSource &source) {
-            if (!source.play) {
+        m_World.Registry().ForEach<Audio::AudioSource>([&](Audio::AudioSource &source) {
+            if (source.audioClipPath.empty()) {
                 return;
             }
-
-            source.play = false;
 
             const auto clip = m_Services.assetLoader.Get<Audio::AudioClip>(source.audioClipPath);
             if (!clip) {
@@ -129,24 +152,36 @@ namespace Flock {
                 .spatialize = source.spatialize
             };
 
-            m_Services.audioPlayer.Play(clip.value(), config);
+            if (clip.value().get().playbackHandle != FLK_INVALID) {
+                m_Services.audioPlayer.Configure(clip->get(), config);
+            }
+
+            if (source.play) {
+                source.play = false;
+                m_Services.audioPlayer.Play(clip.value(), config);
+            }
+
+            if (source.stop) {
+                source.stop = false;
+                m_Services.audioPlayer.Stop(clip.value());
+            }
         });
 
         std::vector<Physics::PhysicsObject> physicsObjects;
-        m_World.GetRegistry().ForEach<Transform, Physics::BoxCollider, Physics::RigidBody>(
+        m_World.Registry().ForEach<Transform, Physics::BoxCollider, Physics::RigidBody>(
             [&](Transform &trans, Physics::BoxCollider &collider, Physics::RigidBody &rb) {
                 physicsObjects.push_back({.transform = &trans, .rigidBody = &rb, .collider = &collider});
             }
         );
 
-        m_World.GetRegistry().ForEach<Transform, Physics::SphereCollider, Physics::RigidBody>(
+        m_World.Registry().ForEach<Transform, Physics::SphereCollider, Physics::RigidBody>(
             [&](Transform &trans, Physics::SphereCollider &collider, Physics::RigidBody &rb) {
                 physicsObjects.push_back({.transform = &trans, .rigidBody = &rb, .collider = &collider});
             }
         );
 
         static f32 accumulator = 0.0F;
-        accumulator            += m_World.GetResource<Time::TimeState>().deltaTime;
+        accumulator            += m_World.Resource<Time::TimeState>().deltaTime;
 
         m_Services.physicsEngine.SetScene(physicsObjects);
 
@@ -155,29 +190,29 @@ namespace Flock {
             accumulator -= 0.02F;
         }
 
-        m_ShouldClose = m_World.GetResource<Application>().shouldClose;
+        m_ShouldClose = m_World.Resource<Application>().shouldClose;
     }
 
     void App::Render() {
         using namespace Graphics;
 
-        const Camera       camera = m_World.GetResource<Camera>();
+        const Camera       camera = m_World.Resource<Camera>();
         std::vector<Light> lights;
 
-        m_World.GetRegistry().ForEach<Light>([&](auto &light) {
+        m_World.Registry().ForEach<Light>([&](auto &light) {
             lights.push_back(light);
         });
 
-        m_World.GetRegistry().ForEach<DirectionalLight>([&](auto &light) {
-            lights.push_back(light.GetLight());
+        m_World.Registry().ForEach<DirectionalLight>([&](auto &light) {
+            lights.push_back(light.Light());
         });
 
-        m_World.GetRegistry().ForEach<PointLight>([&](auto &light) {
-            lights.push_back(light.GetLight());
+        m_World.Registry().ForEach<PointLight>([&](auto &light) {
+            lights.push_back(light.Light());
         });
 
-        const AmbientLight ambient = m_World.GetResource<AmbientLight>();
-        const Skybox       skybox  = m_World.GetResource<Skybox>();
+        const AmbientLight ambient = m_World.Resource<AmbientLight>();
+        const Skybox       skybox  = m_World.Resource<Skybox>();
 
         OptionalRef<CubeMap> cubeMap = std::nullopt;
         if (m_Services.assetLoader.Get<CubeMap>(skybox.filePath) && camera.projection == Projection::Perspective) {
@@ -192,7 +227,7 @@ namespace Flock {
         };
 
         RenderList commands;
-        m_World.GetRegistry().ForEach<ModelRenderer, Transform>([&](const ModelRenderer &renderer, const Transform &transform) {
+        m_World.Registry().ForEach<ModelRenderer, Transform>([&](const ModelRenderer &renderer, const Transform &transform) {
             const auto result = m_Services.assetLoader.Get<Model>(renderer.modelPath);
             if (!result) {
                 Debug::LogErr("App::Render: Invalid model path!");
@@ -228,13 +263,13 @@ namespace Flock {
             }
         });
 
-        const Rect2u viewport = {{0, 0}, m_Services.window.GetSize()};
+        const Rect2u viewport = {{0, 0}, m_Services.window.Size()};
         m_Services.renderer.Render(
             commands,
             scene,
             {
                 .viewport = viewport,
-                .clear    = ClearState{.color = Color4u8{ambient.color}}
+                .clear    = {.color = Color4u8{ambient.color}}
             },
             m_Config.shadowConfig
         );
@@ -246,9 +281,9 @@ namespace Flock {
         if (!unlit) {
             Debug::LogWrn("App::Render: Unlit pipeline not assigned, 2D objects won't be rendered.");
         } else {
-            m_World.GetRegistry().ForEach<SpriteRenderer, Transform>([&](const SpriteRenderer &renderer, const Transform &transform) {
+            m_World.Registry().ForEach<SpriteRenderer, Transform>([&](const SpriteRenderer &renderer, const Transform &transform) {
                 MaterialProperties props = {
-                    .color     = Color4u8::White(),
+                    .color     = renderer.color,
                     .metallic  = 0.0F,
                     .roughness = 1.0F,
                 };
@@ -269,52 +304,51 @@ namespace Flock {
         }
 
         scene.skybox = std::nullopt;
+        scene.lights = {};
         m_Services.renderer.Render(
             commands,
             scene,
             {
-                .viewport = viewport, .clear = ClearState{.clearColor = false, .clearDepth = false}
-            },
-            {.enabled = false}
+                .viewport = viewport,
+                .clear    = {.clearColor = false, .clearDepth = false}
+            }
         );
     }
 
     void App::RenderGui() {
         using namespace Gui;
 
-        const auto input = m_World.GetResource<Input::InputState>();
+        const auto input = m_World.Resource<Input::InputState>();
 
-        bool mouseDown     = input.IsMouseDown();
-        bool mouseReleased = input.IsMouseReleased();
-        bool mousePressed  = input.IsMousePressed();
+        const bool mouseDown     = input.IsMouseDown();
+        const bool mouseReleased = input.IsMouseReleased();
+        const bool mousePressed  = input.IsMousePressed();
 
-        m_Services.guiRenderer.BeginFrame(m_Services.window.GetSize());
+        m_Services.guiRenderer.BeginFrame(m_Services.window.Size());
 
-        m_World.GetRegistry().ForEach<RectTransform, Image>([&](const RectTransform &trans, const Image &img) {
-            if (img.imagePath == "" || !m_Services.assetLoader.Get<Graphics::Texture>(img.imagePath)) {
+        m_World.Registry().ForEach<RectTransform, Box>([&](const RectTransform &trans, const Box &box) {
+            m_Services.guiRenderer.RenderRect(
+                trans,
+                box.color
+            );
+        });
+
+        m_World.Registry().ForEach<RectTransform, Image>([&](const RectTransform &trans, const Image &img) {
+            if (img.imagePath.empty() || !m_Services.assetLoader.Get<Graphics::Texture>(img.imagePath)) {
+                m_Services.guiRenderer.RenderRect(trans, Color4u8::White());
                 return;
             }
 
             m_Services.guiRenderer.RenderImage(trans, m_Services.assetLoader.Get<Graphics::Texture>(img.imagePath).value());
         });
 
-        m_World.GetRegistry().ForEach<RectTransform, Button>([&](const RectTransform &trans, const Button &button) {
+        m_World.Registry().ForEach<RectTransform, Button>([&](const RectTransform &trans, const Button &button) {
             Color4u8 tint = Color4u8::Transparent();
 
             if (input.IsCursorInRect(trans.rect) && mouseDown) {
                 tint = button.pressTint;
             } else if (input.IsCursorInRect(trans.rect)) {
                 tint = button.hoverTint;
-            }
-
-            const auto events = m_World.GetResource<Event::EventRegistry>();
-
-            if (input.IsCursorInRect(trans.rect) && mousePressed) {
-                events.Invoke(button.onPressEvent);
-            }
-
-            if (input.IsCursorInRect(trans.rect) && mouseReleased) {
-                events.Invoke(button.onReleaseEvent);
             }
 
             OptionalRef<Graphics::Texture> tex = std::nullopt;
@@ -329,9 +363,19 @@ namespace Flock {
                 tint,
                 tex
             );
+
+            const auto events = m_World.Resource<Event::EventRegistry>();
+
+            if (input.IsCursorInRect(trans.rect) && mousePressed) {
+                events.Invoke(button.onPressEvent);
+            }
+
+            if (input.IsCursorInRect(trans.rect) && mouseReleased) {
+                events.Invoke(button.onReleaseEvent);
+            }
         });
 
-        m_World.GetRegistry().ForEach<RectTransform, Text>([&](const RectTransform &trans, const Text &text) {
+        m_World.Registry().ForEach<RectTransform, Text>([&](const RectTransform &trans, const Text &text) {
             const auto font = m_Services.assetLoader.Get<Font>(text.fontPath);
             if (!font) {
                 Debug::LogErr("App::RenderGui: Invalid font path '{}'", text.fontPath);

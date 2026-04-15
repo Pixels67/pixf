@@ -1,5 +1,11 @@
 #include "Schedule.hpp"
 
+namespace Flock {
+namespace Ecs {
+class World;
+}  // namespace Ecs
+}  // namespace Flock
+
 namespace Flock::Ecs {
     void Schedule::Execute(const Stage stage, World &world) {
         for (auto &system: m_Systems[stage]) {
@@ -15,7 +21,7 @@ namespace Flock::Ecs {
         m_Systems[stage].pop_back();
     }
 
-    std::vector<System> Schedule::GetSystems(const Stage stage) {
+    std::vector<System> Schedule::Systems(const Stage stage) {
         return m_Systems[stage];
     }
 

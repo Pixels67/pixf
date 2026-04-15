@@ -1,8 +1,10 @@
 #include "Pipeline.hpp"
 
 #include <sstream>
+#include <string>
 
 #include "File.hpp"
+#include "Graphics/Shader.hpp"
 
 namespace Flock::FileIo {
     static constexpr auto s_PositionPrepend  = "layout(location = 0) ";

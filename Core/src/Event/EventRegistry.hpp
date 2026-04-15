@@ -1,6 +1,10 @@
 #ifndef FLK_EVENTREGISTRY_HPP
 #define FLK_EVENTREGISTRY_HPP
 
+#include <functional>
+#include <string>
+#include <unordered_map>
+
 #include "Common.hpp"
 
 namespace Flock::Event {

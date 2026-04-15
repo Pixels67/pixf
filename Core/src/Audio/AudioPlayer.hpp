@@ -2,11 +2,18 @@
 #define FLK_AUDIOPLAYER_HPP
 
 #include <soloud.h>
+#include <memory>
+#include <optional>
 
 #include "AudioClip.hpp"
 #include "AudioListener.hpp"
 #include "Common.hpp"
 #include "Math/Vector.hpp"
+
+namespace Flock::Audio {
+    struct AudioClip;
+    struct AudioListener;
+}
 
 namespace Flock::Audio {
     struct FLK_API AudioConfig {
@@ -36,6 +43,7 @@ namespace Flock::Audio {
         void Clear() const;
 
         bool Play(AudioClip &clip, AudioConfig config = {}) const;
+        bool Configure(const AudioClip &clip, const AudioConfig &config = {}) const;
         bool Stop(const AudioClip &clip) const;
 
         void SetListener(const AudioListener &listener) const;

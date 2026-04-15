@@ -5,6 +5,13 @@
 #include "Buffer.hpp"
 #include "VertexLayout.hpp"
 
+namespace Flock {
+namespace Graphics {
+class Buffer;
+class VertexLayout;
+}  // namespace Graphics
+}  // namespace Flock
+
 namespace Flock::Graphics {
     /**
      * @class VertexArray

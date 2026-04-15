@@ -6,6 +6,7 @@
 #include "Common.hpp"
 #include "Math/Math.hpp"
 #include "Math/RigidTransform.hpp"
+#include "Serial/Archive.hpp"
 
 namespace Flock::Physics {
     namespace rp = reactphysics3d;
@@ -14,7 +15,7 @@ namespace Flock::Physics {
         virtual ~Collider() = default;
 
         virtual rp::CollisionShape *BuildShape(rp::PhysicsCommon &common, Vector3f scale) = 0;
-        virtual RigidTransform        GetTransform() = 0;
+        virtual RigidTransform      Transform() = 0;
     };
 
     struct FLK_API BoxCollider : Collider {
@@ -31,7 +32,7 @@ namespace Flock::Physics {
             ));
         }
 
-        RigidTransform GetTransform() override {
+        RigidTransform Transform() override {
             return transform;
         }
     };
@@ -49,30 +50,13 @@ namespace Flock::Physics {
             return common.createSphereShape(radius * s);
         }
 
-        RigidTransform GetTransform() override {
+        RigidTransform Transform() override {
             return transform;
         }
     };
 
-    inline auto Reflect(BoxCollider &collider) {
-        return Reflectable{
-            "BoxCollider",
-            std::make_tuple(
-                Field{"transform", &collider.transform},
-                Field{"halfExtents", &collider.halfExtents}
-            )
-        };
-    }
-
-    inline auto Reflect(SphereCollider &collider) {
-        return Reflectable{
-            "SphereCollider",
-            std::make_tuple(
-                Field{"transform", &collider.transform},
-                Field{"radius", &collider.radius}
-            )
-        };
-    }
+    FLK_ARCHIVE(BoxCollider, transform, halfExtents)
+    FLK_ARCHIVE(SphereCollider, transform, radius)
 }
 
 #endif //FLK_COLLIDER_HPP

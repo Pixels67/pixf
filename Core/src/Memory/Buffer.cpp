@@ -1,5 +1,9 @@
 #include "Buffer.hpp"
 
+#include <stdlib.h>
+#include <string.h>
+#include <algorithm>
+
 namespace Flock::Memory {
     Buffer::Buffer(const size_t size)
         : m_Data(size > 0 ? malloc(size) : nullptr), m_Size(size) {
@@ -87,14 +91,14 @@ namespace Flock::Memory {
         return (void *) ((size_t) Get() + offset);
     }
 
-    size_t Buffer::GetSize() const { return m_Size; }
+    size_t Buffer::Size() const { return m_Size; }
 
     void *Buffer::At(const size_t offset) const {
         if (offset >= m_Size) {
             return nullptr;
         }
 
-        return static_cast<char *>(m_Data) + offset;
+        return (void *)((size_t) m_Data + offset);
     }
 
     void Buffer::Clear() {
