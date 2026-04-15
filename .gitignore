@@ -13,6 +13,7 @@ Testing/
 
 # Output directory
 **/out/
+out/
 
 .cache
 /.vs

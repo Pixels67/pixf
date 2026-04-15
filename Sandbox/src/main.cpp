@@ -14,25 +14,25 @@ i32 main() {
     app.AddSystem(Stage::Startup, [](World &world) {
         world.Load("../../../assets/world.json");
 
-        const auto &assets = world.GetResource<Asset::Assets>();
+        const auto &assets = world.Resource<Asset::Assets>();
 
         assets.SetDefaultPipeline(Asset::PipelineType::Pbr, "../../../assets/shader.glsl");
         assets.SetDefaultPipeline(Asset::PipelineType::Unlit, "../../../assets/unlit.glsl");
 
-        world.GetResource<Event::EventRegistry>().Add("logPress", [] { Debug::LogInf("Button pressed"); });
-        world.GetResource<Event::EventRegistry>().Add("logRelease", [] { Debug::LogInf("Button released"); });
+        world.Resource<Event::EventRegistry>().Add("logPress", [] { Debug::LogInf("Button pressed"); });
+        world.Resource<Event::EventRegistry>().Add("logRelease", [] { Debug::LogInf("Button released"); });
     });
 
     app.AddSystem(Stage::Update, [&](World &world) {
-        const f64 dt = world.GetResource<Time::TimeState>().deltaTime;
+        const f64 dt = world.Resource<Time::TimeState>().deltaTime;
 
-        auto &input = world.GetResource<InputState>();
-        auto &cam   = world.GetResource<Camera>();
+        const auto &input = world.Resource<InputState>();
+        auto &      cam   = world.Resource<Camera>();
 
         const f32 moveSpeed = 5.0F * dt;
 
         if (input.IsKeyDown(Key::Backspace)) {
-            world.GetResource<Application>().Close();
+            world.Resource<Application>().Close();
         }
 
         if (input.IsKeyDown(Key::W)) {
