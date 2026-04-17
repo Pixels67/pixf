@@ -18,12 +18,12 @@ namespace Flock::Event {
         virtual ~Event() = default;
 
         template<typename T>
-        OptionalRef<T> Cast() {
+        T *Cast() {
             if (dynamic_cast<T *>(this)) {
-                return dynamic_cast<T &>(*this);
+                return dynamic_cast<T *>(this);
             }
 
-            return std::nullopt;
+            return nullptr;
         }
     };
 
@@ -83,7 +83,7 @@ namespace Flock::Event {
         usize Subscribe(EventCallback<T> callback) {
             const GenericCallback func = [callback](Event &event) {
                 if (event.Cast<T>()) {
-                    callback(event.Cast<T>().value());
+                    callback(*event.Cast<T>());
                 }
             };
 

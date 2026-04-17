@@ -19,14 +19,14 @@
 #include "Math/Vector.hpp"
 
 namespace Flock {
-namespace Graphics {
-class CubeMap;
-class Framebuffer;
-class Mesh;
-class Pipeline;
-class Texture;
-}  // namespace Graphics
-}  // namespace Flock
+    namespace Graphics {
+        class CubeMap;
+        class Framebuffer;
+        class Mesh;
+        class Pipeline;
+        class Texture;
+    } // namespace Graphics
+}     // namespace Flock
 
 namespace Flock::Graphics {
     enum class DepthFunc {
@@ -74,10 +74,10 @@ namespace Flock::Graphics {
     };
 
     struct SceneData {
-        Camera               camera       = {};
-        std::vector<Light>   lights       = {};
-        AmbientLight         ambientLight = {};
-        OptionalRef<CubeMap> skybox       = std::nullopt;
+        Camera             camera       = {};
+        std::vector<Light> lights       = {};
+        AmbientLight       ambientLight = {};
+        CubeMap *          skybox       = nullptr;
     };
 
     struct ShadowConfig {
@@ -92,26 +92,26 @@ namespace Flock::Graphics {
     };
 
     struct RenderConfig {
-        Rect2u                   viewport;
-        ClearState               clear       = {};
-        DepthState               depth       = {};
-        BlendState               blend       = {};
-        RasterState              raster      = {};
-        OptionalRef<Framebuffer> framebuffer = std::nullopt;
+        Rect2u       viewport;
+        ClearState   clear       = {};
+        DepthState   depth       = {};
+        BlendState   blend       = {};
+        RasterState  raster      = {};
+        Framebuffer *framebuffer = nullptr;
     };
 
     struct MaterialProperties {
-        Color4u8             color        = Color4u8::White();
-        f32                  metallic     = 0.25F;
-        f32                  roughness    = 0.75F;
-        OptionalRef<Texture> colorMap     = std::nullopt;
-        OptionalRef<Texture> metallicMap  = std::nullopt;
-        OptionalRef<Texture> roughnessMap = std::nullopt;
+        Color4u8 color        = Color4u8::White();
+        f32      metallic     = 0.25F;
+        f32      roughness    = 0.75F;
+        Texture *colorMap     = nullptr;
+        Texture *metallicMap  = nullptr;
+        Texture *roughnessMap = nullptr;
     };
 
     struct RenderCommand {
-        Ref<Mesh>          mesh;
-        Ref<Pipeline>      pipeline;
+        Mesh *             mesh;
+        Pipeline *         pipeline;
         MaterialProperties materialProperties = {};
         Transform          transform          = {};
     };
@@ -120,10 +120,11 @@ namespace Flock::Graphics {
 
     class FLK_API Renderer {
     public:
-        Renderer &Render(const RenderList &commands, const SceneData &scene, RenderConfig config = {}, const ShadowConfig &shadowConfig = {});
+        Renderer &Render(const RenderList &  commands, const SceneData &scene, RenderConfig config = {},
+                         const ShadowConfig &shadowConfig                                          = {});
 
     private:
-        static bool SetFramebuffer(OptionalRef<Framebuffer> framebuffer = std::nullopt);
+        static bool SetFramebuffer(const Framebuffer *framebuffer = nullptr);
         static void ConfigureFramebuffer(RenderConfig config);
         static void SetMatrices(Pipeline &pipeline, const Transform &transform, const Camera &camera, f32 aspectRatio);
         static void SetMaterialUniforms(Pipeline &pipeline, const MaterialProperties &material);

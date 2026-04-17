@@ -57,7 +57,7 @@ namespace Flock::Graphics {
         [[nodiscard]] u32      Height() const;
 
         [[nodiscard]] Texture &            operator[](Vector2u position);
-        [[nodiscard]] OptionalRef<Texture> At(Vector2u position);
+        [[nodiscard]] Texture *At(Vector2u position);
 
         Texture &Insert(Vector2u position, Texture &&texture);
     };

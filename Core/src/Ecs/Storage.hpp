@@ -16,12 +16,13 @@ namespace Flock::Ecs {
     public:
         virtual ~IStorage() = default;
 
-        [[nodiscard]] virtual bool Has(EntityId id) const = 0;
-        [[nodiscard]] virtual bool IsEnabled(EntityId id) const = 0;
-        virtual bool               SetEnabled(EntityId id, bool enabled) = 0;
-        virtual void               SetAllEnabled(bool enabled) = 0;
-        virtual bool               Remove(EntityId id) = 0;
-        virtual void               Clear() = 0;
+        [[nodiscard]] virtual bool     Has(EntityId id) const = 0;
+        [[nodiscard]] virtual bool     IsEnabled(EntityId id) const = 0;
+        virtual bool                   SetEnabled(EntityId id, bool enabled) = 0;
+        virtual void                   SetAllEnabled(bool enabled) = 0;
+        virtual bool                   Remove(EntityId id) = 0;
+        virtual void                   Clear() = 0;
+        virtual std::vector<EntityId> &Dense() = 0;
     };
 
     /**
@@ -109,14 +110,14 @@ namespace Flock::Ecs {
         /**
          * @brief Retrieves component data at a specified entity ID.
          * @param id The entity ID.
-         * @return The component data if found; std::nullopt otherwise.
+         * @return The component data if found; nullptr otherwise.
          */
-        OptionalRef<T> Get(const EntityId id) {
+        T *Get(const EntityId id) {
             if (!Has(id)) {
-                return std::nullopt;
+                return nullptr;
             }
 
-            return m_Data[m_Sparse[id]];
+            return &m_Data[m_Sparse[id]];
         }
 
         /**
@@ -164,6 +165,14 @@ namespace Flock::Ecs {
          */
         std::vector<T> &Data() {
             return m_Data;
+        }
+
+        /**
+         * @brief Retrieves a reference to all the entity IDs inside the storage.
+         * @return The storage entity IDs.
+         */
+        std::vector<EntityId> &Dense() override {
+            return m_Dense;
         }
 
         /**

@@ -6,10 +6,10 @@
 
 namespace Flock::Graphics {
     struct FLK_API ModelRenderer {
-        std::string modelPath;
+        Asset::AssetHandle<Model> model;
     };
 
-    FLK_ARCHIVE(ModelRenderer, modelPath)
+    FLK_ARCHIVE(ModelRenderer, model)
 }
 
 #endif //FLK_MODELRENDERER_HPP

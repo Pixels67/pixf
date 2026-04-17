@@ -35,8 +35,8 @@ namespace Flock {
         static Color3 Cyan() { return Color3(0, 255, 255); }
         static Color3 Magenta() { return Color3(255, 0, 255); }
 
-        Vector3f ToVector() {
-            return Vector3f(static_cast<f32>(r) / 255, static_cast<f32>(g) / 255, static_cast<f32>(b) / 255);
+        [[nodiscard]] Vector3f ToVector() const {
+            return {static_cast<f32>(r) / 255, static_cast<f32>(g) / 255, static_cast<f32>(b) / 255};
         }
 
         void FromVector(const Vector3f &v) {
@@ -103,11 +103,13 @@ namespace Flock {
 
         static Color4 Transparent() { return Color4(0, 0, 0, 0); }
 
-        Vector4f ToVector() {
-            return Vector4f(static_cast<f32>(r) / 255,
-                            static_cast<f32>(g) / 255,
-                            static_cast<f32>(b) / 255,
-                            static_cast<f32>(a) / 255);
+        [[nodiscard]] Vector4f ToVector() const {
+            return {
+                static_cast<f32>(r) / 255,
+                static_cast<f32>(g) / 255,
+                static_cast<f32>(b) / 255,
+                static_cast<f32>(a) / 255
+            };
         }
 
         void FromVector(const Vector4f &v) {

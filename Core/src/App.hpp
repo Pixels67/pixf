@@ -54,8 +54,8 @@ namespace Flock {
          */
         static std::optional<App> Create(const AppConfig &config = {});
 
-        App() = default;
-        ~App();
+        App()  = default;
+        ~App() = default;
 
         App(const App &other)     = delete;
         App(App &&other) noexcept = default;

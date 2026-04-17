@@ -1,8 +1,6 @@
 #include "App.hpp"
 
 #include <filesystem>
-#include <functional>
-#include <initializer_list>
 #include <string>
 #include <utility>
 
@@ -63,10 +61,6 @@ namespace Flock {
         app.m_Services.guiRenderer   = std::move(Gui::GuiRenderer::Create());
 
         return app;
-    }
-
-    App::~App() {
-        m_Services.assetLoader.UnloadAll();
     }
 
     App &App::AddSystem(const Ecs::Stage stage, const Ecs::System &system) {
@@ -133,13 +127,9 @@ namespace Flock {
 
         std::vector<Audio::AudioSource> sources;
         m_World.Registry().ForEach<Audio::AudioSource>([&](Audio::AudioSource &source) {
-            if (source.audioClipPath.empty()) {
-                return;
-            }
-
-            const auto clip = m_Services.assetLoader.Get<Audio::AudioClip>(source.audioClipPath);
+            const auto clip = m_Services.assetLoader.Get(source.clip);
             if (!clip) {
-                Debug::LogErr("App::Extract: Invalid AudioSource clip path '{}'!", source.audioClipPath);
+                Debug::LogErr("App::Extract: Invalid AudioSource clip path '{}'!", source.clip.filePath);
                 return;
             }
 
@@ -152,18 +142,18 @@ namespace Flock {
                 .spatialize = source.spatialize
             };
 
-            if (clip.value().get().playbackHandle != FLK_INVALID) {
-                m_Services.audioPlayer.Configure(clip->get(), config);
+            if (clip->playbackHandle != FLK_INVALID) {
+                m_Services.audioPlayer.Configure(*clip, config);
             }
 
             if (source.play) {
                 source.play = false;
-                m_Services.audioPlayer.Play(clip.value(), config);
+                m_Services.audioPlayer.Play(*clip, config);
             }
 
             if (source.stop) {
                 source.stop = false;
-                m_Services.audioPlayer.Stop(clip.value());
+                m_Services.audioPlayer.Stop(*clip);
             }
         });
 
@@ -214,9 +204,9 @@ namespace Flock {
         const AmbientLight ambient = m_World.Resource<AmbientLight>();
         const Skybox       skybox  = m_World.Resource<Skybox>();
 
-        OptionalRef<CubeMap> cubeMap = std::nullopt;
+        CubeMap *cubeMap = nullptr;
         if (m_Services.assetLoader.Get<CubeMap>(skybox.filePath) && camera.projection == Projection::Perspective) {
-            cubeMap = m_Services.assetLoader.Get<CubeMap>(skybox.filePath)->get();
+            cubeMap = m_Services.assetLoader.Get<CubeMap>(skybox.filePath);
         }
 
         SceneData scene = {
@@ -228,14 +218,14 @@ namespace Flock {
 
         RenderList commands;
         m_World.Registry().ForEach<ModelRenderer, Transform>([&](const ModelRenderer &renderer, const Transform &transform) {
-            const auto result = m_Services.assetLoader.Get<Model>(renderer.modelPath);
+            const auto result = m_Services.assetLoader.Get(renderer.model);
             if (!result) {
                 Debug::LogErr("App::Render: Invalid model path!");
                 return;
             }
 
-            Model &model = result.value();
-            for (auto &[mesh, mat]: model.objects) {
+            auto &[objects] = *result;
+            for (auto &[mesh, mat]: objects) {
                 MaterialProperties props = {
                     .color     = mat.color,
                     .metallic  = mat.metallic,
@@ -255,8 +245,8 @@ namespace Flock {
                 }
 
                 commands.push_back({
-                    .mesh               = mesh,
-                    .pipeline           = m_Services.assetLoader.Get<Pipeline>(mat.pipelinePath).value(),
+                    .mesh               = &mesh,
+                    .pipeline           = m_Services.assetLoader.Get<Pipeline>(mat.pipelinePath),
                     .materialProperties = props,
                     .transform          = transform,
                 });
@@ -276,11 +266,9 @@ namespace Flock {
 
         commands.clear();
 
-        Mesh square = Mesh::Square();
-        auto unlit  = m_Services.assetLoader.Get<Pipeline>("@Unlit");
-        if (!unlit) {
-            Debug::LogWrn("App::Render: Unlit pipeline not assigned, 2D objects won't be rendered.");
-        } else {
+        Mesh      square = Mesh::Square();
+        Pipeline *unlit  = m_Services.assetLoader.Get<Pipeline>("@Unlit");
+        if (unlit) {
             m_World.Registry().ForEach<SpriteRenderer, Transform>([&](const SpriteRenderer &renderer, const Transform &transform) {
                 MaterialProperties props = {
                     .color     = renderer.color,
@@ -288,22 +276,19 @@ namespace Flock {
                     .roughness = 1.0F,
                 };
 
-                const auto result = m_Services.assetLoader.Get<Texture>(renderer.spritePath);
-                if (result.has_value()) {
-                    Texture &sprite = result.value();
-                    props.colorMap  = sprite;
-                }
+
+                props.colorMap = m_Services.assetLoader.Get<Texture>(renderer.spritePath);
 
                 commands.push_back({
-                    .mesh               = square,
-                    .pipeline           = unlit->get(),
+                    .mesh               = &square,
+                    .pipeline           = unlit,
                     .materialProperties = props,
                     .transform          = transform,
                 });
             });
         }
 
-        scene.skybox = std::nullopt;
+        scene.skybox = nullptr;
         scene.lights = {};
         m_Services.renderer.Render(
             commands,
@@ -334,12 +319,13 @@ namespace Flock {
         });
 
         m_World.Registry().ForEach<RectTransform, Image>([&](const RectTransform &trans, const Image &img) {
-            if (img.imagePath.empty() || !m_Services.assetLoader.Get<Graphics::Texture>(img.imagePath)) {
+            const Graphics::Texture *tex = m_Services.assetLoader.Get<Graphics::Texture>(img.imagePath);
+            if (img.imagePath.empty() || !tex) {
                 m_Services.guiRenderer.RenderRect(trans, Color4u8::White());
                 return;
             }
 
-            m_Services.guiRenderer.RenderImage(trans, m_Services.assetLoader.Get<Graphics::Texture>(img.imagePath).value());
+            m_Services.guiRenderer.RenderImage(trans, *tex);
         });
 
         m_World.Registry().ForEach<RectTransform, Button>([&](const RectTransform &trans, const Button &button) {
@@ -351,10 +337,10 @@ namespace Flock {
                 tint = button.hoverTint;
             }
 
-            OptionalRef<Graphics::Texture> tex = std::nullopt;
+            Graphics::Texture *tex = nullptr;
 
-            if (button.imagePath != "" && m_Services.assetLoader.Get<Graphics::Texture>(button.imagePath)) {
-                tex = m_Services.assetLoader.Get<Graphics::Texture>(button.imagePath).value();
+            if (!button.imagePath.empty() && m_Services.assetLoader.Get<Graphics::Texture>(button.imagePath)) {
+                tex = m_Services.assetLoader.Get<Graphics::Texture>(button.imagePath);
             }
 
             m_Services.guiRenderer.RenderButton(
@@ -376,16 +362,16 @@ namespace Flock {
         });
 
         m_World.Registry().ForEach<RectTransform, Text>([&](const RectTransform &trans, const Text &text) {
-            const auto font = m_Services.assetLoader.Get<Font>(text.fontPath);
+            const auto font = m_Services.assetLoader.Get(text.font);
             if (!font) {
-                Debug::LogErr("App::RenderGui: Invalid font path '{}'", text.fontPath);
+                Debug::LogErr("App::RenderGui: Invalid font path '{}'", text.font.filePath);
                 return;
             }
 
             m_Services.guiRenderer.RenderText(
                 text.content,
                 text.fontSize,
-                font.value(),
+                *font,
                 trans,
                 text.color,
                 text.horizontalAlignment,

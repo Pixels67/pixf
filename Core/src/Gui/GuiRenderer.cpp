@@ -132,17 +132,17 @@ namespace Flock::Gui {
     }
 
     bool GuiRenderer::RenderButton(
-        RectTransform                        transform,
-        const Color4u8                       color,
-        const Color4u8                       tint,
-        const OptionalRef<Graphics::Texture> texture
+        const RectTransform      transform,
+        const Color4u8           color,
+        const Color4u8           tint,
+        const Graphics::Texture *texture
     ) const {
         if (!m_Ctx) {
             return false;
         }
 
         if (texture) {
-            RenderImage(transform, texture->get());
+            RenderImage(transform, *texture);
         } else {
             RenderRect(transform, color);
         }

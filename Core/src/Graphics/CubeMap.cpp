@@ -33,7 +33,7 @@ namespace Flock::Graphics {
         const std::vector images{right, left, down, up, forward, back};
 
         for (usize i = 0; i < images.size(); i++) {
-            const auto &image = images[i];
+            const auto image = images[i].FlipY();
 
             u32 format = ToGlType(image.format);
             if (config.format) {

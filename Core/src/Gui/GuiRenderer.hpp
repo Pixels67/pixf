@@ -16,14 +16,14 @@
 struct NVGcontext;
 
 namespace Flock {
-namespace Graphics {
-class Texture;
-}  // namespace Graphics
-namespace Gui {
-struct Font;
-struct RectTransform;
-}  // namespace Gui
-}  // namespace Flock
+    namespace Graphics {
+        class Texture;
+    } // namespace Graphics
+    namespace Gui {
+        struct Font;
+        struct RectTransform;
+    } // namespace Gui
+}     // namespace Flock
 
 namespace Flock::Gui {
     class FLK_API GuiRenderer {
@@ -57,10 +57,10 @@ namespace Flock::Gui {
         ) const;
 
         bool RenderButton(
-            RectTransform                  transform,
-            Color4u8                       color   = Color4u8::Black(),
-            Color4u8                       tint    = Color4u8::Transparent(),
-            OptionalRef<Graphics::Texture> texture = std::nullopt
+            RectTransform            transform,
+            Color4u8                 color   = Color4u8::Black(),
+            Color4u8                 tint    = Color4u8::Transparent(),
+            const Graphics::Texture *texture = nullptr
         ) const;
 
         bool RenderRect(

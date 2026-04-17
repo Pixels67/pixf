@@ -9,17 +9,17 @@ namespace Flock::Asset {
         AssetLoader &loader;
 
         template<typename T>
-        T &Get(const std::filesystem::path &filePath) const {
-            return loader.Get<T>(filePath).value();
+        T *Get(const std::filesystem::path &filePath) const {
+            return loader.Get<T>(filePath);
         }
 
         template<typename T>
-        bool Load(const std::filesystem::path &filePath) const {
+        AssetHandle<T> Load(const std::filesystem::path &filePath) const {
             return loader.Load<T>(filePath);
         }
 
-        bool SetDefaultPipeline(const PipelineType type, const std::filesystem::path &filePath) const {
-            return loader.SetDefaultPipeline(type, filePath);
+        bool SetPipeline(const std::string &name, const std::filesystem::path &filePath) const {
+            return loader.SetPipeline(name, loader.Load<Graphics::Pipeline>(filePath));
         }
     };
 }

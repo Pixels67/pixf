@@ -17,10 +17,10 @@
 #include "glad/glad.h"
 
 namespace Flock {
-namespace Graphics {
-class CubeMap;
-}  // namespace Graphics
-}  // namespace Flock
+    namespace Graphics {
+        class CubeMap;
+    } // namespace Graphics
+}     // namespace Flock
 
 namespace Flock::Graphics {
     static constexpr usize s_MaxLightsPerObject = 16;
@@ -140,7 +140,7 @@ void main() {
 
         if (scene.skybox) {
             RenderSkybox(
-                scene.skybox->get(),
+                *scene.skybox,
                 scene.camera.transform.rotation.Inverse().ToMatrix(),
                 scene.camera.ProjMatrix(aspectRatio)
             );
@@ -152,40 +152,44 @@ void main() {
         for (auto &cmd: sortedCmds) {
             auto &[mesh, pipeline, mat, trans] = cmd;
 
-            pipeline.get().ResetUniforms();
+            if (!mesh || !pipeline) {
+                continue;
+            }
 
-            SetMatrices(pipeline, trans, scene.camera, aspectRatio);
+            pipeline->ResetUniforms();
 
-            pipeline.get().SetUniform("uCameraPosition", scene.camera.transform.position);
-            pipeline.get().SetUniform("uAmbientColor", scene.ambientLight.color);
-            pipeline.get().SetUniform("uAmbientIntensity", scene.ambientLight.intensity);
+            SetMatrices(*pipeline, trans, scene.camera, aspectRatio);
 
-            SetMaterialUniforms(pipeline, mat);
-            SetLightUniforms(pipeline, lights, shadowConfig);
+            pipeline->SetUniform("uCameraPosition", scene.camera.transform.position);
+            pipeline->SetUniform("uAmbientColor", scene.ambientLight.color);
+            pipeline->SetUniform("uAmbientIntensity", scene.ambientLight.intensity);
+
+            SetMaterialUniforms(*pipeline, mat);
+            SetLightUniforms(*pipeline, lights, shadowConfig);
 
             if (shadowData.shadowMaps.LayerCount() > 0) {
-                if (!pipeline.get().SetUniform("uShadowMaps", shadowData.shadowMaps)) {
+                if (!pipeline->SetUniform("uShadowMaps", shadowData.shadowMaps)) {
                     Debug::LogErr("Render: Failed to upload shadow maps!");
                     return *this;
                 }
 
                 for (usize i = 0; i < shadowData.spaceMatrices.size(); i++) {
                     std::string idx = "[" + std::to_string(i) + "]";
-                    pipeline.get().SetUniform("uLightSpaceMatrices" + idx, shadowData.spaceMatrices[i]);
+                    pipeline->SetUniform("uLightSpaceMatrices" + idx, shadowData.spaceMatrices[i]);
                 }
 
-                pipeline.get().SetUniform("uShadowCascadeCount", static_cast<i32>(shadowConfig.cascadeRanges.size()));
+                pipeline->SetUniform("uShadowCascadeCount", static_cast<i32>(shadowConfig.cascadeRanges.size()));
                 for (usize i = 0; i < shadowConfig.cascadeRanges.size(); i++) {
                     std::string idx = "[" + std::to_string(i) + "]";
-                    pipeline.get().SetUniform("uShadowCascadeRanges" + idx, shadowConfig.cascadeRanges[i]);
+                    pipeline->SetUniform("uShadowCascadeRanges" + idx, shadowConfig.cascadeRanges[i]);
                 }
             }
 
             if (scene.skybox) {
-                pipeline.get().SetUniform("uSkybox", scene.skybox->get());
+                pipeline->SetUniform("uSkybox", *scene.skybox);
             }
 
-            RenderMesh(mesh, pipeline);
+            RenderMesh(*mesh, *pipeline);
         }
 
         Framebuffer::Unbind();
@@ -195,9 +199,9 @@ void main() {
         return *this;
     }
 
-    bool Renderer::SetFramebuffer(const OptionalRef<Framebuffer> framebuffer) {
+    bool Renderer::SetFramebuffer(const Framebuffer *framebuffer) {
         if (framebuffer) {
-            if (!framebuffer->get().Bind()) {
+            if (!framebuffer->Bind()) {
                 Debug::LogErr("Renderer::SetFramebuffer: Unable to bind framebuffer!");
                 return false;
             }
@@ -271,13 +275,13 @@ void main() {
         pipeline.SetUniform("uRoughness", material.roughness);
 
         if (material.colorMap) {
-            pipeline.SetUniform("uColorMap", material.colorMap.value());
+            pipeline.SetUniform("uColorMap", *material.colorMap);
         }
         if (material.metallicMap) {
-            pipeline.SetUniform("uMetallicMap", material.metallicMap.value());
+            pipeline.SetUniform("uMetallicMap", *material.metallicMap);
         }
         if (material.roughnessMap) {
-            pipeline.SetUniform("uRoughnessMap", material.roughnessMap.value());
+            pipeline.SetUniform("uRoughnessMap", *material.roughnessMap);
         }
     }
 
@@ -366,7 +370,7 @@ void main() {
             return false;
         }
 
-        if (!SetFramebuffer(framebuffer)) {
+        if (!SetFramebuffer(&framebuffer)) {
             Debug::LogErr("Renderer::GenerateShadowMap: Failed to bind framebuffer!");
             return false;
         }
@@ -388,13 +392,17 @@ void main() {
         static Pipeline     pipeline = Pipeline::Create(vert, frag).value();
 
         for (auto &cmd: commands) {
+            if (!cmd.mesh) {
+                continue;
+            }
+
             const Matrix4f model = cmd.transform.Matrix();
 
             pipeline.SetUniform("uModel", model);
             pipeline.SetUniform("uView", Matrix4f{});
             pipeline.SetUniform("uProj", spaceMat);
 
-            RenderMesh(cmd.mesh, pipeline);
+            RenderMesh(*cmd.mesh, pipeline);
         }
 
         Mesh::Unbind();

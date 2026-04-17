@@ -12,6 +12,11 @@ namespace Flock::Graphics {
 
     struct Model {
         std::vector<RenderObject> objects;
+
+        Model &Add(Mesh &&mesh, const Material &material) {
+            objects.push_back(RenderObject{.mesh = std::move(mesh), .material = material});
+            return *this;
+        }
     };
 }
 

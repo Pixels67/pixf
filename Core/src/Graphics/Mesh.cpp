@@ -90,12 +90,12 @@ namespace Flock::Graphics {
         };
 
         const std::vector<uint32_t> indices = {
-            0, 1, 2, 2, 3, 0,       // Front
-            4, 5, 6, 6, 7, 4,       // Back
-            8, 9, 10, 10, 11, 8,    // Left
-            12, 13, 14, 14, 15, 12, // Right
-            16, 17, 18, 18, 19, 16, // Top
-            20, 21, 22, 22, 23, 20, // Bottom
+            0, 2, 1, 2, 0, 3,       // Front
+            4, 6, 5, 6, 4, 7,       // Back
+            8, 10, 9, 10, 8, 11,    // Left
+            12, 14, 13, 14, 12, 15, // Right
+            16, 18, 17, 18, 16, 19, // Top
+            20, 22, 21, 22, 20, 23, // Bottom
         };
 
         return Create({.vertices = vertices, .indices = indices}).value();

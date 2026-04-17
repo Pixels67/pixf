@@ -52,6 +52,9 @@ namespace Flock::Ecs {
         Registry().Register<Gui::RectTransform>();
         Registry().Register<Graphics::SpriteRenderer>();
         Registry().Register<Graphics::ModelRenderer>();
+        Registry().Register<Graphics::PointLight>();
+        Registry().Register<Graphics::DirectionalLight>();
+        Registry().Register<Graphics::Light>();
         Registry().Register<Physics::BoxCollider>();
         Registry().Register<Physics::SphereCollider>();
         Registry().Register<Physics::RigidBody>();

@@ -7,15 +7,15 @@
 
 namespace Flock::Audio {
     struct FLK_API AudioSource {
-        std::string audioClipPath;
-        bool        play       = false;
-        bool        stop       = false;
-        Vector3f    position   = {};
-        f32         volume     = 0.5F;
-        f32         pitch      = 1.0F;
-        f32         pan        = 0.0F;
-        bool        looping    = false;
-        bool        spatialize = false;
+        Asset::AssetHandle<AudioClip> clip;
+        bool                          play       = false;
+        bool                          stop       = false;
+        Vector3f                      position   = {};
+        f32                           volume     = 0.5F;
+        f32                           pitch      = 1.0F;
+        f32                           pan        = 0.0F;
+        bool                          looping    = false;
+        bool                          spatialize = false;
 
         void Play() {
             play = true;
@@ -28,7 +28,7 @@ namespace Flock::Audio {
 
     FLK_ARCHIVE(
         AudioSource,
-        audioClipPath,
+        clip,
         play,
         position,
         volume,

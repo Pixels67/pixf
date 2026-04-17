@@ -63,12 +63,6 @@ using f64   = double;
 using byte  = i8;
 using ubyte = u8;
 
-template<typename T>
-using Ref = std::reference_wrapper<T>;
-
-template<typename T>
-using OptionalRef = std::optional<Ref<T> >;
-
 #define FLK_INVALID 0xFFFFFF
 
 #endif //FLK_COMMON_HPP

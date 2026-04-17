@@ -73,15 +73,15 @@ namespace Flock::Graphics {
             return Insert(position, Texture::Default());
         }
 
-        return At(position)->get();
+        return *At(position);
     }
 
-    OptionalRef<Texture> TextureAtlas::At(const Vector2u position) {
+    Texture *TextureAtlas::At(const Vector2u position) {
         if (position.y * m_Subtextures.x + position.x >= m_Textures.size()) {
-            return std::nullopt;
+            return nullptr;
         }
 
-        return m_Textures.at(position.y * m_Subtextures.x + position.x);
+        return &m_Textures.at(position.y * m_Subtextures.x + position.x);
     }
 
     Texture &TextureAtlas::Insert(const Vector2u position, Texture &&texture) {
@@ -89,7 +89,7 @@ namespace Flock::Graphics {
             m_Textures.push_back(Texture::Default());
         }
 
-        At(position)->get() = std::move(texture);
-        return At(position)->get();
+        *At(position) = std::move(texture);
+        return *At(position);
     }
 }

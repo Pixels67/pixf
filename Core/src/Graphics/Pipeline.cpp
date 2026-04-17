@@ -245,44 +245,44 @@ namespace Flock::Graphics {
 
         switch (const auto [type, data] = uniform; type) {
             case UniformType::U8:
-                FLK_GL_CALL(glUniform1ui(glGetUniformLocation(m_Id, name.c_str()), std::any_cast<u8>(data)));
+                FLK_GL_CALL(glUniform1ui(glGetUniformLocation(m_Id, name.c_str()), std::get<u8>(data)));
                 break;
             case UniformType::U32:
-                FLK_GL_CALL(glUniform1ui(glGetUniformLocation(m_Id, name.c_str()), std::any_cast<u32>(data)));
+                FLK_GL_CALL(glUniform1ui(glGetUniformLocation(m_Id, name.c_str()), std::get<u32>(data)));
                 break;
             case UniformType::I32:
-                FLK_GL_CALL(glUniform1i(glGetUniformLocation(m_Id, name.c_str()), std::any_cast<i32>(data)));
+                FLK_GL_CALL(glUniform1i(glGetUniformLocation(m_Id, name.c_str()), std::get<i32>(data)));
                 break;
             case UniformType::F32:
-                FLK_GL_CALL(glUniform1f(glGetUniformLocation(m_Id, name.c_str()), std::any_cast<f32>(data)));
+                FLK_GL_CALL(glUniform1f(glGetUniformLocation(m_Id, name.c_str()), std::get<f32>(data)));
                 break;
             case UniformType::Vec2: {
-                const auto vec = std::any_cast<Vector2f>(data);
+                const auto vec = std::get<Vector2f>(data);
                 FLK_GL_CALL(glUniform2f(glGetUniformLocation(m_Id, name.c_str()), vec.x, vec.y));
                 break;
             }
             case UniformType::Vec3: {
-                const auto vec = std::any_cast<Vector3f>(data);
+                const auto vec = std::get<Vector3f>(data);
                 FLK_GL_CALL(glUniform3f(glGetUniformLocation(m_Id, name.c_str()), vec.x, vec.y, vec.z));
                 break;
             }
             case UniformType::Vec4: {
-                const auto vec = std::any_cast<Vector4f>(data);
+                const auto vec = std::get<Vector4f>(data);
                 FLK_GL_CALL(glUniform4f(glGetUniformLocation(m_Id, name.c_str()), vec.x, vec.y, vec.z, vec.w));
                 break;
             }
             case UniformType::Col3: {
-                const auto vec = std::any_cast<Color3u8>(data).ToVector();
+                const auto vec = std::get<Color3u8>(data).ToVector();
                 FLK_GL_CALL(glUniform3f(glGetUniformLocation(m_Id, name.c_str()), vec.x, vec.y, vec.z));
                 break;
             }
             case UniformType::Col4: {
-                const auto vec = std::any_cast<Color4u8>(data).ToVector();
+                const auto vec = std::get<Color4u8>(data).ToVector();
                 FLK_GL_CALL(glUniform4f(glGetUniformLocation(m_Id, name.c_str()), vec.x, vec.y, vec.z, vec.w));
                 break;
             }
             case UniformType::Mat4: {
-                const auto mat = std::any_cast<Matrix4f>(data);
+                const auto mat = std::get<Matrix4f>(data);
                 FLK_GL_CALL(glUniformMatrix4fv(glGetUniformLocation(m_Id, name.c_str()), 1, true, mat.Data()));
                 break;
             }

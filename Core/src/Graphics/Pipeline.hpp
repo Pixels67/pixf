@@ -1,7 +1,7 @@
 #ifndef FLK_PIPELINE_HPP
 #define FLK_PIPELINE_HPP
 
-#include <any>
+#include <variant>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -36,13 +36,26 @@ namespace Flock::Graphics {
         Mat4
     };
 
+    using UniformData = std::variant<
+        u8,
+        u32,
+        i32,
+        f32,
+        Vector3f,
+        Vector2f,
+        Vector4f,
+        Color3u8,
+        Color4u8,
+        Matrix4f
+    >;
+
     /**
      * @struct Uniform
      * @brief A Pipeline uniform.
      */
     struct FLK_API Uniform {
         UniformType type;
-        std::any    data;
+        UniformData data;
     };
 
     struct SamplerInfo {
@@ -58,7 +71,7 @@ namespace Flock::Graphics {
         u32                                          m_Id = 0;
         std::unordered_map<std::string, Uniform>     m_Uniforms;
         std::unordered_map<std::string, SamplerInfo> m_Samplers;
-        Texture                                    m_DefaultTexture;
+        Texture                                      m_DefaultTexture;
 
     public:
         /**

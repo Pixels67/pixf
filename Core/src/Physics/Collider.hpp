@@ -22,7 +22,7 @@ namespace Flock::Physics {
         RigidTransform transform   = {};
         Vector3f       halfExtents = Vector3f::One();
 
-        explicit BoxCollider(const RigidTransform &transform = {}, const Vector3f halfExtents = Vector3f::One())
+        explicit BoxCollider(const RigidTransform &transform = {}, const Vector3f halfExtents = Vector3f::One() * 0.5F)
             : transform(transform), halfExtents(halfExtents) {
         }
 
@@ -41,7 +41,7 @@ namespace Flock::Physics {
         RigidTransform transform = {};
         f32            radius    = 1.0F;
 
-        explicit SphereCollider(const RigidTransform &transform = {}, const f32 radius = 1.0F)
+        explicit SphereCollider(const RigidTransform &transform = {}, const f32 radius = 0.5F)
             : transform(transform), radius(radius) {
         }
 

@@ -78,12 +78,12 @@ namespace Flock::Glfw {
         return window;
     }
 
-    OptionalRef<Window> Window::CurrentWindow() {
+    Window *Window::CurrentWindow() {
         if (s_CurrentWindow) {
-            return *s_CurrentWindow;
+            return s_CurrentWindow;
         }
 
-        return std::nullopt;
+        return nullptr;
     }
 
     void Window::PollEvents(Event::EventHandler &eventHandler) {

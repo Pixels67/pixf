@@ -13,10 +13,10 @@
 #include "Math/Vector.hpp"
 
 namespace Flock {
-namespace Input {
-enum class CursorMode;
-}  // namespace Input
-}  // namespace Flock
+    namespace Input {
+        enum class CursorMode;
+    } // namespace Input
+}     // namespace Flock
 
 namespace Flock::Glfw {
     void FLK_API PollEvents();
@@ -83,8 +83,8 @@ namespace Flock::Glfw {
         WindowConfig m_Config        = {};
 
     public:
-        static std::optional<Window>             Create(const WindowConfig &config = {});
-        [[nodiscard]] static OptionalRef<Window> CurrentWindow();
+        static std::optional<Window> Create(const WindowConfig &config = {});
+        [[nodiscard]] static Window *CurrentWindow();
 
         static void PollEvents(Event::EventHandler &eventHandler);
 

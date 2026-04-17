@@ -18,12 +18,11 @@
 #include "Debug/Log.hpp"
 #include "Serial/Archive.hpp"
 
-namespace Flock {
-namespace Ecs {
-class IStorage;
-template <typename T> class Storage;
-}  // namespace Ecs
-}  // namespace Flock
+namespace Flock::Ecs {
+    class IStorage;
+    template<typename T>
+    class Storage;
+}
 
 namespace Flock::Ecs {
     struct EntityData {
@@ -130,21 +129,21 @@ namespace Flock::Ecs {
         }
 
         /**
-         * @brief Retrieves a reference to the storage for a component type.
+         * @brief Retrieves a pointer to the storage for a component type.
          * @tparam T The component type.
-         * @return A reference to the storage if successful; std::nullopt otherwise.
+         * @return A pointer to the storage if successful; nullptr otherwise.
          */
         template<typename T>
-        OptionalRef<Storage<T> > Storage() const {
+        Storage<T> *Storage() const {
             if constexpr (std::is_same_v<T, Entity>) {
-                return std::nullopt;
+                return nullptr;
             }
 
             if (!IsRegistered<T>()) {
-                return std::nullopt;
+                return nullptr;
             }
 
-            return *static_cast<Ecs::Storage<T> *>(m_Storages.at(GetTypeId<T>()).get());
+            return static_cast<Ecs::Storage<T> *>(m_Storages.at(GetTypeId<T>()).get());
         }
 
         /**
@@ -173,7 +172,7 @@ namespace Flock::Ecs {
                 return true;
             }
 
-            return IsRegistered<T>() && Storage<T>().value().get().Has(entity.id);
+            return IsRegistered<T>() && Storage<T>()->Has(entity.id);
         }
 
         /**
@@ -208,7 +207,7 @@ namespace Flock::Ecs {
             if constexpr (std::is_same_v<T, Entity>) {
                 return true;
             } else {
-                return IsRegistered<T>() && Storage<T>().value().get().IsEnabled(entity.id);
+                return IsRegistered<T>() && Storage<T>()->IsEnabled(entity.id);
             }
         }
 
@@ -240,7 +239,7 @@ namespace Flock::Ecs {
          */
         template<typename T>
         bool SetEnabled(Entity entity, bool enabled = true) {
-            return IsRegistered<T>() && Storage<T>().value().get().SetEnabled(entity.id, enabled);
+            return IsRegistered<T>() && Storage<T>()->SetEnabled(entity.id, enabled);
         }
 
         /**
@@ -254,7 +253,7 @@ namespace Flock::Ecs {
                 return false;
             }
 
-            Storage<T>().value().get().SetAllEnabled(enabled);
+            Storage<T>()->SetAllEnabled(enabled);
             return true;
         }
 
@@ -286,23 +285,23 @@ namespace Flock::Ecs {
          */
         template<typename T>
             requires (!std::same_as<T, Entity>)
-        OptionalRef<T> Get(Entity entity) {
+        T *Get(Entity entity) {
             if (!IsRegistered<T>()) {
                 Debug::LogErr("Failed to get component: {}!", "Component not registered");
-                return std::nullopt;
+                return nullptr;
             }
 
             if (!Has<T>(entity)) {
-                return std::nullopt;
+                return nullptr;
             }
 
-            return Storage<T>().value().get().Get(entity.id);
+            return Storage<T>()->Get(entity.id);
         }
 
         template<typename T>
             requires std::same_as<T, Entity>
-        OptionalRef<const T> Get(const Entity &entity) {
-            return entity;
+        const T *Get(const Entity &entity) {
+            return &entity;
         }
 
         /**
@@ -326,7 +325,7 @@ namespace Flock::Ecs {
                 return false;
             }
 
-            Storage<T>().value().get().Insert(entity.id, std::move(value));
+            Storage<T>()->Insert(entity.id, std::move(value));
             return true;
         }
 
@@ -347,7 +346,7 @@ namespace Flock::Ecs {
                 AddComponent(entity, value);
             }
 
-            return Get<T>(entity).value().get();
+            return *Get<T>(entity);
         }
 
         /**
@@ -371,7 +370,7 @@ namespace Flock::Ecs {
                 return false;
             }
 
-            Storage<T>().value().get().Insert(entity.id, std::move(value));
+            Storage<T>()->Insert(entity.id, std::move(value));
             return true;
         }
 
@@ -395,7 +394,7 @@ namespace Flock::Ecs {
                 return false;
             }
 
-            Storage<T>().value().get().Remove(entity.id);
+            Storage<T>()->Remove(entity.id);
             return true;
         }
 
@@ -407,14 +406,20 @@ namespace Flock::Ecs {
 
         /**
          * @brief Invokes a callback for each entity with its components.
+         * @tparam First The smallest storage.
          * @tparam Args The component types.
          * @tparam F The callback type.
          * @param callback The callback to execute.
          * @param includeDisabled Whether to include disabled components or not.
          */
-        template<typename... Args, typename F>
+        template<typename First, typename... Args, typename F>
         void ForEach(F &&callback, bool includeDisabled = false) {
-            for (EntityId id = 0; id < m_EntityData.size(); id++) {
+            if (!m_Storages.contains(GetTypeId<First>())) {
+                return;
+            }
+
+            auto &storage = m_Storages.at(GetTypeId<First>());
+            for (const EntityId id: storage->Dense()) {
                 auto maybeEntity = EntityWithId(id);
                 if (!maybeEntity) {
                     continue;
@@ -422,25 +427,30 @@ namespace Flock::Ecs {
 
                 Entity entity = maybeEntity.value();
                 if (HasAll<Args...>(entity) && AllEnabled<Args...>(entity) && !includeDisabled) {
-                    callback(Get<Args>(entity)->get()...);
+                    callback(*Get<First>(entity), *Get<Args>(entity)...);
                 }
 
                 if (HasAll<Args...>(entity) && includeDisabled) {
-                    callback(Get<Args>(entity)->get()...);
+                    callback(*Get<First>(entity), *Get<Args>(entity)...);
                 }
             }
         }
 
         /**
          * @brief Retrieves a collection containing all the entities with the component types for iteration.
+         * @tparam First The smallest storage.
          * @tparam Args The component types.
          * @return A collection containing all the entities with the component types.
          */
-        template<typename... Args>
+        template<typename First, typename... Args>
         Collection All() {
             Collection collection = {.registry = this};
 
-            for (EntityId id = 0; id < m_EntityData.size(); id++) {
+            if (!m_Storages.contains(GetTypeId<First>())) {
+                return collection;
+            }
+
+            for (const EntityId id: m_Storages.at(GetTypeId<First>())->Dense()) {
                 auto maybeEntity = EntityWithId(id);
                 if (!maybeEntity) {
                     continue;

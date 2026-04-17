@@ -30,223 +30,176 @@
 #include "Graphics/Mesh.hpp"
 
 namespace Flock::Asset {
+    using AssetId = u32;
+
+    template<typename T>
+    struct AssetHandle {
+        AssetId     id       = FLK_INVALID;
+        bool        resolved = false;
+        std::string filePath;
+
+        [[nodiscard]] bool IsValid() const {
+            return id != FLK_INVALID;
+        }
+    };
+
+    template<typename T>
+    using AssetPool  = std::vector<std::optional<T> >;
+    using AssetPaths = std::unordered_map<std::string, AssetId>;
+
     template<typename T>
     struct FLK_API Loader;
-
-    enum class PipelineType : u8 {
-        Pbr,
-        Unlit
-    };
-
-    struct AssetSlot {
-        std::shared_ptr<void> data;
-        TypeId                typeId;
-    };
 
     /**
      * @class AssetLoader
      * @brief Loads, unloads, and stores all the in-game assets.
      */
     class FLK_API AssetLoader {
-        std::vector<std::optional<AssetSlot> >   m_Assets;
-        std::unordered_map<std::string, AssetId> m_AssetIds;
-        std::vector<AssetId>                     m_FreeAssetIds;
-
-        std::unordered_map<PipelineType, std::filesystem::path> m_DefaultPipelines;
+        std::unordered_map<TypeId, std::shared_ptr<void> >                m_AssetPools;
+        std::unordered_map<TypeId, std::shared_ptr<void> >                m_AssetCache;
+        std::unordered_map<std::string, AssetHandle<Graphics::Pipeline> > m_Pipelines;
 
     public:
-        /**
-         * @brief Loads an asset from disk into memory.
-         * @tparam T The asset type.
-         * @param filePath The file path.
-         * @return true if successful; false otherwise.
-         */
         template<typename T>
-        bool Load(const std::filesystem::path &filePath) {
-            const std::string pathStr = filePath.string();
-
-            if (pathStr.empty()) {
-                return false;
+        [[nodiscard]] AssetPool<T> &Pool() {
+            if (!m_AssetPools.contains(GetTypeId<T>())) {
+                m_AssetPools[GetTypeId<T>()] = std::make_shared<AssetPool<T> >();
             }
 
-            if (IsLoaded<T>(filePath)) {
-                const AssetId id     = m_AssetIds.at(pathStr);
-                const TypeId  typeId = m_Assets.at(id).value().typeId;
-
-                if (typeId != GetTypeId<T>()) {
-                    return false;
-                }
-
-                return true;
-            }
-
-            auto asset = Loader<T>::Load(*this, filePath);
-            if (!asset.has_value()) {
-                return false;
-            }
-
-            std::shared_ptr<T> ptr = std::make_shared<T>(std::move(asset.value()));
-
-            AssetId id     = 0;
-            TypeId  typeId = 0;
-
-            if (!m_FreeAssetIds.empty()) {
-                id     = m_FreeAssetIds.back();
-                typeId = GetTypeId<T>();
-
-                m_FreeAssetIds.pop_back();
-
-                m_Assets[id] = AssetSlot{.data = ptr, .typeId = typeId};
-            } else {
-                id     = m_Assets.size();
-                typeId = GetTypeId<T>();
-
-                m_Assets.emplace_back(AssetSlot{.data = ptr, .typeId = typeId});
-            }
-
-            m_AssetIds[pathStr] = id;
-            return true;
-        }
-
-        /**
-         * @brief Unloads an asset from memory.
-         * @tparam T The asset type.
-         * @param filePath The file path of the asset.
-         * @return true if successful; false otherwise.
-         */
-        template<typename T>
-        bool Unload(std::filesystem::path filePath) {
-            if (!IsLoaded<T>(filePath)) {
-                return false;
-            }
-
-            const AssetId assetId = m_AssetIds[filePath.string()];
-
-            m_Assets[assetId] = std::nullopt;
-            m_AssetIds.erase(filePath.string());
-            m_FreeAssetIds.push_back(assetId);
-
-            return true;
+            return *std::static_pointer_cast<AssetPool<T> >(m_AssetPools[GetTypeId<T>()]);
         }
 
         template<typename T>
-        bool IsLoaded(const std::filesystem::path &filePath) {
-            const std::string str = filePath.string();
-            if (!m_AssetIds.contains(str)) {
-                return false;
+        [[nodiscard]] AssetPaths &Paths() {
+            if (!m_AssetCache.contains(GetTypeId<T>())) {
+                m_AssetCache[GetTypeId<T>()] = std::make_shared<AssetPaths>();
             }
 
-            if (GetTypeId<T>() != m_Assets[m_AssetIds[str]].value().typeId) {
-                return false;
-            }
-
-            return true;
+            return *std::static_pointer_cast<AssetPaths>(m_AssetCache[GetTypeId<T>()]);
         }
 
         template<typename T>
-        bool IsLoaded(Handle<T> handle) {
-            if (handle.id >= m_Assets.size() || !m_Assets.at(handle.id).has_value()) {
-                return false;
-            }
-
-            if (GetTypeId<T>() != m_Assets[handle.id].value().typeId) {
-                return false;
-            }
-
-            return true;
-        }
-
-        /**
-         * @brief Retrieves a reference to an asset.
-         * @tparam T The asset type.
-         * @param handle The handle to the asset.
-         * @return A reference to the asset if successful; std::nullopt otherwise.
-         */
-        template<typename T>
-        OptionalRef<T> Get(Handle<T> handle) {
-            if (!IsLoaded(handle)) {
-                return std::nullopt;
-            }
-
-            return *static_pointer_cast<T>(m_Assets[handle.id].value().data);
-        }
-
-        /**
-         * @brief Retrieves a reference to an asset.
-         * @tparam T The asset type.
-         * @param filePath The file path of the asset.
-         * @return A reference to the asset if successful; std::nullopt otherwise.
-         */
-        template<typename T>
-        OptionalRef<T> Get(const std::filesystem::path filePath) {
-            const std::string str = filePath.string();
-
-            if (str.empty()) {
-                return std::nullopt;
+        AssetHandle<T> Load(const std::filesystem::path &filePath) {
+            if (filePath.empty()) {
+                return AssetHandle<T>{};
             }
 
             if constexpr (std::same_as<T, Graphics::Pipeline>) {
-                if (str == "@PBR" && m_DefaultPipelines.contains(PipelineType::Pbr)) {
-                    return Get<T>(m_DefaultPipelines[PipelineType::Pbr]);
-                }
-                if (str == "@Unlit" && m_DefaultPipelines.contains(PipelineType::Unlit)) {
-                    return Get<T>(m_DefaultPipelines[PipelineType::Unlit]);
-                }
-                if (str[0] == '@') {
-                    return std::nullopt;
+                if (!filePath.empty() && filePath.string()[0] == '@') {
+                    return GetPipeline(filePath.string().substr(1));
                 }
             }
 
-            if (!IsLoaded<T>(filePath)) {
-                if (Load<T>(filePath)) {
-                    return Get<T>(filePath);
-                }
+            AssetPool<T> &pool  = Pool<T>();
+            AssetPaths &  paths = Paths<T>();
 
-                return std::nullopt;
+            if (paths.contains(filePath.string())) {
+                return AssetHandle<T>{.id = paths.at(filePath.string()), .resolved = true, .filePath = filePath.string()};
             }
 
-            return *static_pointer_cast<T>(m_Assets[m_AssetIds[filePath.string()]].value().data);
+            std::optional<T> maybeAsset = Loader<T>::Load(*this, filePath);
+            if (!maybeAsset) {
+                return AssetHandle<T>{};
+            }
+
+            pool.push_back(std::move(maybeAsset.value()));
+            const AssetId id         = pool.size() - 1;
+            paths[filePath.string()] = id;
+
+            return AssetHandle<T>{.id = id, .resolved = true, .filePath = filePath.string()};
         }
 
-        /**
-         * @brief Unloads all assets of a specified type.
-         * @tparam T The asset type.
-         */
         template<typename T>
-        void UnloadAll() {
-            for (auto &asset: m_Assets) {
-                if (!asset.has_value()) {
-                    continue;
-                }
+        AssetHandle<T> Register(T &&value) {
+            AssetPool<T> &pool = Pool<T>();
+            pool.push_back(std::move(value));
+            const AssetId id = pool.size() - 1;
 
-                if (asset.value().typeId != GetTypeId<T>()) {
-                    continue;
-                }
-
-                asset = std::nullopt;
-            }
+            return AssetHandle<T>{.id = id, .resolved = true};
         }
 
-        /**
-         * @brief Sets a default pipeline.
-         * @param type The pipeline type.
-         * @param filePath The pipeline to set.
-         * @return true if successful; false otherwise.
-         */
-        bool SetDefaultPipeline(const PipelineType type, const std::filesystem::path &filePath) {
-            if (!Load<Graphics::Pipeline>(filePath)) {
+        template<typename T>
+        void Resolve(AssetHandle<T> &handle) {
+            if (handle.filePath.empty() || handle.resolved) {
+                return;
+            }
+
+            handle          = Load<T>(handle.filePath);
+            handle.resolved = true;
+        }
+
+        template<typename T>
+        bool Unload(AssetHandle<T> handle) {
+            Resolve(handle);
+            if (!Has(handle)) {
                 return false;
             }
 
-            m_DefaultPipelines[type] = filePath.string();
+            AssetPool<T> &pool = Pool<T>();
+            pool.at(handle.id) = std::nullopt;
             return true;
         }
 
-        /**
-         * @brief Unloads all assets.
-         */
-        void UnloadAll();
+        template<typename T>
+        bool Has(AssetHandle<T> handle) {
+            Resolve(handle);
+            const AssetPool<T> &pool = Pool<T>();
+            return handle.id < pool.size() && pool.at(handle.id);
+        }
+
+        template<typename T>
+        T *Get(AssetHandle<T> handle) {
+            Resolve(handle);
+            if (!Has(handle)) {
+                return nullptr;
+            }
+
+            AssetPool<T> &pool = Pool<T>();
+            return &pool.at(handle.id).value();
+        }
+
+        template<typename T>
+        T *Get(const std::filesystem::path &filePath) {
+            AssetHandle<T> handle = Load<T>(filePath);
+            if (!handle.IsValid()) {
+                return nullptr;
+            }
+
+            return Get<T>(handle);
+        }
+
+        bool SetPipeline(const std::string &name, AssetHandle<Graphics::Pipeline> pipeline) {
+            Resolve(pipeline);
+            if (!pipeline.IsValid()) {
+                return false;
+            }
+
+            m_Pipelines[name] = pipeline;
+            return true;
+        }
+
+        [[nodiscard]] AssetHandle<Graphics::Pipeline> GetPipeline(const std::string &name) const {
+            if (m_Pipelines.contains(name)) {
+                return m_Pipelines.at(name);
+            }
+
+            return AssetHandle<Graphics::Pipeline>{};
+        }
     };
+
+    template<typename T>
+    const char *NameOf(const AssetHandle<T> &) {
+        return "AssetHandle";
+    }
+
+    template<typename T>
+    bool Archive(Serial::IArchive &archive, AssetHandle<T> &handle) {
+        if (!archive("filePath", handle.filePath)) {
+            return false;
+        }
+
+        return true;
+    }
 
     template<>
     struct Loader<Graphics::Pipeline> {
