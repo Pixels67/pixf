@@ -22,10 +22,10 @@ TEST(Entities, Storage) {
     ASSERT_FALSE(storage.Has(2));
     ASSERT_FALSE(storage.Has(3));
 
-    ASSERT_EQ(storage.Get(4), 2);
-    ASSERT_EQ(storage.Get(1), 5);
-    ASSERT_EQ(storage.Get(2), std::nullopt);
-    ASSERT_EQ(storage.Get(3), std::nullopt);
+    ASSERT_EQ(*storage.Get(4), 2);
+    ASSERT_EQ(*storage.Get(1), 5);
+    ASSERT_EQ(storage.Get(2), nullptr);
+    ASSERT_EQ(storage.Get(3), nullptr);
 }
 
 TEST(Entities, Registry) {
@@ -42,7 +42,7 @@ TEST(Entities, Registry) {
 
     registry.AddComponent<int>(e2, 1);
     registry.AddComponent<char>(e2, 'B');
-    registry.Get<int>(e2)->get() = 2;
+    *registry.Get<int>(e2) = 2;
 
     bool hasAllComps = registry.HasAll<int, char>(e2);
     bool hasAnyComps = registry.HasAny<int, char>(e1);
@@ -63,10 +63,10 @@ TEST(Entities, Registry) {
     ASSERT_TRUE(hasAllComps);
     ASSERT_TRUE(hasAnyComps);
 
-    ASSERT_EQ(registry.Get<int>(e1).value(), 1);
-    ASSERT_EQ(registry.Get<char>(e1), std::nullopt);
-    ASSERT_EQ(registry.Get<int>(e2).value(), 2);
-    ASSERT_EQ(registry.Get<char>(e2).value(), 'B');
+    ASSERT_EQ(*registry.Get<int>(e1), 1);
+    ASSERT_EQ(registry.Get<char>(e1), nullptr);
+    ASSERT_EQ(*registry.Get<int>(e2), 2);
+    ASSERT_EQ(*registry.Get<char>(e2), 'B');
 }
 
 TEST(Entities, RegistryForEach) {
@@ -86,7 +86,7 @@ TEST(Entities, RegistryForEach) {
     // Assert
     for (EntityId i = 0; i < 100; i++) {
         const auto e = Entity{.id = i, .version = 0};
-        ASSERT_EQ(registry.Get<int>(e), i + 1);
+        ASSERT_EQ(*registry.Get<int>(e), i + 1);
     }
 }
 
@@ -100,11 +100,11 @@ TEST(Entities, Schedule) {
 
     // Act
     schedule.AddSystem(Stage::Startup, [&](World &world) {
-        world.Registry().Get<int>(entity)->get()--;
+        (*world.Registry().Get<int>(entity))--;
     });
 
     schedule.AddSystem(Stage::Update, [&](World &world) {
-        world.Registry().Get<int>(entity)->get()++;
+        (*world.Registry().Get<int>(entity))++;
     });
 
     schedule.Execute(Stage::Update, world);
@@ -112,5 +112,5 @@ TEST(Entities, Schedule) {
     schedule.Execute(Stage::Update, world);
 
     // Assert
-    ASSERT_EQ(world.Registry().Get<int>(entity)->get(), 2);
+    ASSERT_EQ(*world.Registry().Get<int>(entity), 2);
 }

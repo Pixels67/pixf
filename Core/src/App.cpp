@@ -129,7 +129,7 @@ namespace Flock {
         m_World.Registry().ForEach<Audio::AudioSource>([&](Audio::AudioSource &source) {
             const auto clip = m_Services.assetLoader.Get(source.clip);
             if (!clip) {
-                Debug::LogErr("App::Extract: Invalid AudioSource clip path '{}'!", source.clip.filePath);
+                Debug::LogErr("App::Extract: Invalid AudioSource clip");
                 return;
             }
 
@@ -220,7 +220,7 @@ namespace Flock {
         m_World.Registry().ForEach<ModelRenderer, Transform>([&](const ModelRenderer &renderer, const Transform &transform) {
             const auto result = m_Services.assetLoader.Get(renderer.model);
             if (!result) {
-                Debug::LogErr("App::Render: Invalid model path!");
+                Debug::LogErr("App::Render: Invalid ModelRenderer model");
                 return;
             }
 
@@ -364,7 +364,7 @@ namespace Flock {
         m_World.Registry().ForEach<RectTransform, Text>([&](const RectTransform &trans, const Text &text) {
             const auto font = m_Services.assetLoader.Get(text.font);
             if (!font) {
-                Debug::LogErr("App::RenderGui: Invalid font path '{}'", text.font.filePath);
+                Debug::LogErr("App::RenderGui: Invalid Text font", text.font.filePath);
                 return;
             }
 
