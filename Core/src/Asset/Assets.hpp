@@ -18,6 +18,11 @@ namespace Flock::Asset {
             return loader.Load<T>(filePath);
         }
 
+        template<typename T>
+        AssetHandle<T> Register(T &&asset) const {
+            return loader.Register<T>(std::forward<T>(asset));
+        }
+
         bool SetPipeline(const std::string &name, const std::filesystem::path &filePath) const {
             return loader.SetPipeline(name, loader.Load<Graphics::Pipeline>(filePath));
         }

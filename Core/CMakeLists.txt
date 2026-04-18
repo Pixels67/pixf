@@ -135,7 +135,6 @@ set(PROJECT_SOURCES
         src/FileIo/Model.hpp
         src/FileIo/Model.cpp
         src/Graphics/Model.hpp
-        src/Asset/Handle.hpp
         src/Graphics/Framebuffer.cpp
         src/Graphics/Framebuffer.hpp
         src/Graphics/TextureArray.cpp
@@ -194,6 +193,7 @@ set(PROJECT_SOURCES
         src/Gui/Box.hpp
         src/Graphics/TextureAtlas.cpp
         src/Graphics/TextureAtlas.hpp
+        src/Asset/AssetHandle.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})

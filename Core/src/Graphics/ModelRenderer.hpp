@@ -5,6 +5,8 @@
 #include "Serial/Archive.hpp"
 
 namespace Flock::Graphics {
+    struct Model;
+
     struct FLK_API ModelRenderer {
         Asset::AssetHandle<Model> model;
     };

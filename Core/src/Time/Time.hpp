@@ -4,12 +4,12 @@
 #include "Common.hpp"
 
 namespace Flock::Time {
-    struct FLK_API TimeState {
+    struct FLK_API Clock {
         f64 time;
         f64 deltaTime;
     };
 
-    inline f64 Time() {
+    inline f64 CurrentTime() {
         return glfwGetTime();
     }
 }

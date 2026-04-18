@@ -18,7 +18,7 @@
 #include "Graphics/Renderer.hpp"
 #include "FileIo/Model.hpp"
 #include "Graphics/Model.hpp"
-#include "Asset/Handle.hpp"
+#include "Asset/AssetHandle.hpp"
 #include "App.hpp"
 #include "Graphics/ModelRenderer.hpp"
 #include "Math/Transform.hpp"

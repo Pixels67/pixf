@@ -6,7 +6,7 @@
 
 namespace Flock::Gui {
     struct FLK_API Font {
-        std::string    filePath;
+        std::string    name;
         Memory::Buffer buffer;
     };
 }

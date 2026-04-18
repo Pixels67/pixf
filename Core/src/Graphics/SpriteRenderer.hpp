@@ -6,11 +6,11 @@
 
 namespace Flock::Graphics {
     struct FLK_API SpriteRenderer {
-        std::string spritePath = "";
-        Color4u8    color      = Color4u8::White();
+        Asset::AssetHandle<Texture> sprite;
+        Color4u8                    color = Color4u8::White();
     };
 
-    FLK_ARCHIVE(SpriteRenderer, spritePath, color)
+    FLK_ARCHIVE(SpriteRenderer, sprite, color)
 }
 
 #endif //FLK_SPRITERENDERER_HPP

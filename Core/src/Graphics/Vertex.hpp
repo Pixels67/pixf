@@ -22,6 +22,8 @@ namespace Flock::Graphics {
                     .Add(3, AttribType::F32);
         }
     };
+
+    FLK_ARCHIVE(Vertex, position, normal, texCoords, tangent, bitangent)
 }
 
 #endif //FLK_VERTEX_HPP

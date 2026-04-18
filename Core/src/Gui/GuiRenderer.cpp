@@ -80,15 +80,15 @@ namespace Flock::Gui {
             return false;
         }
 
-        if (nvgFindFont(m_Ctx, font.filePath.c_str()) == -1) {
-            i32 fontId = nvgCreateFontMem(m_Ctx, font.filePath.c_str(), static_cast<ubyte *>(font.buffer.Get()), font.buffer.Size(), 0);
+        if (nvgFindFont(m_Ctx, font.name.c_str()) == -1) {
+            const i32 fontId = nvgCreateFontMem(m_Ctx, font.name.c_str(), static_cast<ubyte *>(font.buffer.Get()), font.buffer.Size(), 0);
             if (fontId == -1) {
                 Debug::LogErr("GuiRenderer::RenderText: Invalid font data");
                 return false;
             }
         }
 
-        nvgFontFace(m_Ctx, font.filePath.c_str());
+        nvgFontFace(m_Ctx, font.name.c_str());
         nvgFillColor(m_Ctx, nvgRGBA(color.r, color.g, color.b, color.a));
         nvgFontSize(m_Ctx, fontSize);
 

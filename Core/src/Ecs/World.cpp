@@ -38,7 +38,7 @@ namespace Flock::Ecs {
     }
 
     void World::SetDefaults() {
-        InsertResource<Time::TimeState>();
+        InsertResource<Time::Clock>();
         InsertResource<Input::InputState>();
         InsertResource<Graphics::Camera>();
         InsertResource<Graphics::AmbientLight>();
@@ -77,7 +77,7 @@ namespace Flock::Ecs {
         archive.BeginObject("resources");
         for (auto &[typeId, fn]: m_ArchiveFns) {
             if (!m_Resources.contains(typeId)) {
-                continue;
+                m_ConstructFns.at(typeId)(m_Resources[typeId]);
             }
 
             fn(archive, m_Resources.at(typeId));
@@ -87,12 +87,16 @@ namespace Flock::Ecs {
     }
 
     bool World::Load(const std::filesystem::path &filePath) {
+        for (const auto &typeId: m_ArchiveFns | std::views::keys) {
+            m_Resources.erase(typeId);
+        }
+
         const auto result = FileIo::ReadText(filePath);
         if (!result) {
             return false;
         }
 
-        const std::string file = result.value();
+        const std::string &file = result.value();
         if (!Serial::Json::Parse(file)) {
             return false;
         }
@@ -101,6 +105,19 @@ namespace Flock::Ecs {
         Serial::JsonReader reader(json);
 
         Archive(reader);
+
+        m_Registry.ForEach<Entity, Graphics::ModelRenderer>([&](const Entity e, const Graphics::ModelRenderer &renderer) {
+            if (renderer.model.filePath.empty()) {
+                m_Registry.Remove<Graphics::ModelRenderer>(e);
+            }
+        });
+
+        m_Registry.ForEach<Entity, Graphics::SpriteRenderer>([&](const Entity e, const Graphics::SpriteRenderer &renderer) {
+            if (renderer.sprite.filePath.empty()) {
+                m_Registry.Remove<Graphics::SpriteRenderer>(e);
+            }
+        });
+
         return true;
     }
 

@@ -413,6 +413,7 @@ namespace Flock::Ecs {
          * @param includeDisabled Whether to include disabled components or not.
          */
         template<typename First, typename... Args, typename F>
+            requires (!std::same_as<First, Entity>)
         void ForEach(F &&callback, bool includeDisabled = false) {
             if (!m_Storages.contains(GetTypeId<First>())) {
                 return;
@@ -432,6 +433,30 @@ namespace Flock::Ecs {
 
                 if (HasAll<Args...>(entity) && includeDisabled) {
                     callback(*Get<First>(entity), *Get<Args>(entity)...);
+                }
+            }
+        }
+
+        /**
+         * @brief Invokes a callback for each entity with its components.
+         * @tparam First The smallest storage.
+         * @tparam Args The component types.
+         * @tparam F The callback type.
+         * @param callback The callback to execute.
+         * @param includeDisabled Whether to include disabled components or not.
+         */
+        template<typename First, typename... Args, typename F>
+            requires std::same_as<First, Entity>
+        void ForEach(F &&callback, bool includeDisabled = false) {
+            for (EntityId id = 0; id < m_EntityData.size(); id++) {
+                Entity entity = EntityWithId(id).value();
+
+                if (HasAll<Args...>(entity) && AllEnabled<Args...>(entity) && !includeDisabled) {
+                    callback(entity, *Get<Args>(entity)...);
+                }
+
+                if (HasAll<Args...>(entity) && includeDisabled) {
+                    callback(entity, *Get<Args>(entity)...);
                 }
             }
         }

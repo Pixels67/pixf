@@ -13,7 +13,7 @@ namespace Flock::FileIo {
         }
 
         Gui::Font font;
-        font.filePath = filePath.string();
+        font.name = filePath.string();
         font.buffer   = Memory::Buffer(bytes->data(), bytes->size());
 
         return font;

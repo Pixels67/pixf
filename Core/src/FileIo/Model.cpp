@@ -110,15 +110,15 @@ namespace Flock::FileIo {
             aiString           path;
 
             if (material->GetTexture(aiTextureType_BASE_COLOR, 0, &path) == AI_SUCCESS) {
-                outputMaterial.colorMapPath = directory + path.C_Str();
+                outputMaterial.colorMap = Asset::AssetHandle<Graphics::Texture>::FromPath(directory + path.C_Str());
             }
 
             if (material->GetTexture(aiTextureType_METALNESS, 0, &path) == AI_SUCCESS) {
-                outputMaterial.metallicMapPath = directory + path.C_Str();
+                outputMaterial.metallicMap = Asset::AssetHandle<Graphics::Texture>::FromPath(directory + path.C_Str());
             }
 
             if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path) == AI_SUCCESS) {
-                outputMaterial.roughnessMapPath = directory + path.C_Str();
+                outputMaterial.roughnessMap = Asset::AssetHandle<Graphics::Texture>::FromPath(directory + path.C_Str());
             }
 
             aiColor4D aiColor(1.0F, 1.0F, 1.0F, 1.0F);

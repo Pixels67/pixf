@@ -110,9 +110,9 @@ namespace Flock {
     }
 
     void App::Prepare() {
-        const f64 deltaTime = Time::Time() - m_World.Resource<Time::TimeState>().time;
+        const f64 deltaTime = Time::CurrentTime() - m_World.Resource<Time::Clock>().time;
 
-        m_World.InsertResource(Time::TimeState{.time = Time::Time(), .deltaTime = deltaTime});
+        m_World.InsertResource(Time::Clock{.time = Time::CurrentTime(), .deltaTime = deltaTime});
 
         Input::InputState input = m_Services.inputHandler.State();
         input.cursorMode        = m_World.Resource<Input::InputState>().cursorMode;
@@ -171,7 +171,7 @@ namespace Flock {
         );
 
         static f32 accumulator = 0.0F;
-        accumulator            += m_World.Resource<Time::TimeState>().deltaTime;
+        accumulator            += m_World.Resource<Time::Clock>().deltaTime;
 
         m_Services.physicsEngine.SetScene(physicsObjects);
 
@@ -232,21 +232,13 @@ namespace Flock {
                     .roughness = mat.roughness,
                 };
 
-                if (mat.colorMapPath != "") {
-                    props.colorMap = m_Services.assetLoader.Get<Texture>(mat.colorMapPath);
-                }
-
-                if (mat.metallicMapPath != "") {
-                    props.metallicMap = m_Services.assetLoader.Get<Texture>(mat.metallicMapPath);
-                }
-
-                if (mat.roughnessMapPath != "") {
-                    props.roughnessMap = m_Services.assetLoader.Get<Texture>(mat.roughnessMapPath);
-                }
+                props.colorMap     = m_Services.assetLoader.Get<Texture>(mat.colorMap);
+                props.metallicMap  = m_Services.assetLoader.Get<Texture>(mat.metallicMap);
+                props.roughnessMap = m_Services.assetLoader.Get<Texture>(mat.roughnessMap);
 
                 commands.push_back({
                     .mesh               = &mesh,
-                    .pipeline           = m_Services.assetLoader.Get<Pipeline>(mat.pipelinePath),
+                    .pipeline           = m_Services.assetLoader.Get(mat.pipeline),
                     .materialProperties = props,
                     .transform          = transform,
                 });
@@ -277,7 +269,7 @@ namespace Flock {
                 };
 
 
-                props.colorMap = m_Services.assetLoader.Get<Texture>(renderer.spritePath);
+                props.colorMap = m_Services.assetLoader.Get<Texture>(renderer.sprite);
 
                 commands.push_back({
                     .mesh               = &square,

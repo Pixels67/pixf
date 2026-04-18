@@ -19,6 +19,7 @@ namespace Flock::Ecs {
         std::unordered_map<TypeId, std::any> m_Resources;
 
         std::unordered_map<TypeId, std::function<void(Serial::IArchive &, std::any &)> > m_ArchiveFns;
+        std::unordered_map<TypeId, std::function<void(std::any &)> > m_ConstructFns;
 
     public:
         static World Default();
@@ -34,8 +35,18 @@ namespace Flock::Ecs {
                     T &res = std::any_cast<T &>(any);
                     archive(NameOf(resource), res);
                 };
+
+                m_ConstructFns[GetTypeId<T>()] = [](std::any &any) {
+                    any = T{};
+                };
             }
 
+            return *this;
+        }
+
+        template<typename T>
+        World &RemoveResource() {
+            m_Resources.erase(GetTypeId<T>());
             return *this;
         }
 
@@ -47,6 +58,15 @@ namespace Flock::Ecs {
         template<typename T>
         T &Resource() {
             FLK_EXPECT(HasResource<T>(), "Resource does not exist!");
+            return std::any_cast<T &>(m_Resources.at(GetTypeId<T>()));
+        }
+
+        template<typename T>
+        T &GetOrInsertResource() {
+            if (!HasResource<T>()) {
+                InsertResource<T>();
+            }
+
             return std::any_cast<T &>(m_Resources.at(GetTypeId<T>()));
         }
 

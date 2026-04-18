@@ -10,45 +10,35 @@
 #include <utility>
 #include <vector>
 
-#include "Handle.hpp"
+#include "AssetHandle.hpp"
 #include "Common.hpp"
 #include "TypeId.hpp"
 #include "Audio/AudioClip.hpp"
+#include "Graphics/Model.hpp"
+#include "Graphics/Pipeline.hpp"
+#include "Graphics/TextureAtlas.hpp"
+#include "Gui/Font.hpp"
 #include "FileIo/Audio.hpp"
 #include "FileIo/File.hpp"
 #include "FileIo/Font.hpp"
 #include "FileIo/Image.hpp"
-#include "Graphics/Pipeline.hpp"
 #include "Graphics/Texture.hpp"
 #include "FileIo/Model.hpp"
 #include "FileIo/Pipeline.hpp"
-#include "Graphics/Material.hpp"
-#include "Graphics/Model.hpp"
-#include "Graphics/TextureAtlas.hpp"
-#include "Gui/Font.hpp"
 #include "Graphics/CubeMap.hpp"
 #include "Graphics/Mesh.hpp"
 
 namespace Flock::Asset {
-    using AssetId = u32;
-
-    template<typename T>
-    struct AssetHandle {
-        AssetId     id       = FLK_INVALID;
-        bool        resolved = false;
-        std::string filePath;
-
-        [[nodiscard]] bool IsValid() const {
-            return id != FLK_INVALID;
-        }
-    };
-
     template<typename T>
     using AssetPool  = std::vector<std::optional<T> >;
     using AssetPaths = std::unordered_map<std::string, AssetId>;
 
+    class AssetLoader;
+
     template<typename T>
-    struct FLK_API Loader;
+    struct FLK_API Loader {
+        static std::optional<T> Load(AssetLoader &, const std::filesystem::path &);
+    };
 
     /**
      * @class AssetLoader
@@ -56,7 +46,7 @@ namespace Flock::Asset {
      */
     class FLK_API AssetLoader {
         std::unordered_map<TypeId, std::shared_ptr<void> >                m_AssetPools;
-        std::unordered_map<TypeId, std::shared_ptr<void> >                m_AssetCache;
+        std::unordered_map<TypeId, AssetPaths>                            m_AssetPaths;
         std::unordered_map<std::string, AssetHandle<Graphics::Pipeline> > m_Pipelines;
 
     public:
@@ -71,11 +61,7 @@ namespace Flock::Asset {
 
         template<typename T>
         [[nodiscard]] AssetPaths &Paths() {
-            if (!m_AssetCache.contains(GetTypeId<T>())) {
-                m_AssetCache[GetTypeId<T>()] = std::make_shared<AssetPaths>();
-            }
-
-            return *std::static_pointer_cast<AssetPaths>(m_AssetCache[GetTypeId<T>()]);
+            return m_AssetPaths[GetTypeId<T>()];
         }
 
         template<typename T>
@@ -187,20 +173,6 @@ namespace Flock::Asset {
         }
     };
 
-    template<typename T>
-    const char *NameOf(const AssetHandle<T> &) {
-        return "AssetHandle";
-    }
-
-    template<typename T>
-    bool Archive(Serial::IArchive &archive, AssetHandle<T> &handle) {
-        if (!archive("filePath", handle.filePath)) {
-            return false;
-        }
-
-        return true;
-    }
-
     template<>
     struct Loader<Graphics::Pipeline> {
         static std::optional<Graphics::Pipeline> Load(AssetLoader &, const std::filesystem::path &filePath) {
@@ -271,25 +243,7 @@ namespace Flock::Asset {
             using namespace Graphics;
 
             std::vector<FileIo::MeshData> meshes    = FileIo::ReadModelMeshes(filePath);
-            std::vector<Material>         materials = FileIo::ReadModelMaterials(filePath);
-            for (auto &[pipeline, color, metallic, roughness, colorMapPath, metallicMapPath, roughnessMapPath]:
-                 materials) {
-                if (pipeline != "@PBR" && pipeline != "@Unlit") {
-                    loader.Load<Pipeline>(pipeline);
-                }
-
-                if (!colorMapPath.empty()) {
-                    loader.Load<Texture>(colorMapPath);
-                }
-
-                if (!metallicMapPath.empty()) {
-                    loader.Load<Texture>(metallicMapPath);
-                }
-
-                if (!roughnessMapPath.empty()) {
-                    loader.Load<Texture>(roughnessMapPath);
-                }
-            }
+            const std::vector<Material>   materials = FileIo::ReadModelMaterials(filePath);
 
             Model model;
             for (auto &[data, materialIndex]: meshes) {

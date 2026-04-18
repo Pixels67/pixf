@@ -5,6 +5,7 @@ using namespace Flock::Ecs;
 using namespace Flock::Graphics;
 using namespace Flock::Input;
 using namespace Flock::Audio;
+using namespace Flock::Asset;
 
 i32 main() {
     App app = App::Create({
@@ -12,11 +13,13 @@ i32 main() {
     }).value();
 
     app.AddSystem(Stage::Startup, [](World &world) {
-        const auto &assets = world.Resource<Asset::Assets>();
+        const auto &assets = world.Resource<Assets>();
 
         assets.SetPipeline("PBR", "../../../assets/shader.glsl");
+        assets.SetPipeline("Unlit", "../../../assets/unlit.glsl");
+
         assets.Get<Model>("../../../assets/box.glb")->objects[0].material = {
-            .colorMapPath = "../../../assets/Checkerboard.png"
+            .colorMap = assets.Load<Texture>("../../../assets/Checkerboard.png")
         };
 
         assets.Get<Texture>("../../../assets/Checkerboard.png")->Configure({
@@ -71,7 +74,7 @@ i32 main() {
     });
 
     app.AddSystem(Stage::Update, [&](World &world) {
-        const f64 dt = world.Resource<Time::TimeState>().deltaTime;
+        const f64 dt = world.Resource<Time::Clock>().deltaTime;
 
         auto &input = world.Resource<InputState>();
         auto &cam   = world.Resource<Camera>();
