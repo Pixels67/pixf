@@ -2,48 +2,31 @@
   <img width="896" height="205" alt="flock_banner" src="https://github.com/user-attachments/assets/7b1f3e74-3b77-4e86-a4be-53ae2cf4e926" />
 </h1>
 
-A C++ game engine using OpenGL 3.3 inspired by Bevy (hence the name).
-You can either build the *Core* library and use it like a library,
-or build it with the *Editor* and *Runtime* and use it like an engine.
-
-> [!IMPORTANT]  
-> This is just a hobby project and most of it is not finished yet.  
-> Expect a lot of features missing.
+A C++ game engine inspired by Bevy (hence the name).
 
 ## Features
-- [x] ECS
-- [x] PBR
+- [ ] ECS
+- [ ] PBR
 - [ ] IBL
-- [x] Keyboard & Mouse Input
-- [x] Audio
-- [x] Serialization
-- [x] Physics
+- [ ] Keyboard & Mouse Input
+- [ ] Audio
+- [ ] Serialization
+- [ ] Physics
 - [ ] Editor GUI
-- [x] In-game GUI
+- [ ] In-game GUI
 - [ ] Editor 
 
 ## Building from Source
 
-Make sure you have a C++ compiler and CMake installed and run the following commands:
+Make sure you have Git, a C++ compiler, and CMake installed and run the following commands:
 
 ```sh
 git clone https://github.com/Pixels67/Flock.git
 cd Flock
 
 cmake -S . -B build/
-cmake --build build/ --config Release # Or Debug
+cmake --build build/
 ```
-
-> [!NOTE]  
-> On Linux you need to install the dependencies for [GLFW](https://www.glfw.org/docs/latest/compile.html).
->
-> > To compile for both Wayland and X11, you need to have the X11, Wayland and xkbcommon development packages
-> > installed.  
-> > On Debian and derivatives, you will need the `libwayland-dev` and `libxkbcommon-dev` packages to compile for Wayland
-> > and the `xorg-dev` meta-package to compile for X11.
-> > ```sh
-> > sudo apt-get install libwayland-dev libxkbcommon-dev xorg-dev
-> > ```
 
 ## Gallery
 <img width="912" height="940" alt="rend2" src="https://github.com/user-attachments/assets/dd9a0383-4a8b-4e07-8be4-4b73c946f972" />
