@@ -7,6 +7,7 @@ add_library(
         include/maybe.hpp
         include/result.hpp
         src/memory/allocator.cpp
+        include/collect/vector.hpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/include)

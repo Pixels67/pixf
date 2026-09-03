@@ -40,9 +40,9 @@ namespace flock {
 #   endif
 #endif
 
-#define FLK_ASSERT(x, msg)         \
-    do {                           \
-        if (!x) { abort(); } \
+#define FLK_ASSERT(x, msg)     \
+    do {                       \
+        if (!(x)) { abort(); } \
     } while (0)
 
 #endif //FLOCK_COMMON_HPP

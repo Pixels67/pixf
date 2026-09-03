@@ -8,7 +8,7 @@ namespace flock::memory {
     // empty namespace to enforce internal linkage
     namespace {
         struct allocator_node {
-            allocator *     allocator;
+            allocator *     alloc;
             allocator_node *next;
         };
     }
@@ -56,6 +56,7 @@ namespace flock::memory {
     void deallocate(allocator *allocator, byte *ptr, usize size) {
         if (allocator) {
             allocator->deallocate(ptr, size);
+            return;
         }
 
         system_deallocate(ptr);
@@ -63,13 +64,13 @@ namespace flock::memory {
 
     void set_allocator(allocator *allocator) {
         if (!head) {
-            head            = (allocator_node *)system_allocate(sizeof(allocator_node));
-            head->allocator = allocator;
-            head->next      = nullptr;
+            head        = (allocator_node *)system_allocate(sizeof(allocator_node));
+            head->alloc = allocator;
+            head->next  = nullptr;
         } else {
-            auto *node      = (allocator_node *)system_allocate(sizeof(allocator_node));
-            node->allocator = allocator;
-            node->next      = head;
+            auto *node  = (allocator_node *)system_allocate(sizeof(allocator_node));
+            node->alloc = allocator;
+            node->next  = head;
 
             head = node;
         }
@@ -80,7 +81,7 @@ namespace flock::memory {
             return nullptr;
         }
 
-        return head->allocator;
+        return head->alloc;
     }
 
     void reset_allocator() {
