@@ -5,7 +5,8 @@
 #include "memory/allocator.hpp"
 
 namespace flock {
-    static constexpr usize INITIAL_VECTOR_SIZE = 8;
+    static constexpr usize INITIAL_VECTOR_SIZE = 1;
+    static constexpr usize SECOND_VECTOR_SIZE  = 8;
 
     template <typename T>
     class vector {
@@ -15,28 +16,51 @@ namespace flock {
         usize              cap_       = 0;
 
     public:
-        vector() {
-            allocator_ = memory::get_allocator();
-            data_      = (T *)memory::allocate(allocator_, INITIAL_VECTOR_SIZE * sizeof(T)).get();
-            len_       = 0;
-            cap_       = INITIAL_VECTOR_SIZE;
+        static vector create() {
+            vector vec{};
+
+            vec.allocator_ = memory::get_allocator();
+            vec.data_      = (T *)memory::allocate(vec.allocator_, INITIAL_VECTOR_SIZE * sizeof(T)).get();
+            vec.len_       = 0;
+            vec.cap_       = INITIAL_VECTOR_SIZE;
+
+            return vec;
         }
 
-        vector(usize capacity) {
-            allocator_ = memory::get_allocator();
-            data_      = (T *)memory::allocate(allocator_, capacity * sizeof(T)).get();
-            len_       = 0;
-            cap_       = capacity;
+        static vector with_cap(usize capacity) {
+            vector vec{};
+
+            vec.allocator_ = memory::get_allocator();
+            vec.data_      = (T *)memory::allocate(vec.allocator_, capacity * sizeof(T)).get();
+            vec.len_       = 0;
+            vec.cap_       = capacity;
+
+            return vec;
+        }
+
+        template <typename... Args>
+            requires (std::same_as<Args, T> && ...)
+        static vector with_elements(Args... arguments) {
+            vector vec{};
+
+            vec.allocator_ = memory::get_allocator();
+            vec.data_      = (T *)memory::allocate(vec.allocator_, INITIAL_VECTOR_SIZE * sizeof(T)).get();
+            vec.len_       = 0;
+            vec.cap_       = INITIAL_VECTOR_SIZE;
+
+            (vec.push(arguments), ...);
+
+            return vec;
         }
 
         vector(const vector &other) {
             allocator_ = memory::get_allocator();
-            data_      = (T *)memory::allocate(allocator_, other->cap_ * sizeof(T)).get();
+            data_      = (T *)memory::allocate(allocator_, other.cap_ * sizeof(T)).get();
             len_       = other.len_;
             cap_       = other.cap_;
 
             for (usize i = 0; i < len_; i++) {
-                data_[i] = new(data_ + i) T(other->data_[i]);
+                new(data_ + i) T(other.data_[i]);
             }
         }
 
@@ -60,12 +84,12 @@ namespace flock {
             destroy();
 
             allocator_ = memory::get_allocator();
-            data_      = (T *)memory::allocate(allocator_, other->cap_ * sizeof(T)).get();
+            data_      = (T *)memory::allocate(allocator_, other.cap_ * sizeof(T)).get();
             len_       = other.len_;
             cap_       = other.cap_;
 
             for (usize i = 0; i < len_; i++) {
-                data_[i] = new(data_ + i) T(other->data_[i]);
+                new(data_ + i) T(other.data_[i]);
             }
 
             return *this;
@@ -165,16 +189,6 @@ namespace flock {
             return data_[index];
         }
 
-        void truncate(usize new_len) {
-            FLK_ASSERT(new_len < len_, "New length is not smaller than current length");
-
-            for (usize i = new_len; i < len_; i++) {
-                data_[i].~T();
-            }
-
-            len_ = new_len;
-        }
-
         void reserve(usize additional) {
             set_cap(cap_ + additional);
         }
@@ -230,7 +244,7 @@ namespace flock {
 
             resize(len_ + 1);
 
-            for (usize i = len_ - 1; i > index; i++) {
+            for (usize i = len_ - 1; i > index; i--) {
                 data_[i] = data_[i - 1];
             }
 
@@ -271,6 +285,21 @@ namespace flock {
             return value;
         }
 
+        void removen(usize index, usize num) {
+            FLK_ASSERT(index <= len_, "Out of bounds index");
+
+            if (index == len_) {
+                pop();
+                return;
+            }
+
+            for (usize i = index; i < len_ - num; i++) {
+                data_[i] = data_[i + num];
+            }
+
+            resize(len_ - num);
+        }
+
         void append(const vector &other) {
             reserve(other.len_);
             for (usize i = 0; i < other.len_; i++) {
@@ -279,10 +308,14 @@ namespace flock {
         }
 
         void clear() {
-            truncate(0);
+            if (len_ > 0) {
+                truncate(0);
+            }
         }
 
     private:
+        vector() = default;
+
         void destroy() {
             clear();
             memory::deallocate(allocator_, (byte *)data_, cap_);
@@ -294,7 +327,13 @@ namespace flock {
         }
 
         void grow() {
-            const auto new_cap = (usize)(cap_ * 1.4);
+            auto new_cap = cap_;
+            if (new_cap == INITIAL_VECTOR_SIZE) {
+                new_cap = SECOND_VECTOR_SIZE;
+            } else {
+                new_cap = (usize)(new_cap * 1.4);
+            }
+
             set_cap(new_cap);
         }
 
@@ -307,6 +346,16 @@ namespace flock {
 
             for (usize i = len_; i < new_len; i++) {
                 new(data_ + i) T(value);
+            }
+
+            len_ = new_len;
+        }
+
+        void truncate(usize new_len) {
+            FLK_ASSERT(new_len < len_, "New length is not smaller than current length");
+
+            for (usize i = new_len; i < len_; i++) {
+                data_[i].~T();
             }
 
             len_ = new_len;

@@ -8,5 +8,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/out/$<CONFIG>)
 
 include(cmake/CPM.cmake)
 
+add_compile_options(
+        -fsanitize=address
+)
+
+add_link_options(
+        -fsanitize=address
+)
+
 add_subdirectory(core)
 add_subdirectory(sandbox)

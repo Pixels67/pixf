@@ -153,9 +153,9 @@ namespace flock::memory {
 
     alloc_result arena_allocator::allocate(usize size, usize alignment) {
         usize offset = alignment - (usize)(region_ + index_) % alignment;
-        offset       = offset == alignment ? 0 : alignment;
+        offset       = offset == alignment ? 0 : offset;
 
-        if (size_ - index_ - offset < size) {
+        if (size_ < index_ + offset + size) {
             return error::MEMORY_OVERFLOW;
         }
 

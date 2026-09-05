@@ -23,7 +23,7 @@ namespace flock {
             return has_value();
         }
 
-        T get() {
+        T get() const {
             if (!has_value()) {
                 FLK_ASSERT(false, "Called get on invalid maybe");
             }

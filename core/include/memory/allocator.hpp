@@ -29,13 +29,13 @@ namespace flock::memory {
         virtual void         deallocate(byte *ptr, usize size) = 0;
     };
 
-    alloc_result allocate(allocator *allocator, usize size);
-    alloc_result reallocate(allocator *allocator, byte *ptr, usize src_size, usize dest_size);
-    void         deallocate(allocator *allocator, byte *ptr, usize size);
+    FLK_API alloc_result allocate(allocator *allocator, usize size);
+    FLK_API alloc_result reallocate(allocator *allocator, byte *ptr, usize src_size, usize dest_size);
+    FLK_API void         deallocate(allocator *allocator, byte *ptr, usize size);
 
-    void       set_allocator(allocator *allocator);
-    allocator *get_allocator();
-    void       reset_allocator();
+    FLK_API void       set_allocator(allocator *allocator);
+    FLK_API allocator *get_allocator();
+    FLK_API void       reset_allocator();
 
     class FLK_API arena_allocator : public allocator {
         byte *     region_    = nullptr;

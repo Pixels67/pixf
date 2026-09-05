@@ -1,42 +1,28 @@
 #include <cstdio>
 
-#include "collect/vector.hpp"
 #include "memory/allocator.hpp"
+#include "collect/string.hpp"
 
 using namespace flock;
 using namespace flock::memory;
 
 i32 main() {
-    arena_allocator alloc = std::move(arena_allocator::create(16).get());
+    arena_allocator alloc = std::move(arena_allocator::create(1024).get());
     set_allocator(&alloc);
 
-    vector<char> str{16};
+    string str = string::from("Hello, World!");
 
-    str.push('H');
-    str.push('e');
-    str.push('l');
-    str.push('l');
-    str.push('o');
-    str.push(',');
-    str.push(' ');
-    str.push('W');
-    str.push('o');
-    str.push('r');
-    str.push('l');
-    str.push('d');
-    str.push('!');
-
-    str.insert(5, 'p');
-    str.insert(6, 'e');
+    str.insert_str(5, string::from("pe"));
 
     str.remove(5);
     str.remove(5);
     str.remove(5);
 
     str.pop();
+    str.make_lowercase();
 
-    str[6] = 'w';
-    str[0] = 'h';
+    str.replace(string::from("hello"), string::from("hi"));
+    str.replace(string::from("world"), string::from("mom"));
 
     for (usize i = 0; i < str.len(); i++) {
         printf("%c", str[i]);

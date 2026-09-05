@@ -8,6 +8,8 @@ add_library(
         include/result.hpp
         src/memory/allocator.cpp
         include/collect/vector.hpp
+        include/collect/string.hpp
+        src/collect/string.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/include)
